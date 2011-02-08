@@ -33,6 +33,10 @@ public class ByteBufferReader {
 		this.endianFlip = endianFlip;
 	}
 
+	public ByteBufferReader(ByteBuffer bbin) {
+		this(bbin, false);
+	}
+	
 	/*
 	 * Getters
 	 */
