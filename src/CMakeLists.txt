@@ -44,4 +44,4 @@ ADD_SUBDIRECTORY(./GS)
 #ADD_SUBDIRECTORY(./adminpanel)
 
 # Client Library set
-ADD_SUBDIRECTORY(client)
+ADD_SUBDIRECTORY(interfaces)
