@@ -19,15 +19,12 @@
 #	information.
 #	
 #########################################################################
-#	@file rt^3/src/other/CMakeLists.txt
+#	@file geomcore/src/other/CMakeLists.txt
 #
 #	$Revision:  $
 #	$Author:  $
 #
 ##########################################################################
 
-#ADD_SUBDIRECTORY(./ois)
-#ADD_SUBDIRECTORY(./ogre)
-
-ADD_SUBDIRECTORY(./sqlite_3_7_4)
+ADD_SUBDIRECTORY(sqlite_3_7_4)
 
