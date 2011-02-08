@@ -2,7 +2,7 @@
 #
 #	BRL-CAD
 #	
-#	Copyright (c) 1997-2011 United States Government as represented by
+#	Copyright (c) 1997-2010 United States Government as represented by
 #	the U.S. Army Research Laboratory.
 #	
 #	This library is free software; you can redistribute it and/or
@@ -19,14 +19,9 @@
 #	information.
 #	
 #########################################################################
-#	@file rt^3/src/client/CMakeLists.txt
-#
-#	$Revision:  $
-#	$Author:  $
-#
-#	Client libraries/implementations for the Geometry Service
+#	@file rt^3/src/clients/c/CMakeLists.txt
 #
 ##########################################################################
 
-ADD_SUBDIRECTORY(c)
-ADD_SUBDIRECTORY(java)
+PROJECT(gsclient)
+add_library(gsclient SHARED STATIC gsclient.c)
