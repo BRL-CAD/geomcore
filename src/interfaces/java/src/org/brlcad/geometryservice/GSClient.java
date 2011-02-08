@@ -21,7 +21,7 @@
  *
  */
 
-package org.brlcad.GS;
+package org.brlcad.geometryservice;
 
 public class GSClient {
 
