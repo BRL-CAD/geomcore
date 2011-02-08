@@ -1,5 +1,0 @@
-Dependencies are Qt 4, Ogre 1.7, and BRL-CAD's libbu and libged.  CMake will autodetect these if pkg-config is installed and aware of their locations, or if they are located in one of the locations CMake guesses, which generally covers standard install paths.
-
-G3D may be built by issuing `cmake . && make`.  `make install` should now be functional; please report any bugs encountered.
-
-G3D and its build process has only been tested on x86 Linux, but should function on any reasonably Unix-like system, and might even work on OSX and Windows, if you're lucky.
