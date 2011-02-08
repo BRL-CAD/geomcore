@@ -25,20 +25,7 @@ package org.brlcad.geometryservice;
 
 public class GSClient {
 
-    private static final short Failure = 0x0050;
-    private static final short Success = 0x0051;
-    private static final short RemHostNameSET = 0x0100;
-    private static final short DisconnectREQ = 0x0150;
-    private static final short NewHostOnNet = 0x0200;
-    private static final short FullHostListREQ = 0x0250;
-    private static final short FullHostList = 0x0255;
-    private static final short NewSessionREQ = 0x0300;
-    private static final short NewSession = 0x0305;
-    private static final short LogoutSession = 0x0310;
-    private static final short GeometryREQ = 0x0400;
-    private static final short GeometryMANIFEST = 0x0405;
-    private static final short GeometryCHUNK = 0x0410;
-
+ 
     public enum fmt { BOT, ARB, BOTARB, NURBS, OTHER };
 
     GSClient() {
