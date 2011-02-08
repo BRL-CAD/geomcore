@@ -24,7 +24,7 @@
 #	$Revision:  $
 #	$Author:  $
 #
-#	Java class to provide the GS network protocol (IBME)
+#	Java class to provide the GS network protocol
 #
 ##########################################################################
 
