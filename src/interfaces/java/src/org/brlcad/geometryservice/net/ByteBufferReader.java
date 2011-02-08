@@ -50,6 +50,10 @@ public class ByteBufferReader {
 		return;
 	}
 
+	public boolean getBoolean() {
+		return (this.bb.get() > 0);
+	}
+	
 	/**
 	 * @return
 	 * @see java.nio.ByteBuffer#getChar()

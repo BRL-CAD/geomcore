@@ -27,6 +27,13 @@ public class ByteBufferWriter {
 		this.bb.put(x);
 	}
 
+	public void putBoolean(boolean x) {
+		if (x)
+			this.bb.put((byte) 1);
+		else
+			this.bb.put((byte) 0);
+	}
+	
 	public void putChar(char x) {
 		if (this.endianFlip)
 			x = Character.reverseBytes(x);
