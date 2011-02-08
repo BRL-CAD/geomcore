@@ -54,24 +54,17 @@ RT3_PROJECT_ADD_SOURCES (
 #Set INST Headers
 RT3_PROJECT_ADD_INST_HEADERS(
     pkgcppcommon.h
-	PkgClient.h
-	PkgTcpClient.h
-	PkgUdpClient.h
-	PkgServer.h
-	PkgTcpServer.h
-	PkgUdpServer.h
+    PkgClient.h
+    PkgTcpClient.h
+    PkgUdpClient.h
+    PkgServer.h
+    PkgTcpServer.h
+    PkgUdpServer.h
 )
 
 #Set NOINST headers
 RT3_PROJECT_ADD_NOINST_HEADERS(
-
 )
-
-#Set QT INST headers
-RT3_PROJECT_ADD_QT_INST_HEADERS()
-
-#Set QT NOINST headers
-RT3_PROJECT_ADD_QT_NOINST_HEADERS()
 
 #Build the project
 RT3_PROJECT_BUILD_LIB()
