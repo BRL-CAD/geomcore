@@ -25,7 +25,7 @@
 
 #include "GSClient.h"
 #include "GSCmdLineClient.h"
-#include "libutility.h"
+#include "Config.h"
 #include <QtCore/QString>
 #include <QtCore/QUuid>
 

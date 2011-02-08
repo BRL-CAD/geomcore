@@ -19,7 +19,7 @@
 #	information.
 #	
 #########################################################################
-#	@file rt^3/src/CMakeLists.txt
+#	@file geomcore/src/CMakeLists.txt
 #
 #	$Revision:  $
 #	$Author:  $
@@ -27,20 +27,20 @@
 ##########################################################################
 
 #Deps first
-ADD_SUBDIRECTORY(./other/)
+ADD_SUBDIRECTORY(other)
 
 #Libs next
-ADD_SUBDIRECTORY(./GE)
-ADD_SUBDIRECTORY(./utility)
-ADD_SUBDIRECTORY(./libJob)
-ADD_SUBDIRECTORY(./libEvent)
-ADD_SUBDIRECTORY(./libPkgCpp)
-ADD_SUBDIRECTORY(./libNet)
-ADD_SUBDIRECTORY(./coreInterface)
+ADD_SUBDIRECTORY(GE)
+ADD_SUBDIRECTORY(utility)
+ADD_SUBDIRECTORY(libJob)
+ADD_SUBDIRECTORY(libEvent)
+ADD_SUBDIRECTORY(libPkgCpp)
+ADD_SUBDIRECTORY(libNet)
+#ADD_SUBDIRECTORY(coreInterface)
 
 #Apps Last
-ADD_SUBDIRECTORY(./GS)
-#ADD_SUBDIRECTORY(./adminpanel)
+ADD_SUBDIRECTORY(GS)
+#ADD_SUBDIRECTORY(adminpanel)
 
 # Client Library set
 ADD_SUBDIRECTORY(interfaces)

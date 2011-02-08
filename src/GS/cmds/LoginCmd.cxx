@@ -25,6 +25,7 @@
  */
 
 #include "LoginCmd.h"
+#include "Portal.h"
 #include "PortalManager.h"
 #include "NewSessionReqMsg.h"
 

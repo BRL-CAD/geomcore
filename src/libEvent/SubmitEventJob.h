@@ -26,8 +26,8 @@
 #ifndef __SUBMITEVENTJOB_H__
 #define __SUBMITEVENTJOB_H__
 
-#include "libjob.h"
 #include "Event.h"
+#include "AbstractJob.h"
 
 class SubmitEventJob : public AbstractJob
 {

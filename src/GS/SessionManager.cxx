@@ -26,7 +26,6 @@
 #include "SessionManager.h"
 #include "AccountManager.h"
 #include "NetMsgTypes.h"
-#include "libutility.h"
 #include "FailureMsg.h"
 
 #include <QtCore/QMutexLocker>

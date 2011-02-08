@@ -22,6 +22,7 @@
  *
  */
 
+#include "Portal.h"
 #include "ShutdownCmd.h"
 #include "NetMsgTypes.h"
 

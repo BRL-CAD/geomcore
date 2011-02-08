@@ -26,8 +26,8 @@
 #ifndef __ROUTEMSGJOB_H__
 #define __ROUTEMSGJOB_H__
 
-#include "libjob.h"
 #include "NetMsg.h"
+#include "AbstractJob.h"
 
 class RouteMsgJob : public AbstractJob
 {

@@ -27,8 +27,9 @@
 #define __EVENTMANAGER_H__
 
 #include "Event.h"
-#include "libutility.h"
 #include "commonDefines.h"
+#include "Logger.h"
+#include "JobManager.h"
 
 #include <QtCore/QMutex>
 

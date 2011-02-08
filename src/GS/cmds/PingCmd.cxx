@@ -23,7 +23,9 @@
  *  Created on: Dec 22, 2010
  */
 
+#include "Portal.h"
 #include "PingCmd.h"
+#include "PingMsg.h"
 
 PingCmd::PingCmd(): AbstractClientCmd("ping"){}
 

@@ -20,6 +20,7 @@
 
 #include "JobManager.h"
 #include "JobWorker.h"
+#include "GSThread.h"
 
 #include <iostream>
 

@@ -19,30 +19,18 @@
 #	information.
 #	
 #########################################################################
-#	@file rt^3/src/libPkgCpp/CMakeLists.txt
+#	@file geomcore/src/libPkgCpp/CMakeLists.txt
 #
 #    C++ layer for LibPkg Library
 #
-#
 ##########################################################################
 
-RT3_PROJECT(pkgcpp)
-
-#Set Include Dirs
-RT3_PROJECT_ADD_INCLUDE_DIRS(
+include_directories(
     ${TCL_INCLUDE_DIRS}
     ${BRLCAD_INC_DIRS}
 )
 
-#Set Libs
-RT3_PROJECT_ADD_LIBS(
-    ${TCL_LIBRARY}
-    ${_BRLCAD_LIBRARY_pkg}
-    ${_BRLCAD_LIBRARY_bu}
-)
-
-#set Source files
-RT3_PROJECT_ADD_SOURCES (
+SET(libPkgCpp_SRCS
 	PkgClient.cxx
 	PkgTcpClient.cxx
 	PkgUdpClient.cxx
@@ -51,20 +39,31 @@ RT3_PROJECT_ADD_SOURCES (
 	PkgUdpServer.cxx
 )
 
-#Set INST Headers
-RT3_PROJECT_ADD_INST_HEADERS(
-    pkgcppcommon.h
-    PkgClient.h
-    PkgTcpClient.h
-    PkgUdpClient.h
-    PkgServer.h
-    PkgTcpServer.h
-    PkgUdpServer.h
-)
+IF(BUILD_SHARED_LIBS)
+	add_library(libPkgCpp SHARED ${libPkgCpp_SRCS})
+	target_link_libraries(libPkgCpp ${TCL_LIBRARY} ${_BRLCAD_LIBRARY_pkg} ${_BRLCAD_LIBRARY_bu})
+	set_target_properties(libPkgCpp PROPERTIES PREFIX "")
+	install(TARGETS libPkgCpp DESTINATION lib)
+ENDIF(BUILD_SHARED_LIBS)
+IF(BUILD_STATIC_LIBS)
+	add_library(libPkgCpp-static STATIC ${libPkgCpp_SRCS})
+	target_link_libraries(libPkgCpp-static ${TCL_LIBRARY} ${_BRLCAD_LIBRARY_pkg} ${_BRLCAD_LIBRARY_bu})
+	IF(NOT WIN32)
+		set_target_properties(libPkgCpp-static PROPERTIES PREFIX "")
+		set_target_properties(libPkgCpp-static PROPERTIES OUTPUT_NAME "libPkgCpp")
+	ELSE(NOT WIN32)
+		set_target_properties(libPkgCpp-static PROPERTIES PREFIX "lib")
+	ENDIF(NOT WIN32)
+	install(TARGETS libPkgCpp-static DESTINATION lib)
+ENDIF(BUILD_STATIC_LIBS)
 
-#Set NOINST headers
-RT3_PROJECT_ADD_NOINST_HEADERS(
+SET(libPkgCPP_inst_HDRS
+	pkgcppcommon.h
+	PkgClient.h
+	PkgTcpClient.h
+	PkgUdpClient.h
+	PkgServer.h
+	PkgTcpServer.h
+	PkgUdpServer.h
 )
-
-#Build the project
-RT3_PROJECT_BUILD_LIB()
+INSTALL(FILES ${libPkgCPP_inst_HDRS} DESTINATION include)

@@ -32,6 +32,7 @@
 #include "LogoutCmd.h"
 #include "ShutdownCmd.h"
 #include "PingCmd.h"
+#include "Portal.h"
 
 const std::string GSCmdLineClient::defaultPrompt ="geoclient> ";
 

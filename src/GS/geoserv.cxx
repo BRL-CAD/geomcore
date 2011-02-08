@@ -26,8 +26,8 @@
 #include "GeometryService.h"
 #include "FileDataSource.h"
 
-#include "libutility.h"
-#include "libevent.h"
+#include "JobManager.h"
+#include "Config.h"
 
 #include <iostream>
 #include <stdlib.h>

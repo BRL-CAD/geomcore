@@ -24,6 +24,7 @@
  */
 
 #include "FileDataSource.h"
+#include "GSThread.h"
 
 #include <QtCore/QMutexLocker>
 #include <QtCore/QFile>

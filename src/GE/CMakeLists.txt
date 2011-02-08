@@ -26,29 +26,27 @@
 #
 ##########################################################################
 
-RT3_PROJECT(ge)
+PROJECT(GEOMETRY_ENGINE)
 
-#Set Include Dirs
-RT3_PROJECT_ADD_INCLUDE_DIRS(
-)
+include_directories(
+	${CMAKE_CURRENT_SOURCE_DIR}
+	)
 
-#Set Libs
-RT3_PROJECT_ADD_LIBS(
-)
+IF(BUILD_SHARED_LIBS)
+	add_library(libgeomengine SHARED GeometryEngine.cxx)
+	#target_link_libraries(libgeomengine ${CMAKE_THREAD_LIBS_INIT})
+	set_target_properties(libgeomengine PROPERTIES PREFIX "")
+	install(TARGETS libgeomengine DESTINATION lib)
+ENDIF(BUILD_SHARED_LIBS)
+IF(BUILD_STATIC_LIBS)
+	add_library(libgeomengine-static STATIC GeometryEngine.cxx)
+	#target_link_libraries(libgeomengine-static ${CMAKE_THREAD_LIBS_INIT})
+	IF(NOT WIN32)
+		set_target_properties(libgeomengine-static PROPERTIES PREFIX "")
+		set_target_properties(libgeomengine-static PROPERTIES OUTPUT_NAME "libgeomengine")
+	ELSE(NOT WIN32)
+		set_target_properties(libgeomengine-static PROPERTIES PREFIX "lib")
+	ENDIF(NOT WIN32)
+	install(TARGETS libgeomengine-static DESTINATION lib)
+ENDIF(BUILD_STATIC_LIBS)
 
-#set Source files
-RT3_PROJECT_ADD_SOURCES (
-	GeometryEngine.cxx
-)
-
-#Set INST Headers
-RT3_PROJECT_ADD_INST_HEADERS(
-)
-
-#Set NOINST headers
-RT3_PROJECT_ADD_NOINST_HEADERS(
-	GeometryEngine.h
-)
-
-#Build the project
-RT3_PROJECT_BUILD_LIB()

@@ -1,6 +1,6 @@
-#########################################################################
+#                      C M A K E L I S T S . T X T
 #
-#	BRL-CAD
+#	BRL-CAD - Geometry Core
 #	
 #	Copyright (c) 1997-2011 United States Government as represented by
 #	the U.S. Army Research Laboratory.
@@ -18,135 +18,146 @@
 #	License along with this file; see the file named COPYING for more
 #	information.
 #	
-#########################################################################
-#	@file /CMakeLists.txt
-#
-#	$Revision:  $
-#	$Author:  $
-#
-#########################################################################
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.2)
-IF(COMMAND cmake_policy)
+IF(COMMAND CMAKE_POLICY)
 	CMAKE_POLICY(SET CMP0003 NEW)
-ENDIF(COMMAND cmake_policy)
+	CMAKE_POLICY(SET CMP0007 OLD)
+ENDIF(COMMAND CMAKE_POLICY)
 
-#################################
-INCLUDE (cmake/PrintHeader.cmake)
-#################################
-
-#Shortcut for root dir
-SET(RT3_ROOT ${CMAKE_SOURCE_DIR})
+PROJECT(GEOMCORE)
 
 #Set path for cmake modules.
-SET(CMAKE_MODULE_PATH "${RT3_ROOT}/cmake")
+SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-INCLUDE (cmake/rt3commons.cmake)
+#---------------------------------------------------------------------
+# We want to check /usr/local by default, so add it 
+SET(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} /usr/local)
+SET(CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} /usr/local/include)
 
-#
-# Globals
-#
+#---------------------------------------------------------------------
+# The location in which to install BRLCAD. Need a good Debug location 
+# for Windows.  Only do this if CMAKE_INSTALL_PREFIX hasn't been set
+# already, to try and allow parent builds (if any) some control.
+IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+	IF(NOT WIN32)
+		IF ("${CMAKE_BUILD_TYPE}" MATCHES "Debug")
+			SET(CMAKE_INSTALL_PREFIX "${GEOMCORE_SOURCE_DIR}/../geomcore-install")
+		ELSE("${CMAKE_BUILD_TYPE}" MATCHES "Debug")
+			SET(CMAKE_INSTALL_PREFIX "/usr/brlcad")
+		ENDIF ("${CMAKE_BUILD_TYPE}" MATCHES "Debug")
+	ENDIF(NOT WIN32)
+	SET(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} CACHE STRING "GEOMCORE install prefix" FORCE)
+	SET(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT 0)
+ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+SET(GEOMCORE_PREFIX ${CMAKE_INSTALL_PREFIX} CACHE STRING "GEOMCORE install prefix")
 
-MESSAGE(STATUS "System Name: ${CMAKE_SYSTEM_NAME}")
-MESSAGE(STATUS "System Processor: ${CMAKE_SYSTEM_PROCESSOR}")
-MESSAGE(STATUS "System Version: ${CMAKE_SYSTEM_VERSION}")
+#---------------------------------------------------------------------
+# The following logic is what allows binaries to run successfully in 
+# the build directory AND install directory.  Thanks to plplot for 
+# identifying the necessity of setting CMAKE_INSTALL_NAME_DIR on OSX.
 
-SET(RT3_PUBLIC_HEADER_DIR ${CMAKE_SOURCE_DIR}/include)
+# use, i.e. don't skip the full RPATH for the build tree
+SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 
-#
-# Global include var
-#
+# when building, don't use the install RPATH already
+# (but later on when installing)
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-SET(GLOBAL_INCLUDE_DIRS ${RT3_PUBLIC_HEADER_DIR} CACHE INTERNAL "")
-MESSAGE(STATUS "GLOBAL_INCLUDE_DIRS: ${GLOBAL_INCLUDE_DIRS}")
-MESSAGE(STATUS "")
+# the RPATH/INSTALL_NAME_DIR to be used when installing
+if (NOT APPLE)
+	SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:\$ORIGIN/../lib")
+endif(NOT APPLE)
+SET(CMAKE_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 
-#
-# FLAGS
-#
+# add the automatically determined parts of the RPATH which point to 
+# directories outside the build tree to the install RPATH
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-#Flag for setting to ON by anything that needs to warn the user of a potential issue.
-SET (RT3_COMPILE_WARNINGS OFF CACHE INTERNAL "")
-SET (RT3_LAST_WARNING_MSG "" CACHE INTERNAL "")
+#---------------------------------------------------------------------
+# Output directories - this is where built library and executable 
+# files will be placed after building but prior to install.
+IF(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+	IF(WIN32)
+		SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${GEOMCORE_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all libraries.")
+	ELSE(WIN32)
+		SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${GEOMCORE_BINARY_DIR}/lib CACHE INTERNAL "Single output directory for building all libraries.")
+	ENDIF(WIN32)
+ENDIF(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+IF(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+	SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${GEOMCORE_BINARY_DIR}/lib CACHE INTERNAL "Single output directory for building all archives.")
+ENDIF(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+IF(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${GEOMCORE_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all executables.")
+ENDIF(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 
-#Verbose option
-SET (RT3_VERBOSE_CMAKE_OUTPUT OFF CACHE BOOL "Verbose cmake output. When Set to ON, each project will print its include paths and libraries required for linking.")
+FOREACH(CFG_TYPE ${CMAKE_CONFIGURATION_TYPES})
+	STRING(TOUPPER "${CFG_TYPE}" CFG_TYPE)
+	IF(NOT "CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CFG_TYPE}")
+		IF(WIN32)
+			SET("CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CFG_TYPE}" ${GEOMCORE_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all libraries.")
+		ELSE(WIN32)
+			SET("CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CFG_TYPE}" ${GEOMCORE_BINARY_DIR}/lib CACHE INTERNAL "Single output directory for building all libraries.")
+		ENDIF(WIN32)
+	ENDIF(NOT "CMAKE_LIBRARY_OUTPUT_DIRECTORY_${CFG_TYPE}")
+	IF(NOT "CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${CFG_TYPE}")
+		SET("CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${CFG_TYPE}" ${GEOMCORE_BINARY_DIR}/lib CACHE INTERNAL "Single output directory for building all archives.")
+	ENDIF(NOT "CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${CFG_TYPE}")
+	IF(NOT "CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CFG_TYPE}")
+		SET("CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CFG_TYPE}" ${GEOMCORE_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all executables.")
+	ENDIF(NOT "CMAKE_RUNTIME_OUTPUT_DIRECTORY_${CFG_TYPE}")
+ENDFOREACH()
 
-#BRLCAD install prefix
-SET (BRLCAD_BASE_DIR CACHE FILEPATH "Used for specifying a non-standard install location.")
+# Build shared libs by default.  Mark this as advanced - turning off
+# ALL shared library building is unlikely to result in a working build
+# and is not a typical configuration.  Note that turning this option off
+# will not disable libraries specifically added as SHARED.
+OPTION(BUILD_SHARED_LIBS "Build shared libraries" ON)
+MARK_AS_ADVANCED(BUILD_SHARED_LIBS)
 
-SET (RT3_BUILD_TESTS ON CACHE BOOL "Build tests in /test dir")
+# Build static libs by default.  Standard practice is to build and
+# install both dynamic and static versions of libraries.  This option
+# is off by default in Debug configuration.  Note that turning this
+# option off will not disable libraries specifically added as STATIC
+IF(CMAKE_BUILD_TYPE)
+	# If we're doing a debug build, don't build the static libs unless
+	# they're specifically asked for (i.e. there is a situation where
+	# the developer wants to look into the static libs specifically.
+	# Note that this won't turn off libs that are built ONLY as static
+	IF ("${CMAKE_BUILD_TYPE}" MATCHES "Debug" AND NOT MSVC)
+		OPTION(BUILD_STATIC_LIBS "Build static libraries" OFF)
+	ENDIF ("${CMAKE_BUILD_TYPE}" MATCHES "Debug" AND NOT MSVC)
+ELSE(CMAKE_BUILD_TYPE)
+	OPTION(BUILD_STATIC_LIBS "Build static libraries" ON)
+ENDIF(CMAKE_BUILD_TYPE)
 
-MESSAGE(STATUS "Finding Required Dependancies...")
+# We need BRL-CAD
+find_package(BRLCAD REQUIRED)
 
-#
-# Required packages
-#
+# If BRL-CAD doesn't provide TCL, we need to find it
+find_package(TCL REQUIRED)
 
-#Find X11
-FIND_PACKAGE ( X11 REQUIRED )
-IF (NOT X11_FOUND)
-    MESSAGE(STATUS "\tDid not find X11")
-#	RETURN()
-ENDIF (NOT X11_FOUND)
+# For the moment, we need Qt
+find_package(Qt4 REQUIRED QtCore QtNetwork)
 
-#Find TCL
-FIND_PACKAGE ( TCL REQUIRED )
-IF (NOT TCL_FOUND)
-    MESSAGE(STATUS "\tDid not find TCL!")
-	RETURN()
-ENDIF (NOT TCL_FOUND)
-
-#Find BRLCAD
-FIND_PACKAGE ( BRLCAD REQUIRED )
-IF (NOT BRLCAD_FOUND)
-    MESSAGE(STATUS "\tDid not find BRLCAD!")
-	RETURN()
-ENDIF (NOT BRLCAD_FOUND)
-
-#Search for QT4
-MESSAGE(STATUS "\tSearching for QT4...")
-
-FIND_PACKAGE ( Qt4 REQUIRED Network )
-IF (NOT QT4_FOUND)
-    MESSAGE(STATUS "\tDid not find QT4!")
-	RETURN()
-ENDIF (NOT QT4_FOUND)
-
-#Configure QT4
-ADD_DEFINITIONS( ${QT_DEFINITIONS} )
-
-SET (QT_USE_QTNETWORK TRUE)
-INCLUDE (${QT_USE_FILE})
-
+# Configure QT4
+ADD_DEFINITIONS(${QT_DEFINITIONS})
+include(${QT_USE_FILE})
 SET(QT_VERSION "${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}")
 
-MESSAGE(STATUS "\t\tInclude dirs: \t${QT_INCLUDE_DIR}")
-MESSAGE(STATUS "\t\tQt Version: \t${QT_VERSION}")
-MESSAGE(STATUS "All Dependancies Found")
-MESSAGE(STATUS "")
+# Always include the toplevel include dir
+include_directories(
+	${GEOMCORE_SOURCE_DIR}/include
+	)
 
-#Decend into the source tree.
-MESSAGE(STATUS "Configuring Projects...")
-ADD_SUBDIRECTORY(./src)
-MESSAGE(STATUS "All Projects configured.")
-MESSAGE(STATUS "")
+# Global setup done, on to specific projects
+ADD_SUBDIRECTORY(src)
+
+# Set up Docs
+#ADD_SUBDIRECTORY(docs)
 
 #Decend into the test tree.
 IF (RT3_BUILD_TESTS)
-    MESSAGE(STATUS "Configuring Tests...")
-	ADD_SUBDIRECTORY(./tests)
-	MESSAGE(STATUS "All Tests configured.")
-    MESSAGE(STATUS "")
+	ADD_SUBDIRECTORY(tests)
 ENDIF (RT3_BUILD_TESTS)
 
-#################################
-INCLUDE (./cmake/PrintFooter.cmake)
-#################################
-
-IF (RT3_COMPILE_WARNINGS)
-    MESSAGE(STATUS "There were some Build Config Errors!")
-    MESSAGE(STATUS "\tLast Error: ${RT3_LAST_WARNING_MSG}")
-ENDIF (RT3_COMPILE_WARNINGS)
-    
-    

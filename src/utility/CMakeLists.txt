@@ -19,32 +19,21 @@
 #	information.
 #	
 #########################################################################
-#	@file rt^3/src/GE/utility/CMakeLists.txt
+#	@file geomcore/src/utility/CMakeLists.txt
 #
 #	$Revision:  $
 #	$Author:  $
 #
 ##########################################################################
 
-RT3_PROJECT(utility)
-
-#Set Include Dirs
-RT3_PROJECT_ADD_INCLUDE_DIRS(
+include_directories(
     ${QT_INCLUDE_DIR}
     ${TCL_INCLUDE_DIRS}
     ${BRLCAD_INC_DIRS}
 )
 
-#Set Libs
-RT3_PROJECT_ADD_LIBS(
-    ${TCL_LIBRARIES}
-    ${_BRLCAD_LIBRARY_bu}
-    ${QT_LIBRARIES}
-)
-
-#set Source files
-RT3_PROJECT_ADD_SOURCES (
-    Config.cxx
+SET(gcutil_SRCS
+	Config.cxx
 	DataStreamUtils.cxx
 	GSException.cxx
 	Logger.cxx
@@ -52,27 +41,30 @@ RT3_PROJECT_ADD_SOURCES (
 	ControlledThread.cxx
 )
 
-#Set INST Headers
-RT3_PROJECT_ADD_INST_HEADERS(
-    Config.h
+IF(BUILD_SHARED_LIBS)
+	add_library(libgcutil SHARED ${gcutil_SRCS})
+	target_link_libraries(libgcutil ${_BRLCAD_LIBRARY_bu} ${TCL_LIBRARIES} ${QT_LIBRARIES})
+	set_target_properties(libgcutil PROPERTIES PREFIX "")
+	install(TARGETS libgcutil DESTINATION lib)
+ENDIF(BUILD_SHARED_LIBS)
+IF(BUILD_STATIC_LIBS)
+	add_library(libgcutil-static STATIC ${gcutil_SRCS})
+	target_link_libraries(libgcutil-static ${_BRLCAD_LIBRARY_bu} ${TCL_LIBRARIES} ${QT_LIBRARIES})
+	IF(NOT WIN32)
+		set_target_properties(libgcutil-static PROPERTIES PREFIX "")
+		set_target_properties(libgcutil-static PROPERTIES OUTPUT_NAME "libgcutil")
+	ELSE(NOT WIN32)
+		set_target_properties(libgcutil-static PROPERTIES PREFIX "lib")
+	ENDIF(NOT WIN32)
+	install(TARGETS libgcutil-static DESTINATION lib)
+ENDIF(BUILD_STATIC_LIBS)
+
+SET(util_inst_HDRS
+	Config.h
 	DataStreamUtils.h
 	GSException.h
 	Logger.h
 	GSThread.h
 	ControlledThread.h
 )
-
-#Set NOINST headers
-RT3_PROJECT_ADD_NOINST_HEADERS(
-	StringUtils.h
-	Singleton.h
-)
-
-#Set QT INST headers
-RT3_PROJECT_ADD_QT_INST_HEADERS()
-
-#Set QT NOINST headers
-RT3_PROJECT_ADD_QT_NOINST_HEADERS()
-
-#Build the project
-RT3_PROJECT_BUILD_LIB()
+INSTALL(FILES ${util_inst_HDRS} DESTINATION include/gcutil)

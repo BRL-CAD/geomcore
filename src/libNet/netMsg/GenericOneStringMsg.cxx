@@ -23,6 +23,7 @@
  *
  */
 
+#include "DataStreamUtils.h"
 #include "GenericOneStringMsg.h"
 #include <sstream>
 

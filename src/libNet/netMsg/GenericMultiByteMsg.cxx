@@ -24,6 +24,7 @@
  */
 
 #include "GenericMultiByteMsg.h"
+#include <iostream>
 #include <sstream>
 #include <cstdlib>
 
@@ -106,7 +107,7 @@ bool GenericMultiByteMsg::_equals(const NetMsg& msg)
     GenericMultiByteMsg& gmsg = (GenericMultiByteMsg&) msg;
 
     if (this->getDataLen() != gmsg.getDataLen()) {
-	std::cout << "\n1\n";
+	    std::cout << "\n1\n";
 	return false;
     }
 

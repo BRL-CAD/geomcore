@@ -26,11 +26,11 @@
 #ifndef __PORTALMANAGER_H__
 #define __PORTALMANAGER_H__
 
-#include "libutility.h"
 #include "ControlledThread.h"
 #include "PkgTcpServer.h"
 #include "INetMsgHandler.h"
 #include "TypeOnlyMsg.h"
+#include "Logger.h"
 
 #include <sys/select.h>
 

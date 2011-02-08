@@ -31,6 +31,7 @@
 #include "INetMsgHandler.h"
 #include "PkgTcpClient.h"
 #include "NetMsg.h"
+#include "Logger.h"
 
 #include "brlcad/pkg.h"
 

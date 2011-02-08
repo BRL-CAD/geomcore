@@ -18,82 +18,32 @@
 #	License along with this file; see the file named COPYING for more
 #	information.
 #	
-#########################################################################
-#	@file rt^3/src/GS/CMakeLists.txt
-#
-#	$Revision:  $
-#	$Author:  $
-#
-##########################################################################
+PROJECT(sqlite)
 
-RT3_PROJECT(sqlite)
+find_package(Threads REQUIRED)
 
-#Set Include Dirs
-RT3_PROJECT_ADD_INCLUDE_DIRS()
+include_directories(
+	${CMAKE_CURRENT_SOURCE_DIR}
+	)
 
-#set Source files
-RT3_PROJECT_ADD_SOURCES (
-	sqlite3.c
-)
+IF(BUILD_SHARED_LIBS)
+	add_library(libsqlite3 SHARED sqlite3.c)
+	target_link_libraries(libsqlite3 ${CMAKE_THREAD_LIBS_INIT})
+	set_target_properties(libsqlite3 PROPERTIES PREFIX "")
+	install(TARGETS libsqlite3 DESTINATION lib)
+ENDIF(BUILD_SHARED_LIBS)
+IF(BUILD_STATIC_LIBS)
+	add_library(libsqlite3-static STATIC sqlite3.c)
+	target_link_libraries(libsqlite3-static ${CMAKE_THREAD_LIBS_INIT})
+	IF(NOT WIN32)
+		set_target_properties(libsqlite3-static PROPERTIES PREFIX "")
+		set_target_properties(libsqlite3-static PROPERTIES OUTPUT_NAME "${libname}")
+	ELSE(NOT WIN32)
+		set_target_properties(libsqlite3-static PROPERTIES PREFIX "lib")
+	ENDIF(NOT WIN32)
+	install(TARGETS libsqlite3-static DESTINATION lib)
+ENDIF(BUILD_STATIC_LIBS)
 
-#Set INST Headers
-RT3_PROJECT_ADD_INST_HEADERS()
-
-#Set NOINST headers
-RT3_PROJECT_ADD_NOINST_HEADERS()
-
-#Set QT INST headers
-RT3_PROJECT_ADD_QT_INST_HEADERS()
-
-#Set QT NOINST headers
-RT3_PROJECT_ADD_QT_NOINST_HEADERS()
-
-#Build the project
-RT3_PROJECT_BUILD_LIB()
-
-
-#######################################################
-
-RT3_PROJECT(sqlite3)
-
-#Set Include Dirs
-RT3_PROJECT_ADD_INCLUDE_DIRS()
-
-#Set Libs
-if(LINUX)
-RT3_PROJECT_ADD_LIBS(
-    pthread
-    dl
-    sqlite
-)
-else()
-RT3_PROJECT_ADD_LIBS(
-    pthread
-    sqlite
-)
-endif()
-
-
-#set Source files
-RT3_PROJECT_ADD_SOURCES (
-	shell.c
-)
-
-#Set INST Headers
-RT3_PROJECT_ADD_INST_HEADERS(
-    sqlite3.h
-)
-
-#Set NOINST headers
-RT3_PROJECT_ADD_NOINST_HEADERS()
-
-#Set QT INST headers
-RT3_PROJECT_ADD_QT_INST_HEADERS()
-
-#Set QT NOINST headers
-RT3_PROJECT_ADD_QT_NOINST_HEADERS()
-
-#Build the project
-RT3_PROJECT_BUILD_EXE()
-
-
+add_executable(sqlite shell.c)
+target_link_libraries(sqlite libsqlite3)
+install(TARGETS sqlite DESTINATION bin)

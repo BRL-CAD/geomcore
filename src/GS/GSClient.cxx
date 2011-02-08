@@ -23,8 +23,11 @@
  */
 
 #include "GSClient.h"
+#include "Portal.h"
 #include "NetMsgRouter.h"
-
+#include "SessionInfoMsg.h"
+#include "FailureMsg.h"
+#include "PongMsg.h"
 
 GSClient::GSClient(QString localNodeName) {
 	this->log = Logger::getInstance();

@@ -26,8 +26,6 @@
 #ifndef __NETMSG_H__
 #define __NETMSG_H__
 
-#include "libutility.h"
-
 #include <sstream>
 
 #include <QtCore/QDataStream>

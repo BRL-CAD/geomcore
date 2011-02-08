@@ -26,7 +26,6 @@
 #ifndef __NETMSGFACTORY_H__
 #define __NETMSGFACTORY_H__
 
-#include "libutility.h"
 #include "NetMsg.h"
 
 #include "brlcad/pkg.h"

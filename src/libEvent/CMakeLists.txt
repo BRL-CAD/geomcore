@@ -19,29 +19,18 @@
 #	information.
 #	
 #########################################################################
-#	@file rt^3/src/libEvent/CMakeLists.txt
+#	@file geomcore/src/libEvent/CMakeLists.txt
 #
 #    Event Library
 #
-#
 ##########################################################################
 
-RT3_PROJECT(event)
-
-#Set Include Dirs
-RT3_PROJECT_ADD_INCLUDE_DIRS(
+include_directories(
    ${QT_INCLUDE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-#Set Libs
-RT3_PROJECT_ADD_LIBS(
-    utility
-    job
-    ${QT_LIBRARIES}
-)
-
-#set Source files
-RT3_PROJECT_ADD_SOURCES (
+SET(libEvent_SRCS
     Event.cxx
     EventManager.cxx
     EventPublisher.cxx
@@ -51,21 +40,30 @@ RT3_PROJECT_ADD_SOURCES (
     SubmitEventJob.cxx
 )
 
-#Set INST Headers
-RT3_PROJECT_ADD_INST_HEADERS(
+IF(BUILD_SHARED_LIBS)
+	add_library(libEvent SHARED ${libEvent_SRCS})
+	target_link_libraries(libEvent libgcutil libJob ${QT_LIBRARIES})
+	set_target_properties(libEvent PROPERTIES PREFIX "")
+	install(TARGETS libEvent DESTINATION lib)
+ENDIF(BUILD_SHARED_LIBS)
+IF(BUILD_STATIC_LIBS)
+	add_library(libEvent-static STATIC ${libEvent_SRCS})
+	target_link_libraries(libEvent-static libgcutil libJob ${QT_LIBRARIES})
+	IF(NOT WIN32)
+		set_target_properties(libEvent-static PROPERTIES PREFIX "")
+		set_target_properties(libEvent-static PROPERTIES OUTPUT_NAME "libEvent")
+	ELSE(NOT WIN32)
+		set_target_properties(libEvent-static PROPERTIES PREFIX "lib")
+	ENDIF(NOT WIN32)
+	install(TARGETS libEvent-static DESTINATION lib)
+ENDIF(BUILD_STATIC_LIBS)
+
+SET(libEvent_inst_HDRS
     Event.h
     EventTypes.h
     EventManager.h
     EventPublisher.h
     EventSubscriber.h
 )
+INSTALL(FILES ${libEvent_inst_HDRS} DESTINATION include)
 
-#Set NOINST headers
-RT3_PROJECT_ADD_NOINST_HEADERS(
-    EventSubscription.h
-    DeliverEventJob.h
-    SubmitEventJob.h
-)
-
-#Build the project
-RT3_PROJECT_BUILD_LIB()

@@ -25,6 +25,7 @@
 
 #include "NetMsgTypes.h"
 #include "GeometryManifestMsg.h"
+#include "DataStreamUtils.h"
 
 /* Normal Constructor */
 GeometryManifestMsg::GeometryManifestMsg(QList<QString>& items) :

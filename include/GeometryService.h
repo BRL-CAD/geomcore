@@ -26,9 +26,11 @@
 #ifndef __GEOMETRYSERVICE_H__
 #define __GEOMETRYSERVICE_H__
 
-#include "libutility.h"
-#include "libnet.h"
 #include "DataManager.h"
+#include "ControlledThread.h"
+#include "PortalManager.h"
+#include "NetMsgRouter.h"
+#include "FailureMsg.h"
 
 #include <QtCore/QString>
 #include <QtNetwork/QHostAddress>

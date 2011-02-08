@@ -30,7 +30,6 @@
 //TODO Move this to preferences.
 #define MAX_JOBWORKERS 5
 
-#include "libutility.h"
 #include <QtCore/QThread>
 #include <QtCore/QUuid>
 #include <string>

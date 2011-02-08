@@ -27,7 +27,7 @@
 #define __JOBMANAGER_H__
 
 #include "AbstractJob.h"
-#include "libutility.h"
+#include "Logger.h"
 
 #include <QtCore/QList>
 #include <QtCore/QMutex>

@@ -19,30 +19,22 @@
 #	information.
 #	
 #########################################################################
-#	@file rt^3/src/GS/CMakeLists.txt
+#	@file geomcore/src/GS/CMakeLists.txt
 #
 #	$Revision:  $
 #	$Author:  $
 #
 ##########################################################################
 
-RT3_PROJECT(gs)
+PROJECT(GEOMETRY_SERVICE)
 
-#Set Include Dirs
-RT3_PROJECT_ADD_INCLUDE_DIRS(
-    ${QT_INCLUDE_DIR}
-    ${BRLCAD_INC_DIRS}
-)
+include_directories(
+	${QT_INCLUDE_DIR}
+	${BRLCAD_INC_DIRS}
+	${CMAKE_CURRENT_SOURCE_DIR}
+	)
 
-#Set Libs
-RT3_PROJECT_ADD_LIBS(
-    ${QT_LIBRARIES}
-    net
-    utility
-)
-
-#set Source files
-RT3_PROJECT_ADD_SOURCES (
+SET(geomserv_SRCS
 	GeometryService.cxx
 	DataManager.cxx
 	FileDataSource.cxx
@@ -54,7 +46,7 @@ RT3_PROJECT_ADD_SOURCES (
 	Account.cxx
 	AccountManager.cxx
 	GSClient.cxx
-    GSCmdLineClient.cxx
+	GSCmdLineClient.cxx
 	cmds/ClientCmdRegistry.cxx
 	cmds/AbstractClientCmd.cxx
 	cmds/HelpCmd.cxx
@@ -63,21 +55,37 @@ RT3_PROJECT_ADD_SOURCES (
 	cmds/ShutdownCmd.cxx
 	cmds/ExitCmd.cxx
 	cmds/PingCmd.cxx
-)
+	)
+IF(BUILD_SHARED_LIBS)
+	add_library(libgeomserv SHARED ${geomserv_SRCS})
+	target_link_libraries(libgeomserv ${QT_LIBRARIES} libNet libgcutil)
+	set_target_properties(libgeomserv PROPERTIES PREFIX "")
+	install(TARGETS libgeomserv DESTINATION lib)
+ENDIF(BUILD_SHARED_LIBS)
+IF(BUILD_STATIC_LIBS)
+	add_library(libgeomserv-static STATIC ${geomserv_SRCS})
+	target_link_libraries(libgeomserv-static ${QT_LIBRARIES} libNet libgcutil)
+	IF(NOT WIN32)
+		set_target_properties(libgeomserv-static PROPERTIES PREFIX "")
+		set_target_properties(libgeomserv-static PROPERTIES OUTPUT_NAME "${libname}")
+	ELSE(NOT WIN32)
+		set_target_properties(libgeomserv-static PROPERTIES PREFIX "lib")
+	ENDIF(NOT WIN32)
+	install(TARGETS libgeomserv-static DESTINATION lib)
+ENDIF(BUILD_STATIC_LIBS)
 
-#Set INST Headers
-RT3_PROJECT_ADD_INST_HEADERS(
+SET(geomserv_inst_HDRS
 	Session.h
 	SessionManager.h
 	Account.h
 	AccountManager.h
 	GeometryService.h
 	DataManager.h
-    IDataSource.h
-    FileDataSource.h
+	IDataSource.h
+	FileDataSource.h
 	DbObject.h
 	GSClient.h
-    GSCmdLineClient.h
+	GSCmdLineClient.h
 	ClientCmdRegistry.h
 	AbstractClientCmd.h
 	HelpCmd.h
@@ -85,97 +93,13 @@ RT3_PROJECT_ADD_INST_HEADERS(
 	LogoutCmd.h
 	ShutdownCmd.h
 	ExitCmd.h
-)
+	)
+INSTALL(FILES ${geomserv_inst_HDRS} DESTINATION include)
 
-#Set NOINST headers
-RT3_PROJECT_ADD_NOINST_HEADERS(
-	DbObjectManifest.h
-	GeometryProcessor.h
-)
+add_executable(geoserv geoserv.cxx)
+target_link_libraries(geoserv libgcutil libNet libgeomserv ${QT_LIBRARIES})
+install(TARGETS geoserv DESTINATION bin)
 
-#Set QT INST headers
-RT3_PROJECT_ADD_QT_INST_HEADERS()
-
-#Set QT NOINST headers
-RT3_PROJECT_ADD_QT_NOINST_HEADERS()
-
-#Build the project
-RT3_PROJECT_BUILD_LIB()
-
-##############
-##############
-##############
-
-RT3_PROJECT(geoserv)
-
-#Set Include Dirs
-RT3_PROJECT_ADD_INCLUDE_DIRS(
-    ${QT_INCLUDE_DIR}
-)
-
-#Set Libs
-RT3_PROJECT_ADD_LIBS(
-    ${QT_LIBRARIES}
-    utility
-    gs
-    net
-)
-
-#set Source files
-RT3_PROJECT_ADD_SOURCES (
-	geoserv.cxx
-)
-
-#Set INST Headers
-RT3_PROJECT_ADD_INST_HEADERS()
-
-#Set NOINST headers
-RT3_PROJECT_ADD_NOINST_HEADERS()
-
-#Set QT INST headers
-RT3_PROJECT_ADD_QT_INST_HEADERS()
-
-#Set QT NOINST headers
-RT3_PROJECT_ADD_QT_NOINST_HEADERS()
-
-#Build the project
-RT3_PROJECT_BUILD_EXE()
-
-##############
-##############
-##############
-
-RT3_PROJECT(geoclient)
-
-#Set Include Dirs
-RT3_PROJECT_ADD_INCLUDE_DIRS(
-    ${QT_INCLUDE_DIR}
-)
-
-#Set Libs
-RT3_PROJECT_ADD_LIBS(
-    ${QT_LIBRARIES}
-    utility
-    gs
-    net
-)
-
-#set Source files
-RT3_PROJECT_ADD_SOURCES (
-	geoclient.cxx
-)
-
-#Set INST Headers
-RT3_PROJECT_ADD_INST_HEADERS()
-
-#Set NOINST headers
-RT3_PROJECT_ADD_NOINST_HEADERS()
-
-#Set QT INST headers
-RT3_PROJECT_ADD_QT_INST_HEADERS()
-
-#Set QT NOINST headers
-RT3_PROJECT_ADD_QT_NOINST_HEADERS()
-
-#Build the project
-RT3_PROJECT_BUILD_EXE()
+add_executable(geoclient geoclient.cxx)
+target_link_libraries(geoclient libgcutil libNet libgeomserv ${QT_LIBRARIES})
+install(TARGETS geoclient DESTINATION bin)

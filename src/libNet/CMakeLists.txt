@@ -19,34 +19,17 @@
 #	information.
 #	
 #########################################################################
-#	@file rt^3/src/libNet/CMakeLists.txt
-#
-#	$Revision:  $
-#	$Author:  $
+#	@file geomcore/src/libNet/CMakeLists.txt
 #
 ##########################################################################
 
-RT3_PROJECT(net)
-
-#Set Include Dirs
-RT3_PROJECT_ADD_INCLUDE_DIRS(
+include_directories(
     ${QT_INCLUDE_DIR}
     ${TCL_INCLUDE_DIRS}
     ${BRLCAD_INC_DIRS}
 )
 
-#Set Libs
-RT3_PROJECT_ADD_LIBS(
-    ge
-    job
-    utility
-    event
-    pkgcpp
-    ${QT_LIBRARIES}
-)
-
-#set Source files
-RT3_PROJECT_ADD_SOURCES (
+SET(libNet_SRCS
 	Portal.cxx
 	PortalManager.cxx
 	NetMsgFactory.cxx
@@ -73,12 +56,30 @@ RT3_PROJECT_ADD_SOURCES (
 	RouteMsgJob.cxx
 )
 
+IF(BUILD_SHARED_LIBS)
+	add_library(libNet SHARED ${libNet_SRCS})
+	target_link_libraries(libNet libgeomengine libJob libgcutil libEvent libPkgCpp ${QT_LIBRARIES})
+	set_target_properties(libNet PROPERTIES PREFIX "")
+	install(TARGETS libNet DESTINATION lib)
+ENDIF(BUILD_SHARED_LIBS)
+IF(BUILD_STATIC_LIBS)
+	add_library(libNet-static STATIC ${libNet_SRCS})
+	target_link_libraries(libNet-static libgeomengine libJob libgcutil libEvent libPkgCpp ${QT_LIBRARIES})
+	IF(NOT WIN32)
+		set_target_properties(libNet-static PROPERTIES PREFIX "")
+		set_target_properties(libNet-static PROPERTIES OUTPUT_NAME "${libname}")
+	ELSE(NOT WIN32)
+		set_target_properties(libNet-static PROPERTIES PREFIX "lib")
+	ENDIF(NOT WIN32)
+	install(TARGETS libNet-static DESTINATION lib)
+ENDIF(BUILD_STATIC_LIBS)
+
 #Set INST Headers
-RT3_PROJECT_ADD_INST_HEADERS(
+SET(libNet_inst_HDRS
 	Portal.h
 	PortalManager.h
-    NetMsgTypes.h
-    INetMsgHandler.h
+	NetMsgTypes.h
+	INetMsgHandler.h
 	NetMsgFactory.h
 	NetMsgRouter.h
 	NetMsg.h
@@ -92,8 +93,8 @@ RT3_PROJECT_ADD_INST_HEADERS(
 	GenericMultiByteMsg.h
 	FailureMsg.h
 	SuccessMsg.h
-    NewSessionReqMsg.h
-    SessionInfoMsg.h
+	NewSessionReqMsg.h
+	SessionInfoMsg.h
 	NewNodeOnNetMsg.h
 	GeometryReqMsg.h
 	GeometryManifestMsg.h
@@ -102,15 +103,4 @@ RT3_PROJECT_ADD_INST_HEADERS(
 	PongMsg.h
 	RouteMsgJob.h
 )
-
-#Set NOINST headers
-RT3_PROJECT_ADD_NOINST_HEADERS()
-
-#Set QT INST headers
-RT3_PROJECT_ADD_QT_INST_HEADERS()
-
-#Set QT NOINST headers
-RT3_PROJECT_ADD_QT_NOINST_HEADERS()
-
-#Build the project
-RT3_PROJECT_BUILD_LIB()
+INSTALL(FILES ${libNet_inst_HDRS} DESTINATION include)

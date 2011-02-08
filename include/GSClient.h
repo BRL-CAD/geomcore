@@ -25,8 +25,9 @@
 #ifndef __GSCLIENT_H__
 #define __GSCLIENT_H__
 
-#include "libutility.h"
-#include "libnet.h"
+#include "NetMsg.h"
+#include "PortalManager.h"
+#include "JobManager.h"
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>

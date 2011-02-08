@@ -25,7 +25,9 @@
  */
 
 #include "DataManager.h"
-#include "libnet.h"
+#include "NetMsgTypes.h"
+#include "TypeOnlyMsg.h"
+#include "GeometryManifestMsg.h"
 
 #include <QtCore/QMutexLocker>
 

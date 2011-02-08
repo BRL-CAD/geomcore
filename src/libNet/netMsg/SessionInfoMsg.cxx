@@ -25,6 +25,7 @@
 
 #include "NetMsgTypes.h"
 #include "SessionInfoMsg.h"
+#include "DataStreamUtils.h"
 #include <sstream>
 
 /* Normal Constructor */

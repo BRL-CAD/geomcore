@@ -25,6 +25,7 @@
 
 #include "NetMsg.h"
 #include "Portal.h"
+#include "DataStreamUtils.h"
 #include <sstream>
 
 /* Normal Constructor */

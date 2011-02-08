@@ -25,8 +25,10 @@
  */
 
 #include "LogoutCmd.h"
+#include "Portal.h"
 #include "PortalManager.h"
 #include "TypeOnlyMsg.h"
+#include "NetMsgTypes.h"
 
 LogoutCmd::LogoutCmd() : AbstractClientCmd("logout") {}
 LogoutCmd::~LogoutCmd() {}
