@@ -73,7 +73,7 @@ SET(STDC_HEADERS 1)
 SET(WITH_CXX 1)
 # define if building with Dmalloc
 SET(WITH_DMALLOC ${HAVE_LIBDMALLOC})
-configure_file(config_cmake.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+configure_file(config_cmake.h.in ${CMAKE_CURRENT_BINARY_DIR}/uuid_config.h)
 
 SET(common_uuid_SRCS
 	uuid.c

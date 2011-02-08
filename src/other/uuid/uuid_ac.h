@@ -31,7 +31,7 @@
 #define __UUID_AC_H__
 
 /* include GNU autoconf results */
-#include "config.h"           /* HAVE_xxx */
+#include "uuid_config.h"           /* HAVE_xxx */
 
 /* include standard system headers */
 #include <stdio.h>            /* NULL, etc. */
