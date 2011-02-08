@@ -1,70 +1,22 @@
-Building (mafm, GSoC 2008 WIP)
-------------------------------
-
-For building G3D module of BRL-CAD you need some extra tools, which
-are reasonable for recent projects in modern Operating Systems -- 3D
-libraries don't work well on older systems, anyway.
-
-These tools are:
-
-- CMake, a building system similar in scope to GNU autotools but in
-general simpler and much much quicker.
-
-- pkg-config: a tool for interpreting special .pc files provided by
-many libraries, which permit to set the flags necessary for
-compilation and linking automatically.
-
-- Some external dependencies for the software in 'src/other', chiefly
-imaging libraries for OGRE (in example DevIL) -- but maybe also others
-depending on your system.
-
-Please note that the support for this experimental branch is not very
-strong (we even had to create CMake and pkg-config files to smooth the
-process, because of some annoying rough edges), and at the moment
-it'll probably only compile in Unix-like systems with GCC compiler --
-for other systems you'll probably have to tweak things and install
-parts by hand.
-
 Building
 --------
 
-The build process for Rt^3 utilizes the GNU Build System and make.
-Although using the autotools should considerably simplify building
-Rt^3 on other systems, the only systems presently officially supported
-are the following:
-
-Apple Mac OS X 10.3+
-Linux 2.4+
-SGI IRIX 6.5+
-
-Support for additional systems may be considered with sufficient
-encouragement or justification.  That stated, the build is constantly
-tested on a variety of systems.
+The build process for geomcore utilizes the CMake build tool.  At the
+moment the code is in a state of flux and there aren't any "officially"
+supported platforms - primary development typically occurs on Linux and
+Mac OSX machines.
 
 Quick Start
 -----------
 
-To get up and running quickly:
+Out-of-source-directory compiles are encouraged, both for neatness and
+to make sure code isn't making assumptions about being in the source
+directory.  Assuming the source is in the directory geomcore-src and starting
+from the parent directory perform the following steps:
 
-* For external code:
+    mkdir geomcore-build
+    cd geomcore-build
+    cmake ../geomcore-src
+    make
 
-	cd src/other
-	su -c "make install"
 
-You can also build only separate parts, in example if you have some of
-them installed in the system for some reason, you can do
-"make ogre|ois|mocha|rbgui", or the same targets with "install-" in front.
-
-NOTE: Ogre won't work with stable releases so far (as of July 2008),
-so if you don't want to use the one shipped in 'src/other' you need to
-check out SVN trunk head.
-
-* To compile g3d with cmake && make as usual, you have to do:
-
-	mkdir src/g3d/build
-	cd src/g3d/build
-	cmake .. && make
-	su -c "make install"
-
-If everything ran fine, you should be able to launch the program by
-invoking 'g3d' command.

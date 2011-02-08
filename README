@@ -1,42 +1,11 @@
-Rt^3
-
-This module is a development framework for a new BRL-CAD GUI.  It's
-intended to be only for developers at this time.  If you're checking
+This module holds the source code for the new geometry engine and
+geometry server functionality.  The code is not stable or functional
+and is only of interest for developers at this time.  If you're checking
 this out, it's expected that you are a competent developer.  Please
 direct all feedback to the BRL-CAD developer mailing list.  Thank you
 for your patience and understanding.
 
-Compilation & Installation (mafm, GSoC 2008 WIP)
-------------------------------------------------
-
-Read INSTALL and skip the rest of this file for now.
-
-Compilation & Installation
---------------------------
-
-YOU SHOULD INSTALL BRL-CAD BEFORE COMPILING AND INSTALLING RT^3
+geomcore requires BRL-CAD be available on the system
 
 For more details on building the sources and options available, see
-the INSTALL file.  To build the sources and get up and running with
-default settings, run the following commands:
-
-# install BRL-CAD into /usr/brlcad before doing this!
-./autogen.sh
-./configure --prefix=/usr/brlcad
-make
-sudo make install
-
-Known Bugs
-----------
-
-See BUGS
-
-Contributors
-------------
-
-See AUTHORS
-
-Development
------------
-
-See HACKING
+the INSTALL file.  

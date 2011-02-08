@@ -5,77 +5,12 @@ intended for the general public.  Please use the //TODO notation since
 IDEs like Eclipse can auto generate a list of all //TODO tags in the entire
 codebase.
 
-//TODO Core Interface requires the use of brlcad-config to generate 'brlcadversion.h' via cmake.  brlcad-config is not present on windows brlcad builds, thus coreInterface will not build on windows.
-
 //TODO Check for const-ness from top to bottom
 
 //TODO Look at /src/GE/exception and see if anything is actually using those files.  If not, remove them.
 
-//TODO Replace QT's signals 'n' slots functionality with a simpler in house version that utilizes the JobManager.  Signals and Slots requires a QCoreApplication.exec() to be blocked for it to work.  Hampers current design goals.
+//TODO Look at removing requirement for Qt
 
-//TODO Add in 'CLEAN' target to CMAKE.  Will require tracking all the CmakeLists.txt files via global cmake var.
+//TODO review CMake logic
 
-//Older stuff
-* put together basic application components:
-	- argument handler
-	- singleton
-	- timer
-	- exception handler
-	- memory manager
-	- file reader/writer
-	- application shell with runtime loop
-	
-* baseline and time empty loop app
-
-* integrate with the following
-
-	- openil (Dev IL)
-
-	- zlib
-
-	- regex
-
-	- openexr
-
-* consider utilizing the following libraries
-
-	- OpenMP
-
-	- openthreads
-
-	- libjpeg
-	
-	- libpng
-
-	- libpgm
-
-	- libopenssl
-
-	- devlib - http://www.devlib-central.org/
-
-	- freetype 2
-
-	- python/bash/lua/tcl/etc
-
-	- SDL
-
-	- tinyxml http://sourceforge.net/projects/tinyxml
-
-  	- GMP - http://www.swox.com/gmp/
-	  for high-speed arbitrary precision computation
-	  LGPL
-
-	- CGAL - http://www.cgal.org
-          computational geometry algorithms library
-
-	- C++ Matrix class - http://www.netwood.net/~edwin/Matrix/
-          double and complex matrix class with backprop, etc
-
-	- Newmat - http://www.robertnz.com/
-	  thorough matrix class
-	  public domain (not mentioned)
-
-	- PPMwriter - http://ket.dyndns.org/ppmwriter/
-          read/write ppm fies (stand-alone)
-	  
-	- CommonC++ - http://www.gnu.org/software/commoncpp/
+Probably lots more...
