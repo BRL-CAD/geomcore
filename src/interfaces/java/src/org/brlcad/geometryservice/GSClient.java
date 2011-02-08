@@ -25,9 +25,6 @@ package org.brlcad.geometryservice;
 
 public class GSClient {
 
-    private static final int Magic1 = 0x000041FE;
-    private static final int Magic2 = 0x00005309;
-
     private static final short Failure = 0x0050;
     private static final short Success = 0x0051;
     private static final short RemHostNameSET = 0x0100;
