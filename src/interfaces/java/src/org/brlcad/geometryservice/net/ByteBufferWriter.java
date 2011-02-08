@@ -2,6 +2,7 @@ package org.brlcad.geometryservice.net;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.UUID;
 
 public class ByteBufferWriter {
 
@@ -75,6 +76,11 @@ public class ByteBufferWriter {
 		} else {
 			ByteBufferUtils.putString(this.bb, x, false);
 		}
+		return;
+	}
+
+	public void putUUID(UUID x) {
+		this.putString(x.toString());
 		return;
 	}
 

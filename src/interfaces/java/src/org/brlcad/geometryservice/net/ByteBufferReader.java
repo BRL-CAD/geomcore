@@ -2,6 +2,7 @@ package org.brlcad.geometryservice.net;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.UUID;
 
 public class ByteBufferReader {
 
@@ -129,6 +130,12 @@ public class ByteBufferReader {
 		else
 			return ByteBufferUtils.getString(this.bb);
 
+	}
+
+	public final UUID getUUID() {
+		String str = this.getString();
+		UUID id = UUID.fromString(str);
+		return id;
 	}
 
 	/*
