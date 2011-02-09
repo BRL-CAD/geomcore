@@ -1,4 +1,4 @@
-/*                  G S C L I E N T . J A V A
+/*
  * BRL-CAD
  *
  * Copyright (c) 2011 United States Government as represented by

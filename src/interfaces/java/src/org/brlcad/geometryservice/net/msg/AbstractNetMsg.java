@@ -1,4 +1,4 @@
-/*                  G S S T A T I C S . J A V A
+/*
  * BRL-CAD
  *
  * Copyright (c) 2011 United States Government as represented by
@@ -17,7 +17,7 @@
  * License along with this file; see the file named COPYING for more
  * information.
  */
-/** @file GSStatics.java
+/** @file AbstractNetMsg.java
  *
  */
 
