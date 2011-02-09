@@ -1,4 +1,5 @@
-# mafm: copied from UsePkgConfig.cmake
+# mafm: copied from UsePkgConfig.cmake, which is originally from
+# https://wiki-flowvr.imag.fr/browser/trunk/flowvr-render/cmake/UsePkgConfig.cmake?rev=1793&format=raw
 
 # Get the executable brlcad-config path, if exists
 find_program(BRLCADCONFIG_EXECUTABLE NAMES brlcad-config PATHS ${BRLCAD_ROOT}/bin)
