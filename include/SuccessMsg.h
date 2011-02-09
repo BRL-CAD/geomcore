@@ -32,10 +32,10 @@ class SuccessMsg : public GenericOneByteMsg
 {
 public:
 	/* Normal Constructor */
-	SuccessMsg(quint8 successCode);
+	SuccessMsg(uint8_t successCode);
 
 	/* Reply Constructor */
-	SuccessMsg(NetMsg* msg, quint8 successCode);
+	SuccessMsg(NetMsg* msg, uint8_t successCode);
 
 	/* Deserializing Constructor */
 	SuccessMsg(QDataStream* ds, Portal* origin);
@@ -46,11 +46,11 @@ public:
 	/*
 	 *Getters n Setters
 	 */
-	quint8 getSuccessCode();
+	uint8_t getSuccessCode();
 
 private:
 	/* Disable copy cstr and =operator */
-	SuccessMsg(SuccessMsg const&):GenericOneByteMsg(0, (quint8)0){};
+	SuccessMsg(SuccessMsg const&):GenericOneByteMsg(0, (uint8_t)0){};
 	SuccessMsg& operator=(SuccessMsg const&){};
 };
 

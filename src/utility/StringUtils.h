@@ -29,8 +29,8 @@
 
 class StringUtils {
 public:
-    static QString addWSRight(QString str, quint32 desiredLen) {
-    	quint32 len = str.length();
+    static QString addWSRight(QString str, uint32_t desiredLen) {
+    	uint32_t len = str.length();
     }
 };
 

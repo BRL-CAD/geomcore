@@ -32,10 +32,10 @@ class GenericFourBytesMsg : public NetMsg
 {
 public:
 	/* Normal Constructor */
-	GenericFourBytesMsg(quint32 type, quint32 b);
+	GenericFourBytesMsg(uint32_t type, uint32_t b);
 
 	/* Reply Constructor */
-	GenericFourBytesMsg(quint32 type, NetMsg* msg, quint32 b);
+	GenericFourBytesMsg(uint32_t type, NetMsg* msg, uint32_t b);
 
 	/* Deserializing Constructor */
 	GenericFourBytesMsg(QDataStream* ds, Portal* origin);
@@ -49,8 +49,8 @@ public:
 	virtual std::string toString();
 
 protected:
-	quint32 getData();
-	quint32 data;
+	uint32_t getData();
+	uint32_t data;
 
 	virtual bool _serialize(QDataStream* ds);
 	virtual bool _equals(const NetMsg& msg);

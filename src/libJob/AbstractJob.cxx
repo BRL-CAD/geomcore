@@ -48,7 +48,7 @@ JobStatus AbstractJob::getStatus()
     return this->status;
 }
 
-quint32 AbstractJob::getJobId()
+uint32_t AbstractJob::getJobId()
 {
     return this->jobID;
 }

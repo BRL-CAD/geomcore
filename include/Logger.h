@@ -78,7 +78,7 @@ public:
 		BANNER, INFO, WARNING, ERROR, FATAL, DEBUG
 	};
 
-	static quint64 getCurrentTime();
+	static uint64_t getCurrentTime();
 
 private:
 	static Logger* instance;
@@ -91,7 +91,7 @@ private:
 	Logger(const Logger& logger){}; /* Disable Copy cstr */
 	Logger& operator=(const Logger& log){}; /* Disable equals operator */
 
-	void log(quint32 logLevel, std::string origin, std::string string);
+	void log(uint32_t logLevel, std::string origin, std::string string);
 };
 
 #endif /* __LOGGER_H__ */

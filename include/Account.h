@@ -35,16 +35,16 @@
 class Account
 {
 public:
-  Account(std::string uname, Portal* portal, quint32 id);
+  Account(std::string uname, Portal* portal, uint32_t id);
   virtual ~Account();
   std::string getUname();
   time_t getInactivityTime();
   void stampLastAccess();
-  quint32 getID();
+  uint32_t getID();
   Portal* getPortal();
   
 private:
-  quint32 id;
+  uint32_t id;
   std::string uname;
   Portal* portal;
 

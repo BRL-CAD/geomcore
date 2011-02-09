@@ -31,7 +31,7 @@ PongMsg::PongMsg(QDataStream* ds, Portal* origin): GenericEightBytesMsg(ds, orig
 
 PongMsg::~PongMsg(){}
 
-quint64
+uint64_t
 PongMsg::getStartTime(){
 	return this->data;
 }

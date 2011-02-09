@@ -42,7 +42,7 @@ public:
 	/* Destructor */
 	virtual ~PongMsg();
 
-	quint64 getStartTime();
+	uint64_t getStartTime();
 };
 
 #endif /* __PONGMSG_H__ */

@@ -28,12 +28,12 @@
 #include <sstream>
 
 /* Normal Constructor */
-SuccessMsg::SuccessMsg(quint8 successCode) :
+SuccessMsg::SuccessMsg(uint8_t successCode) :
     GenericOneByteMsg(SUCCESS, successCode)
 {}
 
 /* Reply Constructor */
-SuccessMsg::SuccessMsg(NetMsg* msg, quint8 successCode) :
+SuccessMsg::SuccessMsg(NetMsg* msg, uint8_t successCode) :
 	GenericOneByteMsg(SUCCESS, msg, successCode)
 {}
 
@@ -49,7 +49,7 @@ SuccessMsg::~SuccessMsg()
 /*
  *Getters n Setters
  */
-quint8 SuccessMsg::getSuccessCode()
+uint8_t SuccessMsg::getSuccessCode()
 {
     return this->data;
 }

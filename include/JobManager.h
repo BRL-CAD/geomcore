@@ -58,7 +58,7 @@ public:
 	/**
 	 * Returns the JobManager's internal FIFO Queue length.
 	 */
-	quint32 getWorkQueueLen();
+	uint32_t getWorkQueueLen();
 
 	/**
 	 * Places AbstractJob <i>aj</i> into the JobManager's internal FIFO Queue.  If the JobManager is

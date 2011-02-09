@@ -40,7 +40,7 @@ public:
 	static NetMsgRouter* getInstance();
 	virtual ~NetMsgRouter();
 
-	bool registerType(quint16 type, INetMsgHandler* handler);
+	bool registerType(uint16_t type, INetMsgHandler* handler);
 	bool routeMsg(NetMsg* msg);
 
 private:
@@ -52,10 +52,10 @@ private:
 	 * Gets a list of INetMsgHandler pointers associated with
 	 * this msgType.  If no Mapping or list exists, one is made.
 	 */
-	QList<INetMsgHandler*>* getListOfHandlers(quint16 type);
+	QList<INetMsgHandler*>* getListOfHandlers(uint16_t type);
 
 	QMutex mapLock;
-	QMap<quint16,QList<INetMsgHandler*>*>* routingTable;
+	QMap<uint16_t,QList<INetMsgHandler*>*>* routingTable;
 
 	/* Disable copy cstr and =operator */
 	NetMsgRouter(NetMsgRouter const&){};

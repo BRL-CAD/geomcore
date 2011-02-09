@@ -36,8 +36,8 @@ NetPortal* NetPortalManagerTester::getNewPortal()
     NetPortal* pPortal = this->portMan->getNewPortal();
 
     QObject::connect(pPortal, SIGNAL(msgReady()), this, SLOT(handleMsgReady()));
-    QObject::connect(pPortal, SIGNAL(handshakeStatusUpdate(quint32, quint32)),
-	    this, SLOT(handleHandshakeStatusUpdate(quint32, quint32)));
+    QObject::connect(pPortal, SIGNAL(handshakeStatusUpdate(uint32_t, uint32_t)),
+	    this, SLOT(handleHandshakeStatusUpdate(uint32_t, uint32_t)));
     QObject::connect(pPortal, SIGNAL(portalHandshakeComplete(NetPortal*)), this, SLOT(
 		    handleHandshakeComplete(NetPortal* )));
 
@@ -56,8 +56,8 @@ void NetPortalManagerTester::handleMsgReady()
 {
     this->portMan->localLog("handleMsgReady");
 }
-void NetPortalManagerTester::handleHandshakeStatusUpdate(quint32 current,
-	quint32 old)
+void NetPortalManagerTester::handleHandshakeStatusUpdate(uint32_t current,
+	uint32_t old)
 {
     this->portMan->localLog("Handshake status update: " + QString::number(old)
 	    + "->" + QString::number(current));

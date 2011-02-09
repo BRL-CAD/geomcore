@@ -29,14 +29,14 @@
 #include <sstream>
 
 /* Normal Constructor */
-NetMsg::NetMsg(quint16 mType) :
+NetMsg::NetMsg(uint16_t mType) :
   msgType(mType), hasReUUID(false), reUUID(NULL)
 {
   msgUUID = QUuid::createUuid();
 }
 
 /* Reply Constructor */
-NetMsg::NetMsg(quint16 mType, NetMsg* msg) :
+NetMsg::NetMsg(uint16_t mType, NetMsg* msg) :
   msgType(mType)
 {
   if (msg->getMsgUUID() != NULL)
@@ -105,7 +105,7 @@ NetMsg::serialize(QByteArray* ba)
 /*
  *Getters n Setters
  */
-quint16
+uint16_t
 NetMsg::getMsgType() const
 {
   return this->msgType;

@@ -44,7 +44,7 @@ JobManager::JobManager() {
 
 	this->log->logINFO("JobManager", text);
 
-	for (quint32 i = 0; i < MAX_JOBWORKERS; ++i) {
+	for (uint32_t i = 0; i < MAX_JOBWORKERS; ++i) {
 		JobWorker* jw = new JobWorker();
 		this->jobWorkers->append(jw);
 
@@ -72,7 +72,7 @@ void JobManager::startup() {
 	if (this->jobWorkers->size() > 0)
 		return;
 
-	for (quint32 i = 0; i < this->jobWorkers->size(); ++i) {
+	for (uint32_t i = 0; i < this->jobWorkers->size(); ++i) {
 		JobWorker* jw = this->jobWorkers->at(i);
 		jw->start();
 	}
@@ -87,10 +87,10 @@ void JobManager::shutdown(bool finishJobQueue) {
 	this->acceptJobs = false;
 
 	//TODO These should be moved to preferences eventually.
-	quint32 maxWaitTimeSecs = 60;
-	quint32 waitTimePerLoopSecs = 5;
-	quint32 maxPasses = (maxWaitTimeSecs / waitTimePerLoopSecs);
-	quint32 curPasses = 0;
+	uint32_t maxWaitTimeSecs = 60;
+	uint32_t waitTimePerLoopSecs = 5;
+	uint32_t maxPasses = (maxWaitTimeSecs / waitTimePerLoopSecs);
+	uint32_t curPasses = 0;
 
 	while (this->jobQueue->size() != 0 && finishJobQueue) {
 		snprintf(buf, BUFSIZ, "Waiting for JobWorkers to process JobQueue. %d items remain...", this->jobQueue->size());
@@ -155,7 +155,7 @@ bool JobManager::hasNextJob() {
 	return !this->jobQueue->isEmpty();
 }
 
-quint32 JobManager::getWorkQueueLen() {
+uint32_t JobManager::getWorkQueueLen() {
 	QMutexLocker locker(this->queueLock);
 	return this->jobQueue->size();
 }

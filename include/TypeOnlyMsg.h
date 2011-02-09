@@ -32,10 +32,10 @@ class TypeOnlyMsg : public NetMsg
 {
 public:
     /* Normal Constructor */
-    TypeOnlyMsg(quint32 msgType);
+    TypeOnlyMsg(uint32_t msgType);
 
     /* Reply Constructor */
-    TypeOnlyMsg(quint32 msgType, NetMsg* msg);
+    TypeOnlyMsg(uint32_t msgType, NetMsg* msg);
 
     /* Deserializing Constructors */
     TypeOnlyMsg(QDataStream* ds, Portal* origin);

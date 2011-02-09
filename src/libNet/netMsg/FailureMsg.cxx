@@ -28,12 +28,12 @@
 #include <sstream>
 
 /* Normal Constructor */
-FailureMsg::FailureMsg(quint8 failureCode):
+FailureMsg::FailureMsg(uint8_t failureCode):
   GenericOneByteMsg(FAILURE, failureCode)
 {}
 
 /* Reply Constructor */
-FailureMsg::FailureMsg(NetMsg* msg, quint8 failureCode) :
+FailureMsg::FailureMsg(NetMsg* msg, uint8_t failureCode) :
   GenericOneByteMsg(FAILURE, msg, failureCode)
 {}
 
@@ -48,7 +48,7 @@ FailureMsg::~FailureMsg()
 /*
  *Getters n Setters
  */
-quint8 FailureMsg::getFailureCode() {return this->data;}
+uint8_t FailureMsg::getFailureCode() {return this->data;}
 
 /*
  * Local Variables:

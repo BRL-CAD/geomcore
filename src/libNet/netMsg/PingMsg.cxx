@@ -27,13 +27,13 @@
 #include "PingMsg.h"
 #include <sys/time.h>
 
-PingMsg::PingMsg(quint64 startT):GenericEightBytesMsg(PING, startT) {}
-PingMsg::PingMsg(NetMsg* msg, quint64 startT):GenericEightBytesMsg(PING, msg, startT) {}
+PingMsg::PingMsg(uint64_t startT):GenericEightBytesMsg(PING, startT) {}
+PingMsg::PingMsg(NetMsg* msg, uint64_t startT):GenericEightBytesMsg(PING, msg, startT) {}
 PingMsg::PingMsg(QDataStream* ds, Portal* origin):GenericEightBytesMsg(ds, origin) {}
 
 PingMsg::~PingMsg() {}
 
-quint64
+uint64_t
 PingMsg::getStartTime()
 {
 	return this->data;

@@ -32,10 +32,10 @@
 class PingMsg: public GenericEightBytesMsg {
 public:
 	/* Normal Constructor */
-	PingMsg(quint64 startT);
+	PingMsg(uint64_t startT);
 
 	/* Reply Constructor */
-	PingMsg(NetMsg* msg, quint64 startT);
+	PingMsg(NetMsg* msg, uint64_t startT);
 
 	/* Deserializing Constructor */
 	PingMsg(QDataStream* ds, Portal* origin);
@@ -44,7 +44,7 @@ public:
 	virtual ~PingMsg();
 
 
-	quint64 getStartTime();
+	uint64_t getStartTime();
 };
 
 #endif /* __PINGMSG_H__ */

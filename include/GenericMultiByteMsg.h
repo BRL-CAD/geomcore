@@ -33,10 +33,10 @@ class GenericMultiByteMsg : public NetMsg
 {
 public:
 	/* Normal Constructor */
-	GenericMultiByteMsg(quint32 type, char* dataIn, quint32 dataInLen);
+	GenericMultiByteMsg(uint32_t type, char* dataIn, uint32_t dataInLen);
 
 	/* Reply Constructor */
-	GenericMultiByteMsg(quint32 type, NetMsg* msg, char* dataIn, quint32 dataInLen);
+	GenericMultiByteMsg(uint32_t type, NetMsg* msg, char* dataIn, uint32_t dataInLen);
 
 	/* Deserializing Constructor */
 	GenericMultiByteMsg(QDataStream* ds, Portal* origin);
@@ -51,10 +51,10 @@ public:
 	QByteArray* getQByteArray();
 
 protected:
-	quint32 getDataLen();
+	uint32_t getDataLen();
 	char* getData();
 
-	quint32 dataLen;
+	uint32_t dataLen;
 	char* data;
 
 	virtual bool _serialize(QDataStream* ds);

@@ -51,7 +51,7 @@ public:
 	/*
 	 *Getters n Setters
 	 */
-	quint32 getNumOfItems();
+	uint32_t getNumOfItems();
 	QList<std::string>* getItemData();
 
 private:

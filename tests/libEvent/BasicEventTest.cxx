@@ -56,7 +56,7 @@ class TestPublisher : public EventPublisher
 public:
     TestPublisher(QString name) : _name(name){};
 
-    void generateEvent(quint32 type, QString message = "")
+    void generateEvent(uint32_t type, QString message = "")
     {
 	Logger::getInstance()->logINFO(_name, "Generating Event of type: "
 		+ QString::number(type) + " with msg: '" + message + "'");

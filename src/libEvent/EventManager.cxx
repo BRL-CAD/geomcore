@@ -42,7 +42,7 @@ EventManager::EventManager()
 EventManager::~EventManager()
 {
     this->subscriptionsLock->lock();
-    for (quint32 i = 0; i < subscriptions->size(); ++i) {
+    for (uint32_t i = 0; i < subscriptions->size(); ++i) {
 	EventSubscription* es = subscriptions->at(i);
 	delete es;
     }
@@ -84,15 +84,15 @@ QList<EventSubscriber*>* EventManager::buildSubscriberList(Event* e)
 {
     QMutexLocker locker(this->subscriptionsLock);
 
-    quint32 eType = e->getEventType();
+    uint32_t eType = e->getEventType();
     EventPublisher* ePub = e->getPublisher();
 
     QList<EventSubscriber*>* subscriberList = new QList<EventSubscriber*> ();
 
-    for (quint32 i = 0; i < subscriptions->size(); ++i) {
+    for (uint32_t i = 0; i < subscriptions->size(); ++i) {
 	EventSubscription* subscription = subscriptions->at(i);
 
-	quint32 ssType = subscription->getEventType();
+	uint32_t ssType = subscription->getEventType();
 	EventPublisher* ssPub = subscription->getPublisher();
 
 	bool isSubscribedType = ((ssType == eType) || (ssType == ALL_EVENT_TYPES));
@@ -107,14 +107,14 @@ QList<EventSubscriber*>* EventManager::buildSubscriberList(Event* e)
     return subscriberList;
 }
 
-void EventManager::subscribe(EventSubscriber* sub, quint32 eventType,
+void EventManager::subscribe(EventSubscriber* sub, uint32_t eventType,
 	EventPublisher* pub)
 {
     QMutexLocker locker(this->subscriptionsLock);
 
     EventSubscription* es = new EventSubscription(sub, eventType, pub);
 
-    for (quint32 i = 0; i < subscriptions->size(); ++i) {
+    for (uint32_t i = 0; i < subscriptions->size(); ++i) {
  	EventSubscription* subscription = subscriptions->at(i);
 
  	if (*subscription == *es) {
@@ -128,14 +128,14 @@ void EventManager::subscribe(EventSubscriber* sub, quint32 eventType,
     this->subscriptions->append(es);
 }
 
-void EventManager::unsubscribe(EventSubscriber* sub, quint32 eventType,
+void EventManager::unsubscribe(EventSubscriber* sub, uint32_t eventType,
 	EventPublisher* pub)
 {
     QMutexLocker locker(this->subscriptionsLock);
 
     EventSubscription* es = new EventSubscription(sub, eventType, pub);
 
-    for (quint32 i = 0; i < subscriptions->size(); ++i) {
+    for (uint32_t i = 0; i < subscriptions->size(); ++i) {
  	EventSubscription* subscription = subscriptions->at(i);
 
  	if (*subscription == *es) {

@@ -73,7 +73,7 @@ void Logger::logFATAL(std::string origin, std::string string) {
 	this->log(Logger::FATAL, origin, string);
 }
 
-void Logger::log(quint32 logLevel, std::string origin, std::string string) {
+void Logger::log(uint32_t logLevel, std::string origin, std::string string) {
 	std::string time("");
 
 	std::string type("");
@@ -135,12 +135,12 @@ void Logger::log(quint32 logLevel, std::string origin, std::string string) {
 	}
 }
 
-quint64
+uint64_t
 Logger::getCurrentTime()
 {
 	timeval tim;
 	gettimeofday(&tim, NULL);
-	quint64 now = (tim.tv_sec * 1000 ) + (tim.tv_usec/1000);
+	uint64_t now = (tim.tv_sec * 1000 ) + (tim.tv_usec/1000);
 	return now;
 }
 

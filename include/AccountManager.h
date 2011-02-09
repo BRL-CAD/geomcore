@@ -50,8 +50,8 @@ private:
     QMutex accountListLock;
     QList<Account*>* accounts;
 
-    qint32 validateLoginCreds(std::string uname, std::string passwd);
-    Account* newAccount(std::string uname, Portal* p, quint32 id);
+    int32_t validateLoginCreds(std::string uname, std::string passwd);
+    Account* newAccount(std::string uname, Portal* p, uint32_t id);
     void remAccount(Account* a);
 
 	/* Disable copy cstr and =operator */

@@ -41,7 +41,7 @@ public:
 
 protected slots:
     void handleMsgReady();
-    void handleHandshakeStatusUpdate(quint32 current, quint32 old);
+    void handleHandshakeStatusUpdate(uint32_t current, uint32_t old);
     void handleHandshakeComplete(NetPortal* portal);
 
     void handlePortalConnected();

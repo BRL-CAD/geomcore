@@ -34,19 +34,19 @@
 class EventSubscription
 {
 public:
-    EventSubscription(EventSubscriber* sub, quint32 eventType = ALL_EVENT_TYPES,
+    EventSubscription(EventSubscriber* sub, uint32_t eventType = ALL_EVENT_TYPES,
 	    EventPublisher* pub = ALL_EVENT_PUBLISHERS);
     virtual ~EventSubscription();
 
     EventPublisher* getPublisher();
-    quint32 getEventType();
+    uint32_t getEventType();
     EventSubscriber* getEventSubscriber();
 
     bool operator==(const EventSubscription &other) const;
 
 private:
     EventPublisher* _pub;
-    quint32 _eventType;
+    uint32_t _eventType;
     EventSubscriber* _sub;
 };
 

@@ -28,12 +28,12 @@
 #include <sstream>
 
 /* Normal Constructor */
-TypeOnlyMsg::TypeOnlyMsg(quint32 msgType) :
+TypeOnlyMsg::TypeOnlyMsg(uint32_t msgType) :
     NetMsg(msgType)
 {}
 
 /* Reply Constructor */
-TypeOnlyMsg::TypeOnlyMsg(quint32 msgType, NetMsg* msg) :
+TypeOnlyMsg::TypeOnlyMsg(uint32_t msgType, NetMsg* msg) :
 	NetMsg(msgType, msg)
 {}
 

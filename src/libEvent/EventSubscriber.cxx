@@ -26,7 +26,7 @@
 #include "EventSubscriber.h"
 #include "EventPublisher.h"
 
-void EventSubscriber::subscribeMe(quint32 eventType, EventPublisher* pub)
+void EventSubscriber::subscribeMe(uint32_t eventType, EventPublisher* pub)
 {
     EventManager::getInstance()->subscribe(this, eventType, pub);
 }

@@ -24,7 +24,7 @@
 #ifndef __ABSTRACTJOB_H__
 #define __ABSTRACTJOB_H__
 
-#include <QtCore/Qt>
+#include <stdint.h>
 
 /** @enum JobStatus
  * Defines three values relating to the potential status of the job.
@@ -84,7 +84,7 @@ public:
 	/**
 	 * Returns the JobID for this job.  JobID is a 32bit integer value.
 	 */
-	quint32 getJobId();
+	uint32_t getJobId();
 
 protected:
 	/**
@@ -101,7 +101,7 @@ protected:
 	/**
 	 * Internal field for storing Job's ID.
 	 */
-	quint32 jobID;
+	uint32_t jobID;
 
 	/**
 	 * Internal field for storing Job's current status.

@@ -33,10 +33,10 @@ class GeometryReqMsg : public GenericOneStringMsg
 public:
 
 	/* Only Constructor */
-	GeometryReqMsg(quint8 requestType, std::string data);
+	GeometryReqMsg(uint8_t requestType, std::string data);
 
 	/* Reply Constructor */
-	GeometryReqMsg(NetMsg* msg, quint8 requestType, std::string data);
+	GeometryReqMsg(NetMsg* msg, uint8_t requestType, std::string data);
 
 	/* Deserializing Constructor */
 	GeometryReqMsg(QDataStream* ds, Portal* origin);
@@ -49,12 +49,12 @@ public:
 	/*
 	 *Getters n Setters
 	 */
-	quint8 getRequestType();
+	uint8_t getRequestType();
 
 	std::string getData();
 
 private:
-	quint8 reqType;
+	uint8_t reqType;
 
 	bool _serialize(QDataStream* ds);
 	bool _equals(const NetMsg& msg);

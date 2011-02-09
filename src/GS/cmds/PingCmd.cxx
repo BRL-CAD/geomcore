@@ -51,7 +51,7 @@ PingCmd::_exec(GSCmdLineClient* client, QStringList args){
 		return false;
 	}
 
-	quint64 now = Logger::getCurrentTime();
+	uint64_t now = Logger::getCurrentTime();
 	PingMsg msg(now);
 
 	p->send(&msg);

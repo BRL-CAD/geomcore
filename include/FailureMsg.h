@@ -32,10 +32,10 @@ class FailureMsg : public GenericOneByteMsg
 {
 public:
     /* Normal Constructor */
-    FailureMsg(quint8 failureCode);
+    FailureMsg(uint8_t failureCode);
 
     /* Reply Constructor */
-    FailureMsg(NetMsg* msg, quint8 failureCode);
+    FailureMsg(NetMsg* msg, uint8_t failureCode);
 
     /* Deserializing Constructor */
     FailureMsg(QDataStream* ds, Portal* origin);
@@ -46,11 +46,11 @@ public:
     /*
      *Getters n Setters
      */
-    quint8 getFailureCode();
+    uint8_t getFailureCode();
 
 private:
 	/* Disable copy cstr and =operator */
-	FailureMsg(FailureMsg const&):GenericOneByteMsg(0,(quint8)0){};
+	FailureMsg(FailureMsg const&):GenericOneByteMsg(0,(uint8_t)0){};
 	FailureMsg& operator=(FailureMsg const&){};
 };
 

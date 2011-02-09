@@ -28,12 +28,12 @@
 #include <sstream>
 
 /* Normal Constructor */
-GenericEightBytesMsg::GenericEightBytesMsg(uint32_t type, quint64 data) :
+GenericEightBytesMsg::GenericEightBytesMsg(uint32_t type, uint64_t data) :
     NetMsg(type), data(data)
 {}
 
 /* Reply Constructor */
-GenericEightBytesMsg::GenericEightBytesMsg(uint32_t type, NetMsg* msg, quint64 data) :
+GenericEightBytesMsg::GenericEightBytesMsg(uint32_t type, NetMsg* msg, uint64_t data) :
 	NetMsg(type, msg), data(data)
 {}
 
@@ -77,7 +77,7 @@ bool GenericEightBytesMsg::_equals(const NetMsg& msg)
 /*
  *Getters n Setters
  */
-quint64 GenericEightBytesMsg::getData()
+uint64_t GenericEightBytesMsg::getData()
 {
     return this->data;
 }

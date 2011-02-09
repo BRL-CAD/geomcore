@@ -28,12 +28,12 @@
 #include <sstream>
 
 /* Normal Constructor */
-GeometryChunkMsg::GeometryChunkMsg(char* dataIn, quint32 dataInLen) :
+GeometryChunkMsg::GeometryChunkMsg(char* dataIn, uint32_t dataInLen) :
     GenericMultiByteMsg(GEOMETRYCHUNK, dataIn, dataInLen)
 {}
 
 /* Reply Constructor */
-GeometryChunkMsg::GeometryChunkMsg(NetMsg* msg, char* dataIn, quint32 dataInLen) :
+GeometryChunkMsg::GeometryChunkMsg(NetMsg* msg, char* dataIn, uint32_t dataInLen) :
 	GenericMultiByteMsg(GEOMETRYCHUNK, msg, dataIn, dataInLen)
 {}
 

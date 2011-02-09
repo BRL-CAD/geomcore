@@ -25,7 +25,7 @@
 
 #include "EventSubscription.h"
 
-EventSubscription::EventSubscription(EventSubscriber* sub, quint32 eventType,
+EventSubscription::EventSubscription(EventSubscriber* sub, uint32_t eventType,
 	EventPublisher* pub) :
     _sub(sub), _eventType(eventType), _pub(pub)
 {}
@@ -38,7 +38,7 @@ EventPublisher* EventSubscription::getPublisher()
     return this->_pub;
 }
 
-quint32 EventSubscription::getEventType()
+uint32_t EventSubscription::getEventType()
 {
     return this->_eventType;
 }
