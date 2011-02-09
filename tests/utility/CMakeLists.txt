@@ -35,3 +35,5 @@ target_link_libraries(gloggerTest libgcutil)
 
 add_executable(gconfigTest configTest.cxx)
 target_link_libraries(gconfigTest libgcutil ${QT_LIBRARIES})
+
+file(COPY test.config DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
