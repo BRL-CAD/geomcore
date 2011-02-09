@@ -17,27 +17,41 @@
 #	You should have received a copy of the GNU Lesser General Public
 #	License along with this file; see the file named COPYING for more
 #	information.
-#	
+#
+cmake_minimum_required(VERSION 2.8)
+
 PROJECT(sqlite)
 
+OPTION(BUILD_SHARED_LIBS "Build shared libraries" ON)
+OPTION(BUILD_STATIC_LIBS "Build static libraries" ON)
+
 find_package(Threads REQUIRED)
+SET(SQLITE_LIBS ${CMAKE_THREAD_LIBS_INIT})
 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
 	)
 
+INCLUDE(CheckLibraryExists)
+INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/CMake/ResolveCompilerPaths.cmake)
+CHECK_LIBRARY_EXISTS(dl dlopen "" HAVE_DLOPEN)
+IF(HAVE_DLOPEN)
+	RESOLVE_LIBRARIES(DL_LIBRARY "-ldl")
+	SET(SQLITE_LIBS ${SQLITE_LIBS} ${DL_LIBRARY})
+ENDIF(HAVE_DLOPEN)
+
 IF(BUILD_SHARED_LIBS)
 	add_library(libsqlite3 SHARED sqlite3.c)
-	target_link_libraries(libsqlite3 ${CMAKE_THREAD_LIBS_INIT})
+	target_link_libraries(libsqlite3 ${SQLITE_LIBS})
 	set_target_properties(libsqlite3 PROPERTIES PREFIX "")
 	install(TARGETS libsqlite3 DESTINATION lib)
 ENDIF(BUILD_SHARED_LIBS)
 IF(BUILD_STATIC_LIBS)
 	add_library(libsqlite3-static STATIC sqlite3.c)
-	target_link_libraries(libsqlite3-static ${CMAKE_THREAD_LIBS_INIT})
+	target_link_libraries(libsqlite3-static ${SQLITE_LIBS})
 	IF(NOT WIN32)
 		set_target_properties(libsqlite3-static PROPERTIES PREFIX "")
-		set_target_properties(libsqlite3-static PROPERTIES OUTPUT_NAME "${libname}")
+		set_target_properties(libsqlite3-static PROPERTIES OUTPUT_NAME	"libsqlite3")
 	ELSE(NOT WIN32)
 		set_target_properties(libsqlite3-static PROPERTIES PREFIX "lib")
 	ENDIF(NOT WIN32)
