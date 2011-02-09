@@ -82,7 +82,7 @@ void DataStreamUtils::putString(QDataStream* ds, std::string str)
   std::cout << str.toStdString() << std::endl;
   */
 
-  *ds << str.length();
+  *ds << (int)str.length();
 
   for (uint32_t i = 0; i< str.length(); ++i)
     {
