@@ -193,7 +193,7 @@ PortalManager::_run() {
 			if (p == 0) {
 				/* Deal with unmapped file Descriptor */
 				char buf[BUFSIZ];
-				snprintf(buf, BUFSIZ, "FD %d not associated with a Portal, dropping connection.");
+				snprintf(buf, BUFSIZ, "FD %d not associated with a Portal, dropping connection.", i);
 				std::string s(buf);
 				this->closeFD(i, s);
 				continue;
