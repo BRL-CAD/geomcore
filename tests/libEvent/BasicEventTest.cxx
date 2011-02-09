@@ -23,10 +23,14 @@
  *
  */
 
-#include "libevent.h"
-#include "libutility.h"
-#include "libjob.h"
+#include "Event.h"
+#include "JobManager.h"
+#include "GSThread.h"
+#include "Logger.h"
 #include "commonDefines.h"
+#include "EventSubscriber.h"
+#include "EventPublisher.h"
+#include "EventTypes.h"
 
 #include <QtCore/Qt>
 
