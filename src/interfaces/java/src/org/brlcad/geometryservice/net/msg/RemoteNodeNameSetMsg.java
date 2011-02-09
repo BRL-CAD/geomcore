@@ -38,7 +38,7 @@ public class RemoteNodeNameSetMsg extends AbstractNetMsg {
 	 * @param reader
 	 */
 	public RemoteNodeNameSetMsg(ByteBufferReader reader) {
-		super(reader);
+		super(NetMsgTypes.RemNodeNameSET, reader);
 	}
 
 	/**
