@@ -24,9 +24,30 @@
  */
 
 #include "brlcad/bu.h"
-#include "libnet.h"
-#include "libjob.h"
-#include "libutility.h"
+
+#include "Logger.h"
+#include "NetMsg.h"
+#include "NetMsgFactory.h"
+#include "TypeOnlyMsg.h"
+#include "NetMsgTypes.h"
+#include "GenericOneByteMsg.h"
+#include "GenericTwoBytesMsg.h"
+#include "GenericFourBytesMsg.h"
+#include "GenericMultiByteMsg.h"
+#include "GenericOneStringMsg.h"
+#include "FailureMsg.h"
+#include "SuccessMsg.h"
+#include "GeometryChunkMsg.h"
+#include "GeometryManifestMsg.h"
+#include "GeometryReqMsg.h"
+#include "NewNodeOnNetMsg.h"
+#include "NewSessionReqMsg.h"
+#include "RemoteNodenameSetMsg.h"
+#include "SessionInfoMsg.h"
+#include "JobManager.h"
+#include "PortalManager.h"
+#include "Portal.h"
+
 
 #include <string>
 #include <sstream>
@@ -34,10 +55,10 @@
 #include <QtCore/QDataStream>
 #include <QtCore/QString>
 
-void logInfo(QString s) {
+void logInfo(std::string s) {
 	Logger::getInstance()->logINFO("libNetTest", s);
 }
-void logBanner(QString s) {
+void logBanner(std::string s) {
 	Logger::getInstance()->logBANNER("libNetTest", s);
 }
 
@@ -47,7 +68,7 @@ void logBanner(QString s) {
 void printUsage(std::string customMsg) {
 	if (customMsg.length() > 0) {
 		customMsg += "\n";
-		QString s(customMsg.c_str());
+		std::string s(customMsg.c_str());
 		logInfo(s);
 	}
 	logInfo("Usage for Client: pkgcppTest client ipAddress port.\n");
@@ -112,7 +133,7 @@ int main(int argc, char* argv[]) {
 		bu_exit(1, "");
 	}
 
-	QString s("Running in ");
+	std::string s("Running in ");
 	s.append(cliServ.c_str());
 	s.append(" mode.");
 	logInfo(s);
@@ -127,6 +148,7 @@ int main(int argc, char* argv[]) {
 		pm.shutdown();
 
 	} else {
+		std::ostringstream num;
 		PortalManager pm("TestClient");
 		pm.start();
 
@@ -135,11 +157,11 @@ int main(int argc, char* argv[]) {
 		s = "Trying to connect to ";
 		s.append(ip.c_str());
 		s.append(":");
-		s.append(QString::number(port));
+		num << port;
+		s.append(num.str());
 		logInfo(s);
 
-		QString t(ip.c_str()); /* this is dumb! */
-		Portal* p = pm.connectToHost(t, port);
+		Portal* p = pm.connectToHost(ip, port);
 
 		if (p != 0) {
 			GSThread::sleep(3);

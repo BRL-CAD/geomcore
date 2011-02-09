@@ -26,63 +26,12 @@
 #
 ##########################################################################
 
-RT3_PROJECT(loggerTest)
-
-#Set Include Dirs
-RT3_PROJECT_ADD_INCLUDE_DIRS()
-
-#Set Libs
-RT3_PROJECT_ADD_LIBS(
-    utility
-)
-
-#set Source files
-RT3_PROJECT_ADD_SOURCES (loggerTest.cxx)
-
-#Set INST Headers
-RT3_PROJECT_ADD_INST_HEADERS()
-
-#Set NOINST headers
-RT3_PROJECT_ADD_NOINST_HEADERS()
-
-#Set QT INST headers
-RT3_PROJECT_ADD_QT_INST_HEADERS()
-
-#Set QT NOINST headers
-RT3_PROJECT_ADD_QT_NOINST_HEADERS()
-
-#Build the project
-RT3_PROJECT_BUILD_EXE()
-
-##########################################################################
-
-RT3_PROJECT(configTest)
-
-#Set Include Dirs
-RT3_PROJECT_ADD_INCLUDE_DIRS(
+include_directories(
     ${QT_INCLUDE_DIR}
 )
 
-#Set Libs
-RT3_PROJECT_ADD_LIBS(
-    utility
-    ${QT_LIBRARIES}
-)
+add_executable(gloggerTest loggerTest.cxx)
+target_link_libraries(gloggerTest libgcutil)
 
-#set Source files
-RT3_PROJECT_ADD_SOURCES (configTest.cxx)
-
-#Set INST Headers
-RT3_PROJECT_ADD_INST_HEADERS()
-
-#Set NOINST headers
-RT3_PROJECT_ADD_NOINST_HEADERS()
-
-#Set QT INST headers
-RT3_PROJECT_ADD_QT_INST_HEADERS()
-
-#Set QT NOINST headers
-RT3_PROJECT_ADD_QT_NOINST_HEADERS()
-
-#Build the project
-RT3_PROJECT_BUILD_EXE()
+add_executable(gconfigTest configTest.cxx)
+target_link_libraries(gconfigTest libgcutil ${QT_LIBRARIES})

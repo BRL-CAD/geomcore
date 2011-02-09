@@ -19,46 +19,18 @@
 #	information.
 #	
 #########################################################################
-#	@file rt^3/tests/GS/CMakeLists.txt
+#	@file geomcore/tests/GS/CMakeLists.txt
 #
 #	$Revision:  $
 #	$Author:  $
 #
 ##########################################################################
 
-RT3_PROJECT(geometryServiceTests)
-
-#Set Include Dirs
-RT3_PROJECT_ADD_INCLUDE_DIRS( 
+include_directories( 
     ${QT_INCLUDE_DIR}
     ${BRLCAD_INC_DIRS}
 )
 
-#Set Libs
-RT3_PROJECT_ADD_LIBS(
-    gs
-    net
-    ${QT_LIBRARIES}
-    ${_BRLCAD_LIBRARY_pkg}
-    ${_BRLCAD_LIBRARY_bu}
-)
+add_executable(gstest GeometryServiceTest.cxx)
+target_link_libraries(gstest libgeomserv libNet ${QT_LIBRARIES} ${_BRLCAD_LIBRARY_pkg} ${_BRLCAD_LIBRARY_bu})
 
-#set Source files
-RT3_PROJECT_ADD_SOURCES (
-	GeometryServiceTest.cxx
-)
-
-#Set INST Headers
-RT3_PROJECT_ADD_INST_HEADERS()
-
-#Set NOINST headers
-RT3_PROJECT_ADD_NOINST_HEADERS()
-
-#Set QT INST headers
-RT3_PROJECT_ADD_QT_INST_HEADERS()
-
-#Set QT NOINST headers
-RT3_PROJECT_ADD_QT_NOINST_HEADERS()
-
-#Build the project
-RT3_PROJECT_BUILD_EXE()

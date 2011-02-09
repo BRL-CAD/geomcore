@@ -26,42 +26,11 @@
 #
 ##########################################################################
 
-RT3_PROJECT(pkgcppTests)
-
-#Set Include Dirs
-RT3_PROJECT_ADD_INCLUDE_DIRS(
+include_directories(
     ${QT_INCLUDE_DIR}
     ${TCL_INCLUDE_DIRS}
     ${BRLCAD_INC_DIRS}
 )
 
-#Set Libs
-RT3_PROJECT_ADD_LIBS(
-    ${_BRLCAD_LIBRARY_pkg}
-    pkgcpp
-    utility
-    ${QT_LIBRARIES}
-    ${_BRLCAD_LIBRARY_bu}
-)
-
-#set Source files
-RT3_PROJECT_ADD_SOURCES (
-    pkgcppTest.cxx
-)
-
-#Set INST Headers
-RT3_PROJECT_ADD_INST_HEADERS()
-
-#Set NOINST headers
-RT3_PROJECT_ADD_NOINST_HEADERS()
-
-#Set QT INST headers
-RT3_PROJECT_ADD_QT_INST_HEADERS()
-
-#Set QT NOINST headers
-RT3_PROJECT_ADD_QT_NOINST_HEADERS(
-)
-
-#Build the project
-RT3_PROJECT_BUILD_EXE()
-
+add_executable(gPkgCpptest pkgcppTest.cxx)
+target_link_libraries(gPkgCpptest libPkgCpp libgcutil ${_BRLCAD_LIBRARY_pkg} ${QT_LIBRARIES} ${_BRLCAD_LIBRARY_bu})

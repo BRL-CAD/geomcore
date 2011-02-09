@@ -19,7 +19,7 @@
 #	information.
 #	
 #########################################################################
-#	@file rt^3/tests/CMakeLists.txt
+#	@file geomcore/tests/CMakeLists.txt
 #
 #	$Revision:  $
 #	$Author:  $
@@ -33,4 +33,4 @@ ADD_SUBDIRECTORY(./utility)
 ADD_SUBDIRECTORY(./libJob)
 ADD_SUBDIRECTORY(./libpkgcpp)
 ADD_SUBDIRECTORY(./libEvent)
-ADD_SUBDIRECTORY(./coreInterface)
+#ADD_SUBDIRECTORY(./coreInterface)

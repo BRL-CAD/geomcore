@@ -23,22 +23,39 @@
  *
  */
 
-#include "libnet.h"
-#include "libutility.h"
+#include "Logger.h"
+#include "NetMsg.h"
+#include "NetMsgFactory.h"
+#include "TypeOnlyMsg.h"
+#include "NetMsgTypes.h"
+#include "GenericOneByteMsg.h"
+#include "GenericTwoBytesMsg.h"
+#include "GenericFourBytesMsg.h"
+#include "GenericMultiByteMsg.h"
+#include "GenericOneStringMsg.h"
+#include "FailureMsg.h"
+#include "SuccessMsg.h"
+#include "GeometryChunkMsg.h"
+#include "GeometryManifestMsg.h"
+#include "GeometryReqMsg.h"
+#include "NewNodeOnNetMsg.h"
+#include "NewSessionReqMsg.h"
+#include "RemoteNodenameSetMsg.h"
+#include "SessionInfoMsg.h"
 
 #include <string>
 
 #include <QtCore/QDataStream>
 #include <QtCore/QString>
 
-void logInfo(QString s) {
+void logInfo(std::string s) {
 	Logger::getInstance()->logINFO("NetMsgSerialTest", s);
 }
-void logBanner(QString s) {
+void logBanner(std::string s) {
 	Logger::getInstance()->logBANNER("NetMsgSerialTest", s);
 }
 
-void testMsg(NetMsg* msg01, QString typeName) {
+void testMsg(NetMsg* msg01, std::string typeName) {
 	NetMsgFactory* factory = NetMsgFactory::getInstance();
 
 	QByteArray* networkSim = new QByteArray();
@@ -68,14 +85,14 @@ void testMsg(NetMsg* msg01, QString typeName) {
 
 int main(int argc, char* argv[]) {
 	//Setup common values to use
-	QString strUUID01("{60a03846-c39b-42e6-865f-394056a4fa04}");
-	QString strUUID02("{90645abd-3109-4538-a425-07810542cc2d}");
-	QString strUUID03("{732986e8-5ef9-4329-b457-bc83df959e1f}");
-	QString strUUID04("{84d05702-41c4-449d-947b-3c18a8f93cd9}");
-	QString strUUID05("{b2dd5d49-1654-49f4-83b2-512b9e2fc4dc}");
-	QString strUUID06("{ada2005b-02e1-4431-b7e8-432def490632}");
+	std::string strUUID01("{60a03846-c39b-42e6-865f-394056a4fa04}");
+	std::string strUUID02("{90645abd-3109-4538-a425-07810542cc2d}");
+	std::string strUUID03("{732986e8-5ef9-4329-b457-bc83df959e1f}");
+	std::string strUUID04("{84d05702-41c4-449d-947b-3c18a8f93cd9}");
+	std::string strUUID05("{b2dd5d49-1654-49f4-83b2-512b9e2fc4dc}");
+	std::string strUUID06("{ada2005b-02e1-4431-b7e8-432def490632}");
 
-	QList<QString>* items = new QList<QString> ();
+	QList<std::string>* items = new QList<std::string> ();
 	items->push_back(strUUID01);
 	items->push_back(strUUID02);
 	items->push_back(strUUID03);
@@ -113,7 +130,7 @@ int main(int argc, char* argv[]) {
 	GenericOneByteMsg msg042(TEST_GENERIC_1BYTE_MSG, &msg041, 42);
 	testMsg(&msg042, "GenericOneByteMsg-Reply");
 
-	std::string s05 = strUUID01.toStdString();
+	std::string s05 = strUUID01;
 	char* data05 = (char*) s05.c_str();
 
 	/* Test Normal */
@@ -126,10 +143,10 @@ int main(int argc, char* argv[]) {
 	testMsg(&msg052, "GenericMultiByteMsg-Reply");
 
 	/* Test Normal */
-	GenericOneStringMsg msg061(TEST_GENERIC_1STRING_MSG, strUUID01);
+	GenericOneStringMsg msg061(TEST_GENERIC_1STRING_MSG, s05);
 	testMsg(&msg061, "GenericOneStringMsg-Normal");
 	/* Test Reply */
-	GenericOneStringMsg msg062(TEST_GENERIC_1STRING_MSG, &msg061, strUUID01);
+	GenericOneStringMsg msg062(TEST_GENERIC_1STRING_MSG, &msg061, s05);
 	testMsg(&msg062, "GenericOneStringMsg-Reply");
 
 	/* Test Normal */
@@ -146,7 +163,7 @@ int main(int argc, char* argv[]) {
 	SuccessMsg msg082(&msg081, 42);
 	testMsg(&msg082, "SuccessMsg-Reply");
 
-	std::string s09 = strUUID02.toStdString();
+	std::string s09 = strUUID02;
 	char* data09 = (char*) s09.c_str();
 
 	/* Test Normal */

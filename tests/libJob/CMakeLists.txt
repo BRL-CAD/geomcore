@@ -26,39 +26,10 @@
 #
 ##########################################################################
 
-RT3_PROJECT(basicJMTest)
-
-#Set Include Dirs
-RT3_PROJECT_ADD_INCLUDE_DIRS(
+include_directories(
     ${QT_INCLUDE_DIR}
+	 ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-#Set Libs
-RT3_PROJECT_ADD_LIBS(
-    job
-    utility
-    ${QT_LIBRARIES}
-)
-
-#set Source files
-RT3_PROJECT_ADD_SOURCES (
-	BasicJMTest.cxx
-	PrintToStdOutJob.cxx
-)
-
-#Set INST Headers
-RT3_PROJECT_ADD_INST_HEADERS()
-
-#Set NOINST headers
-RT3_PROJECT_ADD_NOINST_HEADERS(
-	PrintToStdOutJob.h
-)
-
-#Set QT INST headers
-RT3_PROJECT_ADD_QT_INST_HEADERS()
-
-#Set QT NOINST headers
-RT3_PROJECT_ADD_QT_NOINST_HEADERS()
-
-#Build the project
-RT3_PROJECT_BUILD_EXE()
+add_executable(gjobtest BasicJMTest.cxx PrintToStdOutJob.cxx)
+target_link_libraries(gjobtest libJob libgcutil ${QT_LIBRARIES})

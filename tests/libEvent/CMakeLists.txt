@@ -19,45 +19,16 @@
 #	information.
 #	
 #########################################################################
-#	@file rt^3/tests/libEvent/CMakeLists.txt
+#	@file geomcore/tests/libEvent/CMakeLists.txt
 #
 #	$Revision:  $
 #	$Author:  $
 #
 ##########################################################################
 
-RT3_PROJECT(basicEventTest)
-
-#Set Include Dirs
-RT3_PROJECT_ADD_INCLUDE_DIRS(
+include_directories(
     ${QT_INCLUDE_DIR}
 )
 
-#Set Libs
-RT3_PROJECT_ADD_LIBS(
-    job
-    utility
-    event
-    ${QT_LIBRARIES}
-)
-
-#set Source files
-RT3_PROJECT_ADD_SOURCES (
-    BasicEventTest.cxx
-)
-
-#Set INST Headers
-RT3_PROJECT_ADD_INST_HEADERS()
-
-#Set NOINST headers
-RT3_PROJECT_ADD_NOINST_HEADERS(
-)
-
-#Set QT INST headers
-RT3_PROJECT_ADD_QT_INST_HEADERS()
-
-#Set QT NOINST headers
-RT3_PROJECT_ADD_QT_NOINST_HEADERS()
-
-#Build the project
-RT3_PROJECT_BUILD_EXE()
+add_executable(geventtest BasicEventTest.cxx)
+target_link_libraries(geventtest libJob libgcutil libEvent ${QT_LIBRARIES})
