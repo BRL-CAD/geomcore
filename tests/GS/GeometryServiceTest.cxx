@@ -30,8 +30,8 @@
 #include <vector>
 #include <iomanip>
 
-#include "libgs.h"
-#include "libnet.h"
+#include "GeometryService.h"
+#include "GSClient.h"
 
 #include <QtCore/QUuid>
 #include <QtCore/QString>
@@ -83,14 +83,21 @@ public:
 
     void start(std::string* addy, const uint16_t port = DEFAULT_PORT)
     {
+	std::string localName("Athena");
     	/* FIXME Are these two internals really needed? */
     	this->_port = port;
     	this->_addy = addy;
 
-       	this->gs = new GeometryService("Athena", port, addy);
+       	this->gs = new GeometryService(localName, port, *addy);
 
        	this->gs->start();
     }
+
+    void start()
+    {
+       	this->gs->start();
+    }
+
 
     void stop() const
     {
@@ -128,7 +135,7 @@ public:
     GeometryClient()
     {
     	this->testClientID = QUuid::createUuid();
-    	this->gsClient = new GSClient(this->testClientID.toString());
+    	this->gsClient = new GSClient(this->testClientID.toString().toStdString());
     	this->portal == NULL;
 		std::cerr << "Portal:" << this->portal << std::endl;
     }
