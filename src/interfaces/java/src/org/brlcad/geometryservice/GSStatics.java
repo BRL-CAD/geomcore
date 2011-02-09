@@ -27,5 +27,6 @@ public final class GSStatics {
 
 	public final static short magic01 = 0x41FE;
 	public final static short magic02 = 0x5309;
+	public final static int pkgHeaderSize = 8;
 	
 }
