@@ -24,7 +24,8 @@
  */
 
 #include "libutility.h"
-#include <QtCore/QString>
+
+#include <string>
 
 int main(int argc, char* argv[])
 {
@@ -35,11 +36,11 @@ int main(int argc, char* argv[])
 
 	c->loadFile("test.config");
 
-	QList<QString> keys = c->getAllKeys();
+	QList<std::string> keys = c->getAllKeys();
 
 	 for (int i = 0; i < keys.size(); ++i) {
-	     QString key = keys.at(i);
-	     QString value = c->getConfigValue(key);
+	     std::string key = keys.at(i);
+	     std::string value = c->getConfigValue(key);
 
 	     log->logINFO("ConfigTest", "Read " + key + " value: " + value);
 	 }

@@ -33,7 +33,7 @@
 class TestSubscriber : public EventSubscriber
 {
 public:
-    TestSubscriber(QString name) :
+    TestSubscriber(std::string name) :
 	_name(name)
     {
     }
@@ -41,25 +41,27 @@ public:
 
     void handleEvent(Event* e)
     {
-	Logger::getInstance()->logINFO(_name, "Recv Event of type: "
-		+ QString::number(e->getEventType()) + " with msg: "
-		+ e->getMessage());
+	char buf[BUFSIZ];
+
+	snprintf(buf, BUFSIZ, "Recv Event of type: %d with msg: %s", e->getEventType(), e->getMessage().c_str());
+	Logger::getInstance()->logINFO(_name, std::string(buf));
     }
     ;
 
 private:
-    QString _name;
+    std::string _name;
 };
 
 class TestPublisher : public EventPublisher
 {
 public:
-    TestPublisher(QString name) : _name(name){};
+    TestPublisher(std::string name) : _name(name){};
 
-    void generateEvent(uint32_t type, QString message = "")
+    void generateEvent(uint32_t type, std::string message = "")
     {
-	Logger::getInstance()->logINFO(_name, "Generating Event of type: "
-		+ QString::number(type) + " with msg: '" + message + "'");
+	char buf[BUFSIZ];
+	snprintf(buf, BUFSIZ, "Generating Event of type: %d with msg: %s", type, message.c_str());
+	Logger::getInstance()->logINFO(_name, buf);
 	EventPublisher::generateEvent(type, message);
     }
 
@@ -83,7 +85,7 @@ public:
     }
 
 private:
-    QString _name;
+    std::string _name;
 };
 
 int main(int argc, char* argv[])
