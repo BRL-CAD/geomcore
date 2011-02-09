@@ -58,7 +58,7 @@ std::string GenericEightBytesMsg::toString()
 {
     char out[BUFSIZ];
 
-    snprintf(out, BUFSIZ, "%s\t data: '%d'", NetMsg::toString().c_str(), this->data);
+    snprintf(out, BUFSIZ, "%s\t data: '%d'", NetMsg::toString().c_str(), (uint32_t)this->data);
 
     return std::string(out);
 }

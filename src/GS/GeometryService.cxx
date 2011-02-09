@@ -117,7 +117,7 @@ GeometryService::handleNetMsg(NetMsg* msg)
 	case FAILURE:
 		{
 			FailureMsg* fMsg = (FailureMsg*)msg;
-			quint8 fc = fMsg->getFailureCode();
+			uint8_t fc = fMsg->getFailureCode();
 
 			QUuid re = fMsg->getReUUID();
 
@@ -146,17 +146,16 @@ GeometryService::handleNetMsg(NetMsg* msg)
 			PongMsg* pongMsg = (PongMsg*)msg;
 
 			/* calc current and differential times */
-			quint64 start = pongMsg->getStartTime();
-			quint64 now = Logger::getCurrentTime();
-			quint64 diff = now -start;
+			uint64_t start = pongMsg->getStartTime();
+			uint64_t now = Logger::getCurrentTime();
+			uint64_t diff = now -start;
 
-			QString time = "roundtrip time: " + QString::number(diff) + "ms.";
 			std::string remNodeName("unknown");
 
 			if (p != NULL)
 				remNodeName = p->getRemoteNodeName();
 
-			snprintf(buf, BUFSIZ, "Pong from '%s' + %d ms", remNodeName.c_str());
+			snprintf(buf, BUFSIZ, "Pong from '%s' + %lld ms", remNodeName.c_str(), diff);
 			log->logINFO("GSClient", buf);
 			return true;
 		}

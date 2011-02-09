@@ -110,7 +110,7 @@ GSClient::handleNetMsg(NetMsg* msg)
 			if (p != NULL)
 				remNodeName = p->getRemoteNodeName();
 
-			snprintf(buf, BUFSIZ, "Pong from: '%s', roundtrip time: %d ms.", remNodeName.c_str(), diff);
+			snprintf(buf, BUFSIZ, "Pong from: '%s', roundtrip time: %lld ms.", remNodeName.c_str(), diff);
 			log->logINFO("GSClient", buf);
 			return true;
 		}
