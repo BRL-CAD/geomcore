@@ -25,8 +25,11 @@
 
 #include "brlcad/bu.h"
 #include "brlcad/pkg.h"
-#include "libpkgcpp.h"
-#include "libutility.h"
+
+#include "PkgTcpServer.h"
+#include "PkgTcpClient.h"
+#include "Logger.h"
+
 #include <stdio.h>
 #include <iostream>
 #include <algorithm>

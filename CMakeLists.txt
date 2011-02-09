@@ -156,7 +156,7 @@ ADD_SUBDIRECTORY(src)
 # Set up Docs
 #ADD_SUBDIRECTORY(docs)
 
-OPTION(GEOMCORE_BUILD_TESTS "Build GeomCore Tests" OFF)
+OPTION(GEOMCORE_BUILD_TESTS "Build GeomCore Tests" ON)
 #Decend into the test tree.
 IF (GEOMCORE_BUILD_TESTS)
 	ADD_SUBDIRECTORY(tests)

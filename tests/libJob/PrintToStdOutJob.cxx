@@ -22,8 +22,8 @@
  */
 
 #include "PrintToStdOutJob.h"
+#include "GSThread.h"
 #include <iostream>
-#include "libutility.h"
 
 PrintToStdOutJob::PrintToStdOutJob(QString text)
 {

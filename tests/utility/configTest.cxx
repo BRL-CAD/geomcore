@@ -23,7 +23,8 @@
  *
  */
 
-#include "libutility.h"
+#include "Logger.h"
+#include "Config.h"
 
 #include <string>
 
