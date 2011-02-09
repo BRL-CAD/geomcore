@@ -29,7 +29,7 @@
 #include "Event.h"
 #include "EventManager.h"
 
-#include <QtCore/QString>
+#include <string>
 
 class EventPublisher;
 

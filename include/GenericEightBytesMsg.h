@@ -32,10 +32,10 @@ class GenericEightBytesMsg : public NetMsg
 {
 public:
 	/* Normal Constructor */
-	GenericEightBytesMsg(quint32 type, quint64 b);
+	GenericEightBytesMsg(uint32_t type, uint64_t b);
 
 	/* Reply Constructor */
-	GenericEightBytesMsg(quint32 type, NetMsg* msg, quint64 b);
+	GenericEightBytesMsg(uint32_t type, NetMsg* msg, uint64_t b);
 
 	/* Deserializing Constructor */
 	GenericEightBytesMsg(QDataStream* ds, Portal* origin);
@@ -46,11 +46,11 @@ public:
 	/*
 	 * Utilities
 	 */
-	virtual QString toString();
+	virtual std::string toString();
 
 protected:
-	quint64 getData();
-	quint64 data;
+	uint64_t getData();
+	uint64_t data;
 
 	virtual bool _serialize(QDataStream* ds);
 	virtual bool _equals(const NetMsg& msg);

@@ -32,12 +32,12 @@ PingCmd::PingCmd(): AbstractClientCmd("ping"){}
 PingCmd::~PingCmd() {}
 
 
-QString
+std::string
 PingCmd::getUsage(){
 	return "Usage: ping";
 }
 
-QString
+std::string
 PingCmd::getHelp(){
 	return "Pings the remote host.  Pong is expected in return.";
 }

@@ -26,7 +26,6 @@
 #include "GSClient.h"
 #include "GSCmdLineClient.h"
 #include "Config.h"
-#include <QtCore/QString>
 #include <QtCore/QUuid>
 
 int gsExit(int code)
@@ -63,7 +62,7 @@ main(int argc, char* argv[])
 	}
 
 	/* Check for a local node name.  This is imperative to be set. */
-	QString localNodeName = c->getConfigValue("LocalNodeName");
+	std::string localNodeName = c->getConfigValue("LocalNodeName");
 	if (localNodeName.length() == 0) {
 		log->logERROR("geoclient", "Config File does not contain a 'LocalNodeName' parameter");
 		gsExit(1);

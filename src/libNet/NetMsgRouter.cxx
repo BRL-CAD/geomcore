@@ -59,7 +59,8 @@ bool NetMsgRouter::routeMsg(NetMsg* msg) {
 	/* First get the appropriate list: */
 	QList<INetMsgHandler*>* list = this->getListOfHandlers(msg->getMsgType());
 
-	QString s;
+	char buf[BUFSIZ];
+	std::string s;
 /*
 	QString s("Got a message whos origin is Portal: ");
 	Portal* origin = msg->getOrigin();
@@ -75,11 +76,8 @@ bool NetMsgRouter::routeMsg(NetMsg* msg) {
 
 	if (list->length() == 0) {
 		/* If no routing table, print an error */
-		s.clear();
-		s.append("Msg type: ");
-		s.append(QString::number(msg->getMsgType(),16).toUpper());
-		s.append(" has no routing information.");
-		Logger::getInstance()->logWARNING("NetMsgRouter",s);
+		snprintf(buf, BUFSIZ, "Msg type: %X has no forwarding information.", msg->getMsgType());
+		Logger::getInstance()->logWARNING("NetMsgRouter",std::string(buf));
 		return false;
 
 	} else {

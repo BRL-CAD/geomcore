@@ -29,7 +29,7 @@
 #include <iostream>
 
 #include <QtCore/QThread>
-#include <QtCore/QString>
+#include <string>
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
@@ -66,12 +66,12 @@ public:
 		this->printToFile = false;
 	}
 
-	void logBANNER(QString origin, QString string);
-	void logDEBUG(QString origin, QString string);
-	void logINFO(QString origin, QString string);
-	void logWARNING(QString origin, QString string);
-	void logERROR(QString origin, QString string);
-	void logFATAL(QString origin, QString string);
+	void logBANNER(std::string origin, std::string string);
+	void logDEBUG(std::string origin, std::string string);
+	void logINFO(std::string origin, std::string string);
+	void logWARNING(std::string origin, std::string string);
+	void logERROR(std::string origin, std::string string);
+	void logFATAL(std::string origin, std::string string);
 
 	enum
 	{
@@ -91,7 +91,7 @@ private:
 	Logger(const Logger& logger){}; /* Disable Copy cstr */
 	Logger& operator=(const Logger& log){}; /* Disable equals operator */
 
-	void log(quint32 logLevel, QString origin, QString string);
+	void log(quint32 logLevel, std::string origin, std::string string);
 };
 
 #endif /* __LOGGER_H__ */

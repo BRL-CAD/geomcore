@@ -49,31 +49,31 @@ Logger* Logger::getInstance() {
 	return Logger::instance;
 }
 
-void Logger::logBANNER(QString origin, QString string) {
+void Logger::logBANNER(std::string origin, std::string string) {
 	this->log(Logger::BANNER, origin, string);
 }
 
-void Logger::logDEBUG(QString origin, QString string) {
+void Logger::logDEBUG(std::string origin, std::string string) {
 	this->log(Logger::DEBUG, origin, string);
 }
 
-void Logger::logINFO(QString origin, QString string) {
+void Logger::logINFO(std::string origin, std::string string) {
 	this->log(Logger::INFO, origin, string);
 }
 
-void Logger::logWARNING(QString origin, QString string) {
+void Logger::logWARNING(std::string origin, std::string string) {
 	this->log(Logger::WARNING, origin, string);
 }
 
-void Logger::logERROR(QString origin, QString string) {
+void Logger::logERROR(std::string origin, std::string string) {
 	this->log(Logger::ERROR, origin, string);
 }
 
-void Logger::logFATAL(QString origin, QString string) {
+void Logger::logFATAL(std::string origin, std::string string) {
 	this->log(Logger::FATAL, origin, string);
 }
 
-void Logger::log(quint32 logLevel, QString origin, QString string) {
+void Logger::log(quint32 logLevel, std::string origin, std::string string) {
 	std::string time("");
 
 	std::string type("");
@@ -113,13 +113,13 @@ void Logger::log(quint32 logLevel, QString origin, QString string) {
 	if (this->printToConsole) {
 		out << std::setw(12) << std::setfill(' ') << std::left << time;
 		out << std::setw(20) << std::setfill(' ') << std::left
-				<< origin.toStdString();
+				<< origin;
 		out << std::setw(12) << std::setfill(' ') << std::left << type;
 
 		if (logLevel == Logger::BANNER) {
-			out << std::setfill(' ') << std::left << "======= " << string.toStdString() << " =======";
+			out << std::setfill(' ') << std::left << "======= " << string << " =======";
 		} else {
-			out << std::setfill(' ') << std::left << string.toStdString();
+			out << std::setfill(' ') << std::left << string;
 		}
 
 		if (this->verbose) {

@@ -47,7 +47,7 @@ public:
 	/*
 	 * Utilities
 	 */
-	virtual QString toString();
+	virtual std::string toString();
 	QByteArray* getQByteArray();
 
 protected:

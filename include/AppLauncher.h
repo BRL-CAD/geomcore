@@ -29,7 +29,7 @@
 #include "BaseApp.h"
 
 #include <QtCore/QCoreApplication>
-#include <QtCore/QString>
+#include <string>
 #include <QtCore/QUuid>
 
 class AppLauncher : public QCoreApplication

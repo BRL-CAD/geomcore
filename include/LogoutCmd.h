@@ -28,15 +28,15 @@
 #define __LOGOUTCMD_H__
 
 #include "AbstractClientCmd.h"
-#include <QtCore/QString>
+#include <string>
 
 class LogoutCmd : public AbstractClientCmd {
 public:
 	LogoutCmd();
 	virtual ~LogoutCmd();
 
-	QString getUsage();
-	QString getHelp();
+	std::string getUsage();
+	std::string getHelp();
 
 protected:
 	bool _exec(GSCmdLineClient* client, QStringList args);

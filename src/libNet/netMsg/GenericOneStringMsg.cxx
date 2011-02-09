@@ -28,12 +28,12 @@
 #include <sstream>
 
 /* Normal Constructor */
-GenericOneStringMsg::GenericOneStringMsg(quint32 type, QString s) :
+GenericOneStringMsg::GenericOneStringMsg(uint32_t type, std::string s) :
     NetMsg(type), strData(s)
 {}
 
 /* Reply Constructor */
-GenericOneStringMsg::GenericOneStringMsg(quint32 type, NetMsg* msg, QString s) :
+GenericOneStringMsg::GenericOneStringMsg(uint32_t type, NetMsg* msg, std::string s) :
      NetMsg(type, msg), strData(s)
 {}
 
@@ -54,9 +54,9 @@ bool GenericOneStringMsg::_serialize(QDataStream* ds)
     return true;
 }
 
-QString GenericOneStringMsg::toString()
+std::string GenericOneStringMsg::toString()
 {
-    QString out;
+    std::string out;
 
     out.append(NetMsg::toString());
     out.append("\t  strData: ");
@@ -79,7 +79,7 @@ bool GenericOneStringMsg::_equals(const NetMsg& msg)
 /*
  *Getters n Setters
  */
-QString GenericOneStringMsg::getStrData()
+std::string GenericOneStringMsg::getStrData()
 {
     return this->strData;
 }

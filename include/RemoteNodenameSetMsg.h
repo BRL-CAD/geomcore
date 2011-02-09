@@ -32,10 +32,10 @@ class RemoteNodenameSetMsg : public GenericOneStringMsg
 {
 public:
 	/* Normal Constructor */
-	RemoteNodenameSetMsg(QString s);
+	RemoteNodenameSetMsg(std::string s);
 
 	/* Reply Constructor */
-	RemoteNodenameSetMsg(NetMsg* msg, QString gsNodename);
+	RemoteNodenameSetMsg(NetMsg* msg, std::string gsNodename);
 
 	/* Deserializing Constructor */
 	RemoteNodenameSetMsg(QDataStream* ds, Portal* origin);
@@ -43,7 +43,7 @@ public:
 	/* Destructor */
 	virtual ~RemoteNodenameSetMsg();
 
-	QString getRemoteNodename();
+	std::string getRemoteNodename();
 
 private:
 	/* Disable copy cstr and =operator */

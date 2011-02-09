@@ -26,12 +26,12 @@
 #ifndef __EVENTPUBLISHER_H__
 #define __EVENTPUBLISHER_H__
 
-#include <QtCore/QString>
+#include <string>
 
 class EventPublisher
 {
 public:
-    void generateEvent(quint32 type, QString message = "");
+    void generateEvent(uint32_t type, std::string message = "");
 };
 
 #endif /* __EVENTPUBLISHER_H__ */

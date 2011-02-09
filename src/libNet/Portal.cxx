@@ -37,7 +37,7 @@
 Portal::Portal(PortalManager* pm, PkgTcpClient* client, struct pkg_switch* table):
 pm(pm), pkgClient(client), callbackTable(table), log(Logger::getInstance()), handshakeComplete(false)
 {
-	this->remoteNodeName = "NotSetYet-" + QUuid::createUuid().toString();
+	this->remoteNodeName.assign("NotSetYet-" + QUuid::createUuid().toString().toStdString());
 
 	/* set the struct's userdata */
 	this->callbackTable[0].pks_user_data = this;
@@ -83,10 +83,11 @@ Portal::sendThenDisconnect(NetMsg* msg) {
 
 void
 Portal::sendGSNodeName() {
-	QString localNodeName = this->pm->getLocalNodeName();
+	std::string localNodeName;
+	localNodeName.assign(this->pm->getLocalNodeName());
 
 	if (localNodeName.length() == 0) {
-		localNodeName = QUuid::createUuid().toString();
+		localNodeName.assign(QUuid::createUuid().toString().toStdString());
 	}
 
 	RemoteNodenameSetMsg msg(localNodeName);
@@ -130,14 +131,14 @@ Portal::read() {
 	return 1;
 }
 
-QString
+std::string
 Portal::getRemoteNodeName() {
 	return this->remoteNodeName + "";
 }
 
 bool
 Portal::handleNetMsg(NetMsg* msg) {
-	quint16 type = msg->getMsgType();
+	uint16_t type = msg->getMsgType();
 
 	if (type == GS_REMOTE_NODENAME_SET) {
 		if (this->handshakeComplete) {
@@ -145,7 +146,7 @@ Portal::handleNetMsg(NetMsg* msg) {
 					"Recv-ed a RemoteNodename, but that is already set!");
 		} else {
 			RemoteNodenameSetMsg* t = (RemoteNodenameSetMsg*) msg;
-			this->remoteNodeName = t->getRemoteNodename();
+			this->remoteNodeName.assign(t->getRemoteNodename());
 			this->handshakeComplete = true;
 
 			/*

@@ -27,16 +27,16 @@
 
 #include "AbstractClientCmd.h"
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <string>
+#include <QStringList>
 
 class ShutdownCmd : public AbstractClientCmd {
 public:
 	ShutdownCmd();
 	virtual ~ShutdownCmd();
 
-	QString getUsage();
-	QString getHelp();
+	std::string getUsage();
+	std::string getHelp();
 
 protected:
 	bool _exec(GSCmdLineClient* client, QStringList args);

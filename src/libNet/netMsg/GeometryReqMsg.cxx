@@ -27,12 +27,12 @@
 #include "GeometryReqMsg.h"
 
 /* Normal Constructor */
-GeometryReqMsg::GeometryReqMsg(quint8 requestType, QString data) :
+GeometryReqMsg::GeometryReqMsg(uint8_t requestType, std::string data) :
     GenericOneStringMsg(GEOMETRYREQ, data), reqType(requestType)
 {}
 
 /* Reply Constructor */
-GeometryReqMsg::GeometryReqMsg(NetMsg* msg, quint8 requestType, QString data) :
+GeometryReqMsg::GeometryReqMsg(NetMsg* msg, uint8_t requestType, std::string data) :
 	GenericOneStringMsg(GEOMETRYREQ, msg, data), reqType(requestType)
 {}
 
@@ -56,16 +56,13 @@ bool GeometryReqMsg::_serialize(QDataStream* ds)
     return true;
 }
 
-QString GeometryReqMsg::toString()
+std::string GeometryReqMsg::toString()
 {
-    QString out;
+    char out[BUFSIZ];
 
-    out.append(GenericOneStringMsg::toString());
-    out.append("' requestType: '");
-    out.append(QString::number(this->reqType));
-    out.append("'");
+    snprintf(out, BUFSIZ, "%s' requestType: '%d'", GenericOneStringMsg::toString().c_str(), this->reqType);
 
-    return out;
+    return std::string(out);
 }
 
 bool GeometryReqMsg::_equals(const NetMsg& msg)
@@ -82,12 +79,12 @@ bool GeometryReqMsg::_equals(const NetMsg& msg)
 /*
  *Getters n Setters
  */
-quint8 GeometryReqMsg::getRequestType()
+uint8_t GeometryReqMsg::getRequestType()
 {
     return this->reqType;
 }
 
-QString
+std::string
 GeometryReqMsg::getData()
 {
     return this->strData;

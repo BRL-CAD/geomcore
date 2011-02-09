@@ -27,12 +27,12 @@
 #include <sstream>
 
 /* Normal Constructor */
-GenericTwoBytesMsg::GenericTwoBytesMsg(quint32 type, quint16 b) :
+GenericTwoBytesMsg::GenericTwoBytesMsg(uint32_t type, uint16_t b) :
     NetMsg(type), data(b)
 {}
 
 /* Reply Constructor */
-GenericTwoBytesMsg::GenericTwoBytesMsg(quint32 type, NetMsg* msg, quint16 b) :
+GenericTwoBytesMsg::GenericTwoBytesMsg(uint32_t type, NetMsg* msg, uint16_t b) :
      NetMsg(type, msg), data(b)
 {}
 
@@ -53,16 +53,13 @@ bool GenericTwoBytesMsg::_serialize(QDataStream* ds)
     return true;
 }
 
-QString GenericTwoBytesMsg::toString()
+std::string GenericTwoBytesMsg::toString()
 {
-    QString out;
+    char buf[BUFSIZ];
 
-    out.append(NetMsg::toString());
-    out.append("\t data: '");
-    out.append(QString::number(this->data));
-    out.append("'");
+    snprintf(buf, BUFSIZ, "%s\t data: '%d'", NetMsg::toString().c_str(), this->data);
 
-    return out;
+    return std::string(buf);
 }
 
 bool GenericTwoBytesMsg::_equals(const NetMsg& msg)
@@ -79,7 +76,7 @@ bool GenericTwoBytesMsg::_equals(const NetMsg& msg)
 /*
  *Getters n Setters
  */
-quint16 GenericTwoBytesMsg::getData()
+uint16_t GenericTwoBytesMsg::getData()
 {
     return this->data;
 }

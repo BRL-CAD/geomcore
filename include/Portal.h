@@ -35,7 +35,7 @@
 
 #include "brlcad/pkg.h"
 
-#include <QtCore/QString>
+#include <string>
 
 class PortalManager;
 
@@ -50,7 +50,7 @@ public:
   void disconnect();
 
   int flush();
-  QString getRemoteNodeName();
+  std::string getRemoteNodeName();
   bool handleNetMsg(NetMsg* msg);
 
 
@@ -70,7 +70,7 @@ private:
   PortalManager* pm;
   struct pkg_switch* callbackTable;
   PkgTcpClient* pkgClient;
-  QString remoteNodeName;
+  std::string remoteNodeName;
   Logger* log;
   bool handshakeComplete;
 

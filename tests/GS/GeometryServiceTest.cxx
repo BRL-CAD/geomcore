@@ -37,7 +37,7 @@
 #include <QtCore/QString>
 #include <QtNetwork/QHostAddress>
 
-static const quint16 DEFAULT_PORT = 5309;
+static const uint16_t DEFAULT_PORT = 5309;
 
 /**
  * wrapper server class for staring up an object that instantiates and
@@ -47,12 +47,12 @@ static const quint16 DEFAULT_PORT = 5309;
 class GeometryServer
 {
 private:
-    quint16 _port;
-    QHostAddress _addy;
+    uint16_t _port;
+    std::string* _addy;
     GeometryService* gs;
 
 public:
-    GeometryServer(const QHostAddress& addy = QHostAddress::LocalHost, const quint16 port = DEFAULT_PORT)
+    GeometryServer(std::string* addy = new std::string("127.0.0.1"), const uint16_t port = DEFAULT_PORT)
     {
 		if (port > 0)
 			start(addy, port);
@@ -81,7 +81,7 @@ public:
 		return isRun;
     }
 
-    void start(const QHostAddress& addy = QHostAddress::LocalHost, const quint16 port = DEFAULT_PORT)
+    void start(std::string* addy, const uint16_t port = DEFAULT_PORT)
     {
     	/* FIXME Are these two internals really needed? */
     	this->_port = port;

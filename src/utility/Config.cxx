@@ -33,7 +33,7 @@ Config* Config::pInstance = NULL;
 
 Config::Config()
 {
-    this->configMap = new QMap<QString, QString> ();
+    this->configMap = new QMap<std::string, std::string> ();
     this->log = Logger::getInstance();
 }
 
@@ -50,14 +50,16 @@ Config* Config::getInstance()
     return Config::pInstance;
 }
 
-bool Config::loadFile(QString pathAndFileName, bool verbose)
+bool Config::loadFile(std::string pathAndFileName, bool verbose)
 {
-    QString msg;
+    QString pth;
+    std::string msg;
     msg = "Attemping to load config from: '" + pathAndFileName + "'.";
     this->log->logINFO("Config", msg);
 
     //init file object
-    QFile f(pathAndFileName);
+    pth.append(pathAndFileName.c_str());
+    QFile f(pth);
 
     if (f.exists() == false) {
 		msg = "Could not find file: '" + pathAndFileName + "'.";
@@ -76,7 +78,7 @@ bool Config::loadFile(QString pathAndFileName, bool verbose)
     while (!f.atEnd()) {
 		QByteArray lineBytes = f.readLine();
 
-		QString line(lineBytes);
+		std::string line(lineBytes);
 
 		//Rem newline:
 		this->removeAllOccurances(&line, "\n", "");
@@ -85,10 +87,10 @@ bool Config::loadFile(QString pathAndFileName, bool verbose)
 		if (line[0] == '#') {
 			//log->logINFO("Config", "Ignoring Comment. (" + line + ")");
 		} else {
-			QString key = this->processLine(line);
+			std::string key = this->processLine(line);
 
-			if (verbose && key != NULL && key.length() > 0) {
-				QString value = this->configMap->value(key);
+			if (verbose && key.length() > 0) {
+				std::string value = this->configMap->value(key);
 				log->logINFO("Config", "Read key/value: '" + key + "'->'" + value + "'");
 			}
 
@@ -96,12 +98,12 @@ bool Config::loadFile(QString pathAndFileName, bool verbose)
     }
     QFileInfo info(f);
 
-    log->logINFO("Config", "Done loading config from: " + info.absoluteFilePath());
+    log->logINFO("Config", "Done loading config from: " + info.absoluteFilePath().toStdString());
     return true;
 }
 
-QString
-Config::processLine(QString line)
+std::string
+Config::processLine(std::string line)
 {
     //Process the string, clean it up.
 
@@ -114,7 +116,8 @@ Config::processLine(QString line)
 	return "";
     }
 
-    QStringList list = line.split(" ");
+    QString qline(line.c_str());
+    QStringList list = qline.split(" ");
     if (list.length() < 2) {
 	this->log->logERROR("Config",
 		"Not enough elements for Key/Value pair on Config Line: "
@@ -122,34 +125,36 @@ Config::processLine(QString line)
 	return "";
     }
 
-    QString key = list[0];
-    QString value = list[1];
+    std::string key = list[0].toStdString();
+    std::string value = list[1].toStdString();
 
     this->updateValue(key, value);
     return key;
 }
 
-void Config::removeAllOccurances(QString* data, QString search, QString replace)
+void Config::removeAllOccurances(std::string* data, std::string search, std::string replace)
 {
+	/*
     while (data->contains(search)) {
 	*data = (*data).replace(search, replace);
     }
+    */
 }
 
-QString Config::getConfigValue(QString key)
+std::string Config::getConfigValue(std::string key)
 {
 	QMutexLocker(&this->mapLock);
     return this->configMap->value(key, "") + "";
 }
 
 void
-Config::updateValue(QString key, QString value)
+Config::updateValue(std::string key, std::string value)
 {
 	QMutexLocker(&this->mapLock);
 	this->configMap->insert(key, value);
 }
 
-QList<QString> Config::getAllKeys()
+QList<std::string> Config::getAllKeys()
 {
 	QMutexLocker(&this->mapLock);
 	return this->configMap->uniqueKeys();

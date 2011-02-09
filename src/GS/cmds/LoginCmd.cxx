@@ -32,12 +32,12 @@
 LoginCmd::LoginCmd() : AbstractClientCmd("login"){}
 LoginCmd::~LoginCmd() {}
 
-QString
+std::string
 LoginCmd::getUsage() {
 	return "Usage: login ip port uname passwd";
 }
 
-QString
+std::string
 LoginCmd::getHelp() {
 	return "Attempts to make a connection and login to a GeometryService.";
 }
@@ -52,10 +52,10 @@ LoginCmd::_exec(GSCmdLineClient* client, QStringList args){
 	}
 
 	/* Convert args to proper types */
- 	QString host = args.at(0);
- 	quint16 port = atoi(args.at(1).toStdString().c_str());
- 	QString uname = args.at(2);
- 	QString passwd = args.at(3);
+ 	std::string host(args.at(0).toStdString());
+ 	uint16_t port = atoi(args.at(1).toStdString().c_str());
+ 	std::string uname(args.at(2).toStdString());
+ 	std::string passwd(args.at(3).toStdString());
 
 
 	if (port <=0 || host.length() == 0 || uname.length() == 0 || passwd.length() == 0){
@@ -88,7 +88,7 @@ LoginCmd::_exec(GSCmdLineClient* client, QStringList args){
 
 	GSThread::msleep(100);
 
-	QString remNodename = p->getRemoteNodeName();
+	std::string remNodename = p->getRemoteNodeName();
 	this->log->logINFO("LoginCmd", "Connected to: '" + remNodename+ "'.");
 
 	return true;

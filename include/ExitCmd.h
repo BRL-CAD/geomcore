@@ -27,15 +27,15 @@
 #define __EXITCMD_H__
 
 #include "AbstractClientCmd.h"
-#include <QtCore/QString>
+#include <string>
 
 class ExitCmd: public AbstractClientCmd {
 public:
 	ExitCmd();
 	virtual ~ExitCmd();
 
-	QString getUsage();
-	QString getHelp();
+	std::string getUsage();
+	std::string getHelp();
 
 protected:
 	bool _exec(GSCmdLineClient* client, QStringList args);

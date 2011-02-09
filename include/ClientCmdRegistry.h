@@ -29,7 +29,7 @@
 
 #include "Logger.h"
 
-#include <QtCore/QString>
+#include <string>
 #include <QtCore/QMap>
 #include <QtCore/QList>
 #include <QtCore/QMutex>
@@ -43,9 +43,9 @@ public:
 	virtual ~ClientCmdRegistry();
 
 	bool registerCmd(AbstractClientCmd* cmd);
-	AbstractClientCmd* getCmd(QString cmd);
+	AbstractClientCmd* getCmd(std::string cmd);
 
-	QList<QString>* getListOfCmds();
+	QList<std::string>* getListOfCmds();
 
 private:
 	static ClientCmdRegistry* pInstance;
@@ -53,7 +53,7 @@ private:
 	Logger* log;
 
 	QMutex mapLock;
-	QMap<QString,AbstractClientCmd*>* cmdMap;
+	QMap<std::string,AbstractClientCmd*>* cmdMap;
 
 	/* Disable copy cstr and =operator */
 	ClientCmdRegistry(ClientCmdRegistry const&){};

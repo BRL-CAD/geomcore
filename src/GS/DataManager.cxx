@@ -41,10 +41,10 @@ DataManager::DataManager()
 DataManager::~DataManager()
 {}
 
-QString DataManager::getDbObjectByURL(QString url)
+std::string DataManager::getDbObjectByURL(std::string url)
 {}
 
-QString DataManager::getDbObjectByUUID(QUuid& uuid)
+std::string DataManager::getDbObjectByUUID(QUuid& uuid)
 {}
 
 void
@@ -57,7 +57,7 @@ DataManager::addDataSource(IDataSource* source)
 bool
 DataManager::handleNetMsg(NetMsg* msg)
 {
-	quint16 type = msg->getMsgType();
+	uint16_t type = msg->getMsgType();
 	switch(type) {
 	case GEOMETRYREQ:
 		this->handleGeometryReqMsg((GeometryReqMsg*)msg);
@@ -87,8 +87,8 @@ DataManager::handleGeometryChunkMsg(GeometryChunkMsg* msg)
 void
 DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
 {
-	quint8 reqType = msg->getRequestType();
-	QString data = msg->getData();
+	uint8_t reqType = msg->getRequestType();
+	std::string data = msg->getData();
 	Portal* origin = msg->getOrigin();
 
 	//validate incoming data
@@ -116,7 +116,7 @@ DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
 				return;
 			}
 
-			QList<QString> items;
+			QList<std::string> items;
 			QByteArray* data = obj->getData();
 
 			GeometryChunkMsg* chunk = new GeometryChunkMsg(data->data(), data->length());

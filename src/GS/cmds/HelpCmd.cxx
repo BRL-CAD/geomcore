@@ -30,12 +30,12 @@ HelpCmd::HelpCmd() : AbstractClientCmd("help") {}
 
 HelpCmd::~HelpCmd() {}
 
-QString
+std::string
 HelpCmd::getUsage() {
 	return "Usage: help [cmdname]";
 }
 
-QString
+std::string
 HelpCmd::getHelp() {
 	return "If evoked without any arguments, help diplays a list of available commands.  If a command name is provided as an argument, the help for that command is displayed.";
 }
@@ -54,11 +54,11 @@ HelpCmd::_exec(GSCmdLineClient* client, QStringList args){
 
 	if (argn == 0) {
 		/* display list of cmds */
-		QList<QString>* cmds = ccReg->getListOfCmds();
+		QList<std::string>* cmds = ccReg->getListOfCmds();
 
 		this->log->logINFO("HelpCmd", "Available commands:");
 
-		QString out("\t");
+		std::string out("\t");
 		for (int i = 0; i < cmds->length(); ++i) {
 			/* Append the new cmd name */
 			out.append(cmds->at(i));
@@ -83,7 +83,7 @@ HelpCmd::_exec(GSCmdLineClient* client, QStringList args){
 		return true;
 	} else {
 		/* display specifics of a single cmd */
-		QString cmd = args.at(0);
+		std::string cmd(args.at(0).toStdString());
 
 		if(cmd.length() == 0) {
 			this->log->logERROR("HelpCmd", "Zero Length Cmd provided to help.");

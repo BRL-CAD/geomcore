@@ -28,12 +28,12 @@
 #include <sstream>
 
 /* Normal Constructor */
-GenericEightBytesMsg::GenericEightBytesMsg(quint32 type, quint64 data) :
+GenericEightBytesMsg::GenericEightBytesMsg(uint32_t type, quint64 data) :
     NetMsg(type), data(data)
 {}
 
 /* Reply Constructor */
-GenericEightBytesMsg::GenericEightBytesMsg(quint32 type, NetMsg* msg, quint64 data) :
+GenericEightBytesMsg::GenericEightBytesMsg(uint32_t type, NetMsg* msg, quint64 data) :
 	NetMsg(type, msg), data(data)
 {}
 
@@ -54,16 +54,13 @@ bool GenericEightBytesMsg::_serialize(QDataStream* ds)
     return true;
 }
 
-QString GenericEightBytesMsg::toString()
+std::string GenericEightBytesMsg::toString()
 {
-    QString out;
+    char out[BUFSIZ];
 
-    out.append(NetMsg::toString());
-    out.append("\t data: '");
-    out.append(QString::number(this->data));
-    out.append("'");
+    snprintf(out, BUFSIZ, "%s\t data: '%d'", NetMsg::toString().c_str(), this->data);
 
-    return out;
+    return std::string(out);
 }
 
 bool GenericEightBytesMsg::_equals(const NetMsg& msg)

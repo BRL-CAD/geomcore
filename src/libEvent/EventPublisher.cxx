@@ -27,7 +27,7 @@
 #include "EventManager.h"
 #include "EventPublisher.h"
 
-void EventPublisher::generateEvent(quint32 type, QString message)
+void EventPublisher::generateEvent(uint32_t type, std::string message)
 {
     Event* e = new Event(this, type, message);
     EventManager::getInstance()->submitEvent(e);

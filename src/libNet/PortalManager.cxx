@@ -29,13 +29,17 @@
 #include "PkgTcpClient.h"
 #include "NetMsgTypes.h"
 
+#include <string>
 #include <stdio.h>
 #include <errno.h>
 
-PortalManager::PortalManager(QString localNodeName, quint16 listenPort, QHostAddress listenAddress) :
-	ControlledThread(localNodeName + "PortMan"), localNodeName(localNodeName),
-	listenPort(listenPort), listenAddress(listenAddress) {
+#include <QtCore/QMap>
 
+PortalManager::PortalManager(std::string localNodeName, uint16_t listenPort, std::string address)
+{
+	this->localNodeName.assign(localNodeName + "PortMan");
+	this->listenAddress.assign(address);
+	this->listenPort = listenPort;
 	this->tcpServer = new PkgTcpServer();
 	this->fdPortalMap = new QMap<int, Portal*> ();
 	this->portalsLock = new QMutex();
@@ -46,11 +50,10 @@ PortalManager::PortalManager(QString localNodeName, quint16 listenPort, QHostAdd
 PortalManager::~PortalManager() {}
 
 Portal*
-PortalManager::connectToHost(QString host, quint16 port) {
+PortalManager::connectToHost(std::string host, uint16_t port) {
 	struct pkg_switch* table = this->makeNewSwitchTable();
 
-	PkgTcpClient* pkgc = (PkgTcpClient*) this->tcpServer->connectToHost(
-			host.toStdString(), port, table);
+	PkgTcpClient* pkgc = (PkgTcpClient*) this->tcpServer->connectToHost(host, port, table);
 
 	if (pkgc == NULL) {
 		return NULL;
@@ -76,17 +79,16 @@ PortalManager::_run() {
 	FD_ZERO(&exceptionfds);
 
 	if (this->listenPort != 0) {
-		listener = this->tcpServer->listen(this->listenPort, this->listenAddress.toString().toStdString());
+		listener = this->tcpServer->listen(this->listenPort, this->listenAddress);
 
 		if (listener < 0) {
 			this->log->logERROR("PortalManager", "Failed to listen");
 			return;
 		} else {
-			QString s("Listening on: ");
-			s.append(this->listenAddress.toString() + ":");
-			s.append(QString::number(this->listenPort));
-			s.append(" FD:");
-			s.append(QString::number(listener));
+			char buf[BUFSIZ];
+			std::string s;
+			snprintf(buf, BUFSIZ, "%s:%d FD:%d", this->listenAddress.c_str(), this->listenPort, listener);
+			s.assign(buf);
 			this->log->logINFO("PortalManager", s);
 		}
 
@@ -128,7 +130,7 @@ PortalManager::_run() {
 
 		if (retVal < 0) {
 			/* got a selector error */
-			this->log->logERROR("PortalManager", "Selector Error: " + QString::number(errno));
+			this->log->logERROR("PortalManager", "Selector Error: " + QString::number(errno).toStdString());
 			break;
 		}
 
@@ -190,9 +192,9 @@ PortalManager::_run() {
 			/* Check, again, if we have a good portal. */
 			if (p == 0) {
 				/* Deal with unmapped file Descriptor */
-				QString s("FD ");
-				s.append(QString::number(i));
-				s.append(" not associated with a Portal, dropping connection.");
+				char buf[BUFSIZ];
+				snprintf(buf, BUFSIZ, "FD %d not associated with a Portal, dropping connection.");
+				std::string s(buf);
 				this->closeFD(i, s);
 				continue;
 			}
@@ -266,7 +268,7 @@ PortalManager::makeNewSwitchTable() {
 }
 
 void
-PortalManager::closeFD(int fd, QString logComment) {
+PortalManager::closeFD(int fd, std::string logComment) {
 	close(fd);
 
 	this->masterFDSLock.lock();
@@ -294,7 +296,7 @@ PortalManager::disconnect(Portal* p)
 bool
 PortalManager::handleNetMsg(NetMsg* msg)
 {
-	quint16 type = msg->getMsgType();
+	uint16_t type = msg->getMsgType();
 	switch(type) {
 	case DISCONNECTREQ:
 		this->handleDisconnectReqMsg((TypeOnlyMsg*)msg);
@@ -318,7 +320,7 @@ PortalManager::handleDisconnectReqMsg(TypeOnlyMsg* msg)
 	this->disconnect(origin);
 }
 
-QString
+std::string
 PortalManager::getLocalNodeName()
 {
 	return this->localNodeName;

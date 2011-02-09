@@ -28,11 +28,11 @@
 QUuid* 
 DataStreamUtils::getQUuid(QDataStream* ds)
 {
-  QString* strUUID = DataStreamUtils::getString(ds);
+  std::string* strUUID = DataStreamUtils::getString(ds);
 
   //std::cout << strUUID->toStdString();
 
-  QUuid* out = new QUuid(*strUUID);
+  QUuid* out = new QUuid(strUUID->c_str());
 
   delete strUUID;
 
@@ -42,28 +42,26 @@ DataStreamUtils::getQUuid(QDataStream* ds)
 void
 DataStreamUtils::putQUuid(QDataStream* ds, QUuid uuid)
 {
-  DataStreamUtils::putString(ds, uuid.toString());
+  DataStreamUtils::putString(ds, uuid.toString().toStdString());
 }
 
-QString* DataStreamUtils::getString(QDataStream* ds)
+std::string* DataStreamUtils::getString(QDataStream* ds)
 {
   
-  quint32 len;
-  QString* out = new QString();
+  uint32_t len;
+  std::string* out = new std::string();
 
   //get str length
   *ds >> len;
 
   //std::cout << "Read String length of: " << len << std::endl;
 
-  for (quint32 i = 0; i< len; ++i)
+  for (uint32_t i = 0; i< len; ++i)
     {
-      quint16 shrt;
+      unsigned char shrt;
       *ds >> shrt;
 
-      QChar c(shrt);
-
-      out->append(c);
+      out->append(1,shrt);
     }
 
   /*
@@ -76,7 +74,7 @@ QString* DataStreamUtils::getString(QDataStream* ds)
   
 }
 
-void DataStreamUtils::putString(QDataStream* ds, QString str)
+void DataStreamUtils::putString(QDataStream* ds, std::string str)
 {
   /*
   std::cout << "\nputString:" << std::endl;
@@ -84,12 +82,12 @@ void DataStreamUtils::putString(QDataStream* ds, QString str)
   std::cout << str.toStdString() << std::endl;
   */
 
-  *ds << str.size();
+  *ds << str.length();
 
-  for (quint32 i = 0; i< str.size(); ++i)
+  for (uint32_t i = 0; i< str.length(); ++i)
     {
-      quint16 shrt = str.at(i).unicode();
-      *ds << str.at(i).unicode();
+      unsigned char c = str.at(i);
+      *ds << str.at(i);
     }
 }
 
@@ -97,11 +95,11 @@ void DataStreamUtils::printQByteArray(QByteArray* ba)
 {
   std::cout << std::endl;
 
-  quint32 size = ba->size();
+  uint32_t size = ba->size();
 
   std::cout << "ByteArray.Size(): " << size << std::endl;
 
-  for (quint32 i = 0; i < size; ++i)
+  for (uint32_t i = 0; i < size; ++i)
     {
       char c = ba->at(i);
       std::cout << QString::number(c).toStdString() << " '" << c << "', ";

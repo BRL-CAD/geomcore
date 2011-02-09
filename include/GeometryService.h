@@ -32,16 +32,17 @@
 #include "NetMsgRouter.h"
 #include "FailureMsg.h"
 
-#include <QtCore/QString>
-#include <QtNetwork/QHostAddress>
+#include <string>
 
-static const quint16 DEFAULT_LISTEN_PORT = 5309;
-static const QHostAddress DEFAULT_LISTEN_ADDY = QHostAddress::LocalHost;
+#include <string>
+
+static const uint16_t DEFAULT_LISTEN_PORT = 5309;
+static const std::string DEFAULT_LISTEN_ADDY = "0.0.0.0";
 
 class GeometryService : public ControlledThread, public INetMsgHandler
 {
 public:
-	GeometryService(const QString localNodeName, const quint16 listenPort = DEFAULT_LISTEN_PORT, const QHostAddress listenAddy = DEFAULT_LISTEN_ADDY);
+	GeometryService(const std::string localNodeName, const uint16_t listenPort = DEFAULT_LISTEN_PORT, const std::string listenAddy = DEFAULT_LISTEN_ADDY);
 	virtual ~GeometryService();
     bool handleNetMsg(NetMsg* msg);
     DataManager* getDataManager();
@@ -53,9 +54,9 @@ protected:
 
 private:
 	Logger* log;
-	QString localNodeName;
-	quint16 listenPort;
-	QHostAddress listenAddy;
+	std::string localNodeName;
+	uint16_t listenPort;
+	std::string listenAddy;
 
 	PortalManager* portalMan;
 	DataManager* dataMan;

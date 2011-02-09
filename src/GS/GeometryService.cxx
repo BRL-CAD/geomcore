@@ -30,9 +30,10 @@
 #include "PongMsg.h"
 
 
-GeometryService::GeometryService(const QString localNodeName, const quint16 listenPort, const QHostAddress listenAddy) :
-ControlledThread(localNodeName), localNodeName(localNodeName), listenPort(listenPort), listenAddy(listenAddy)
+GeometryService::GeometryService(const std::string localNodeName, const uint16_t listenPort, const std::string listenAddy) : ControlledThread(localNodeName), listenPort(listenPort)
 {
+    this->localNodeName.assign(localNodeName);
+    this->listenAddy.assign(listenAddy);
     this->log = Logger::getInstance();
     this->log->logINFO("GeometryService", localNodeName + " is starting up...");
 
@@ -104,7 +105,9 @@ GeometryService::postRunHook() {
 bool
 GeometryService::handleNetMsg(NetMsg* msg)
 {
-	quint16 type = msg->getMsgType();
+	uint16_t type = msg->getMsgType();
+	char buf[BUFSIZ];
+
 	switch(type) {
 	case CMD_SHUTDOWN:
 		log->logINFO("GeometryService", "Remote Shutdown Initiated.");
@@ -118,7 +121,8 @@ GeometryService::handleNetMsg(NetMsg* msg)
 
 			QUuid re = fMsg->getReUUID();
 
-			log->logINFO("GeometryService", "Recv'ed A FailureMsg with code: " +QString::number( fc) + " (" + QString::number(fc, 16)+ ")");
+			snprintf(buf, BUFSIZ, "Recv'ed A FailureMsg with code: %d (%x)", fc, fc);
+			log->logINFO("GeometryService", buf);
 			return true;
 		}
 	case PING:
@@ -126,7 +130,7 @@ GeometryService::handleNetMsg(NetMsg* msg)
 			Portal* p = msg->getOrigin();
 
 			if (p != NULL) {
-				QString remNodeName = p->getRemoteNodeName();
+				std::string remNodeName = p->getRemoteNodeName();
 				log->logINFO("GeometryService", "PING from: '" + remNodeName + "'");
 				PongMsg pongMsg((PingMsg*)msg);
 				p->send(&pongMsg);
@@ -147,13 +151,13 @@ GeometryService::handleNetMsg(NetMsg* msg)
 			quint64 diff = now -start;
 
 			QString time = "roundtrip time: " + QString::number(diff) + "ms.";
-			QString remNodeName = "unknown";
+			std::string remNodeName("unknown");
 
-			if (p != NULL) {
+			if (p != NULL)
 				remNodeName = p->getRemoteNodeName();
-			}
 
-			log->logINFO("GSClient", "Pong from: '" + remNodeName + "', " + time);
+			snprintf(buf, BUFSIZ, "Pong from '%s' + %d ms", remNodeName.c_str());
+			log->logINFO("GSClient", buf);
 			return true;
 		}
 	}

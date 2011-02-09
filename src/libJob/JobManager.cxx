@@ -37,8 +37,10 @@ JobManager::JobManager() {
 	this->jobWorkers = new QList<JobWorker*> ();
 	this->acceptJobs = false;
 
-	QString text = "Startup.  MAX_JOBWORKERS: " + QString::number(
-			MAX_JOBWORKERS);
+	char buf[BUFSIZ];
+	std::string text;
+	snprintf(buf, BUFSIZ, "Startup.  MAX_JOBWORKERS: %d", MAX_JOBWORKERS);
+	text.assign(buf);
 
 	this->log->logINFO("JobManager", text);
 
@@ -50,8 +52,8 @@ JobManager::JobManager() {
 		//this->log->logINFO("JobManager", text);
 	}
 
-	text = "Created a total of " + QString::number(this->jobWorkers->size())
-			+ " JobWorkers";
+	snprintf(buf, BUFSIZ, "Created a total of %d JobWorkers", this->jobWorkers->size());
+	text.assign(buf);
 	this->log->logINFO("JobManager", text);
 }
 
@@ -78,9 +80,9 @@ void JobManager::startup() {
 }
 
 void JobManager::shutdown(bool finishJobQueue) {
-	this->log->logINFO("JobManager", "JobManager Shutdown Requested. "
-			+ QString::number(this->jobQueue->size())
-			+ " items in jobQueue remain...");
+	char buf[BUFSIZ];
+	snprintf(buf, BUFSIZ, "JobManager Shutdown Requested. %d items in jobQueue remain...", this->jobQueue->size());
+	this->log->logINFO("JobManager", buf);
 
 	this->acceptJobs = false;
 
@@ -91,10 +93,8 @@ void JobManager::shutdown(bool finishJobQueue) {
 	quint32 curPasses = 0;
 
 	while (this->jobQueue->size() != 0 && finishJobQueue) {
-		this->log->logINFO("JobManager",
-				"Waiting for JobWorkers to process JobQueue. "
-						+ QString::number(this->jobQueue->size())
-						+ " items remain...");
+		snprintf(buf, BUFSIZ, "Waiting for JobWorkers to process JobQueue. %d items remain...", this->jobQueue->size());
+		this->log->logINFO("JobManager", buf);
 		GSThread::sleep(waitTimePerLoopSecs);
 		++curPasses;
 		if (curPasses >= maxPasses) {
@@ -116,9 +116,8 @@ void JobManager::shutdown(bool finishJobQueue) {
 		this->jobWorkers->pop_front();
 	}
 
-	this->log->logINFO("JobManager", "All JobWorkers Stopped. "
-			+ QString::number(this->jobQueue->size())
-			+ " items in jobQueue remain...");
+	snprintf(buf, BUFSIZ, "All JobWorkers Stopped. %d items in jobQueue remain...", this->jobQueue->size());
+	this->log->logINFO("JobManager", buf);
 }
 
 JobManager* JobManager::getInstance() {

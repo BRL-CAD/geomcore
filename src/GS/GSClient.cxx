@@ -29,7 +29,7 @@
 #include "FailureMsg.h"
 #include "PongMsg.h"
 
-GSClient::GSClient(QString localNodeName) {
+GSClient::GSClient(std::string localNodeName) {
 	this->log = Logger::getInstance();
 	this->jobMan = JobManager::getInstance();
 	this->jobMan->startup();
@@ -60,22 +60,25 @@ GSClient::registerMsgRoutes()
 bool
 GSClient::handleNetMsg(NetMsg* msg)
 {
-	quint16 type = msg->getMsgType();
+	uint16_t type = msg->getMsgType();
+	char buf[BUFSIZ];
+
 	switch(type) {
 	case SESSIONINFO:
 		{
-			QString data =((SessionInfoMsg*)msg)->toString();
+			std::string data =((SessionInfoMsg*)msg)->toString();
 			log->logINFO("GSClient", "Recv'ed SessionInfo: " + data);
 			return true;
 		}
 	case FAILURE:
 		{
 			FailureMsg* fMsg = (FailureMsg*)msg;
-			quint8 fc = fMsg->getFailureCode();
+			uint8_t fc = fMsg->getFailureCode();
 
 			QUuid re = fMsg->getReUUID();
 
-			log->logINFO("GSClient", "Recv'ed A FailureMsg with code: " +QString::number( fc) + " (" + QString::number(fc, 16)+ ")");
+			snprintf(buf, BUFSIZ, "Recv'ed A FailureMsg with code: %d (%x)", fc, fc);
+			log->logINFO("GSClient", buf);
 			return true;
 		}
 	case PING:
@@ -83,7 +86,7 @@ GSClient::handleNetMsg(NetMsg* msg)
 			Portal* p = msg->getOrigin();
 
 			if (p != NULL) {
-				QString remNodeName = p->getRemoteNodeName();
+				std::string remNodeName = p->getRemoteNodeName();
 				log->logINFO("GSClient", "PING from: '" + remNodeName + "'");
 				PongMsg pongMsg((PingMsg*)msg);
 				p->send(&pongMsg);
@@ -98,18 +101,17 @@ GSClient::handleNetMsg(NetMsg* msg)
 			PongMsg* pongMsg = (PongMsg*)msg;
 
 			/* calc current and differential times */
-			quint64 start = pongMsg->getStartTime();
-			quint64 now = Logger::getCurrentTime();
-			quint64 diff = now -start;
+			uint64_t start = pongMsg->getStartTime();
+			uint64_t now = Logger::getCurrentTime();
+			uint64_t diff = now -start;
 
-			QString time = "roundtrip time: " + QString::number(diff) + "ms.";
-			QString remNodeName = "unknown";
+			std::string remNodeName = "unknown";
 
-			if (p != NULL) {
+			if (p != NULL)
 				remNodeName = p->getRemoteNodeName();
-			}
 
-			log->logINFO("GSClient", "Pong from: '" + remNodeName + "', " + time);
+			snprintf(buf, BUFSIZ, "Pong from: '%s', roundtrip time: %d ms.", remNodeName.c_str(), diff);
+			log->logINFO("GSClient", buf);
 			return true;
 		}
 	}

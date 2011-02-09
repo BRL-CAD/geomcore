@@ -121,7 +121,7 @@ SessionManager::remCache(Session* s)
 bool
 SessionManager::handleNetMsg(NetMsg* msg)
 {
-	quint16 type = msg->getMsgType();
+	uint16_t type = msg->getMsgType();
 	switch(type) {
 	case NEWSESSIONREQ:
 		this->handleNewSessionReqMsg((NewSessionReqMsg*)msg);
@@ -151,8 +151,8 @@ void SessionManager::handleNewSessionReqMsg(NewSessionReqMsg* msg)
 
 	/* Get values from msg */
 	Portal* origin = msg->getOrigin();
-	QString uname = msg->getUName();
-	QString passwd = msg->getPasswd();
+	std::string uname = msg->getUName();
+	std::string passwd = msg->getPasswd();
 
 	/* Validate data */
 	if (origin == 0) {

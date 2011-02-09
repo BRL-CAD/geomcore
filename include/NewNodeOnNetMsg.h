@@ -32,10 +32,10 @@ class NewNodeOnNetMsg : public GenericOneStringMsg
 {
 public:
 	/* Normal Constructor */
-	NewNodeOnNetMsg(QString s);
+	NewNodeOnNetMsg(std::string s);
 
 	/* Reply Constructor */
-	NewNodeOnNetMsg(NetMsg* msg, QString gsNodename);
+	NewNodeOnNetMsg(NetMsg* msg, std::string gsNodename);
 
 	/* Deserializing Constructor */
 	NewNodeOnNetMsg(QDataStream* ds, Portal* origin);
@@ -43,7 +43,7 @@ public:
 	/* Destructor */
 	virtual ~NewNodeOnNetMsg();
 
-	QString getNewNodename();
+	std::string getNewNodename();
 
 private:
 	/* Disable copy cstr and =operator */

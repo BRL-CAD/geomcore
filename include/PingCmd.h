@@ -27,14 +27,14 @@
 #define __PINGCMD_H__
 
 #include "AbstractClientCmd.h"
-#include <QtCore/QString>
+#include <string>
 
 class PingCmd: public AbstractClientCmd {
 public:
 	PingCmd();
 	virtual ~PingCmd();
-	QString getUsage();
-	QString getHelp();
+	std::string getUsage();
+	std::string getHelp();
 
 protected:
 	bool _exec(GSCmdLineClient* client, QStringList args);

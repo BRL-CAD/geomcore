@@ -28,12 +28,12 @@
 #include <sstream>
 
 /* Normal Constructor */
-RemoteNodenameSetMsg::RemoteNodenameSetMsg(QString localNodename) :
+RemoteNodenameSetMsg::RemoteNodenameSetMsg(std::string localNodename) :
     GenericOneStringMsg(GS_REMOTE_NODENAME_SET, localNodename)
 {}
 
 /* Reply Constructor */
-RemoteNodenameSetMsg::RemoteNodenameSetMsg(NetMsg* msg, QString localNodename) :
+RemoteNodenameSetMsg::RemoteNodenameSetMsg(NetMsg* msg, std::string localNodename) :
 	GenericOneStringMsg(GS_REMOTE_NODENAME_SET, msg, localNodename)
 {}
 
@@ -49,7 +49,7 @@ RemoteNodenameSetMsg::~RemoteNodenameSetMsg()
 /*
  *Getters n Setters
  */
-QString RemoteNodenameSetMsg::getRemoteNodename()
+std::string RemoteNodenameSetMsg::getRemoteNodename()
 {
     return this->strData;
 }

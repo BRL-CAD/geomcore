@@ -25,7 +25,7 @@
 #include "AbstractClientCmd.h"
 #include "GSClient.h"
 
-AbstractClientCmd::AbstractClientCmd(QString cmd) : cmd(cmd)
+AbstractClientCmd::AbstractClientCmd(std::string cmd) : cmd(cmd)
 {
 	this->log = Logger::getInstance();
 }
@@ -36,7 +36,7 @@ AbstractClientCmd::AbstractClientCmd(AbstractClientCmd* acCmd) : cmd(acCmd->getC
 AbstractClientCmd::~AbstractClientCmd() {
 }
 
-QString
+std::string
 AbstractClientCmd::getCmd()
 {
 	return this->cmd;
@@ -49,12 +49,12 @@ AbstractClientCmd::exec(GSCmdLineClient* client, QStringList args) {
 
 void
 AbstractClientCmd::printUsage() {
-	this->log->logINFO(this->cmd.toUpper(), this->getUsage());
+	this->log->logINFO(this->cmd, this->getUsage());
 }
 
 void
 AbstractClientCmd::printHelp() {
-	this->log->logINFO(this->cmd.toUpper(), this->getHelp());
+	this->log->logINFO(this->cmd, this->getHelp());
 }
 
 /*

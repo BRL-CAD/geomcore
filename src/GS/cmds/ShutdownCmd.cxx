@@ -29,12 +29,12 @@
 ShutdownCmd::ShutdownCmd() : AbstractClientCmd("shutdown"){}
 ShutdownCmd::~ShutdownCmd() {}
 
-QString
+std::string
 ShutdownCmd::getUsage(){
 	return "Usage: shutdown";
 }
 
-QString
+std::string
 ShutdownCmd::getHelp(){
 	return "Sends a remote shutdown command to the GS server currently attached.";
 }

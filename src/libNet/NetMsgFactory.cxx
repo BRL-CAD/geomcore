@@ -61,7 +61,7 @@ NetMsg*
 NetMsgFactory::deserializeNetMsg(QByteArray& data, Portal* origin)
 {
   QDataStream temp(data);
-  quint16 msgType = 0;
+  uint16_t msgType = 0;
   temp >> msgType;
 /*
   QString s("Got msg. type: 0x");

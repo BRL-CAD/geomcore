@@ -29,7 +29,7 @@
 #include "PortalManager.h"
 #include "JobManager.h"
 
-#include <QtCore/QString>
+#include <string>
 #include <QtCore/QStringList>
 
 #include <string>
@@ -38,7 +38,7 @@
 
 class GSClient: public INetMsgHandler {
 public:
-	GSClient(QString localNodeName);
+	GSClient(std::string localNodeName);
 	virtual ~GSClient();
 
     bool handleNetMsg(NetMsg* msg);

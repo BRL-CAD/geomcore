@@ -33,12 +33,12 @@
 LogoutCmd::LogoutCmd() : AbstractClientCmd("logout") {}
 LogoutCmd::~LogoutCmd() {}
 
-QString
+std::string
 LogoutCmd::getUsage() {
 	return "Usage: logout";
 }
 
-QString
+std::string
 LogoutCmd::getHelp() {
 	return "Severs the connection to the current GeometryService.";
 }

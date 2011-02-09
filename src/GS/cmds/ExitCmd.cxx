@@ -29,12 +29,12 @@
 ExitCmd::ExitCmd() : AbstractClientCmd("exit"){}
 ExitCmd::~ExitCmd() {}
 
-QString
+std::string
 ExitCmd::getUsage(){
 	return "Usage: exit";
 }
 
-QString
+std::string
 ExitCmd::getHelp(){
 	return "Causes the application to exit.";
 }

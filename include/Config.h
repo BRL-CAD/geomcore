@@ -29,7 +29,7 @@
 #include "Logger.h"
 
 #include <QtCore/QMap>
-#include <QtCore/QString>
+#include <string>
 #include <QtCore/QMutex>
 
 class Config
@@ -38,23 +38,23 @@ public:
 	~Config();
 	static Config* getInstance();
 
-	bool loadFile(QString pathAndFileName, bool verbose = false);
-	QString getConfigValue(QString key);
-	void updateValue(QString key, QString value);
-	QList<QString> getAllKeys();
+	bool loadFile(std::string pathAndFileName, bool verbose = false);
+	std::string getConfigValue(std::string key);
+	void updateValue(std::string key, std::string value);
+	QList<std::string> getAllKeys();
 
 private:
 	Config(); /* Turn off Default cstr */
 	Config(const Config& c){}; /* Turn off Copy cstr */
 	Config& operator=(const Config& c){}; /* Turn off equal oper */
 
-	QString processLine(QString line);
-	void removeAllOccurances(QString* data, QString search,
-			QString replace);
+	std::string processLine(std::string line);
+	void removeAllOccurances(std::string* data, std::string search,
+			std::string replace);
 
 	Logger* log;
 	QMutex mapLock;
-	QMap<QString, QString>* configMap;
+	QMap<std::string, std::string>* configMap;
 
 	static Config* pInstance;
 };

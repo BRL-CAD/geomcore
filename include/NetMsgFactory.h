@@ -31,7 +31,7 @@
 #include "brlcad/pkg.h"
 
 #include <QtCore/QByteArray>
-#include <QtCore/QString>
+#include <string>
 #include <QtCore/QDataStream>
 
 class NetMsgFactory

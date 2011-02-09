@@ -28,12 +28,12 @@
 #include <sstream>
 
 /* Normal Constructor */
-NewNodeOnNetMsg::NewNodeOnNetMsg(QString nodename) :
+NewNodeOnNetMsg::NewNodeOnNetMsg(std::string nodename) :
     GenericOneStringMsg(GS_REMOTE_NODENAME_SET, nodename)
 {}
 
 /* Reply Constructor */
-NewNodeOnNetMsg::NewNodeOnNetMsg(NetMsg* msg, QString nodename) :
+NewNodeOnNetMsg::NewNodeOnNetMsg(NetMsg* msg, std::string nodename) :
     GenericOneStringMsg(GS_REMOTE_NODENAME_SET, msg, nodename)
 {}
 
@@ -49,7 +49,7 @@ NewNodeOnNetMsg::~NewNodeOnNetMsg()
 /*
  *Getters n Setters
  */
-QString NewNodeOnNetMsg::getNewNodename()
+std::string NewNodeOnNetMsg::getNewNodename()
 {
     return this->strData;
 }

@@ -46,7 +46,7 @@ public:
 	/*
 	 * Utilities
 	 */
-	virtual QString toString();
+	virtual std::string toString();
 
 protected:
 	quint32 getData();

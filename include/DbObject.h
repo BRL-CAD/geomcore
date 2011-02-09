@@ -27,23 +27,23 @@
 #ifndef __DBOBJECT_H__
 #define __DBOBJECT_H__
 
-#include <QtCore/QString>
+#include <string>
 #include <QtCore/QUuid>
 #include <QtCore/QByteArray>
 
 class DbObject
 {
 public:
-	DbObject(QString path, QByteArray* data);
+	DbObject(std::string path, QByteArray* data);
 	DbObject(QUuid id, QByteArray* data);
 	virtual ~DbObject();
 
-	QString getPath();
+	std::string getPath();
 	QUuid getID();
 	QByteArray* getData();
 
 private:
-	QString path;
+	std::string path;
 	QUuid id;
 	QByteArray* data;
 

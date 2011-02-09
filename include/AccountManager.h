@@ -31,7 +31,7 @@
 #include "Session.h"
 #include "Portal.h"
 
-#include <QtCore/QString>
+#include <string>
 #include <QtCore/QList>
 
 class AccountManager
@@ -39,7 +39,7 @@ class AccountManager
 public:
     virtual ~AccountManager();
     static AccountManager* getInstance();
-    Account* login(QString uname, QString passwd, Portal* p);
+    Account* login(std::string uname, std::string passwd, Portal* p);
     void logout(Account* a);
 
 private:
@@ -50,8 +50,8 @@ private:
     QMutex accountListLock;
     QList<Account*>* accounts;
 
-    qint32 validateLoginCreds(QString uname, QString passwd);
-    Account* newAccount(QString uname, Portal* p, quint32 id);
+    qint32 validateLoginCreds(std::string uname, std::string passwd);
+    Account* newAccount(std::string uname, Portal* p, quint32 id);
     void remAccount(Account* a);
 
 	/* Disable copy cstr and =operator */

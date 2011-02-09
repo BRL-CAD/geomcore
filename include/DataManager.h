@@ -33,7 +33,7 @@
 #include "GeometryChunkMsg.h"
 #include "Logger.h"
 
-#include <QtCore/QString>
+#include <string>
 #include <QtCore/QUuid>
 #include <QtCore/QMutex>
 
@@ -44,8 +44,8 @@ public:
 	virtual ~DataManager();
     bool handleNetMsg(NetMsg* msg);
 
-	QString getDbObjectByURL(QString url);
-	QString getDbObjectByUUID(QUuid& uuid);
+	std::string getDbObjectByURL(std::string url);
+	std::string getDbObjectByUUID(QUuid& uuid);
 
 	void addDataSource(IDataSource* source);
 

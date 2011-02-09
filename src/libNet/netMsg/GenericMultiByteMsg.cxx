@@ -29,26 +29,26 @@
 #include <cstdlib>
 
 /* Normal Constructor */
-GenericMultiByteMsg::GenericMultiByteMsg(quint32 type, char* dataIn,
-	quint32 dataInLen) :
+GenericMultiByteMsg::GenericMultiByteMsg(uint32_t type, char* dataIn,
+	uint32_t dataInLen) :
     NetMsg(type), dataLen(dataInLen)
 {
     /* Deep copy */
     this->data = (char*) malloc(dataInLen);
 
-    for (quint32 i = 0; i < dataInLen; ++i) {
+    for (uint32_t i = 0; i < dataInLen; ++i) {
 	this->data[i] = dataIn[i];
     }
 }
 
 /* Reply Constructor */
-GenericMultiByteMsg::GenericMultiByteMsg(quint32 type, NetMsg* msg, char* dataIn, quint32 dataInLen) :
+GenericMultiByteMsg::GenericMultiByteMsg(uint32_t type, NetMsg* msg, char* dataIn, uint32_t dataInLen) :
 	NetMsg(type, msg), dataLen(dataInLen)
 {
     /* Deep copy */
     this->data = (char*) malloc(dataInLen);
 
-    for (quint32 i = 0; i < dataInLen; ++i) {
+    for (uint32_t i = 0; i < dataInLen; ++i) {
 	this->data[i] = dataIn[i];
     }
 }
@@ -60,8 +60,8 @@ GenericMultiByteMsg::GenericMultiByteMsg(QDataStream* ds, Portal* origin) :
     *ds >> this->dataLen;
     this->data = (char*) malloc(dataLen);
 
-    for (quint32 i = 0; i < this->dataLen; ++i) {
-	quint8 c;
+    for (uint32_t i = 0; i < this->dataLen; ++i) {
+	uint8_t c;
 	*ds >> c;
 	this->data[i] = c;
     }
@@ -76,27 +76,26 @@ GenericMultiByteMsg::~GenericMultiByteMsg()
 bool GenericMultiByteMsg::_serialize(QDataStream* ds)
 {
     *ds << this->dataLen;
-    for (quint32 i = 0; i < this->dataLen; ++i) {
+    for (uint32_t i = 0; i < this->dataLen; ++i) {
 
-	/* Oddness, the DataStream won't detect this is a quint8 */
+	/* Oddness, the DataStream won't detect this is a uint8_t */
 	/* Therefore you MUST cast it. */
-	*ds << (quint8) this->data[i];
+	*ds << (uint8_t) this->data[i];
     }
     return true;
 }
 
-QString GenericMultiByteMsg::toString()
+std::string GenericMultiByteMsg::toString()
 {
-    QString out;
+    char buf[BUFSIZ];
+    std::string out;
 
-    out.append(NetMsg::toString());
-    out.append("\t dataLen: '");
-    out.append(QString::number(this->dataLen));
-    out.append("'\t data: ");
+    snprintf(buf, BUFSIZ, "%s\t dataLen: '%d'\t data: ", NetMsg::toString().c_str(), this->dataLen);
+    out.assign(buf);
 
-    for (quint32 i = 0; i < this->dataLen; ++i) {
-	out.append(QString::number(this->data[i]));
-	out.append(", ");
+    for (uint32_t i = 0; i < this->dataLen; ++i) {
+        snprintf(buf, BUFSIZ, "%d, ", this->data[i]);
+	out.append(buf);
     }
 
     return out;
@@ -111,7 +110,7 @@ bool GenericMultiByteMsg::_equals(const NetMsg& msg)
 	return false;
     }
 
-    for (quint32 i = 0; i < gmsg.getDataLen(); ++i) {
+    for (uint32_t i = 0; i < gmsg.getDataLen(); ++i) {
 	if (this->getData()[i] != gmsg.getData()[i]) {
 	    return false;
 	}
@@ -127,7 +126,7 @@ char* GenericMultiByteMsg::getData()
 {
     return this->data;
 }
-quint32 GenericMultiByteMsg::getDataLen()
+uint32_t GenericMultiByteMsg::getDataLen()
 {
     return this->dataLen;
 }

@@ -34,33 +34,34 @@
 
 #include <sys/select.h>
 
+#include <string>
+
 #include <QtCore/QList>
 #include <QtCore/QMutex>
-#include <QtCore/QString>
-#include <QtNetwork/QHostAddress>
+#include <string>
 
 class Portal;
 
 class PortalManager : public ControlledThread, public INetMsgHandler
 {
 public:
-	PortalManager(QString localNodeName, quint16 port = 0, QHostAddress address = QHostAddress::LocalHost);
+	PortalManager(std::string localNodeName, uint16_t port = 0, std::string address = std::string("0.0.0.0"));
 	~PortalManager();
 
-	Portal* connectToHost(QString host, quint16 port);
+	Portal* connectToHost(std::string host, uint16_t port);
 	void disconnect(Portal* p);
     bool handleNetMsg(NetMsg* msg);
-    QString getLocalNodeName();
+    std::string getLocalNodeName();
 
 protected:
 	void _run();
 
 private:
-	QString localNodeName;
+	std::string localNodeName;
 	Logger* log;
 
-	quint16 listenPort;
-	QHostAddress listenAddress;
+	uint16_t listenPort;
+	std::string listenAddress;
 	PkgTcpServer* tcpServer;
 
 	QMutex masterFDSLock;
@@ -72,7 +73,7 @@ private:
 
 	Portal* makeNewPortal(PkgTcpClient* client, struct pkg_switch* table);
 	struct pkg_switch* makeNewSwitchTable();
-	void closeFD(int fd, QString logComment);
+	void closeFD(int fd, std::string logComment);
     void handleDisconnectReqMsg(TypeOnlyMsg* msg);
 
 	/* Disable copy cstr and =operator */

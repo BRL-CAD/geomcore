@@ -26,25 +26,25 @@
 #ifndef __EVENT_H__
 #define __EVENT_H__
 
-#include <QtCore/QString>
+#include <string>
 
 class EventPublisher;
 
 class Event
 {
 public:
-	Event(EventPublisher* pub, quint32 eventType);
-	Event(EventPublisher* pub, quint32 eventType, QString message);
+	Event(EventPublisher* pub, uint32_t eventType);
+	Event(EventPublisher* pub, uint32_t eventType, std::string message);
 	virtual ~Event();
 
 	EventPublisher* getPublisher() const;
-	quint32 getEventType() const;
-	QString getMessage() const;
+	uint32_t getEventType() const;
+	std::string getMessage() const;
 
 private:
 	EventPublisher* _pub;
-	quint32 _eventType;
-	QString _message;
+	uint32_t _eventType;
+	std::string _message;
 
 	/* Disable copy cstr and =operator */
 	Event(Event const&){};

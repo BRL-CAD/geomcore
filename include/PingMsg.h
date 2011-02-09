@@ -27,7 +27,7 @@
 #define __PINGMSG_H__
 
 #include "GenericEightBytesMsg.h"
-#include <QtCore/QString>
+#include <string>
 
 class PingMsg: public GenericEightBytesMsg {
 public:

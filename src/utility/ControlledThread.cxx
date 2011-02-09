@@ -25,11 +25,11 @@
 #include "Logger.h"
 #include <QtCore/QMutexLocker>
 
-ControlledThread::ControlledThread(QString threadName) {
+ControlledThread::ControlledThread(std::string threadName) {
 	if (threadName.length() <= 0) {
 		this->threadName = "DEFAULT_THREAD_NAME";
 	} else {
-		this->threadName = threadName;
+		this->threadName.assign(threadName);
 	}
 	this->runCmd = false;
 	this->runStatus = false;
@@ -54,7 +54,7 @@ ControlledThread::shutdown(bool block) {
 
 	/* Optionally block here until failsafe */
 	if (this->wait(maxFailsafeTimeMS) == false) {
-		std::cout << "Tripped " << this->threadName.toStdString() << "::terminate's failsafe." << std::endl;
+		std::cout << "Tripped " << this->threadName << "::terminate's failsafe." << std::endl;
 	}
 	bool postRetVal = this->postShutdownHook();
 	GSThread::msleep(10);
@@ -117,7 +117,7 @@ bool ControlledThread::postShutdownHook() {
 	return true;
 }
 
-QString
+std::string
 ControlledThread::getThreadName()
 {
 	return this->threadName;

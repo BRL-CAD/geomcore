@@ -36,7 +36,7 @@ public:
 	virtual bool hasLock(DbObject* obj, Account* a) = 0;
 	virtual bool unlock(DbObject* obj) = 0;
 
-	virtual DbObject* getByPath(QString path) = 0;
+	virtual DbObject* getByPath(std::string path) = 0;
 	virtual DbObject* getByID(QUuid id) = 0;
 	virtual bool putObject(DbObject* obj) = 0;
 };

@@ -53,8 +53,8 @@ AccountManager::getInstance()
 /**
  * returns 0 for bad login.  Positive number is the accountID
  */
-qint32
-AccountManager::validateLoginCreds(QString uname, QString passwd)
+int32_t
+AccountManager::validateLoginCreds(std::string uname, std::string passwd)
 {
 	/* TODO put in REAL account validation here. */
     if (uname == "Guest" && passwd == "Guest") {
@@ -83,18 +83,21 @@ AccountManager::validateLoginCreds(QString uname, QString passwd)
 }
 
 Account*
-AccountManager::login(QString uname, QString passwd, Portal* p)
+AccountManager::login(std::string uname, std::string passwd, Portal* p)
 {
-	qint32 id = 0;
+	int32_t id = 0;
+	char buf[BUFSIZ];
 
 	id = 	this->validateLoginCreds(uname, passwd);
 
 	if (id < 0) {
-		log->logINFO("AccountManager", "Authentication FAILED. User: '" + uname + "', accountID: " + QString::number(id));
+		snprintf(buf, BUFSIZ, "Authentication FAILED. User: '%s', accountID: %d", uname.c_str(), id);
+		log->logINFO("AccountManager", buf);
 		return NULL;
 	}
 
-	log->logINFO("AccountManager", "Authenticated user: '" + uname + "', accountID: " + QString::number(id));
+	snprintf(buf, BUFSIZ, "Authenticated user: '%s', accountID: %d", uname.c_str(), id);
+	log->logINFO("AccountManager", buf);
 
 	Account* acc = this->newAccount(uname, p, id);
 	return acc;
@@ -106,7 +109,7 @@ AccountManager::logout(Account* a) {
 }
 
 Account*
-AccountManager::newAccount(QString uname, Portal* p, quint32 id)
+AccountManager::newAccount(std::string uname, Portal* p, uint32_t id)
 {
 	Account* a = NULL;
 

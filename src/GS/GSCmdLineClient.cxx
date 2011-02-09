@@ -36,7 +36,7 @@
 
 const std::string GSCmdLineClient::defaultPrompt ="geoclient> ";
 
-GSCmdLineClient::GSCmdLineClient(QString localNodeName):GSClient(localNodeName)
+GSCmdLineClient::GSCmdLineClient(std::string localNodeName):GSClient(localNodeName)
 {
 	this->ccReg = ClientCmdRegistry::getInstance();
 	this->registerClientCmds();
@@ -63,14 +63,15 @@ GSCmdLineClient::run()
 		getline (std::cin, in);
 
 		/* make a qstring */
-		QString qin(in.c_str());
+		std::string qin(in.c_str());
 
 		/* cathc zero length strings here */
 		if (qin.length() == 0)
 			continue;
 
 	    /* split string */
-		QStringList list = qin.split(" ");
+		QString qsin(qin.c_str());
+		QStringList list = qsin.split(" ");
 
 		/* check to see if there is at least one element */
 		if (list.length() <= 0) {
@@ -78,7 +79,7 @@ GSCmdLineClient::run()
 		}
 
 		/* convert to lowercase */
-		QString cmd = list.takeFirst().toLower();
+		std::string cmd(list.takeFirst().toLower().toStdString());
 
 		this->execCmd(cmd, list);
 	}
@@ -102,12 +103,15 @@ GSCmdLineClient::stopRun()
 
 
 bool
-GSCmdLineClient::execCmd(QString cmd, QStringList args)
+GSCmdLineClient::execCmd(std::string cmd, QStringList args)
 {
+	char buf[BUFSIZ];
+
 	AbstractClientCmd* acc = this->ccReg->getCmd(cmd);
 
 	if (acc == NULL) {
-		this->log->logINFO("GSClient", "Unknown Command: '" + cmd + "'.");
+		snprintf(buf, BUFSIZ, "Unknown Command: '%s'", cmd.c_str());
+		this->log->logINFO("GSClient", buf);
 		return false;
 	}
 

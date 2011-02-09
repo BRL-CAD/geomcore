@@ -26,7 +26,7 @@
 
 #include "DbObject.h"
 
-DbObject::DbObject(QString path, QByteArray* data) :
+DbObject::DbObject(std::string path, QByteArray* data) :
 	path(path), id(NULL), data(data)
 {}
 
@@ -37,7 +37,7 @@ DbObject::DbObject(QUuid id, QByteArray* data) :
 DbObject::~DbObject()
 {}
 
-QString
+std::string
 DbObject::getPath()
 {
 	return this->path;

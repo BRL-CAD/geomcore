@@ -29,7 +29,7 @@
 #include <QtCore/QMutexLocker>
 #include <QtCore/QFile>
 
-FileDataSource::FileDataSource(QString repoPath) :
+FileDataSource::FileDataSource(std::string repoPath) :
 	repoPath(repoPath)
 {}
 
@@ -49,7 +49,7 @@ FileDataSource::unlock(DbObject* obj)
 {}
 
 DbObject*
-FileDataSource::getByPath(QString path)
+FileDataSource::getByPath(std::string path)
 {
 	//See if there is a file lock on this path
 	bool hasLock = this->hasPathLock(path);
@@ -63,7 +63,10 @@ FileDataSource::getByPath(QString path)
 	//lock it
 	this->setPathLock(path);
 
-	QFile f(this->repoPath + "/" + path);
+	QString qs(this->repoPath.c_str());
+	qs += "/";
+	qs += path.c_str();
+	QFile f(qs);
 
 	if (f.exists()) {
 		QByteArray* data = new QByteArray(f.readAll());
@@ -94,7 +97,7 @@ FileDataSource::getByID(QUuid id)
 bool
 FileDataSource::putObject(DbObject* obj)
 {
-	QString path = obj->getPath();
+	std::string path = obj->getPath();
 
 	//See if there is a file lock on this path
 	bool hasLock = this->hasPathLock(path);
@@ -108,7 +111,10 @@ FileDataSource::putObject(DbObject* obj)
 	//lock it
 	this->setPathLock(path);
 
-	QFile f(this->repoPath + "/" + path);
+	QString qs(this->repoPath.c_str());
+	qs += "/";
+	qs += path.c_str();
+	QFile f(qs);
 	f.write(*obj->getData());
 
 	f.close();
@@ -120,14 +126,14 @@ FileDataSource::putObject(DbObject* obj)
 }
 
 bool
-FileDataSource::hasPathLock(QString path)
+FileDataSource::hasPathLock(std::string path)
 {
 	QMutexLocker(&this->lockLock);
 	return this->pathLocks.contains(path);
 }
 
 void
-FileDataSource::setPathLock(QString path)
+FileDataSource::setPathLock(std::string path)
 {
 	QMutexLocker(&this->lockLock);
 	if (!this->pathLocks.contains(path)) {
@@ -136,7 +142,7 @@ FileDataSource::setPathLock(QString path)
 }
 
 void
-FileDataSource::remPathLock(QString path) {
+FileDataSource::remPathLock(std::string path) {
 	QMutexLocker(&this->lockLock);
 	this->pathLocks.append(path);
 }

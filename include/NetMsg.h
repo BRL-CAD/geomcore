@@ -27,6 +27,7 @@
 #define __NETMSG_H__
 
 #include <sstream>
+#include <string>
 
 #include <QtCore/QDataStream>
 #include <QtCore/QByteArray>
@@ -38,10 +39,10 @@ class NetMsg
 {
 public:
 	/* Normal Constructor */
-	NetMsg(quint16 mType);
+	NetMsg(uint16_t mType);
 
 	/* Reply Constructor */
-	NetMsg(quint16 mType, NetMsg* msg);
+	NetMsg(uint16_t mType, NetMsg* msg);
 
 	/* Deserializing Constructor */
 	NetMsg(QDataStream* ds, Portal* origin);
@@ -56,7 +57,7 @@ public:
 	/*
 	 *Getters n Setters
 	 */
-	quint16 getMsgType() const;
+	uint16_t getMsgType() const;
 	QUuid getMsgUUID() const;
 	bool msgHasReUUID() const;
 	QUuid getReUUID() const;
@@ -65,7 +66,7 @@ public:
 	/*
 	 * Utilities
 	 */
-	virtual QString toString();
+	virtual std::string toString();
 	virtual std::string toStdString();
 	virtual bool equals(const NetMsg& other);
 	void printMe();
@@ -73,7 +74,7 @@ public:
 	bool operator== (const NetMsg& other);
 
 protected:
-	quint16 msgType;
+	uint16_t msgType;
 	QUuid msgUUID;
 	bool hasReUUID;
 	QUuid reUUID;

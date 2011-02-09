@@ -25,7 +25,7 @@
 
 #include "Account.h"
 
-Account::Account(QString uname, Portal* portal, quint32 id) :
+Account::Account(std::string uname, Portal* portal, uint32_t id) :
 	uname(uname), portal(portal), id(id) {
 	this->stampLastAccess();
 }
@@ -33,7 +33,7 @@ Account::Account(QString uname, Portal* portal, quint32 id) :
 Account::~Account()
 {}
 
-QString
+std::string
 Account::getUname()
 {
 	return this->uname;
@@ -45,7 +45,7 @@ Account::getPortal()
 	return this->portal;
 }
 
-quint32
+uint32_t
 Account::getID()
 {
 	return this->id;

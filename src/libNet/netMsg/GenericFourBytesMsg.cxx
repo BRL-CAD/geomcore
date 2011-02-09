@@ -27,12 +27,12 @@
 #include <sstream>
 
 /* Normal Constructor */
-GenericFourBytesMsg::GenericFourBytesMsg(quint32 type, quint32 b) :
+GenericFourBytesMsg::GenericFourBytesMsg(uint32_t type, uint32_t b) :
     NetMsg(type), data(b)
 {}
 
 /* Reply Constructor */
-GenericFourBytesMsg::GenericFourBytesMsg(quint32 type, NetMsg* msg, quint32 b) :
+GenericFourBytesMsg::GenericFourBytesMsg(uint32_t type, NetMsg* msg, uint32_t b) :
 	NetMsg(type, msg), data(b)
 {}
 
@@ -53,16 +53,13 @@ bool GenericFourBytesMsg::_serialize(QDataStream* ds)
     return true;
 }
 
-QString GenericFourBytesMsg::toString()
+std::string GenericFourBytesMsg::toString()
 {
-    QString out;
+    char out[BUFSIZ];
 
-    out.append(NetMsg::toString());
-    out.append("\t data: '");
-    out.append(QString::number(this->data));
-    out.append("'");
+    snprintf(out, BUFSIZ, "%s\t data: '%d'", NetMsg::toString().c_str(), this->data);
 
-    return out;
+    return std::string(out);
 }
 
 bool GenericFourBytesMsg::_equals(const NetMsg& msg)
@@ -79,7 +76,7 @@ bool GenericFourBytesMsg::_equals(const NetMsg& msg)
 /*
  *Getters n Setters
  */
-quint32 GenericFourBytesMsg::getData()
+uint32_t GenericFourBytesMsg::getData()
 {
     return this->data;
 }

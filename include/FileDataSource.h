@@ -33,25 +33,25 @@
 class FileDataSource : public IDataSource
 {
 public:
-	FileDataSource(QString repoPath);
+	FileDataSource(std::string repoPath);
 	virtual ~FileDataSource();
 
 	bool lock(DbObject* obj, Account* a);
 	bool hasLock(DbObject* obj, Account* a);
 	bool unlock(DbObject* obj);
 
-	DbObject* getByPath(QString path);
+	DbObject* getByPath(std::string path);
 	DbObject* getByID(QUuid id);
 	bool putObject(DbObject* obj);
 
 private:
-	QString repoPath;
+	std::string repoPath;
 
 	QMutex lockLock;
-	QList<QString> pathLocks;
-	bool hasPathLock(QString path);
-	void setPathLock(QString path);
-	void remPathLock(QString path);
+	QList<std::string> pathLocks;
+	bool hasPathLock(std::string path);
+	void setPathLock(std::string path);
+	void remPathLock(std::string path);
 
 	/* Disable copy cstr and =operator */
 	FileDataSource(FileDataSource const&){};

@@ -55,13 +55,13 @@ bool SessionInfoMsg::_serialize(QDataStream* ds)
     return true;
 }
 
-QString SessionInfoMsg::toString()
+std::string SessionInfoMsg::toString()
 {
-    QString out;
+    std::string out;
 
     out.append(NetMsg::toString());
     out.append("\t  SessionID: ");
-    out.append(this->sessionID.toString());
+    out.append(this->sessionID.toString().toStdString());
 
     return out;
 }

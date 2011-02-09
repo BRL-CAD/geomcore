@@ -159,21 +159,28 @@ bool NetMsg::equals(const NetMsg& other) {
 	return this->_equals(other);
 }
 
-QString NetMsg::toString()
+std::string NetMsg::toString()
 {
-	QString out;
+	char buf[BUFSIZ];
+	std::string out;
 
-	out += "msgType: '" + QString::number(this->msgType);
+	snprintf(buf, BUFSIZ, "msgType: %d'", this->msgType);
+	out.assign(buf);
 
-	if (this->msgUUID != NULL)
-		out += "'\t msgUUID: '" + this->msgUUID.toString();
+	if (this->msgUUID != NULL) {
+		snprintf(buf, BUFSIZ, "'\t msgUUID: %s'", this->msgUUID.toString().toStdString().c_str());
+		out.append(buf);
+	}
 
-	out += "'\t hasReUUID: '" + QString::number(this->hasReUUID);
+	snprintf(buf, BUFSIZ, "'\t hasReUUID: %d'", this->hasReUUID);
+	out.append(buf);
 
-	if (this->reUUID != NULL)
-		out += "'\t reUUID: '" + this->reUUID.toString();
+	if (this->reUUID != NULL) {
+		snprintf(buf, BUFSIZ, "'\t reUUID: %s'", this->reUUID.toString().toStdString().c_str());
+		out.append(buf);
+	}
 
-	out += "'";
+	out.append("'");
 
 	return out;
 }
@@ -181,7 +188,7 @@ QString NetMsg::toString()
 std::string
 NetMsg::toStdString()
 {
-  return this->toString().toStdString();
+  return this->toString();
 }
 
 void

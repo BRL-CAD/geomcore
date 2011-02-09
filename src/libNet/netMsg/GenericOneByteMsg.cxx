@@ -27,12 +27,12 @@
 #include <sstream>
 
 /* Normal Constructor */
-GenericOneByteMsg::GenericOneByteMsg(quint32 type, quint8 b) :
+GenericOneByteMsg::GenericOneByteMsg(uint32_t type, uint8_t b) :
     NetMsg(type), data(b)
 {}
 
 /* Reply Constructor */
-GenericOneByteMsg::GenericOneByteMsg(quint32 type, NetMsg* msg, quint8 b) :
+GenericOneByteMsg::GenericOneByteMsg(uint32_t type, NetMsg* msg, uint8_t b) :
      NetMsg(type, msg), data(b)
 {}
 
@@ -53,16 +53,13 @@ bool GenericOneByteMsg::_serialize(QDataStream* ds)
     return true;
 }
 
-QString GenericOneByteMsg::toString()
+std::string GenericOneByteMsg::toString()
 {
-    QString out;
+    char buf[BUFSIZ];
 
-    out.append(NetMsg::toString());
-    out.append("\t data: '");
-    out.append(QString::number(this->data));
-    out.append("'");
+    snprintf(buf, BUFSIZ, "%s\t data: '%d'", NetMsg::toString().c_str(), this->data);
 
-    return out;
+    return std::string(buf);
 }
 
 bool GenericOneByteMsg::_equals(const NetMsg& msg)
@@ -74,7 +71,7 @@ bool GenericOneByteMsg::_equals(const NetMsg& msg)
 /*
  *Getters n Setters
  */
-quint8 GenericOneByteMsg::getData()
+uint8_t GenericOneByteMsg::getData()
 {
     return this->data;
 }

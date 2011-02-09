@@ -40,7 +40,7 @@ ClientCmdRegistry::getInstance() {
 }
 
 ClientCmdRegistry::ClientCmdRegistry() {
-	this->cmdMap = new QMap<QString,AbstractClientCmd*> ();
+	this->cmdMap = new QMap<std::string,AbstractClientCmd*> ();
 	this->log = Logger::getInstance();
 }
 
@@ -50,7 +50,7 @@ ClientCmdRegistry::~ClientCmdRegistry() {
 }
 
 bool ClientCmdRegistry::registerCmd(AbstractClientCmd* cmd) {
-	QString cmdString = cmd->getCmd();
+	std::string cmdString = cmd->getCmd();
 
 	QMutexLocker(&this->mapLock);
 	if (this->cmdMap->contains(cmdString) == false) {
@@ -63,7 +63,7 @@ bool ClientCmdRegistry::registerCmd(AbstractClientCmd* cmd) {
 }
 
 AbstractClientCmd*
-ClientCmdRegistry::getCmd(QString cmd)
+ClientCmdRegistry::getCmd(std::string cmd)
 {
 	QMutexLocker(&this->mapLock);
 
@@ -73,11 +73,11 @@ ClientCmdRegistry::getCmd(QString cmd)
 	return this->cmdMap->value(cmd);
 }
 
-QList<QString>*
+QList<std::string>*
 ClientCmdRegistry::getListOfCmds() {
 	QMutexLocker(&this->mapLock);
 
-	QList<QString>* keys = new QList<QString>(this->cmdMap->keys());
+	QList<std::string>* keys = new QList<std::string>(this->cmdMap->keys());
 
 	return keys;
 }

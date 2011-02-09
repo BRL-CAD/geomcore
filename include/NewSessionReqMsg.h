@@ -32,10 +32,10 @@ class NewSessionReqMsg : public NetMsg
 {
 public:
 	/* Normal Constructor */
-	NewSessionReqMsg(QString uname, QString passwd);
+	NewSessionReqMsg(std::string uname, std::string passwd);
 
 	/* Reply Constructor */
-	NewSessionReqMsg(NetMsg* msg, QString uname, QString passwd);
+	NewSessionReqMsg(NetMsg* msg, std::string uname, std::string passwd);
 
 	/* Deserializing Constructor */
 	NewSessionReqMsg(QDataStream* ds, Portal* origin);
@@ -46,13 +46,13 @@ public:
 	/*
 	 * Utilities
 	 */
-	virtual QString toString();
-	QString getUName();
-	QString getPasswd();
+	virtual std::string toString();
+	std::string getUName();
+	std::string getPasswd();
 
 protected:
-	QString uname;
-	QString passwd;
+	std::string uname;
+	std::string passwd;
 
 	virtual bool _serialize(QDataStream* ds);
 	virtual bool _equals(const NetMsg& msg);

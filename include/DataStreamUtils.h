@@ -26,7 +26,7 @@
 #ifndef __DATASTREAMUTILS_H__
 #define __DATASTREAMUTILS_H__
 
-#include <QtCore/QString>
+#include <string>
 #include <QtCore/QDataStream>
 #include <QtCore/QUuid>
 #include <iostream>
@@ -34,8 +34,8 @@
 class DataStreamUtils
 {
 public:
-	static QString* getString(QDataStream* ds);
-	static void putString(QDataStream* ds, QString str);
+	static std::string* getString(QDataStream* ds);
+	static void putString(QDataStream* ds, std::string str);
 	static QUuid* getQUuid(QDataStream* ds);
 	static void putQUuid(QDataStream* ds, QUuid str);
 	static void printQByteArray(QByteArray* ba);

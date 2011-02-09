@@ -30,14 +30,14 @@
 
 #include <ctime>
 
-#include <QtCore/QString>
+#include <string>
 
 class Account
 {
 public:
-  Account(QString uname, Portal* portal, quint32 id);
+  Account(std::string uname, Portal* portal, quint32 id);
   virtual ~Account();
-  QString getUname();
+  std::string getUname();
   time_t getInactivityTime();
   void stampLastAccess();
   quint32 getID();
@@ -45,7 +45,7 @@ public:
   
 private:
   quint32 id;
-  QString uname;
+  std::string uname;
   Portal* portal;
 
   time_t lastAccess;

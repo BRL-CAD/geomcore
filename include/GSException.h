@@ -25,21 +25,21 @@
 #ifndef __GSEXCEPTION_H__
 #define __GSEXCEPTION_H__
 
-#include <QtCore/QString>
+#include <string>
 
 #include <exception>
 
 class GSException : public std::exception
 {
 public:
-	GSException(QString reason);
+	GSException(std::string reason);
 	~GSException() throw ();
 
-	QString getReason();
-	void log(QString origin);
+	std::string getReason();
+	void log(std::string origin);
 
 private:
-	QString reason;
+	std::string reason;
 
 	/* Disable copy cstr and =operator */
 	GSException(GSException const&){};

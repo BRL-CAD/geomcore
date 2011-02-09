@@ -26,7 +26,7 @@
 #include "GSException.h"
 #include "Logger.h"
 
-GSException::GSException(QString reason)
+GSException::GSException(std::string reason)
 {
     this->reason = reason;
 }
@@ -34,12 +34,12 @@ GSException::GSException(QString reason)
 GSException::~GSException() throw ()
 {}
 
-QString GSException::getReason()
+std::string GSException::getReason()
 {
     return this->reason;
 }
 
-void GSException::log(QString origin)
+void GSException::log(std::string origin)
 {
     Logger::getInstance()->logERROR(origin, this->reason);
 }

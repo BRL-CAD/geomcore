@@ -26,13 +26,15 @@
 #include "Event.h"
 #include "EventPublisher.h"
 
-Event::Event(EventPublisher* pub, quint32 eventType) :
+Event::Event(EventPublisher* pub, uint32_t eventType) :
     _pub(pub), _eventType(eventType), _message("")
 {}
 
-Event::Event(EventPublisher* pub, quint32 eventType, QString message) :
-    _pub(pub), _eventType(eventType), _message(message)
-{}
+Event::Event(EventPublisher* pub, uint32_t eventType, std::string message) :
+    _pub(pub), _eventType(eventType)
+{
+	_message.assign(message);
+}
 
 Event::~Event()
 {}
@@ -41,11 +43,11 @@ EventPublisher* Event::getPublisher() const
 {
     return this->_pub;
 }
-quint32 Event::getEventType() const
+uint32_t Event::getEventType() const
 {
     return this->_eventType;
 }
-QString Event::getMessage() const
+std::string Event::getMessage() const
 {
     return this->_message;
 }

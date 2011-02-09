@@ -29,12 +29,12 @@
 #include <sstream>
 
 /* Normal Constructor */
-NewSessionReqMsg::NewSessionReqMsg(QString uname, QString passwd) :
+NewSessionReqMsg::NewSessionReqMsg(std::string uname, std::string passwd) :
     NetMsg(NEWSESSIONREQ), uname(uname), passwd(passwd)
 {}
 
 /* Reply Constructor */
-NewSessionReqMsg::NewSessionReqMsg(NetMsg* msg, QString uname, QString passwd) :
+NewSessionReqMsg::NewSessionReqMsg(NetMsg* msg, std::string uname, std::string passwd) :
 	NetMsg(NEWSESSIONREQ, msg), uname(uname), passwd(passwd)
 {}
 
@@ -57,17 +57,13 @@ bool NewSessionReqMsg::_serialize(QDataStream* ds)
     return true;
 }
 
-QString NewSessionReqMsg::toString()
+std::string NewSessionReqMsg::toString()
 {
-    QString out;
+    char out[BUFSIZ];
 
-    out.append(NetMsg::toString());
-    out.append("\t  uname: ");
-    out.append(this->uname);
-    out.append("\t  passwd: ");
-    out.append(this->passwd);
+    snprintf(out, BUFSIZ, "%s\t  uname: %s\t  passwd: %s", NetMsg::toString().c_str(), this->uname.c_str(), this->passwd.c_str());
 
-    return out;
+    return std::string(out);
 }
 
 bool NewSessionReqMsg::_equals(const NetMsg& msg)
@@ -87,11 +83,11 @@ bool NewSessionReqMsg::_equals(const NetMsg& msg)
 /*
  *Getters n Setters
  */
-QString NewSessionReqMsg::getUName()
+std::string NewSessionReqMsg::getUName()
 {
     return this->uname;
 }
-QString NewSessionReqMsg::getPasswd()
+std::string NewSessionReqMsg::getPasswd()
 {
     return this->passwd;
 }

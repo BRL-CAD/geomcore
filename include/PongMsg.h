@@ -29,7 +29,7 @@
 #include "GenericEightBytesMsg.h"
 #include "PingMsg.h"
 
-#include <QtCore/QString>
+#include <string>
 
 class PongMsg: public GenericEightBytesMsg {
 public:

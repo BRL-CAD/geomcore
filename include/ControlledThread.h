@@ -26,20 +26,19 @@
 
 #include "GSThread.h"
 
-#include <QtCore/QString>
 #include <QtCore/QMutex>
 
 class ControlledThread : public GSThread
 {
 public:
-	ControlledThread(QString threadname = "");
+	ControlledThread(std::string threadname = "");
 	virtual ~ControlledThread();
 
 	void start();
 	void run();
 
 	void shutdown(bool block = true);
-	QString getThreadName();
+	std::string getThreadName();
 
 	bool getRunStatus();
 	bool getRunCmd();
@@ -62,7 +61,7 @@ protected:
 private:
 
 	/* fields */
-	QString threadName;
+	std::string threadName;
 
 	QMutex runCmdLock;
 	volatile bool runCmd;

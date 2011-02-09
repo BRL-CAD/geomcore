@@ -32,7 +32,6 @@
 #include <iostream>
 #include <stdlib.h>
 
-#include <QtCore/QString>
 
 int gsExit(int code)
 {
@@ -67,7 +66,7 @@ int main(int argc, char* argv[])
     }
 
     /* Check for a local node name.  This is imperative to be set. */
-    QString localNodeName = c->getConfigValue("LocalNodeName");
+    std::string localNodeName(c->getConfigValue("LocalNodeName"));
     if (localNodeName.length() == 0) {
 		log->logERROR("geoserv", "Config File does not contain a 'LocalNodeName' parameter");
 		gsExit(1);
@@ -75,8 +74,8 @@ int main(int argc, char* argv[])
 
     log->logBANNER("geoserv", "Booting GeometryService: " + localNodeName);
 
-    QString sPort = c->getConfigValue("ListenPort");
-    if (sPort == NULL){
+    std::string sPort = c->getConfigValue("ListenPort");
+    if (sPort.length() == 0){
     	log->logERROR("geoserv", "Config File does not contain a 'ListenPort' parameter");
     	gsExit(1);
     }
@@ -86,7 +85,7 @@ int main(int argc, char* argv[])
     }
 
     bool ok;
-    quint16 port = sPort.toUShort(&ok, 10);
+    uint16_t port = atoi(sPort.c_str());
     if (!ok){
     	log->logERROR("geoserv", "Config File contains a 'ListenPort' key, however the value failed to parse to a valid number.");
     	return 1;
@@ -96,9 +95,9 @@ int main(int argc, char* argv[])
     GeometryService gs (localNodeName, port);
 
     /* DataManager elements. */
-    QString useFileRepo = c->getConfigValue("UseFileRepo").toLower();
+    std::string useFileRepo(c->getConfigValue("UseFileRepo"));
      if (useFileRepo == "yes" || useFileRepo == "true"){
-    	QString fileRepoPath = c->getConfigValue("FileRepoPath").toLower();
+    	std::string fileRepoPath(c->getConfigValue("FileRepoPath"));
 
     	if (fileRepoPath.length() == 0) {
          	log->logERROR("geoserv", "FileRepo was flagged for use, but no 'FilePathRepo' var was configured.");

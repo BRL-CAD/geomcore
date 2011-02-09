@@ -29,7 +29,7 @@
 #include "GSClient.h"
 #include "ClientCmdRegistry.h"
 
-#include <QtCore/QString>
+#include <string>
 
 #include <string>
 #include <iostream>
@@ -41,12 +41,12 @@ class GSCmdLineClient: public GSClient {
 	friend class LoginCmd;
 	friend class LogoutCmd;
 public:
-	GSCmdLineClient(QString localNodeName);
+	GSCmdLineClient(std::string localNodeName);
 	virtual ~GSCmdLineClient();
 
 	int run();
 	void stopRun();
-	bool execCmd(QString cmd, QStringList args);
+	bool execCmd(std::string cmd, QStringList args);
 	Portal* getCurrentPortal();
 
 protected:
