@@ -30,25 +30,31 @@ public final class NetMsgFactory {
 	public static AbstractNetMsg makeMsg(short type, ByteBufferReader reader) {
 
 		switch (type) {
+		case NetMsgTypes.RUAlive:
+			return null;
+		case NetMsgTypes.IMAlive:
+			return null;
 		case NetMsgTypes.Failure:
 			return null;
 		case NetMsgTypes.Success:
 			return null;
-		case NetMsgTypes.RemHostNameSET:
+		case NetMsgTypes.Ping:
+			return null;
+		case NetMsgTypes.Pong:
+			return null;
+		case NetMsgTypes.RemNodeNameSET:
 			return null;
 		case NetMsgTypes.DisconnectREQ:
 			return null;
-		case NetMsgTypes.NewHostOnNet:
+		case NetMsgTypes.NewNodeOnNet:
 			return null;
-		case NetMsgTypes.FullHostListREQ:
+		case NetMsgTypes.FullNodenameListREQ:
 			return null;
-		case NetMsgTypes.FullHostList:
+		case NetMsgTypes.FullNodenameList:
 			return null;
 		case NetMsgTypes.NewSessionREQ:
 			return null;
-		case NetMsgTypes.NewSession:
-			return null;
-		case NetMsgTypes.LogoutSession:
+		case NetMsgTypes.SessionInfo:
 			return null;
 		case NetMsgTypes.GeometryREQ:
 			return null;
