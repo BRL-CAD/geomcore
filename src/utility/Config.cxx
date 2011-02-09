@@ -105,31 +105,18 @@ bool Config::loadFile(std::string pathAndFileName, bool verbose)
 std::string
 Config::processLine(std::string line)
 {
-    //Process the string, clean it up.
+    char key[BUFSIZ], value[BUFSIZ];
 
-    this->removeAllOccurances(&line, "\t", " ");
-    this->removeAllOccurances(&line, "  ", " ");
-
-    //Check for blankline
-    if (line == "" || line == " ") {
-	//this->log->logDEBUG("Config", "Empty Line");
-	return "";
+    switch(sscanf(line.c_str(), "%s %s", &key, &value)) {
+	case -1:
+	    return std::string("");
+	case 2:
+	    this->updateValue(std::string(key), std::string(value));
+	    return std::string(key);
+	default:
+	    this->log->logERROR("Config", "Not enough elements for Key/Value pair on Config Line: " + line);
+	    return "";
     }
-
-    QString qline(line.c_str());
-    QStringList list = qline.split(" ");
-    if (list.length() < 2) {
-	this->log->logERROR("Config",
-		"Not enough elements for Key/Value pair on Config Line: "
-			+ line);
-	return "";
-    }
-
-    std::string key = list[0].toStdString();
-    std::string value = list[1].toStdString();
-
-    this->updateValue(key, value);
-    return key;
 }
 
 void Config::removeAllOccurances(std::string* data, std::string search, std::string replace)
