@@ -24,8 +24,10 @@
  */
 
 #include "Config.h"
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
+
+#include <stdio.h>
+#include <errno.h>
+
 #include <QtCore/QMutexLocker>
 
 Config* Config::pInstance = NULL;
@@ -51,51 +53,28 @@ Config* Config::getInstance()
 
 bool Config::loadFile(std::string pathAndFileName, bool verbose)
 {
-    std::string msg;
-    msg = "Attemping to load config from: '" + pathAndFileName + "'.";
-    this->log->logINFO("Config", msg);
+    FILE *f;
+    char buf[BUFSIZ];
 
-    //init file object
-    QFile f(QString(pathAndFileName.c_str()));
+    this->log->logINFO("Config", "Attemping to load config from: '" + pathAndFileName + "'.");
 
-    if (f.exists() == false) {
-		msg = "Could not find file: '" + pathAndFileName + "'.";
-		this->log->logFATAL("Config", msg);
-		return false;
+    if ((f=fopen(pathAndFileName.c_str(), "r")) == NULL) {
+	this->log->logFATAL("Config", "Could not find file: '" + pathAndFileName + "'.");
+	return false;
     }
 
+    while (!feof(f)) {
+	if(fgets(buf, BUFSIZ, f) == NULL)
+	    log->logINFO("Config", std::string("Error reading file: ") + strerror(errno));
+	if(*buf == '#')
+	    continue;
 
-    //verify & open
-    if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		msg = "Loading config from: '" + pathAndFileName + "' FAILED.";
-		this->log->logFATAL("Config", msg);
-		return false;
+	std::string key = this->processLine(std::string(buf));
+	if (verbose && key.length() > 0)
+	    log->logINFO("Config", "Read key/value: '" + key + "'->'" + configMap->find(key)->second + "'");
     }
 
-    while (!f.atEnd()) {
-		QByteArray lineBytes = f.readLine();
-
-		std::string line(lineBytes);
-
-		//Rem newline:
-		this->removeAllOccurances(&line, "\n", "");
-
-		//Check for comments
-		if (line[0] == '#') {
-			//log->logINFO("Config", "Ignoring Comment. (" + line + ")");
-		} else {
-			std::string key = this->processLine(line);
-
-			if (verbose && key.length() > 0) {
-				std::string value = this->configMap->find(key)->second;
-				log->logINFO("Config", "Read key/value: '" + key + "'->'" + value + "'");
-			}
-
-		}
-    }
-    QFileInfo info(f);
-
-    log->logINFO("Config", "Done loading config from: " + info.absoluteFilePath().toStdString());
+    log->logINFO("Config", std::string("Done loading config from: ") + realpath(pathAndFileName.c_str(), NULL));
     return true;
 }
 
