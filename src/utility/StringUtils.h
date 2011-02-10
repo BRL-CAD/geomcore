@@ -25,11 +25,11 @@
 #ifndef __STRINGUTILS_H__
 #define __STRINGUTILS_H__
 
-#include <QtCore/QString>
+#include <string>
 
 class StringUtils {
 public:
-    static QString addWSRight(QString str, uint32_t desiredLen) {
+    static std::string addWSRight(std::string str, uint32_t desiredLen) {
     	uint32_t len = str.length();
     }
 };

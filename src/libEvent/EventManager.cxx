@@ -34,7 +34,7 @@ EventManager* EventManager::pInstance = NULL;
 
 EventManager::EventManager()
 {
-    this->subscriptions = new QList<EventSubscription*> ();
+    this->subscriptions = new std::list<EventSubscription*> ();
     this->subscriptionsLock = new QMutex();
     this->log = Logger::getInstance();
 }
@@ -42,10 +42,8 @@ EventManager::EventManager()
 EventManager::~EventManager()
 {
     this->subscriptionsLock->lock();
-    for (uint32_t i = 0; i < subscriptions->size(); ++i) {
-	EventSubscription* es = subscriptions->at(i);
-	delete es;
-    }
+    for (std::list<EventSubscription*>::iterator it=subscriptions->begin(); it!=subscriptions->end(); it++)
+        delete *it;
     delete subscriptions;
 
     this->subscriptionsLock->unlock();
@@ -69,28 +67,26 @@ void EventManager::submitEvent(Event* e)
 void EventManager::processEvent(Event* e)
 {
     //First build a SubscriberList
-    QList<EventSubscriber*>* subList = this->buildSubscriberList(e);
+    std::list<EventSubscriber*>* subList = this->buildSubscriberList(e);
 
     //Now notify subscribers of the event
-    for (int i = 0; i < subList->size(); ++i) {
-	EventSubscriber* sub = subList->at(i);
-
-	DeliverEventJob* edj = new DeliverEventJob(sub, e);
+    for (std::list<EventSubscriber*>::iterator it=subList->begin(); it != subList->end(); it++) {
+	DeliverEventJob* edj = new DeliverEventJob(*it, e);
 	edj->submit();
     }
 }
 
-QList<EventSubscriber*>* EventManager::buildSubscriberList(Event* e)
+std::list<EventSubscriber*>* EventManager::buildSubscriberList(Event* e)
 {
     QMutexLocker locker(this->subscriptionsLock);
 
     uint32_t eType = e->getEventType();
     EventPublisher* ePub = e->getPublisher();
 
-    QList<EventSubscriber*>* subscriberList = new QList<EventSubscriber*> ();
+    std::list<EventSubscriber*>* subscriberList = new std::list<EventSubscriber*> ();
 
-    for (uint32_t i = 0; i < subscriptions->size(); ++i) {
-	EventSubscription* subscription = subscriptions->at(i);
+    for (std::list<EventSubscription*>::iterator it=subscriptions->begin(); it!=subscriptions->end(); it++) {
+	EventSubscription* subscription = *it;
 
 	uint32_t ssType = subscription->getEventType();
 	EventPublisher* ssPub = subscription->getPublisher();
@@ -100,7 +96,7 @@ QList<EventSubscriber*>* EventManager::buildSubscriberList(Event* e)
 		== ALL_EVENT_PUBLISHERS));
 
 	if (isSubscribedType && isSubscribedPublisher) {
-	    subscriberList->append(subscription->getEventSubscriber());
+	    subscriberList->push_back(subscription->getEventSubscriber());
 	}
     }
 
@@ -114,8 +110,8 @@ void EventManager::subscribe(EventSubscriber* sub, uint32_t eventType,
 
     EventSubscription* es = new EventSubscription(sub, eventType, pub);
 
-    for (uint32_t i = 0; i < subscriptions->size(); ++i) {
- 	EventSubscription* subscription = subscriptions->at(i);
+    for (std::list<EventSubscription*>::iterator it=subscriptions->begin(); it!=subscriptions->end(); it++) {
+ 	EventSubscription* subscription = *it;
 
  	if (*subscription == *es) {
  	   log->logINFO("EventManager", "Duplicate Subscription");
@@ -125,23 +121,14 @@ void EventManager::subscribe(EventSubscriber* sub, uint32_t eventType,
 	}
     }
 
-    this->subscriptions->append(es);
+    this->subscriptions->push_back(es);
 }
 
 void EventManager::unsubscribe(EventSubscriber* sub, uint32_t eventType,
 	EventPublisher* pub)
 {
     QMutexLocker locker(this->subscriptionsLock);
-
-    EventSubscription* es = new EventSubscription(sub, eventType, pub);
-
-    for (uint32_t i = 0; i < subscriptions->size(); ++i) {
- 	EventSubscription* subscription = subscriptions->at(i);
-
- 	if (*subscription == *es) {
- 	    this->subscriptions->removeAt(i);
-	}
-    }
+    subscriptions->remove(new EventSubscription(sub, eventType, pub));
 }
 
 /*

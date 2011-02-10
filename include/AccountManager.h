@@ -32,7 +32,7 @@
 #include "Portal.h"
 
 #include <string>
-#include <QtCore/QList>
+#include <list>
 
 class AccountManager
 {
@@ -48,7 +48,7 @@ private:
 
     Logger* log;
     QMutex accountListLock;
-    QList<Account*>* accounts;
+    std::list<Account*>* accounts;
 
     int32_t validateLoginCreds(std::string uname, std::string passwd);
     Account* newAccount(std::string uname, Portal* p, uint32_t id);

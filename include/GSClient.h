@@ -30,7 +30,6 @@
 #include "JobManager.h"
 
 #include <string>
-#include <QtCore/QStringList>
 
 #include <string>
 #include <iostream>

@@ -41,8 +41,7 @@ NetMsg::NetMsg(uint16_t mType, NetMsg* msg) :
 {
   if (msg->getMsgUUID() != NULL)
     {
-      QString strUUID = msg->getMsgUUID().toString();
-      QUuid uuid(strUUID);
+      QUuid uuid(msg->getMsgUUID().toString());
       this->reUUID = uuid;
       this->hasReUUID = true;
     }

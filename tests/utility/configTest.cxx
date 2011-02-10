@@ -27,6 +27,7 @@
 #include "Config.h"
 
 #include <string>
+#include <list>
 
 int main(int argc, char* argv[])
 {
@@ -37,13 +38,12 @@ int main(int argc, char* argv[])
 
 	c->loadFile("test.config");
 
-	QList<std::string> keys = c->getAllKeys();
+	std::list<std::string>* keys = c->getAllKeys();
 
-	 for (int i = 0; i < keys.size(); ++i) {
-	     std::string key = keys.at(i);
-	     std::string value = c->getConfigValue(key);
+	 for ( std::list<std::string>::iterator it=keys->begin(); it!=keys->end(); it++) {
+	     std::string value = c->getConfigValue(*it);
 
-	     log->logINFO("ConfigTest", "Read " + key + " value: " + value);
+	     log->logINFO("ConfigTest", "Read " + *it + " value: " + value);
 	 }
 
 	return 0;

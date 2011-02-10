@@ -53,7 +53,6 @@
 #include <sstream>
 #include <algorithm>
 #include <QtCore/QDataStream>
-#include <QtCore/QString>
 
 void logInfo(std::string s) {
 	Logger::getInstance()->logINFO("libNetTest", s);

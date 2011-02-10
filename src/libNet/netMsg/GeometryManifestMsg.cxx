@@ -30,26 +30,24 @@
 #include <string>
 
 /* Normal Constructor */
-GeometryManifestMsg::GeometryManifestMsg(QList<std::string>& items) :
+GeometryManifestMsg::GeometryManifestMsg(std::list<std::string>& items) :
     NetMsg(GEOMETRYMANIFEST)
 {
-    this->itemData = new QList<std::string> ();
-    this->itemData->append(items);
+    this->itemData = new std::list<std::string> (items);
 }
 
 /* Reply Constructor */
-GeometryManifestMsg::GeometryManifestMsg(NetMsg* msg, QList<std::string>& items) :
+GeometryManifestMsg::GeometryManifestMsg(NetMsg* msg, std::list<std::string>& items) :
 	NetMsg(GEOMETRYMANIFEST, msg)
 {
-    this->itemData = new QList<std::string> ();
-    this->itemData->append(items);
+    this->itemData = new std::list<std::string> (items);
 }
 
 /* Deserializing Constructor */
 GeometryManifestMsg::GeometryManifestMsg(QDataStream* ds, Portal* origin) :
     NetMsg(ds, origin)
 {
-    this->itemData = new QList<std::string> ();
+    this->itemData = new std::list<std::string> ();
 
     uint32_t numOfItems;
     *ds >> numOfItems;
@@ -70,11 +68,10 @@ GeometryManifestMsg::~GeometryManifestMsg()
 
 bool GeometryManifestMsg::_serialize(QDataStream* ds)
 {
-    *ds << this->itemData->size();
+    *ds << (uint32_t)this->itemData->size();
 
-    for (uint32_t i = 0; i < this->itemData->size(); ++i) {
-	DataStreamUtils::putString(ds, this->itemData->at(i));
-    }
+    for (std::list<std::string>::iterator it = this->itemData->begin(); it != this->itemData->end(); it++)
+	DataStreamUtils::putString(ds, *it);
 
     return true;
 }
@@ -82,12 +79,11 @@ bool GeometryManifestMsg::_serialize(QDataStream* ds)
 bool GeometryManifestMsg::_equals(const NetMsg& msg)
 {
     GeometryManifestMsg& gmsg = (GeometryManifestMsg&) msg;
+    std::list<std::string>::iterator it = this->itemData->begin(), git = gmsg.itemData->begin();
 
-    for (uint32_t i = 0; i < this->itemData->size(); ++i) {
-	if (this->itemData->at(i) != gmsg.itemData->at(i)) {
+    for (; it != this->itemData->end(); it++, git++)
+	if (*it != *git)
 	    return false;
-	}
-    }
     return true;
 }
 
@@ -96,10 +92,10 @@ std::string GeometryManifestMsg::toString()
     char buf[BUFSIZ];
     std::string out;
 
-    snprintf(buf, BUFSIZ, "%s numberofItems: %d", NetMsg::toString().c_str(), this->itemData->size());
+    snprintf(buf, BUFSIZ, "%s numberofItems: %d", NetMsg::toString().c_str(), (int)this->itemData->size());
 
-    for (uint32_t i = 0; i < this->itemData->size(); ++i) {
-        snprintf(buf, BUFSIZ, "\n\t '%s'", this->itemData->at(i).c_str());
+    for (std::list<std::string>::iterator it=this->itemData->begin(); it != this->itemData->end(); it++) {
+        snprintf(buf, BUFSIZ, "\n\t '%s'", it->c_str());
 	out.append(buf);
     }
 
@@ -116,7 +112,7 @@ uint32_t GeometryManifestMsg::getNumOfItems()
     return this->itemData->size();
 }
 
-QList<std::string>* GeometryManifestMsg::getItemData()
+std::list<std::string>* GeometryManifestMsg::getItemData()
 {
     return this->itemData;
 }

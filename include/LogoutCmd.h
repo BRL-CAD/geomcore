@@ -39,7 +39,7 @@ public:
 	std::string getHelp();
 
 protected:
-	bool _exec(GSCmdLineClient* client, QStringList args);
+	bool _exec(GSCmdLineClient* client, std::list<std::string> args);
 };
 
 

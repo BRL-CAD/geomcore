@@ -43,7 +43,7 @@ PingCmd::getHelp(){
 }
 
 bool
-PingCmd::_exec(GSCmdLineClient* client, QStringList args){
+PingCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
 	Portal* p = client->getCurrentPortal();
 
 	if (p == NULL) 	{

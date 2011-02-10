@@ -25,6 +25,10 @@
 
 #include "GSCmdLineClient.h"
 
+#include <string>
+#include <list>
+#include <sstream>
+
 #include "AbstractClientCmd.h"
 #include "ExitCmd.h"
 #include "HelpCmd.h"
@@ -62,24 +66,23 @@ GSCmdLineClient::run()
 		std::cout << prompt;
 		getline (std::cin, in);
 
-		/* make a qstring */
-		std::string qin(in.c_str());
-
 		/* cathc zero length strings here */
-		if (qin.length() == 0)
+		if (in.length() == 0)
 			continue;
 
 	    /* split string */
-		QString qsin(qin.c_str());
-		QStringList list = qsin.split(" ");
+		std::istringstream iss(in.c_str());
+		std::list<std::string> list;
+		do { std::string tok; iss>>tok; list.push_back(tok); } while(iss);
 
 		/* check to see if there is at least one element */
-		if (list.length() <= 0) {
+		if (list.size() <= 0) {
 			continue;
 		}
 
 		/* convert to lowercase */
-		std::string cmd(list.takeFirst().toLower().toStdString());
+		std::string cmd(*(list.begin()));
+		std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
 
 		this->execCmd(cmd, list);
 	}
@@ -103,7 +106,7 @@ GSCmdLineClient::stopRun()
 
 
 bool
-GSCmdLineClient::execCmd(std::string cmd, QStringList args)
+GSCmdLineClient::execCmd(std::string cmd, std::list<std::string> args)
 {
 	char buf[BUFSIZ];
 

@@ -24,7 +24,6 @@
  */
 
 #include "Logger.h"
-#include <QtCore/QTime>
 
 #include "brlcad/bu.h"
 
@@ -74,11 +73,12 @@ void Logger::logFATAL(std::string origin, std::string string) {
 }
 
 void Logger::log(uint32_t logLevel, std::string origin, std::string string) {
-	std::string time("");
-
 	std::string type("");
 
-	time += QTime::currentTime().toString().toStdString();
+	/* chomp the newline. May want to switch this to localtime/strftime  */
+	time_t t = time(NULL);
+	std::string _time(ctime(&t));
+	_time.resize(_time.length()-1);
 
 	switch (logLevel) {
 	case (Logger::FATAL):
@@ -111,7 +111,7 @@ void Logger::log(uint32_t logLevel, std::string origin, std::string string) {
 	std::ostringstream out("");
 
 	if (this->printToConsole) {
-		out << std::setw(12) << std::setfill(' ') << std::left << time;
+		out << std::setw(26) << std::setfill(' ') << std::left << _time;
 		out << std::setw(20) << std::setfill(' ') << std::left
 				<< origin;
 		out << std::setw(12) << std::setfill(' ') << std::left << type;

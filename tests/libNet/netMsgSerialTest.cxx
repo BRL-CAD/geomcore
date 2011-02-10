@@ -46,7 +46,6 @@
 #include <string>
 
 #include <QtCore/QDataStream>
-#include <QtCore/QString>
 
 void logInfo(std::string s) {
 	Logger::getInstance()->logINFO("NetMsgSerialTest", s);
@@ -92,7 +91,7 @@ int main(int argc, char* argv[]) {
 	std::string strUUID05("{b2dd5d49-1654-49f4-83b2-512b9e2fc4dc}");
 	std::string strUUID06("{ada2005b-02e1-4431-b7e8-432def490632}");
 
-	QList<std::string>* items = new QList<std::string> ();
+	std::list<std::string>* items = new std::list<std::string> ();
 	items->push_back(strUUID01);
 	items->push_back(strUUID02);
 	items->push_back(strUUID03);

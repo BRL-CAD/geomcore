@@ -28,9 +28,9 @@
 
 #include "Logger.h"
 
-#include <QtCore/QMap>
+#include <map>
 #include <string>
-#include <QtCore/QMutex>
+#include <list>
 
 class Config
 {
@@ -41,7 +41,7 @@ public:
 	bool loadFile(std::string pathAndFileName, bool verbose = false);
 	std::string getConfigValue(std::string key);
 	void updateValue(std::string key, std::string value);
-	QList<std::string> getAllKeys();
+	std::list<std::string>* getAllKeys();
 
 private:
 	Config(); /* Turn off Default cstr */
@@ -54,7 +54,7 @@ private:
 
 	Logger* log;
 	QMutex mapLock;
-	QMap<std::string, std::string>* configMap;
+	std::map<std::string, std::string>* configMap;
 
 	static Config* pInstance;
 };

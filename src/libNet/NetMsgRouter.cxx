@@ -40,7 +40,7 @@ NetMsgRouter::getInstance() {
 }
 
 NetMsgRouter::NetMsgRouter() {
-	this->routingTable = new QMap<uint16_t, QList<INetMsgHandler*>*> ();
+	this->routingTable = new std::map<uint16_t, std::list<INetMsgHandler*>*> ();
 }
 
 NetMsgRouter::~NetMsgRouter() {
@@ -49,56 +49,41 @@ NetMsgRouter::~NetMsgRouter() {
 
 bool NetMsgRouter::registerType(uint16_t type, INetMsgHandler* handler) {
 	/* First get the appropriate list: */
-	QList<INetMsgHandler*>* list = this->getListOfHandlers(type);
-	list->append(handler);
+	std::list<INetMsgHandler*>* list = this->getListOfHandlers(type);
+	list->push_back(handler);
 
 	return true;
 }
 
 bool NetMsgRouter::routeMsg(NetMsg* msg) {
 	/* First get the appropriate list: */
-	QList<INetMsgHandler*>* list = this->getListOfHandlers(msg->getMsgType());
+	std::list<INetMsgHandler*>* list = this->getListOfHandlers(msg->getMsgType());
 
 	char buf[BUFSIZ];
 	std::string s;
-/*
-	QString s("Got a message whos origin is Portal: ");
-	Portal* origin = msg->getOrigin();
-	if (origin != 0) {
-		s.append(origin->getRemoteNodeName());
-	} else {
-		s.append("NULL origin!");
-	}
-	s.append(" and type: ");
-	s.append(QString::number(msg->getMsgType(),16).toUpper());
-	Logger::getInstance()->logINFO("NetMsgRouter", s);
-*/
 
-	if (list->length() == 0) {
+	if (list->empty()) {
 		/* If no routing table, print an error */
 		snprintf(buf, BUFSIZ, "Msg type: %X has no forwarding information.", msg->getMsgType());
 		Logger::getInstance()->logWARNING("NetMsgRouter",std::string(buf));
 		return false;
-
-	} else {
-		for (int i = 0; i < list->length(); ++i) {
-			list->at(i)->handleNetMsg(msg);
-		}
-	}
+	} else
+		for (std::list<INetMsgHandler*>::iterator it=list->begin(); it != list->end(); it++)
+			(*it)->handleNetMsg(msg);
 	/* Now delete msg */
 	delete msg;
 	return true;
 }
 
-QList<INetMsgHandler*>*
+std::list<INetMsgHandler*>*
 NetMsgRouter::getListOfHandlers(uint16_t type) {
 	QMutexLocker(&this->mapLock);
 
-	QList<INetMsgHandler*>* l = this->routingTable->value(type);
+	std::list<INetMsgHandler*>* l = this->routingTable->find(type)->second;
 
 	if (l == 0) {
-		l = new QList<INetMsgHandler*> ();
-		this->routingTable->insert(type, l);
+		l = new std::list<INetMsgHandler*> ();
+		this->routingTable->insert(std::pair<int,std::list<INetMsgHandler*>*>(type, l));
 	}
 	return l;
 }

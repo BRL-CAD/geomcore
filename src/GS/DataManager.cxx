@@ -51,7 +51,7 @@ void
 DataManager::addDataSource(IDataSource* source)
 {
 	QMutexLocker lock (&this->sourceLock);
-	this->datasources.append(source);
+	this->datasources.push_back(source);
 }
 
 bool
@@ -105,8 +105,8 @@ DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
 
 	if (reqType == REQ_BY_PATH){
 		//TODO remove hardcoded FileDataSource
-		if (this->datasources.length() > 0) {
-			IDataSource* ds = this->datasources.at(0);
+		if (this->datasources.size() > 0) {
+			IDataSource* ds = *this->datasources.begin();
 
 			DbObject* obj = ds->getByPath(data);
 
@@ -116,11 +116,11 @@ DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
 				return;
 			}
 
-			QList<std::string> items;
+			std::list<std::string> items;
 			QByteArray* data = obj->getData();
 
 			GeometryChunkMsg* chunk = new GeometryChunkMsg(data->data(), data->length());
-			items.append(obj->getPath());
+			items.push_back(obj->getPath());
 
 			GeometryManifestMsg* manifest = new GeometryManifestMsg(items);
 			origin->send(manifest);

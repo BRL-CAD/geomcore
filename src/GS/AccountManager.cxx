@@ -32,7 +32,7 @@ AccountManager* AccountManager::pInstance = NULL;
 
 AccountManager::AccountManager()
 {
-	this->accounts = new QList<Account*>();
+	this->accounts = new std::list<Account*>();
 	this->log = Logger::getInstance();
 }
 
@@ -111,36 +111,40 @@ AccountManager::logout(Account* a) {
 Account*
 AccountManager::newAccount(std::string uname, Portal* p, uint32_t id)
 {
-	Account* a = NULL;
+    Account* a = NULL;
 
-	//check to see if its already cached.
-	this->accountListLock.lock();
+    //check to see if its already cached.
+#if 0	/* erm, find NULL, if NULL is not NULL, ... whu? */
+    this->accountListLock.lock();
+
     int index = this->accounts->indexOf(a);
 
     if (index >= 0) {
-    	a = this->accounts->at(index);
+	a = this->accounts->at(index);
     }
     this->accountListLock.unlock();
 
     if (a != NULL ) {
-    	a->stampLastAccess();
+	a->stampLastAccess();
     } else {
-    	//New
-		a = new Account(uname, p, id);
+#endif
+	//New
+	a = new Account(uname, p, id);
 
-		//cache
-		this->accountListLock.lock();
-		this->accounts->append(a);
-		this->accountListLock.unlock();
-
+	//cache
+	this->accountListLock.lock();
+	this->accounts->push_back(a);
+	this->accountListLock.unlock();
+#if 0
     }
+#endif
     return a;
 }
 
 void
 AccountManager::remAccount(Account* a) {
 	this->accountListLock.lock();
-	this->accounts->removeAll(a); /* TODO Removes matches to mem address only, upgrade this logic. */
+	this->accounts->remove(a); /* TODO Removes matches to mem address only, upgrade this logic. */
 	this->accountListLock.unlock();
 }
 

@@ -24,8 +24,9 @@
 #include "PrintToStdOutJob.h"
 #include "GSThread.h"
 #include <iostream>
+#include <string>
 
-PrintToStdOutJob::PrintToStdOutJob(QString text)
+PrintToStdOutJob::PrintToStdOutJob(std::string text)
 {
     this->text = text;
     this->streamLock = new QMutex();
@@ -40,7 +41,7 @@ JobResult PrintToStdOutJob::_doJob()
 {
 	GSThread::usleep(2500);
     QMutexLocker(this->streamLock);
-    std::cout << "JobID:" << this->jobID << " Text: "<< text.toStdString();
+    std::cout << "JobID:" << this->jobID << " Text: "<< text;
     return JOB_COMPLETED_NO_ERRORS;
 }
 

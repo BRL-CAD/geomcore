@@ -40,7 +40,7 @@ ShutdownCmd::getHelp(){
 }
 
 bool
-ShutdownCmd::_exec(GSCmdLineClient* client, QStringList args){
+ShutdownCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
 	Portal* p = client->getCurrentPortal();
 
 	/* Check to see if we are connected */

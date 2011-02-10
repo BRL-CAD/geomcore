@@ -53,7 +53,6 @@ bool EventSubscription::operator==(const EventSubscription &other) const
     Logger* log = Logger::getInstance();
 
     if (other._eventType != this->_eventType) {
-//	log->logINFO("EventSubscription", "Equality Check: Event Type Mismatch (" + QString::number(other._eventType) + "/" + QString::number(this->_eventType) + ")");
 	return false;
     }
     if (other._pub != this->_pub) {

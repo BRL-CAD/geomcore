@@ -40,7 +40,7 @@ ClientCmdRegistry::getInstance() {
 }
 
 ClientCmdRegistry::ClientCmdRegistry() {
-	this->cmdMap = new QMap<std::string,AbstractClientCmd*> ();
+	this->cmdMap = new std::map<std::string,AbstractClientCmd*> ();
 	this->log = Logger::getInstance();
 }
 
@@ -53,11 +53,8 @@ bool ClientCmdRegistry::registerCmd(AbstractClientCmd* cmd) {
 	std::string cmdString = cmd->getCmd();
 
 	QMutexLocker(&this->mapLock);
-	if (this->cmdMap->contains(cmdString) == false) {
-		this->cmdMap->insert(cmdString, cmd);
+	if(cmdMap->insert(std::pair<std::string,AbstractClientCmd*>(cmdString, cmd)).second != false)
 		return true;
-	}
-
 	this->log->logWARNING("ClientCmdRegistry","An AbstractClientCmd '" + cmdString + "' already exists in Registry.");
 	return false;
 }
@@ -67,17 +64,19 @@ ClientCmdRegistry::getCmd(std::string cmd)
 {
 	QMutexLocker(&this->mapLock);
 
-	if (this->cmdMap->contains(cmd) == false)
+	if (this->cmdMap->find(cmd) == cmdMap->end())
 		return NULL;
 
-	return this->cmdMap->value(cmd);
+	return this->cmdMap->find(cmd)->second;
 }
 
-QList<std::string>*
+std::list<std::string>*
 ClientCmdRegistry::getListOfCmds() {
 	QMutexLocker(&this->mapLock);
 
-	QList<std::string>* keys = new QList<std::string>(this->cmdMap->keys());
+	std::list<std::string>* keys = new std::list<std::string>();
+	for(std::map<std::string,AbstractClientCmd*>::iterator it=cmdMap->begin(); it!=cmdMap->end(); it++)
+		keys->push_back(it->first);
 
 	return keys;
 }

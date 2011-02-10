@@ -25,21 +25,21 @@
 #define __PRINTTOSTDOUTJOB_H__
 
 #include "AbstractJob.h"
-#include <QtCore/QString>
+#include <string>
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
 class PrintToStdOutJob : public AbstractJob
 {
 public:
-    PrintToStdOutJob(QString text);
+    PrintToStdOutJob(std::string text);
     virtual ~PrintToStdOutJob();
 
 protected:
     virtual JobResult _doJob();
 
 private:
-    QString text;
+    std::string text;
     QMutex* streamLock;
 };
 

@@ -34,8 +34,6 @@
 #include "GSClient.h"
 
 #include <QtCore/QUuid>
-#include <QtCore/QString>
-#include <QtNetwork/QHostAddress>
 
 static const uint16_t DEFAULT_PORT = 5309;
 
@@ -146,7 +144,7 @@ public:
     		delete gsClient;
     }
 
-    void connect(const QHostAddress address = QHostAddress::LocalHost, int port = DEFAULT_PORT)
+    void connect(const char *address = "127.0.0.1", int port = DEFAULT_PORT)
     {
 		if (port < 0) {
 			std::cerr << "Unexpected test harness state: port<0" << std::endl;

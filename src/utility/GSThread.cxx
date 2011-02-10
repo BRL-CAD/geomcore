@@ -25,7 +25,7 @@
 
 #include "GSThread.h"
 
-QList<GSThread*> GSThread::threads;
+std::list<GSThread*> GSThread::threads;
 
 GSThread::GSThread()
 {
@@ -46,43 +46,31 @@ GSThread::terminate()
 void
 GSThread::sleep(unsigned long secs)
 {
-  QThread::sleep(secs);
+  sleep(secs);
 }
 
 void
 GSThread::msleep(unsigned long msecs)
 {
-  QThread::msleep(msecs);
+  usleep(1000 * msecs);
 }
 
 void
 GSThread::usleep(unsigned long usecs)
 {
-  QThread::usleep(usecs);
+  usleep(usecs);
 }
 
 void
 GSThread::addThread(GSThread* thread)
 {
-  bool exists = GSThread::threads.contains(thread);
-
-  if (!exists) {
-    GSThread::threads.append(thread);
-  } else {
-    //Todo possible warning for duplicate threads in the list?
-  }
+    GSThread::threads.push_back(thread);
 }
 
 void
 GSThread::remThread(GSThread* thread)
 {
-  bool exists = GSThread::threads.contains(thread);
-
-  if (exists) {
-    GSThread::threads.removeAll(thread);
-  } else {
-    //Todo possible warning for attempting to remove a thread not in the list?
-  }
+    GSThread::threads.remove(thread);
 }
 
 /*

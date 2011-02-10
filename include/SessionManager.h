@@ -32,7 +32,8 @@
 #include "NewSessionReqMsg.h"
 #include "TypeOnlyMsg.h"
 
-#include <QtCore/QMap>
+#include <list>
+#include <map>
 #include <QtCore/QMutex>
 
 class SessionManager : public INetMsgHandler
@@ -53,7 +54,7 @@ private:
     Logger* log;
 
     QMutex listLock;
-    QList<Session*> sessionList;
+    std::list<Session*> sessionList;
 
     Session* newSession(Account* a);
     void putCache(Session* s);

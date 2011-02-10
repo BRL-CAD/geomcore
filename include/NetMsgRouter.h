@@ -30,8 +30,8 @@
 #include "INetMsgHandler.h"
 #include "NetMsg.h"
 
-#include <QtCore/QMap>
-#include <QtCore/QList>
+#include <map>
+#include <list>
 #include <QtCore/QMutex>
 
 class NetMsgRouter
@@ -52,10 +52,10 @@ private:
 	 * Gets a list of INetMsgHandler pointers associated with
 	 * this msgType.  If no Mapping or list exists, one is made.
 	 */
-	QList<INetMsgHandler*>* getListOfHandlers(uint16_t type);
+	std::list<INetMsgHandler*>* getListOfHandlers(uint16_t type);
 
 	QMutex mapLock;
-	QMap<uint16_t,QList<INetMsgHandler*>*>* routingTable;
+	std::map<uint16_t,std::list<INetMsgHandler*>*>* routingTable;
 
 	/* Disable copy cstr and =operator */
 	NetMsgRouter(NetMsgRouter const&){};

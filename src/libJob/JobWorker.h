@@ -67,14 +67,9 @@ public:
 	QUuid getWorkerId();
 
 	/**
-	 * Gets the UUID of the JobWorker as a QString.
-	 */
-	QString getWorkerIdAsQString();
-
-	/**
 	 * Gets the UUID of the JobWorker as a STL string.
 	 */
-	std::string getWorkerIdAsStdString();
+	std::string getWorkerIdAsString();
 
 	/**
 	 * Returns TRUE if the JobWorker's status is currently WORKER_READY

@@ -26,14 +26,13 @@
 #include "Config.h"
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
-#include <QtCore/QStringList>
 #include <QtCore/QMutexLocker>
 
 Config* Config::pInstance = NULL;
 
 Config::Config()
 {
-    this->configMap = new QMap<std::string, std::string> ();
+    this->configMap = new std::map<std::string, std::string> ();
     this->log = Logger::getInstance();
 }
 
@@ -52,14 +51,12 @@ Config* Config::getInstance()
 
 bool Config::loadFile(std::string pathAndFileName, bool verbose)
 {
-    QString pth;
     std::string msg;
     msg = "Attemping to load config from: '" + pathAndFileName + "'.";
     this->log->logINFO("Config", msg);
 
     //init file object
-    pth.append(pathAndFileName.c_str());
-    QFile f(pth);
+    QFile f(QString(pathAndFileName.c_str()));
 
     if (f.exists() == false) {
 		msg = "Could not find file: '" + pathAndFileName + "'.";
@@ -90,7 +87,7 @@ bool Config::loadFile(std::string pathAndFileName, bool verbose)
 			std::string key = this->processLine(line);
 
 			if (verbose && key.length() > 0) {
-				std::string value = this->configMap->value(key);
+				std::string value = this->configMap->find(key)->second;
 				log->logINFO("Config", "Read key/value: '" + key + "'->'" + value + "'");
 			}
 
@@ -107,7 +104,7 @@ Config::processLine(std::string line)
 {
     char key[BUFSIZ], value[BUFSIZ];
 
-    switch(sscanf(line.c_str(), "%s %s", &key, &value)) {
+    switch(sscanf(line.c_str(), "%s %s", key, value)) {
 	case -1:
 	    return std::string("");
 	case 2:
@@ -131,20 +128,27 @@ void Config::removeAllOccurances(std::string* data, std::string search, std::str
 std::string Config::getConfigValue(std::string key)
 {
 	QMutexLocker(&this->mapLock);
-    return this->configMap->value(key, "") + "";
+    return this->configMap->find(key)->second + "";
 }
 
 void
 Config::updateValue(std::string key, std::string value)
 {
 	QMutexLocker(&this->mapLock);
-	this->configMap->insert(key, value);
+	this->configMap->insert(std::pair<std::string,std::string>(key, value));
 }
 
-QList<std::string> Config::getAllKeys()
+std::list<std::string>* Config::getAllKeys()
 {
+	std::list<std::string>* l = new std::list<std::string>();
+	std::map<std::string, std::string>::iterator it;
+
 	QMutexLocker(&this->mapLock);
-	return this->configMap->uniqueKeys();
+	for(it=configMap->begin() ; it != configMap->end(); it++) {
+		std::string s = it->first;
+		l->push_back(s);
+	}
+	return l;
 }
 
 /*

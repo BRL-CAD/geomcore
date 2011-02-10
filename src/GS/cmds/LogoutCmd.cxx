@@ -44,7 +44,7 @@ LogoutCmd::getHelp() {
 }
 
 bool
-LogoutCmd::_exec(GSCmdLineClient* client, QStringList args){
+LogoutCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
 	Portal* p = client->getCurrentPortal();
 
 	/* Check to see if we are connected */

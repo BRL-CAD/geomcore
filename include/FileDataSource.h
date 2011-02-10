@@ -48,7 +48,7 @@ private:
 	std::string repoPath;
 
 	QMutex lockLock;
-	QList<std::string> pathLocks;
+	std::list<std::string> pathLocks;
 	bool hasPathLock(std::string path);
 	void setPathLock(std::string path);
 	void remPathLock(std::string path);

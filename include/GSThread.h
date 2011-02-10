@@ -27,7 +27,7 @@
 #define __GSTHREAD_H__
 
 #include <QtCore/QThread>
-#include <QtCore/QList>
+#include <list>
 
 class GSThread : public QThread
 {
@@ -44,7 +44,7 @@ public:
 protected:
 
   /* For thread management */
-  static QList<GSThread*> threads;
+  static std::list<GSThread*> threads;
   static void addThread(GSThread* thread);
   static void remThread(GSThread* thread);
 

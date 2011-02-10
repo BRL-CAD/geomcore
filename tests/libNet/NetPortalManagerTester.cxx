@@ -59,8 +59,9 @@ void NetPortalManagerTester::handleMsgReady()
 void NetPortalManagerTester::handleHandshakeStatusUpdate(uint32_t current,
 	uint32_t old)
 {
-    this->portMan->localLog("Handshake status update: " + QString::number(old)
-	    + "->" + QString::number(current));
+    char buf[BUFSIZ];
+    snprintf("Handshake status update: %d->%d", old, current);
+    this->portMan->localLog(buf);
 }
 void NetPortalManagerTester::handleHandshakeComplete(NetPortal* portal)
 {
@@ -77,7 +78,9 @@ void NetPortalManagerTester::handlePortalDisonnected()
 }
 void NetPortalManagerTester::handleSocketError(QAbstractSocket::SocketError err)
 {
-    this->portMan->localLog("handleSocketError: " + QString::number(err));
+    char buf[BUFSIZ];
+    snprintf("handleSocketError: %d", err);
+    this->portMan->localLog(buf);
 }
 
 // Local Variables: ***

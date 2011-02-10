@@ -41,9 +41,9 @@ HelpCmd::getHelp() {
 }
 
 bool
-HelpCmd::_exec(GSCmdLineClient* client, QStringList args){
+HelpCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
 
-	int argn = args.length();
+	int argn = args.size();
 
 	if (argn < 0 || argn > 1) {
 		this->printUsage();
@@ -54,17 +54,21 @@ HelpCmd::_exec(GSCmdLineClient* client, QStringList args){
 
 	if (argn == 0) {
 		/* display list of cmds */
-		QList<std::string>* cmds = ccReg->getListOfCmds();
+		/* TODO: fix this. */
+		/* something similar to (format nil "~{~a~^, ~}" cmds) */
+		std::list<std::string>* cmds = ccReg->getListOfCmds();
 
 		this->log->logINFO("HelpCmd", "Available commands:");
 
 		std::string out("\t");
-		for (int i = 0; i < cmds->length(); ++i) {
+		std::list<std::string>::iterator it=cmds->begin();
+		for (int i = 0; i < cmds->size(); ++i) {
 			/* Append the new cmd name */
-			out.append(cmds->at(i));
+			out.append(*it);
+			it++;
 
 			/* as long as we are not the last command, append a comma */
-			if (i+1 < cmds->length())
+			if (i+1 < cmds->size())
 				out.append(", ");
 
 			/* every 5th command, start a new line. */
@@ -83,7 +87,7 @@ HelpCmd::_exec(GSCmdLineClient* client, QStringList args){
 		return true;
 	} else {
 		/* display specifics of a single cmd */
-		std::string cmd(args.at(0).toStdString());
+		std::string cmd(*args.begin());
 
 		if(cmd.length() == 0) {
 			this->log->logERROR("HelpCmd", "Zero Length Cmd provided to help.");

@@ -102,7 +102,7 @@ void DataStreamUtils::printQByteArray(QByteArray* ba)
   for (uint32_t i = 0; i < size; ++i)
     {
       char c = ba->at(i);
-      std::cout << QString::number(c).toStdString() << " '" << c << "', ";
+      std::cout << (int)c << " '" << c << "', ";
       
       if ((i + 1) % 25 == 0) {
           std::cout << std::endl;

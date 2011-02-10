@@ -46,7 +46,7 @@ public:
 
 	int run();
 	void stopRun();
-	bool execCmd(std::string cmd, QStringList args);
+	bool execCmd(std::string cmd, std::list<std::string> args);
 	Portal* getCurrentPortal();
 
 protected:

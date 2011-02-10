@@ -65,11 +65,9 @@ SessionManager::newSession(Account* a)
 Session*
 SessionManager::getSession(Account* a) {
 	QMutexLocker locker(&this->listLock);
-	for (int i = 0; i < this->sessionList.size(); ++i) {
-		Session* s = this->sessionList[i];
-		if (s->getAccount() == a)
-			return s;
-	}
+	for (std::list<Session*>::iterator it=sessionList.begin(); it!=sessionList.end(); it++)
+		if ((*it)->getAccount() == a)
+			return (*it);
 	return NULL;
 }
 
@@ -77,22 +75,18 @@ SessionManager::getSession(Account* a) {
 Session*
 SessionManager::getSession(QUuid sessID) {
 	QMutexLocker locker(&this->listLock);
-	for (int i = 0; i < this->sessionList.size(); ++i) {
-		Session* s = this->sessionList[i];
-		if (s->getSessionID() == sessID)
-			return s;
-	}
+	for (std::list<Session*>::iterator it=sessionList.begin(); it!=sessionList.end(); it++)
+		if ((*it)->getSessionID() == sessID)
+			return (*it);
 	return NULL;
 }
 
 Session*
 SessionManager::getSession(Portal* p) {
 	QMutexLocker locker(&this->listLock);
-	for (int i = 0; i < this->sessionList.size(); ++i) {
-		Session* s = this->sessionList[i];
-		if (s->getAccount()->getPortal() == p)
-			return s;
-	}
+	for (std::list<Session*>::iterator it=sessionList.begin(); it!=sessionList.end(); it++)
+		if ((*it)->getAccount()->getPortal() == p)
+			return (*it);
 	return NULL;
 }
 
@@ -100,10 +94,10 @@ void
 SessionManager::putCache(Session* s)
 {
 	QMutexLocker locker(&this->listLock);
-	if (this->sessionList.contains(s)) {
+	if (std::find(this->sessionList.begin(), this->sessionList.end(), s) != this->sessionList.end()) {
 		log->logWARNING("SessionManager", "Attempted to cache an already cached Session.");
 	} else {
-		this->sessionList.append(s);
+		this->sessionList.push_back(s);
 	}
 }
 
@@ -111,8 +105,8 @@ void
 SessionManager::remCache(Session* s)
 {
 	QMutexLocker locker(&this->listLock);
-	if (this->sessionList.contains(s)) {
-		this->sessionList.removeAll(s);
+	if (std::find(this->sessionList.begin(), this->sessionList.end(), s) != this->sessionList.end()) {
+		this->sessionList.remove(s);
 	} else {
 		log->logWARNING("SessionManager", "Attempted to remove a Session that wasn't cached.");
 	}

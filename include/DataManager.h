@@ -34,6 +34,7 @@
 #include "Logger.h"
 
 #include <string>
+#include <list>
 #include <QtCore/QUuid>
 #include <QtCore/QMutex>
 
@@ -55,7 +56,7 @@ private:
 
 	Logger* log;
 	QMutex sourceLock;
-	QList<IDataSource*> datasources;
+	std::list<IDataSource*> datasources;
 
 	void handleGeometryReqMsg(GeometryReqMsg* msg);
 	void handleGeometryChunkMsg(GeometryChunkMsg* msg);

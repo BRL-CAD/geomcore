@@ -35,10 +35,9 @@
 #include <sys/select.h>
 
 #include <string>
+#include <map>
 
-#include <QtCore/QList>
 #include <QtCore/QMutex>
-#include <string>
 
 class Portal;
 
@@ -69,7 +68,7 @@ private:
 	int fdmax;
 
 	QMutex* portalsLock;
-	QMap<int, Portal*>* fdPortalMap;
+	std::map<int, Portal*>* fdPortalMap;
 
 	Portal* makeNewPortal(PkgTcpClient* client, struct pkg_switch* table);
 	struct pkg_switch* makeNewSwitchTable();

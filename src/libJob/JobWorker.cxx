@@ -41,8 +41,6 @@ JobWorker::~JobWorker()
 
 void JobWorker::run()
 {
-    //this->log->logINFO("JobWorker", "Starting JobWorker. ID: " + this->getWorkerIdAsQString());
-
     JobManager* jm = JobManager::getInstance();
 
     this->status = WORKER_READY;
@@ -63,10 +61,6 @@ void JobWorker::run()
     			//TODO put in an error trap here.  jm->hasNextJob() returned TRUE, but the job returned was NULL?!
 				continue;
     		}
-
-//	   	 	QString text = "JobWorker " + this->getWorkerIdAsQString()
-//		    + " is working Job with ID of " + QString::number(job->getJobId());
-//	   		 this->log->logINFO("JobWorker", text);
 
     		JobResult result = job->doJob();
 
@@ -93,24 +87,14 @@ QUuid JobWorker::getWorkerId()
     return this->workerId;
 }
 
-QString JobWorker::getWorkerIdAsQString()
+std::string JobWorker::getWorkerIdAsString()
 {
-    return this->getWorkerId().toString();
-}
-
-std::string JobWorker::getWorkerIdAsStdString()
-{
-    return this->getWorkerIdAsQString().toStdString();
+    return this->getWorkerId().toString().toStdString();
 }
 
 void JobWorker::shutdown()
 {
     this->runCmd = false;
-    /*
-    QString text = "JobWorker " + this->getWorkerIdAsQString()
-	    + " received Shutdown Command.";
-    this->log->logINFO("JobWorker", text);
-    */
 }
 
 /*

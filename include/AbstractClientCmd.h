@@ -29,12 +29,11 @@
 #include "GSCmdLineClient.h"
 
 #include <string>
-#include <QStringList>
 
 class AbstractClientCmd {
 public:
 	virtual ~AbstractClientCmd();
-	bool exec(GSCmdLineClient* client, QStringList args);
+	bool exec(GSCmdLineClient* client, std::list<std::string> args);
 
 	std::string getCmd();
 	virtual std::string getUsage() = 0;
@@ -47,7 +46,7 @@ protected:
 	AbstractClientCmd(std::string cmd);
 	AbstractClientCmd(AbstractClientCmd* acCmd);
 
-	virtual bool _exec(GSCmdLineClient* client, QStringList args) = 0;
+	virtual bool _exec(GSCmdLineClient* client, std::list<std::string> args) = 0;
 
 	Logger* log;
 

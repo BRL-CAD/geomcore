@@ -33,7 +33,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include <QtCore/QMap>
+#include <map>
 
 PortalManager::PortalManager(std::string localNodeName, uint16_t listenPort, std::string address)
 {
@@ -41,7 +41,7 @@ PortalManager::PortalManager(std::string localNodeName, uint16_t listenPort, std
 	this->listenAddress.assign(address);
 	this->listenPort = listenPort;
 	this->tcpServer = new PkgTcpServer();
-	this->fdPortalMap = new QMap<int, Portal*> ();
+	this->fdPortalMap = new std::map<int, Portal*> ();
 	this->portalsLock = new QMutex();
 	this->log = Logger::getInstance();
 	this->fdmax = 0;
@@ -116,21 +116,11 @@ PortalManager::_run() {
 		/* Shelect!! */
 		int retVal = select(fdmax + 1, &readfds, NULL, &exceptionfds, &timeout);
 
-		/*
-		if (retVal != 0) {
-			QString out("Select returned: ");
-			out.append(QString::number(retVal));
-			out.append(". FD count: ");
-			out.append(QString::number(this->fdPortalMap->keys().size()));
-			out.append(". MAX FD: ");
-			out.append(QString::number(fdmax));
-			this->log->logINFO("PortalManager", out);
-		}
-	*/
-
 		if (retVal < 0) {
+			char buf[BUFSIZ];
 			/* got a selector error */
-			this->log->logERROR("PortalManager", "Selector Error: " + QString::number(errno).toStdString());
+			snprintf(buf, BUFSIZ, "Selector Error: %d", errno);
+			this->log->logERROR("PortalManager", buf);
 			break;
 		}
 
@@ -183,9 +173,9 @@ PortalManager::_run() {
 			}
 
 			/* If we didnt get a portal from accepting, then get one from the map */
-			if (p == 0 && this->fdPortalMap->contains(i)) {
+			if (p == 0 && (*this->fdPortalMap)[i]) {
 				this->portalsLock->lock();
-				p = this->fdPortalMap->value(i);
+				p = (*this->fdPortalMap)[i];
 				this->portalsLock->unlock();
 			}
 
@@ -227,13 +217,8 @@ PortalManager::makeNewPortal(PkgTcpClient* client, struct pkg_switch* table) {
 	/* Obtain lock and then map this new portal */
 	this->portalsLock->lock();
 	int newFD = p->pkgClient->getFileDescriptor();
-	this->fdPortalMap->insert(newFD, p);
+	this->fdPortalMap->insert(std::pair<int,Portal*>(newFD, p));
 	this->portalsLock->unlock();
-/*
-	QString s("New Portal with FD: ");
-	s.append(QString::number(newFD));
-	log->logDEBUG("PortalManager", s);
-*/
 
 	/* Check maxFD and update if needed. */
 	if (newFD > fdmax) {
@@ -278,7 +263,7 @@ PortalManager::closeFD(int fd, std::string logComment) {
 	this->masterFDSLock.unlock();
 
 	this->portalsLock->lock();
-	this->fdPortalMap->remove(fd);
+	this->fdPortalMap->erase(fd);
 	this->portalsLock->unlock();
 
 	if (logComment.length() >0) {

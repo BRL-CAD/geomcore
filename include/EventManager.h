@@ -57,12 +57,12 @@ private:
 	static EventManager* pInstance;
 	EventManager();
 
-	QList<EventSubscriber*>* buildSubscriberList(Event* e);
+	std::list<EventSubscriber*>* buildSubscriberList(Event* e);
 
 	Logger* log;
 
 	QMutex* subscriptionsLock;
-	QList<EventSubscription*>* subscriptions;
+	std::list<EventSubscription*>* subscriptions;
 
 	/* Disable copy cstr and =operator */
 	EventManager(EventManager const&){};

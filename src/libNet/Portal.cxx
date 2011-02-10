@@ -50,13 +50,6 @@ Portal::~Portal() {
 int
 Portal::send(NetMsg* msg) {
 	QByteArray* ba = msg->serialize();
-/*
-	QString s("Sending msg.  Type: 0x");
-	s.append(QString::number(msg->getMsgType(),16).toUpper());
-	s.append(" len: ");
-	s.append(QString::number(ba->size()));
-	log->logDEBUG("Portal", s);
-*/
 	int retval = this->pkgClient->send(PKG_MAGIC2, ba->data(), ba->size());
 
 	delete ba;
@@ -148,12 +141,6 @@ Portal::handleNetMsg(NetMsg* msg) {
 			RemoteNodenameSetMsg* t = (RemoteNodenameSetMsg*) msg;
 			this->remoteNodeName.assign(t->getRemoteNodename());
 			this->handshakeComplete = true;
-
-			/*
-			QString s("Recv-ed a RemoteNodename: ");
-			s.append(this->remoteNodeName);
-			this->log->logDEBUG("Portal", s);
-			*/
 		}
 
 		/* Normally, the NetMsgRouter does the delete, but this opcode never gets routed. */

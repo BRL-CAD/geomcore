@@ -35,10 +35,10 @@ class GeometryManifestMsg : public NetMsg
 public:
 
 	/* Normal Constructor */
-	GeometryManifestMsg(QList<std::string>& items);
+	GeometryManifestMsg(std::list<std::string>& items);
 
 	/* Reply Constructor */
-	GeometryManifestMsg(NetMsg* msg, QList<std::string>& items);
+	GeometryManifestMsg(NetMsg* msg, std::list<std::string>& items);
 
 	/* Deserializing Constructor */
 	GeometryManifestMsg(QDataStream* ds, Portal* origin);
@@ -52,10 +52,10 @@ public:
 	 *Getters n Setters
 	 */
 	uint32_t getNumOfItems();
-	QList<std::string>* getItemData();
+	std::list<std::string>* getItemData();
 
 private:
-	QList<std::string>* itemData;
+	std::list<std::string>* itemData;
 
 	bool _serialize(QDataStream* ds);
 	bool _equals(const NetMsg& msg);

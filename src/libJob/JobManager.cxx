@@ -23,6 +23,7 @@
 #include "GSThread.h"
 
 #include <iostream>
+#include <list>
 
 #include <QtCore/QMutexLocker>
 
@@ -32,9 +33,9 @@ QMutex* JobManager::singletonLock = new QMutex();
 
 JobManager::JobManager() {
 	this->log = Logger::getInstance();
-	this->jobQueue = new QList<AbstractJob*> ();
+	this->jobQueue = new std::list<AbstractJob*> ();
 	this->queueLock = new QMutex();
-	this->jobWorkers = new QList<JobWorker*> ();
+	this->jobWorkers = new std::list<JobWorker*> ();
 	this->acceptJobs = false;
 
 	char buf[BUFSIZ];
@@ -46,13 +47,10 @@ JobManager::JobManager() {
 
 	for (uint32_t i = 0; i < MAX_JOBWORKERS; ++i) {
 		JobWorker* jw = new JobWorker();
-		this->jobWorkers->append(jw);
-
-		//text = "Created new JobWorker with ID of " + jw->getWorkerIdAsQString();
-		//this->log->logINFO("JobManager", text);
+		this->jobWorkers->push_back(jw);
 	}
 
-	snprintf(buf, BUFSIZ, "Created a total of %d JobWorkers", this->jobWorkers->size());
+	snprintf(buf, BUFSIZ, "Created a total of %d JobWorkers", (int)this->jobWorkers->size());
 	text.assign(buf);
 	this->log->logINFO("JobManager", text);
 }
@@ -72,16 +70,14 @@ void JobManager::startup() {
 	if (this->jobWorkers->size() > 0)
 		return;
 
-	for (uint32_t i = 0; i < this->jobWorkers->size(); ++i) {
-		JobWorker* jw = this->jobWorkers->at(i);
-		jw->start();
-	}
+	for (std::list<JobWorker*>::iterator it=this->jobWorkers->begin(); it != this->jobWorkers->end(); it++)
+		(*it)->start();
 	this->acceptJobs = true;
 }
 
 void JobManager::shutdown(bool finishJobQueue) {
 	char buf[BUFSIZ];
-	snprintf(buf, BUFSIZ, "JobManager Shutdown Requested. %d items in jobQueue remain...", this->jobQueue->size());
+	snprintf(buf, BUFSIZ, "JobManager Shutdown Requested. %d items in jobQueue remain...", (int)this->jobQueue->size());
 	this->log->logINFO("JobManager", buf);
 
 	this->acceptJobs = false;
@@ -93,7 +89,7 @@ void JobManager::shutdown(bool finishJobQueue) {
 	uint32_t curPasses = 0;
 
 	while (this->jobQueue->size() != 0 && finishJobQueue) {
-		snprintf(buf, BUFSIZ, "Waiting for JobWorkers to process JobQueue. %d items remain...", this->jobQueue->size());
+		snprintf(buf, BUFSIZ, "Waiting for JobWorkers to process JobQueue. %d items remain...", (int)this->jobQueue->size());
 		this->log->logINFO("JobManager", buf);
 		GSThread::sleep(waitTimePerLoopSecs);
 		++curPasses;
@@ -105,7 +101,7 @@ void JobManager::shutdown(bool finishJobQueue) {
 	}
 
 	//loop through workers, shut them down individually. Then empty worker list
-	while (!this->jobWorkers->isEmpty()) {
+	while (!this->jobWorkers->empty()) {
 		JobWorker* jw = this->jobWorkers->front();
 		if (jw != NULL) {
 //			this->log->logINFO("JobManager", "Shutting Down JobWorker: " + jw->getWorkerId().toString());
@@ -116,7 +112,7 @@ void JobManager::shutdown(bool finishJobQueue) {
 		this->jobWorkers->pop_front();
 	}
 
-	snprintf(buf, BUFSIZ, "All JobWorkers Stopped. %d items in jobQueue remain...", this->jobQueue->size());
+	snprintf(buf, BUFSIZ, "All JobWorkers Stopped. %d items in jobQueue remain...", (int)this->jobQueue->size());
 	this->log->logINFO("JobManager", buf);
 }
 
@@ -138,13 +134,16 @@ void JobManager::submitJob(AbstractJob* job) {
 	}
 
 	QMutexLocker locker(this->queueLock);
-	this->jobQueue->append(job);
+	this->jobQueue->push_back(job);
 }
 
 AbstractJob* JobManager::getNextJob() {
+	AbstractJob* j;
 	QMutexLocker locker(this->queueLock);
-	if (!this->jobQueue->isEmpty()) {
-		return this->jobQueue->takeFirst();
+	if (!this->jobQueue->empty()) {
+		j = this->jobQueue->front();
+		this->jobQueue->pop_front();
+		return j;
 	} else {
 		return NULL;
 	}
@@ -152,7 +151,7 @@ AbstractJob* JobManager::getNextJob() {
 
 bool JobManager::hasNextJob() {
 	QMutexLocker locker(this->queueLock);
-	return !this->jobQueue->isEmpty();
+	return !this->jobQueue->empty();
 }
 
 uint32_t JobManager::getWorkQueueLen() {

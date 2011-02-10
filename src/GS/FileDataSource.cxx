@@ -63,10 +63,10 @@ FileDataSource::getByPath(std::string path)
 	//lock it
 	this->setPathLock(path);
 
-	QString qs(this->repoPath.c_str());
+	std::string qs(this->repoPath);
 	qs += "/";
-	qs += path.c_str();
-	QFile f(qs);
+	qs += path;
+	QFile f(QString(qs.c_str()));
 
 	if (f.exists()) {
 		QByteArray* data = new QByteArray(f.readAll());
@@ -111,10 +111,10 @@ FileDataSource::putObject(DbObject* obj)
 	//lock it
 	this->setPathLock(path);
 
-	QString qs(this->repoPath.c_str());
-	qs += "/";
-	qs += path.c_str();
-	QFile f(qs);
+	std::string s(this->repoPath);
+	s += "/";
+	s += path;
+	QFile f(QString(s.c_str()));
 	f.write(*obj->getData());
 
 	f.close();
@@ -129,22 +129,24 @@ bool
 FileDataSource::hasPathLock(std::string path)
 {
 	QMutexLocker(&this->lockLock);
-	return this->pathLocks.contains(path);
+	for(std::list<std::string>::iterator it = this->pathLocks.begin(); it!=this->pathLocks.end(); it++)
+		if( *it == path )
+			return true;
+	return false;
 }
 
 void
 FileDataSource::setPathLock(std::string path)
 {
 	QMutexLocker(&this->lockLock);
-	if (!this->pathLocks.contains(path)) {
-		this->pathLocks.append(path);
-	}
+	if (!this->hasPathLock(path))
+		this->pathLocks.push_back(path);
 }
 
 void
 FileDataSource::remPathLock(std::string path) {
 	QMutexLocker(&this->lockLock);
-	this->pathLocks.append(path);
+	this->pathLocks.push_back(path);
 }
 
 /*

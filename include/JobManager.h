@@ -29,7 +29,8 @@
 #include "AbstractJob.h"
 #include "Logger.h"
 #include <stdio.h>
-#include <QtCore/QList>
+#include <list>
+
 #include <QtCore/QMutex>
 
 //Forward Decl
@@ -84,8 +85,8 @@ private:
 	JobManager();
 	static QMutex* singletonLock;
 
-	QList<JobWorker*>* jobWorkers;
-	QList<AbstractJob*>* jobQueue;
+	std::list<JobWorker*>* jobWorkers;
+	std::list<AbstractJob*>* jobQueue;
 	QMutex* queueLock;
 	Logger* log;
 

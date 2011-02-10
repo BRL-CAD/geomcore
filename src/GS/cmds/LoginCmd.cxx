@@ -43,8 +43,8 @@ LoginCmd::getHelp() {
 }
 
 bool
-LoginCmd::_exec(GSCmdLineClient* client, QStringList args){
-	int argn = args.length();
+LoginCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
+	int argn = args.size();
 
 	if (argn != 4) {
 		this->printUsage();
@@ -52,10 +52,14 @@ LoginCmd::_exec(GSCmdLineClient* client, QStringList args){
 	}
 
 	/* Convert args to proper types */
- 	std::string host(args.at(0).toStdString());
- 	uint16_t port = atoi(args.at(1).toStdString().c_str());
- 	std::string uname(args.at(2).toStdString());
- 	std::string passwd(args.at(3).toStdString());
+	std::list<std::string>::iterator it = args.begin();
+ 	std::string host(*it);
+	it++;
+ 	uint16_t port = atoi(it->c_str());
+	it++;
+ 	std::string uname(*it);
+	it++;
+ 	std::string passwd(*it);
 
 
 	if (port <=0 || host.length() == 0 || uname.length() == 0 || passwd.length() == 0){

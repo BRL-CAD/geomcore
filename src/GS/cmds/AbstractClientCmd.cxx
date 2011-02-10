@@ -43,7 +43,7 @@ AbstractClientCmd::getCmd()
 }
 
 bool
-AbstractClientCmd::exec(GSCmdLineClient* client, QStringList args) {
+AbstractClientCmd::exec(GSCmdLineClient* client, std::list<std::string> args) {
 	return this->_exec(client, args);
 }
 
