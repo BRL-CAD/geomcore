@@ -26,6 +26,7 @@
 #ifndef __EVENT_H__
 #define __EVENT_H__
 
+#include <stdint.h>
 #include <string>
 
 class EventPublisher;

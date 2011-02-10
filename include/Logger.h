@@ -27,7 +27,7 @@
 #define __LOGGER_H__
 
 #include <iostream>
-
+#include <stdint.h>
 #include <QtCore/QThread>
 #include <string>
 #include <QtCore/QMutex>

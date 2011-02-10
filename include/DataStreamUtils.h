@@ -26,6 +26,7 @@
 #ifndef __DATASTREAMUTILS_H__
 #define __DATASTREAMUTILS_H__
 
+#include <stdint.h>
 #include <string>
 #include <QtCore/QDataStream>
 #include <QtCore/QUuid>

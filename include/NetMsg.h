@@ -28,7 +28,8 @@
 
 #include <sstream>
 #include <string>
-
+#include <stdint.h>
+#include <stdio.h>
 #include <QtCore/QDataStream>
 #include <QtCore/QByteArray>
 #include <QtCore/QUuid>

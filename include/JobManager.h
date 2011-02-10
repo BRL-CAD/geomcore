@@ -28,7 +28,7 @@
 
 #include "AbstractJob.h"
 #include "Logger.h"
-
+#include <stdio.h>
 #include <QtCore/QList>
 #include <QtCore/QMutex>
 
