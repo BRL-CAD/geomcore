@@ -1,0 +1,1 @@
+This directory contains the implementation files of BRL-CAD's core C++ interface.
