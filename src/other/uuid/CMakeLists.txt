@@ -87,14 +87,10 @@ SET(common_uuid_SRCS
 	uuid_str.c
 	)
 
-add_library(libuuid ${common_uuid_SRCS})
-INSTALL(TARGETS libuuid DESTINATION lib)
-add_library(libuuid++ ${common_uuid_SRCS} uuid++.cc)
-INSTALL(TARGETS libuuid++ DESTINATION lib)
-
-add_executable(uuid uuid_cli.c)
-target_link_libraries(uuid libuuid)
-INSTALL(TARGETS uuid DESTINATION bin)
+add_library(uuid ${common_uuid_SRCS})
+INSTALL(TARGETS uuid DESTINATION lib)
+add_library(uuid++ ${common_uuid_SRCS} uuid++.cc)
+INSTALL(TARGETS uuid++ DESTINATION lib)
 
 #MAN_NAME    = uuid.3 uuid++.3 uuid.1
 
