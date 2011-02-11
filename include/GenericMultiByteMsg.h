@@ -39,7 +39,7 @@ public:
 	GenericMultiByteMsg(uint32_t type, NetMsg* msg, char* dataIn, uint32_t dataInLen);
 
 	/* Deserializing Constructor */
-	GenericMultiByteMsg(QDataStream* ds, Portal* origin);
+	GenericMultiByteMsg(DataStream* ds, Portal* origin);
 
 	/* Destructor */
 	virtual ~GenericMultiByteMsg();
@@ -57,7 +57,7 @@ protected:
 	uint32_t dataLen;
 	char* data;
 
-	virtual bool _serialize(QDataStream* ds);
+	virtual bool _serialize(DataStream* ds);
 	virtual bool _equals(const NetMsg& msg);
 
 private:

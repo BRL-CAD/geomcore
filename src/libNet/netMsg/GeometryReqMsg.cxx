@@ -37,22 +37,22 @@ GeometryReqMsg::GeometryReqMsg(NetMsg* msg, uint8_t requestType, std::string dat
 {}
 
 /* Deserializing Constructor */
-GeometryReqMsg::GeometryReqMsg(QDataStream* ds, Portal* origin) :
+GeometryReqMsg::GeometryReqMsg(DataStream* ds, Portal* origin) :
     GenericOneStringMsg(ds, origin)
 {
-    *ds >> this->reqType;
+    reqType = *ds->get(1);
 }
 
 /* Destructor */
 GeometryReqMsg::~GeometryReqMsg()
 {}
 
-bool GeometryReqMsg::_serialize(QDataStream* ds)
+bool GeometryReqMsg::_serialize(DataStream* ds)
 {
     /* Call the super */
     GenericOneStringMsg::_serialize(ds);
 
-    *ds << this->reqType;
+    ds->append((const char *)&reqType, 1);
     return true;
 }
 

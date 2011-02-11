@@ -28,7 +28,8 @@
 
 #include "NetMsg.h"
 
-#include <vector>
+#include <string>
+#include <list>
 
 class GeometryManifestMsg : public NetMsg
 {
@@ -41,7 +42,7 @@ public:
 	GeometryManifestMsg(NetMsg* msg, std::list<std::string>& items);
 
 	/* Deserializing Constructor */
-	GeometryManifestMsg(QDataStream* ds, Portal* origin);
+	GeometryManifestMsg(DataStream* ds, Portal* origin);
 
 	/* Destructor */
 	virtual ~GeometryManifestMsg();
@@ -57,7 +58,7 @@ public:
 private:
 	std::list<std::string>* itemData;
 
-	bool _serialize(QDataStream* ds);
+	bool _serialize(DataStream* ds);
 	bool _equals(const NetMsg& msg);
 
 	/* Disable copy cstr and =operator */

@@ -37,19 +37,19 @@ GenericOneByteMsg::GenericOneByteMsg(uint32_t type, NetMsg* msg, uint8_t b) :
 {}
 
 /* Deserializing Constructor */
-GenericOneByteMsg::GenericOneByteMsg(QDataStream* ds, Portal* origin) :
+GenericOneByteMsg::GenericOneByteMsg(DataStream* ds, Portal* origin) :
     NetMsg(ds, origin)
 {
-    *ds >> this->data;
+    this->data = *(uint8_t*)ds->get(1);
 }
 
 /* Destructor */
 GenericOneByteMsg::~GenericOneByteMsg()
 {}
 
-bool GenericOneByteMsg::_serialize(QDataStream* ds)
+bool GenericOneByteMsg::_serialize(DataStream* ds)
 {
-    *ds << this->data;
+    ds->append((const char *)&this->data, 1);
     return true;
 }
 

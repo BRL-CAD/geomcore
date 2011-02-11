@@ -38,7 +38,7 @@ SuccessMsg::SuccessMsg(NetMsg* msg, uint8_t successCode) :
 {}
 
 /* Deserializing Constructor */
-SuccessMsg::SuccessMsg(QDataStream* ds, Portal* origin) :
+SuccessMsg::SuccessMsg(DataStream* ds, Portal* origin) :
     GenericOneByteMsg(ds, origin)
 {}
 

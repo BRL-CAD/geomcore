@@ -38,7 +38,7 @@ NewNodeOnNetMsg::NewNodeOnNetMsg(NetMsg* msg, std::string nodename) :
 {}
 
 /* Deserializing Constructor */
-NewNodeOnNetMsg::NewNodeOnNetMsg(QDataStream* ds, Portal* origin) :
+NewNodeOnNetMsg::NewNodeOnNetMsg(DataStream* ds, Portal* origin) :
     GenericOneStringMsg(ds, origin)
 {}
 

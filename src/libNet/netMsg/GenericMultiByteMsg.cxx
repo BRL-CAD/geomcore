@@ -23,6 +23,8 @@
  *
  */
 
+#include <arpa/inet.h>
+
 #include "GenericMultiByteMsg.h"
 #include <iostream>
 #include <sstream>
@@ -54,15 +56,16 @@ GenericMultiByteMsg::GenericMultiByteMsg(uint32_t type, NetMsg* msg, char* dataI
 }
 
 /* Deserializing Constructor */
-GenericMultiByteMsg::GenericMultiByteMsg(QDataStream* ds, Portal* origin) :
+GenericMultiByteMsg::GenericMultiByteMsg(DataStream* ds, Portal* origin) :
     NetMsg(ds, origin)
 {
-    *ds >> this->dataLen;
+    uint32_t len = htonl(this->dataLen);
+    ds->append((const char *)&len, 4);
     this->data = (char*) malloc(dataLen);
 
     for (uint32_t i = 0; i < this->dataLen; ++i) {
 	uint8_t c;
-	*ds >> c;
+	ds->append((const char *)&c, 1);
 	this->data[i] = c;
     }
 }
@@ -73,14 +76,15 @@ GenericMultiByteMsg::~GenericMultiByteMsg()
     free(this->data);
 }
 
-bool GenericMultiByteMsg::_serialize(QDataStream* ds)
+bool GenericMultiByteMsg::_serialize(DataStream* ds)
 {
-    *ds << this->dataLen;
+    uint32_t len = htonl(this->dataLen);
+    ds->append((const char *)&len, 4);
     for (uint32_t i = 0; i < this->dataLen; ++i) {
 
 	/* Oddness, the DataStream won't detect this is a uint8_t */
 	/* Therefore you MUST cast it. */
-	*ds << (uint8_t) this->data[i];
+	ds->append((const char *)this->data+i, 1);
     }
     return true;
 }

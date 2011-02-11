@@ -38,7 +38,7 @@ public:
 	GenericEightBytesMsg(uint32_t type, NetMsg* msg, uint64_t b);
 
 	/* Deserializing Constructor */
-	GenericEightBytesMsg(QDataStream* ds, Portal* origin);
+	GenericEightBytesMsg(DataStream* ds, Portal* origin);
 
 	/* Destructor */
 	virtual ~GenericEightBytesMsg();
@@ -52,7 +52,7 @@ protected:
 	uint64_t getData();
 	uint64_t data;
 
-	virtual bool _serialize(QDataStream* ds);
+	virtual bool _serialize(DataStream* ds);
 	virtual bool _equals(const NetMsg& msg);
 
 private:

@@ -45,8 +45,6 @@
 
 #include <string>
 
-#include <QtCore/QDataStream>
-
 void logInfo(std::string s) {
 	Logger::getInstance()->logINFO("NetMsgSerialTest", s);
 }

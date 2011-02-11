@@ -38,13 +38,13 @@ public:
     TypeOnlyMsg(uint32_t msgType, NetMsg* msg);
 
     /* Deserializing Constructors */
-    TypeOnlyMsg(QDataStream* ds, Portal* origin);
+    TypeOnlyMsg(DataStream* ds, Portal* origin);
 
     /* Destructor */
     virtual ~TypeOnlyMsg();
 
 protected:
-    bool _serialize(QDataStream* ds);
+    bool _serialize(DataStream* ds);
     bool _equals(const NetMsg& msg);
 
 private:

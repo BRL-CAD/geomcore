@@ -38,7 +38,7 @@ GenericOneStringMsg::GenericOneStringMsg(uint32_t type, NetMsg* msg, std::string
 {}
 
 /* Deserializing Constructor */
-GenericOneStringMsg::GenericOneStringMsg(QDataStream* ds, Portal* origin) :
+GenericOneStringMsg::GenericOneStringMsg(DataStream* ds, Portal* origin) :
     NetMsg(ds, origin)
 {
     this->strData = *DataStreamUtils::getString(ds);
@@ -48,7 +48,7 @@ GenericOneStringMsg::GenericOneStringMsg(QDataStream* ds, Portal* origin) :
 GenericOneStringMsg::~GenericOneStringMsg()
 {}
 
-bool GenericOneStringMsg::_serialize(QDataStream* ds)
+bool GenericOneStringMsg::_serialize(DataStream* ds)
 {
     DataStreamUtils::putString(ds, this->strData);
     return true;

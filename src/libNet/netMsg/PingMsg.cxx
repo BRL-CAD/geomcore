@@ -29,7 +29,7 @@
 
 PingMsg::PingMsg(uint64_t startT):GenericEightBytesMsg(PING, startT) {}
 PingMsg::PingMsg(NetMsg* msg, uint64_t startT):GenericEightBytesMsg(PING, msg, startT) {}
-PingMsg::PingMsg(QDataStream* ds, Portal* origin):GenericEightBytesMsg(ds, origin) {}
+PingMsg::PingMsg(DataStream* ds, Portal* origin):GenericEightBytesMsg(ds, origin) {}
 
 PingMsg::~PingMsg() {}
 

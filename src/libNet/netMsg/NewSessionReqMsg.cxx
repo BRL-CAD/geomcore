@@ -39,7 +39,7 @@ NewSessionReqMsg::NewSessionReqMsg(NetMsg* msg, std::string uname, std::string p
 {}
 
 /* Deserializing Constructor */
-NewSessionReqMsg::NewSessionReqMsg(QDataStream* ds, Portal* origin) :
+NewSessionReqMsg::NewSessionReqMsg(DataStream* ds, Portal* origin) :
     NetMsg(ds, origin)
 {
     this->uname = *DataStreamUtils::getString(ds);
@@ -50,7 +50,7 @@ NewSessionReqMsg::NewSessionReqMsg(QDataStream* ds, Portal* origin) :
 NewSessionReqMsg::~NewSessionReqMsg()
 {}
 
-bool NewSessionReqMsg::_serialize(QDataStream* ds)
+bool NewSessionReqMsg::_serialize(DataStream* ds)
 {
     DataStreamUtils::putString(ds, this->uname);
     DataStreamUtils::putString(ds, this->passwd);

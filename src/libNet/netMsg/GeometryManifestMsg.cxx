@@ -23,11 +23,13 @@
  *
  */
 
+#include <arpa/inet.h>
+
+#include <string>
+
 #include "NetMsgTypes.h"
 #include "GeometryManifestMsg.h"
 #include "DataStreamUtils.h"
-
-#include <string>
 
 /* Normal Constructor */
 GeometryManifestMsg::GeometryManifestMsg(std::list<std::string>& items) :
@@ -44,13 +46,13 @@ GeometryManifestMsg::GeometryManifestMsg(NetMsg* msg, std::list<std::string>& it
 }
 
 /* Deserializing Constructor */
-GeometryManifestMsg::GeometryManifestMsg(QDataStream* ds, Portal* origin) :
+GeometryManifestMsg::GeometryManifestMsg(DataStream* ds, Portal* origin) :
     NetMsg(ds, origin)
 {
     this->itemData = new std::list<std::string> ();
 
     uint32_t numOfItems;
-    *ds >> numOfItems;
+    numOfItems = ntohl(*ds->get(4));
 
     for (uint32_t i = 0; i < numOfItems; ++i) {
 	std::string* tString = DataStreamUtils::getString(ds);
@@ -66,9 +68,10 @@ GeometryManifestMsg::~GeometryManifestMsg()
     delete this->itemData;
 }
 
-bool GeometryManifestMsg::_serialize(QDataStream* ds)
+bool GeometryManifestMsg::_serialize(DataStream* ds)
 {
-    *ds << (uint32_t)this->itemData->size();
+    uint32_t mt = htonl(itemData->size());
+    ds->append((const char *)&mt, 4);
 
     for (std::list<std::string>::iterator it = this->itemData->begin(); it != this->itemData->end(); it++)
 	DataStreamUtils::putString(ds, *it);

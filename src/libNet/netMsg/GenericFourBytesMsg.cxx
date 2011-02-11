@@ -23,6 +23,8 @@
  *
  */
 
+#include <arpa/inet.h>
+
 #include "GenericFourBytesMsg.h"
 #include <sstream>
 
@@ -37,19 +39,20 @@ GenericFourBytesMsg::GenericFourBytesMsg(uint32_t type, NetMsg* msg, uint32_t b)
 {}
 
 /* Deserializing Constructor */
-GenericFourBytesMsg::GenericFourBytesMsg(QDataStream* ds, Portal* origin) :
+GenericFourBytesMsg::GenericFourBytesMsg(DataStream* ds, Portal* origin) :
     NetMsg(ds, origin)
 {
-    *ds >> this->data;
+    data = ntohl(*(uint32_t*)ds->get(sizeof(uint32_t)));
 }
 
 /* Destructor */
 GenericFourBytesMsg::~GenericFourBytesMsg()
 {}
 
-bool GenericFourBytesMsg::_serialize(QDataStream* ds)
+bool GenericFourBytesMsg::_serialize(DataStream* ds)
 {
-    *ds << this->data;
+    uint32_t mt = htonl(data);
+    ds->append((const char *)&mt, sizeof(uint32_t));
     return true;
 }
 

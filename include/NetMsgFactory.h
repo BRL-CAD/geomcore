@@ -32,7 +32,6 @@
 
 #include "ByteArray.h"
 #include <string>
-#include <QtCore/QDataStream>
 
 class NetMsgFactory
 {

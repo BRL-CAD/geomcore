@@ -31,7 +31,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <QtCore/QDataStream>
+#include <DataStream.h>
 #include <QtCore/QUuid>
 
 #include "ByteArray.h"
@@ -48,7 +48,7 @@ public:
 	NetMsg(uint16_t mType, NetMsg* msg);
 
 	/* Deserializing Constructor */
-	NetMsg(QDataStream* ds, Portal* origin);
+	NetMsg(DataStream* ds, Portal* origin);
 
 	/* Destructor */
 	virtual ~NetMsg();
@@ -83,7 +83,7 @@ protected:
 	QUuid reUUID;
 	Portal* origin;
 
-	virtual bool _serialize(QDataStream* ds) = 0;
+	virtual bool _serialize(DataStream* ds) = 0;
 	virtual bool _equals(const NetMsg& msg) = 0;
 
 private:

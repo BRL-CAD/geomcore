@@ -38,7 +38,7 @@ public:
 	GenericFourBytesMsg(uint32_t type, NetMsg* msg, uint32_t b);
 
 	/* Deserializing Constructor */
-	GenericFourBytesMsg(QDataStream* ds, Portal* origin);
+	GenericFourBytesMsg(DataStream* ds, Portal* origin);
 
 	/* Destructor */
 	virtual ~GenericFourBytesMsg();
@@ -52,7 +52,7 @@ protected:
 	uint32_t getData();
 	uint32_t data;
 
-	virtual bool _serialize(QDataStream* ds);
+	virtual bool _serialize(DataStream* ds);
 	virtual bool _equals(const NetMsg& msg);
 
 private:

@@ -23,6 +23,8 @@
  *
  */
 
+#include <arpa/inet.h> /* ntohs */
+
 #include "NetMsg.h"
 #include "Portal.h"
 #include "DataStreamUtils.h"
@@ -30,38 +32,34 @@
 
 /* Normal Constructor */
 NetMsg::NetMsg(uint16_t mType) :
-  msgType(mType), hasReUUID(false), reUUID(NULL)
+    msgType(mType), hasReUUID(false), reUUID(NULL)
 {
-  msgUUID = QUuid::createUuid();
+    msgUUID = QUuid::createUuid();
 }
 
 /* Reply Constructor */
 NetMsg::NetMsg(uint16_t mType, NetMsg* msg) :
-  msgType(mType)
+    msgType(mType)
 {
-  if (msg->getMsgUUID() != NULL)
-    {
-      QUuid uuid(msg->getMsgUUID().toString());
-      this->reUUID = uuid;
-      this->hasReUUID = true;
+    if (msg->getMsgUUID() != NULL) {
+	this->reUUID = QUuid(msg->getMsgUUID().toString());
+	this->hasReUUID = true;
+    } else {
+	this->reUUID = NULL;
+	this->hasReUUID = false;
     }
-  else
-    {
-      this->reUUID = NULL;
-      this->hasReUUID = false;
-    }
-  msgUUID = QUuid::createUuid();
+    msgUUID = QUuid::createUuid();
 }
 
 /* Deserializing Constructor */
-NetMsg::NetMsg(QDataStream* ds, Portal* origin)
+NetMsg::NetMsg(DataStream* ds, Portal* origin)
 {
-  this->origin = origin;
-  *ds >> this->msgType;
-  this->msgUUID = *DataStreamUtils::getQUuid(ds);
-  *ds >> this->hasReUUID;
-  if (this->hasReUUID)
-      this->reUUID = *DataStreamUtils::getQUuid(ds);
+    this->origin = origin;
+    this->msgType = ntohs(*(uint16_t*)ds->get(2));
+    this->msgUUID = *DataStreamUtils::getQUuid(ds);
+    this->hasReUUID = *(unsigned char*)ds->get(1);
+    if (this->hasReUUID)
+	this->reUUID = *DataStreamUtils::getQUuid(ds);
 }
 
 /* Destructor */
@@ -69,36 +67,35 @@ NetMsg::~NetMsg()
 {}
 
 /* Serializers */
-ByteArray*
+    ByteArray*
 NetMsg::serialize()
 {
-  ByteArray* ba = new ByteArray();
-  this->serialize(ba);
-  return ba;
+    ByteArray* ba = new ByteArray();
+    this->serialize(ba);
+    return ba;
 }
 
-void
+    void
 NetMsg::serialize(ByteArray* ba)
 {
-  QByteArray qba(ba->data(),ba->size());
-  /* Make a DS for the subclass */
-  QDataStream subDS(&qba, QIODevice::ReadWrite);
+    uint16_t mt;
+    /* Make a DS for the subclass */
+    DataStream subDS(ba->data(), ba->size());
 
-  /* Serialize Header */
-  subDS << this->msgType;
-  DataStreamUtils::putQUuid(&subDS, this->msgUUID);
-  subDS << this->hasReUUID;
+    /* Serialize Header */
+    mt = htons(this->msgType);
+    subDS.append((const char *)&mt, 2);
+    DataStreamUtils::putQUuid(&subDS, this->msgUUID);
+    subDS.append((const char *)&this->hasReUUID, 1);
 
-  if (this->hasReUUID)
-    {
-      DataStreamUtils::putQUuid(&subDS, this->reUUID);
+    if (this->hasReUUID) {
+	DataStreamUtils::putQUuid(&subDS, this->reUUID);
     }
 
-  /* Call subclass serialize */
-  if (!this->_serialize(&subDS))
-    {
-      std::cerr << "A serialization Error in NetMsg::serialize() occurred.\n";
-      return;
+    /* Call subclass serialize */
+    if (!this->_serialize(&subDS)) {
+	std::cerr << "A serialization Error in NetMsg::serialize() occurred.\n";
+	return;
     }
 }
 
@@ -108,93 +105,93 @@ NetMsg::serialize(ByteArray* ba)
 uint16_t
 NetMsg::getMsgType() const
 {
-  return this->msgType;
+    return this->msgType;
 }
 QUuid
 NetMsg::getMsgUUID() const
 {
-  return this->msgUUID;
+    return this->msgUUID;
 }
 bool
 NetMsg::msgHasReUUID() const
 {
-  return this->hasReUUID;
+    return this->hasReUUID;
 }
 QUuid
 NetMsg::getReUUID() const
 {
-  return this->reUUID;
+    return this->reUUID;
 }
 
 Portal*
 NetMsg::getOrigin() const
 {
-	return this->origin;
+    return this->origin;
 }
 
 /*
  * Utilities
  */
 
-bool
+    bool
 NetMsg::operator==(const NetMsg& other)
 {
-  return this->equals(other);
+    return this->equals(other);
 }
 
-bool NetMsg::equals(const NetMsg& other) {
+    bool NetMsg::equals(const NetMsg& other) {
 	if (this->getMsgType() != other.getMsgType())
-		return false;
+	    return false;
 
 	if (this->getMsgUUID() != other.getMsgUUID())
-		return false;
+	    return false;
 
 	if (this->msgHasReUUID() != other.msgHasReUUID())
-		return false;
+	    return false;
 
 	if (this->msgHasReUUID())
-		if (this->getReUUID() != other.getReUUID())
-			return false;
+	    if (this->getReUUID() != other.getReUUID())
+		return false;
 
 	return this->_equals(other);
-}
+    }
 
 std::string NetMsg::toString()
 {
-	char buf[BUFSIZ];
-	std::string out;
+    char buf[BUFSIZ];
+    std::string out;
 
-	snprintf(buf, BUFSIZ, "msgType: %d'", this->msgType);
-	out.assign(buf);
+    snprintf(buf, BUFSIZ, "msgType: %d'", this->msgType);
+    out.assign(buf);
 
-	if (this->msgUUID != NULL) {
-		snprintf(buf, BUFSIZ, "'\t msgUUID: %s'", this->msgUUID.toString().toStdString().c_str());
-		out.append(buf);
-	}
-
-	snprintf(buf, BUFSIZ, "'\t hasReUUID: %d'", this->hasReUUID);
+    if (this->msgUUID != NULL) {
+	snprintf(buf, BUFSIZ, "'\t msgUUID: %s'", this->msgUUID.toString().toStdString().c_str());
 	out.append(buf);
+    }
 
-	if (this->reUUID != NULL) {
-		snprintf(buf, BUFSIZ, "'\t reUUID: %s'", this->reUUID.toString().toStdString().c_str());
-		out.append(buf);
-	}
+    snprintf(buf, BUFSIZ, "'\t hasReUUID: %d'", this->hasReUUID);
+    out.append(buf);
 
-	out.append("'");
+    if (this->reUUID != NULL) {
+	snprintf(buf, BUFSIZ, "'\t reUUID: %s'", this->reUUID.toString().toStdString().c_str());
+	out.append(buf);
+    }
 
-	return out;
+    out.append("'");
+
+    return out;
 }
 
-std::string
+    std::string
 NetMsg::toStdString()
 {
-  return this->toString();
+    return this->toString();
 }
 
-void
+    void
 NetMsg::printMe()
 {
-  std::cout << this->toStdString();
+    std::cout << this->toStdString();
 }
 
 /*

@@ -23,10 +23,12 @@
  *
  */
 
+#include <arpa/inet.h>	/* ntohl */
+
 #include "DataStreamUtils.h"
 
 QUuid* 
-DataStreamUtils::getQUuid(QDataStream* ds)
+DataStreamUtils::getQUuid(DataStream* ds)
 {
   std::string* strUUID = DataStreamUtils::getString(ds);
 
@@ -40,55 +42,35 @@ DataStreamUtils::getQUuid(QDataStream* ds)
 }
 
 void
-DataStreamUtils::putQUuid(QDataStream* ds, QUuid uuid)
+DataStreamUtils::putQUuid(DataStream* ds, QUuid uuid)
 {
   DataStreamUtils::putString(ds, uuid.toString().toStdString());
 }
 
-std::string* DataStreamUtils::getString(QDataStream* ds)
+std::string* DataStreamUtils::getString(DataStream* ds)
 {
-  
+  char *dsp;
   uint32_t len;
   std::string* out = new std::string();
 
-  //get str length
-  *ds >> len;
+  dsp = ds->getptr();
+  len = ntohl(*(uint32_t *)dsp);
 
-  //std::cout << "Read String length of: " << len << std::endl;
-
-  for (uint32_t i = 0; i< len; ++i)
-    {
-      unsigned char shrt;
-      *ds >> shrt;
-
-      out->append(1,shrt);
-    }
-
-  /*
-  std::cout << "\ngetString:" << std::endl;
-  std::cout << out->size() << std::endl;
-  std::cout << out->toStdString() << std::endl;
-  */
+  std::cout << "Read String length of: " << len << std::endl;
+  out->append(dsp+sizeof(uint32_t), len);
+  ds->advance(len+sizeof(uint32_t));
 
   return out;
   
 }
 
-void DataStreamUtils::putString(QDataStream* ds, std::string str)
+void DataStreamUtils::putString(DataStream* ds, std::string str)
 {
-  /*
-  std::cout << "\nputString:" << std::endl;
-  std::cout << str.size() << std::endl;
-  std::cout << str.toStdString() << std::endl;
-  */
+  int l[1];
 
-  *ds << (int)str.length();
-
-  for (uint32_t i = 0; i< str.length(); ++i)
-    {
-      unsigned char c = str.at(i);
-      *ds << str.at(i);
-    }
+  *l = htonl((uint32_t)str.length());
+  ds->append((const char *)l, 4);
+  ds->append(str.c_str(), *l);
 }
 
 void DataStreamUtils::printByteArray(ByteArray* ba) 

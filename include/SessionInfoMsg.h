@@ -38,7 +38,7 @@ public:
 	SessionInfoMsg(NetMsg* msg, QUuid sessionID);
 
 	/* Deserializing Constructor */
-	SessionInfoMsg(QDataStream* ds, Portal* origin);
+	SessionInfoMsg(DataStream* ds, Portal* origin);
 
 	/* Destructor */
 	virtual ~SessionInfoMsg();
@@ -52,7 +52,7 @@ public:
 protected:
 	QUuid sessionID;
 
-	bool _serialize(QDataStream* ds);
+	bool _serialize(DataStream* ds);
 	bool _equals(const NetMsg& msg);
 
 private:

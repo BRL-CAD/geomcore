@@ -23,6 +23,8 @@
  *
  */
 
+#include <arpa/inet.h>
+
 #include "GenericTwoBytesMsg.h"
 #include <sstream>
 
@@ -37,19 +39,20 @@ GenericTwoBytesMsg::GenericTwoBytesMsg(uint32_t type, NetMsg* msg, uint16_t b) :
 {}
 
 /* Deserializing Constructor */
-GenericTwoBytesMsg::GenericTwoBytesMsg(QDataStream* ds, Portal* origin) :
+GenericTwoBytesMsg::GenericTwoBytesMsg(DataStream* ds, Portal* origin) :
     NetMsg(ds, origin)
 {
-    *ds >> this->data;
+    this->data = ntohs(*ds->get(2));
 }
 
 /* Destructor */
 GenericTwoBytesMsg::~GenericTwoBytesMsg()
 {}
 
-bool GenericTwoBytesMsg::_serialize(QDataStream* ds)
+bool GenericTwoBytesMsg::_serialize(DataStream* ds)
 {
-    *ds << this->data;
+    uint16_t mt = htons(data);
+    ds->append((const char *)&mt, sizeof(uint16_t));
     return true;
 }
 

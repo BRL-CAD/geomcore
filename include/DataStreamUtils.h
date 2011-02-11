@@ -29,19 +29,19 @@
 #include <stdint.h>
 #include <string>
 
-#include <QtCore/QDataStream>
 #include <QtCore/QUuid>
 #include <iostream>
 
 #include "ByteArray.h"
+#include "DataStream.h"
 
 class DataStreamUtils
 {
 public:
-	static std::string* getString(QDataStream* ds);
-	static void putString(QDataStream* ds, std::string str);
-	static QUuid* getQUuid(QDataStream* ds);
-	static void putQUuid(QDataStream* ds, QUuid str);
+	static std::string* getString(DataStream* ds);
+	static void putString(DataStream* ds, std::string str);
+	static QUuid* getQUuid(DataStream* ds);
+	static void putQUuid(DataStream* ds, QUuid str);
 	static void printByteArray(ByteArray* ba);
 
 private:

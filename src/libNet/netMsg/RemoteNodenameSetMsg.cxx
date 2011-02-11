@@ -38,7 +38,7 @@ RemoteNodenameSetMsg::RemoteNodenameSetMsg(NetMsg* msg, std::string localNodenam
 {}
 
 /* Deserializing Constructor */
-RemoteNodenameSetMsg::RemoteNodenameSetMsg(QDataStream* ds, Portal* origin) :
+RemoteNodenameSetMsg::RemoteNodenameSetMsg(DataStream* ds, Portal* origin) :
     GenericOneStringMsg(ds, origin)
 {}
 

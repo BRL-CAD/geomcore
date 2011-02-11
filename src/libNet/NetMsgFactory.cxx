@@ -22,6 +22,9 @@
  * Brief description
  *
  */
+
+#include <arpa/inet.h>	/* ntohs */
+
 #include "NetMsgTypes.h"
 #include "Portal.h"
 
@@ -60,11 +63,8 @@ NetMsgFactory::~NetMsgFactory()
 NetMsg*
 NetMsgFactory::deserializeNetMsg(ByteArray& data, Portal* origin)
 {
-  QByteArray qba(data.data(),data.size());
-  QDataStream temp(qba);
-  uint16_t msgType = 0;
-  temp >> msgType;
-  QDataStream qds(qba);
+  uint16_t msgType = ntohs(*(uint16_t*)data.data());
+  DataStream qds(data.data(), data.size());
 
   /* TODO Replace this with a map for registration scheme */
   switch (msgType)

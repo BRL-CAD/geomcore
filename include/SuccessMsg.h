@@ -38,7 +38,7 @@ public:
 	SuccessMsg(NetMsg* msg, uint8_t successCode);
 
 	/* Deserializing Constructor */
-	SuccessMsg(QDataStream* ds, Portal* origin);
+	SuccessMsg(DataStream* ds, Portal* origin);
 
 	/* Destructor */
 	virtual ~SuccessMsg();

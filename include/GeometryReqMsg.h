@@ -39,7 +39,7 @@ public:
 	GeometryReqMsg(NetMsg* msg, uint8_t requestType, std::string data);
 
 	/* Deserializing Constructor */
-	GeometryReqMsg(QDataStream* ds, Portal* origin);
+	GeometryReqMsg(DataStream* ds, Portal* origin);
 
 	/* Destructor */
 	virtual ~GeometryReqMsg();
@@ -56,7 +56,7 @@ public:
 private:
 	uint8_t reqType;
 
-	bool _serialize(QDataStream* ds);
+	bool _serialize(DataStream* ds);
 	bool _equals(const NetMsg& msg);
 
 	/* Disable copy cstr and =operator */
