@@ -70,11 +70,6 @@ public class CmdManager {
 
 		CmdManager.cmdMap.put(cmdStr, cmd);
 	}
-
-	public static final void registerBuiltInCmds(CmdConsolePanel console) {
-		CmdManager.registerCmd(new HelpCmd(console));
-	}
-
 	/**
 	 * @return
 	 * @see java.util.HashMap#keySet()
@@ -86,4 +81,12 @@ public class CmdManager {
 	public static final AbstractCmd getCmdByName(String name) {
 		return CmdManager.cmdMap.get(name);
 	}
+
+
+	public static final void registerBuiltInCmds(CmdConsolePanel console) {
+		CmdManager.registerCmd(new HelpCmd(console));
+		CmdManager.registerCmd(new LoginCmd(console));
+	}
+
+
 }
