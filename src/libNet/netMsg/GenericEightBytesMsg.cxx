@@ -38,19 +38,33 @@ GenericEightBytesMsg::GenericEightBytesMsg(uint32_t type, NetMsg* msg, uint64_t 
 {}
 
 /* Deserializing Constructor */
-GenericEightBytesMsg::GenericEightBytesMsg(QDataStream* ds, Portal* origin) :
+GenericEightBytesMsg::GenericEightBytesMsg(DataStream* ds, Portal* origin) :
     NetMsg(ds, origin)
 {
-    *ds >> this->data;
+    data = *(uint64_t*)ds->get(8);
+#if _BYTE_ORDER == _LITTLE_ENDIAN
+    (((char *)data)[0]) ^= (((char *)data)[7]) ^= (((char *)data)[0]) ^= (((char *)data)[7]);
+    (((char *)data)[1]) ^= (((char *)data)[6]) ^= (((char *)data)[1]) ^= (((char *)data)[6]);
+    (((char *)data)[2]) ^= (((char *)data)[5]) ^= (((char *)data)[2]) ^= (((char *)data)[5]);
+    (((char *)data)[3]) ^= (((char *)data)[4]) ^= (((char *)data)[3]) ^= (((char *)data)[4]);
+#endif
 }
 
 /* Destructor */
 GenericEightBytesMsg::~GenericEightBytesMsg()
 {}
 
-bool GenericEightBytesMsg::_serialize(QDataStream* ds)
+bool GenericEightBytesMsg::_serialize(DataStream* ds)
 {
-    *ds << this->data;
+    uint64_t t = this->data;
+
+#if _BYTE_ORDER == _LITTLE_ENDIAN
+    (((char *)data)[0]) ^= (((char *)data)[7]) ^= (((char *)data)[0]) ^= (((char *)data)[7]);
+    (((char *)data)[1]) ^= (((char *)data)[6]) ^= (((char *)data)[1]) ^= (((char *)data)[6]);
+    (((char *)data)[2]) ^= (((char *)data)[5]) ^= (((char *)data)[2]) ^= (((char *)data)[5]);
+    (((char *)data)[3]) ^= (((char *)data)[4]) ^= (((char *)data)[3]) ^= (((char *)data)[4]);
+#endif
+    ds->append((const char *)&t, 8);
     return true;
 }
 
