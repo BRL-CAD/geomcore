@@ -24,6 +24,7 @@ package org.brlcad.geometryservice;
 
 import java.awt.Dimension;
 import java.awt.LayoutManager;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
@@ -38,11 +39,14 @@ import javax.swing.border.EtchedBorder;
  * @author david.h.loman
  * 
  */
-public class CmdConsolePanel extends JPanel {
+public class CmdConsolePanel extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = -4138207212648943638L;
 	private JTextArea console;
 	private JTextField cmdLine;
+
+	private static final String DEFAULT_PROMPT = "gsMinClient> ";
+	private String prompt;
 
 	/**
 	 * 
@@ -95,9 +99,42 @@ public class CmdConsolePanel extends JPanel {
 		cmdLine.setMinimumSize(new Dimension(1, 25));
 		cmdLine.setPreferredSize(new Dimension(300, 25));
 		cmdLine.setMaximumSize(new Dimension(1024 ^ 2, 25));
-		cmdLine.addActionListener(actListener);
+		cmdLine.addActionListener(this);
 		this.add(cmdLine);
-
+		
+		this.setDefaultPrompt();
+		this.cmdLine.setText(this.prompt);
 	}
 
+	@Override
+	public void actionPerformed(ActionEvent event) {
+		Object source = event.getSource();
+
+		if (source == this.cmdLine) {
+			String val = this.cmdLine.getText();
+			String text = this.console.getText();
+			text += val + "\n";
+			this.console.setText(text);
+			this.cmdLine.setText(this.prompt);
+		}
+	}
+
+	/**
+	 * @return the prompt
+	 */
+	public final String getPrompt() {
+		return prompt;
+	}
+
+	/**
+	 * @param prompt
+	 *            the prompt to set
+	 */
+	public final void setPrompt(String prompt) {
+		this.prompt = prompt;
+	}
+
+	public final void setDefaultPrompt() {
+		this.prompt = CmdConsolePanel.DEFAULT_PROMPT;
+	}
 }
