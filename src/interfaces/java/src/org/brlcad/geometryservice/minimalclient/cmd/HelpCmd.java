@@ -96,4 +96,12 @@ public class HelpCmd extends AbstractCmd {
 		return "Displays all registered commands if no argument is given.  If a specific command is supplied, e.g. 'help login', then the help statement for the supplied command will be printed.";
 	}
 
+	/* (non-Javadoc)
+	 * @see org.brlcad.geometryservice.minimalclient.cmd.AbstractCmd#getUsage()
+	 */
+	@Override
+	public String getUsage() {
+		return "help [cmd]";
+	}
+
 }

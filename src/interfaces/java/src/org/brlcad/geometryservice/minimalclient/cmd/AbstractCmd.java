@@ -53,4 +53,6 @@ public abstract class AbstractCmd {
 	}
 
 	public abstract String getHelp();
+	public abstract String getUsage();
+
 }
