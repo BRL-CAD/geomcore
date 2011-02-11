@@ -36,8 +36,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
+
+import org.brlcad.geometryservice.CmdConsolePanel;
+import org.brlcad.geometryservice.RepositoryViewerPanel;
 
 /**
  * @author david.h.loman
@@ -47,11 +48,10 @@ public class MinimalGSClient extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = -839046331894878664L;
 
-	
 	private JTextArea area01 = new JTextArea();
 	private JTextArea area02 = new JTextArea();
 	private JTextField area03 = new JTextField();
-	
+
 	/**
 	 * @throws HeadlessException
 	 */
@@ -86,9 +86,6 @@ public class MinimalGSClient extends JFrame implements ActionListener {
 	}
 
 	private void commonCstr(String labelText) {
-
-		Border myBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
-
 		this.setSize(new Dimension(800, 600));
 		this.setTitle("GeometryService Minimal Client");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -104,58 +101,26 @@ public class MinimalGSClient extends JFrame implements ActionListener {
 		contentPanel.add(masterPanel);
 
 		/*  */
-		JPanel leftPanel = new JPanel();
-		masterPanel.add(leftPanel);
-
-		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.PAGE_AXIS));
-		leftPanel.setPreferredSize(new Dimension(300, 560));
+		RepositoryViewerPanel repoPanel = new RepositoryViewerPanel(this);
+		masterPanel.add(repoPanel);
 
 		/*  */
 		JPanel spacerPanel01 = new JPanel();
+		spacerPanel01.setPreferredSize(new Dimension(20, 560));
 		masterPanel.add(spacerPanel01);
 
-		spacerPanel01.setPreferredSize(new Dimension(20, 560));
-
 		/*  */
-		JPanel rightPanel = new JPanel();
-		masterPanel.add(rightPanel);
-
-		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.PAGE_AXIS));
-
-		/*  */
-		area01.setLineWrap(true);
-		area01.setWrapStyleWord(true);
-		area01.setEditable(false);
-		area01.setBorder(myBorder);
-		leftPanel.add(area01);
-
-		/*  */
-		area02.setLineWrap(true);
-		area02.setWrapStyleWord(true);
-		area02.setEditable(false);
-		area02.setBorder(myBorder);
-		rightPanel.add(area02);
-
-		/*  */
-		area03.setEditable(true);
-		area03.setBorder(myBorder);
-		area03.setMinimumSize(new Dimension(1, 25));
-		area03.setPreferredSize(new Dimension(300, 25));
-		area03.setMaximumSize(new Dimension(1024^2, 25));
-		area03.addActionListener(this);
-		rightPanel.add(area03);
-
+		CmdConsolePanel consolePanel = new CmdConsolePanel(this);
+		masterPanel.add(consolePanel);
 	}
-
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		Object source = event.getSource();
 
-		if (source == this.area03)
-		{
+		if (source == this.area03) {
 			String val = this.area03.getText();
-			
+
 			JOptionPane.showMessageDialog(null, val, "Message Dialog", JOptionPane.PLAIN_MESSAGE);
 			setVisible(true); // show something
 		}
