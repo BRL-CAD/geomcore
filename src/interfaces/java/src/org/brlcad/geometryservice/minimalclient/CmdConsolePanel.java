@@ -30,6 +30,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
@@ -85,14 +86,16 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 	private final void commonCstr(ActionListener actListener) {
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		Border myBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
-
+		
 		/*  */
 		console = new JTextArea();
 		console.setLineWrap(true);
 		console.setWrapStyleWord(true);
 		console.setEditable(false);
 		console.setBorder(myBorder);
-		this.add(console);
+
+		JScrollPane scroll = new JScrollPane(console);
+		this.add(scroll);
 
 		/*  */
 		cmdLine = new JTextField();
@@ -118,7 +121,7 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 			this.cmdLine.setText(this.prompt);
 		}
 	}
-	
+
 	public final void giveFocusToCmdLine() {
 		this.cmdLine.grabFocus();
 	}
@@ -143,7 +146,7 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 	}
 
 	public final void addTextToConsole(String line) {
-		String oldText = this.console.getText()+ line + "\n";
+		String oldText = this.console.getText() + line + "\n";
 		this.console.setText(oldText);
 	}
 }
