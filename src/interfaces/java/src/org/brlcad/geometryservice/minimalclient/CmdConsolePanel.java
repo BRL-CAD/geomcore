@@ -35,6 +35,8 @@ import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
+import org.brlcad.geometryservice.minimalclient.cmd.CmdManager;
+
 /**
  * @author david.h.loman
  * 
@@ -101,7 +103,7 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 		cmdLine.setMaximumSize(new Dimension(1024 ^ 2, 25));
 		cmdLine.addActionListener(this);
 		this.add(cmdLine);
-		
+
 		this.setDefaultPrompt();
 		this.cmdLine.setText(this.prompt);
 	}
@@ -111,10 +113,8 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 		Object source = event.getSource();
 
 		if (source == this.cmdLine) {
-			String val = this.cmdLine.getText();
-			String text = this.console.getText();
-			text += val + "\n";
-			this.console.setText(text);
+			String cmd = this.cmdLine.getText().replace(this.prompt, "");
+			CmdManager.parseCmd(cmd, this);
 			this.cmdLine.setText(this.prompt);
 		}
 	}
@@ -136,5 +136,10 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 
 	public final void setDefaultPrompt() {
 		this.prompt = CmdConsolePanel.DEFAULT_PROMPT;
+	}
+
+	public final void addTextToConsole(String line) {
+		String oldText = this.console.getText()+ line + "\n";
+		this.console.setText(oldText);
 	}
 }
