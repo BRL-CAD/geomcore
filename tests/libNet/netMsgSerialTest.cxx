@@ -57,7 +57,7 @@ void logBanner(std::string s) {
 void testMsg(NetMsg* msg01, std::string typeName) {
 	NetMsgFactory* factory = NetMsgFactory::getInstance();
 
-	QByteArray* networkSim = new QByteArray();
+	ByteArray* networkSim = new ByteArray();
 	msg01->serialize(networkSim);
 
 	NetMsg* msg02 = factory->deserializeNetMsg(*networkSim, NULL);

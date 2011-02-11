@@ -69,19 +69,20 @@ NetMsg::~NetMsg()
 {}
 
 /* Serializers */
-QByteArray*
+ByteArray*
 NetMsg::serialize()
 {
-  QByteArray* ba = new QByteArray();
+  ByteArray* ba = new ByteArray();
   this->serialize(ba);
   return ba;
 }
 
 void
-NetMsg::serialize(QByteArray* ba)
+NetMsg::serialize(ByteArray* ba)
 {
+  QByteArray qba(ba->data(),ba->size());
   /* Make a DS for the subclass */
-  QDataStream subDS(ba, QIODevice::ReadWrite);
+  QDataStream subDS(&qba, QIODevice::ReadWrite);
 
   /* Serialize Header */
   subDS << this->msgType;

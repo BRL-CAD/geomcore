@@ -26,8 +26,10 @@
 #include "FileDataSource.h"
 #include "GSThread.h"
 
+#include <fcntl.h>
+#include <sys/stat.h>
+
 #include <QtCore/QMutexLocker>
-#include <QtCore/QFile>
 
 FileDataSource::FileDataSource(std::string repoPath) :
 	repoPath(repoPath)
@@ -53,6 +55,9 @@ FileDataSource::getByPath(std::string path)
 {
 	//See if there is a file lock on this path
 	bool hasLock = this->hasPathLock(path);
+	char name[BUFSIZ];
+	int f;
+	DbObject *object = NULL;
 
 	//TODO failsafe this loop!
 	while (hasLock) {
@@ -63,29 +68,25 @@ FileDataSource::getByPath(std::string path)
 	//lock it
 	this->setPathLock(path);
 
-	std::string qs(this->repoPath);
-	qs += "/";
-	qs += path;
-	QFile f(QString(qs.c_str()));
+	snprintf(name, BUFSIZ, "%s/%s", repoPath.c_str(), path.c_str());
+	f = open(name, O_RDONLY);
+	if(f != -1) {
+		struct stat s;
+		char *buf;
 
-	if (f.exists()) {
-		QByteArray* data = new QByteArray(f.readAll());
-		DbObject* object = new DbObject(path, data);
-
-		f.close();
-
-		//unlock it
-		this->remPathLock(path);
-
-		return object;
+		fstat(f, &s);
+		if(read(f, buf = (char *)malloc(s.st_size), s.st_size) != s.st_size) {
+			fprintf(stderr, "Failed reading %s", name);
+			perror("FileDataSource::getByPath");
+		}
+		object = new DbObject(path, new ByteArray(buf, s.st_size));
+		free(buf);
+		close(f);
 	}
-
-	f.close();
 
 	//unlock it
 	this->remPathLock(path);
-
-	return NULL;
+	return object;
 }
 
 DbObject*
@@ -97,6 +98,9 @@ FileDataSource::getByID(QUuid id)
 bool
 FileDataSource::putObject(DbObject* obj)
 {
+	char buf[BUFSIZ];
+	int fd;
+
 	std::string path = obj->getPath();
 
 	//See if there is a file lock on this path
@@ -111,13 +115,10 @@ FileDataSource::putObject(DbObject* obj)
 	//lock it
 	this->setPathLock(path);
 
-	std::string s(this->repoPath);
-	s += "/";
-	s += path;
-	QFile f(QString(s.c_str()));
-	f.write(*obj->getData());
-
-	f.close();
+	snprintf(buf, BUFSIZ, "%s/%s", repoPath.c_str(), path.c_str());
+	fd = open(buf, O_CREAT|O_WRONLY);
+	write(fd, obj->getData()->data(), obj->getData()->length());
+	close(fd);
 
 	//unlock it
 	this->remPathLock(path);

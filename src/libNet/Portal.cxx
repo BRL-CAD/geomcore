@@ -49,7 +49,7 @@ Portal::~Portal() {
 
 int
 Portal::send(NetMsg* msg) {
-	QByteArray* ba = msg->serialize();
+	ByteArray* ba = msg->serialize();
 	int retval = this->pkgClient->send(PKG_MAGIC2, ba->data(), ba->size());
 
 	delete ba;
@@ -170,7 +170,7 @@ Portal::callbackSpringboard(struct pkg_conn* conn, char* buf) {
 
 	int len = conn->pkc_inend - sizeof(pkg_header);
 
-	QByteArray ba(buf, len);
+	ByteArray ba(buf, len);
 
 	if (conn->pkc_user_data == 0) {
 		log->logERROR("Portal", "pkg callback returned a NULL user_data pointer!");

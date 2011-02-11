@@ -117,7 +117,7 @@ DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
 			}
 
 			std::list<std::string> items;
-			QByteArray* data = obj->getData();
+			ByteArray* data = obj->getData();
 
 			GeometryChunkMsg* chunk = new GeometryChunkMsg(data->data(), data->length());
 			items.push_back(obj->getPath());

@@ -91,7 +91,7 @@ void DataStreamUtils::putString(QDataStream* ds, std::string str)
     }
 }
 
-void DataStreamUtils::printQByteArray(QByteArray* ba) 
+void DataStreamUtils::printByteArray(ByteArray* ba) 
 {
   std::cout << std::endl;
 

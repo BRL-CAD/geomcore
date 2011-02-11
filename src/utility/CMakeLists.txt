@@ -33,6 +33,7 @@ include_directories(
 )
 
 SET(gcutil_SRCS
+	ByteArray.cxx
 	Config.cxx
 	DataStreamUtils.cxx
 	GSException.cxx

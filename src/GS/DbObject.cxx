@@ -26,11 +26,11 @@
 
 #include "DbObject.h"
 
-DbObject::DbObject(std::string path, QByteArray* data) :
+DbObject::DbObject(std::string path, ByteArray* data) :
 	path(path), id(NULL), data(data)
 {}
 
-DbObject::DbObject(QUuid id, QByteArray* data) :
+DbObject::DbObject(QUuid id, ByteArray* data) :
 	path(""), id(id), data(data)
 {}
 
@@ -49,7 +49,7 @@ DbObject::getID()
 	return this->id;
 }
 
-QByteArray*
+ByteArray*
 DbObject::getData()
 {
 	return this->data;

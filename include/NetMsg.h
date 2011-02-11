@@ -30,9 +30,11 @@
 #include <string>
 #include <stdint.h>
 #include <stdio.h>
+
 #include <QtCore/QDataStream>
-#include <QtCore/QByteArray>
 #include <QtCore/QUuid>
+
+#include "ByteArray.h"
 
 class Portal;
 
@@ -52,8 +54,8 @@ public:
 	virtual ~NetMsg();
 
 	/* Serializers */
-	QByteArray* serialize();
-	void serialize(QByteArray* ba);
+	ByteArray* serialize();
+	void serialize(ByteArray* ba);
 
 	/*
 	 *Getters n Setters

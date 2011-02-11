@@ -131,10 +131,10 @@ uint32_t GenericMultiByteMsg::getDataLen()
     return this->dataLen;
 }
 
-QByteArray*
-GenericMultiByteMsg::getQByteArray()
+ByteArray*
+GenericMultiByteMsg::getByteArray()
 {
-	QByteArray* data = new QByteArray(this->data, this->dataLen);
+	ByteArray* data = new ByteArray(this->data, this->dataLen);
 	return data;
 }
 

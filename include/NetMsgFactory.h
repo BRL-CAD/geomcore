@@ -30,7 +30,7 @@
 
 #include "brlcad/pkg.h"
 
-#include <QtCore/QByteArray>
+#include "ByteArray.h"
 #include <string>
 #include <QtCore/QDataStream>
 
@@ -39,7 +39,7 @@ class NetMsgFactory
 public:
   static NetMsgFactory* getInstance();
   virtual  ~NetMsgFactory();
-  NetMsg* deserializeNetMsg(QByteArray& data, Portal* origin);
+  NetMsg* deserializeNetMsg(ByteArray& data, Portal* origin);
 
 private:
   NetMsgFactory();

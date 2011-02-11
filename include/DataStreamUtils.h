@@ -28,9 +28,12 @@
 
 #include <stdint.h>
 #include <string>
+
 #include <QtCore/QDataStream>
 #include <QtCore/QUuid>
 #include <iostream>
+
+#include "ByteArray.h"
 
 class DataStreamUtils
 {
@@ -39,7 +42,7 @@ public:
 	static void putString(QDataStream* ds, std::string str);
 	static QUuid* getQUuid(QDataStream* ds);
 	static void putQUuid(QDataStream* ds, QUuid str);
-	static void printQByteArray(QByteArray* ba);
+	static void printByteArray(ByteArray* ba);
 
 private:
 	DataStreamUtils(){};

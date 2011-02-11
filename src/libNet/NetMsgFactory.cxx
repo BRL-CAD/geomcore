@@ -58,12 +58,13 @@ NetMsgFactory::~NetMsgFactory()
 {}
 
 NetMsg*
-NetMsgFactory::deserializeNetMsg(QByteArray& data, Portal* origin)
+NetMsgFactory::deserializeNetMsg(ByteArray& data, Portal* origin)
 {
-  QDataStream temp(data);
+  QByteArray qba(data.data(),data.size());
+  QDataStream temp(qba);
   uint16_t msgType = 0;
   temp >> msgType;
-  QDataStream qds(data);
+  QDataStream qds(qba);
 
   /* TODO Replace this with a map for registration scheme */
   switch (msgType)
