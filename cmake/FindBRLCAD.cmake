@@ -19,7 +19,7 @@
 #	information.
 #	
 #########################################################################
-#	@file /cmake/FindBRLCAD.cmake
+#	@file geomcore/cmake/FindBRLCAD.cmake
 #
 # 	Try to find brlcad libraries.
 # 	Once done, this will define:
@@ -29,34 +29,92 @@
 #  	BRLCAD_INCLUDE_DIRS - the BRL-CAD include directories
 #  	BRLCAD_LIBRARIES - link these to use the BRL-CAD Libraries
 #
+#     BRLCAD_BU_LIBRARY - BRL-CAD Utility library
+#     BRLCAD_BN_LIBRARY - BRL-CAD Numerical library
+#     BRLCAD_RT_LIBRARY - BRL-CAD Raytracing library
+#     BRLCAD_DM_LIBRARY - BRL-CAD Display Manager library
+#     BRLCAD_FB_LIBRARY - BRL-CAD Frame Buffer library
+#     BRLCAD_FFT_LIBRARY - BRL-CAD FFT library
+#     BRLCAD_ANALYZE_LIBRARY - BRL-CAD Analysis library
+#     BRLCAD_GCV_LIBRARY - BRL-CAD Geometry Conversion library
+#     BRLCAD_ICV_LIBRARY - BRL-CAD Image Conversion library
+#     BRLCAD_WDB_LIBRARY - BRL-CAD Write Database library
+#     BRLCAD_GED_LIBRARY - BRL-CAD Geometry Editing library
+#     BRLCAD_MULTISPECTRAL_LIBRARY - BRL-CAD multispectral library
+#     BRLCAD_OPTICAL_LIBRARY - BRL-CAD optical library
+#     BRLCAD_GED_LIBRARY - BRL-CAD Geometry Editing library
+#     BRLCAD_PKG_LIBRARY - BRL-CAD libpkg
+#     BRLCAD_CURSOR_LIBRARY - libcursor
+#     BRLCAD_ORLE_LIBRARY - liborle
+#     BRLCAD_RENDER_LIBRARY - librender
+#     BRLCAD_TIE_LIBRARY - libtie
+#     BRLCAD_SYSV_LIBRARY - libsysv
+#     BRLCAD_TERMIO_LIBRARY - libtermio
+#     BRLCAD_EXPPP_LIBRARY - SCL libexppp library
+#     BRLCAD_EXPRESS_LIBRARY - SCL libexpress library
+#     BRLCAD_STEPCORE_LIBRARY - SCL core library
+#     BRLCAD_STEPDAI_LIBRARY - SCL dai library
+#     BRLCAD_STEPEDITOR_LIBRARY - SCL editor library
+#     BRLCAD_STEPUTILS_LIBRARY - SCL utils library
+#     BRLCAD_OPENNURBS_LIBRARY - openNURBS library
+#     BRLCAD_UTAHRLE_LIBRARY - libutahrle
 #
+#  In addition to the above variables, which are essentially unique
+#  to BRL-CAD, this routine will look for local copies of libraries
+#  installed with BRL-CAD and return  their results as would a 
+#  standard find_package for that library (if one exists).  The 
+#  libraries searched for:
+#
+#  libregex
+#  libpng
+#  zlib
+#  libtermlib
+#  tcl/tk
+#  incrTcl
+#  Togl
+# 
 #	$Revision:  $
 #	$Author:  $
 #
 #########################################################################
 
-MESSAGE(STATUS "\tSearching for BRLCAD...")
-IF(RT3_VERBOSE_CMAKE_OUTPUT)   
-    MESSAGE(STATUS "\t\tEnviornment Variable 'PATH': $ENV{PATH}")
-ENDIF(RT3_VERBOSE_CMAKE_OUTPUT)  
+SET(BRLCAD_ROOT "$ENV{BRLCAD_ROOT}")
+IF(BRLCAD_BASE_DIR AND BRLCAD_ROOT)
+	MESSAGE("Warning - BRLCAD_ROOT was found but is overridden by BRLCAD_BASE_DIR")
+ELSE(BRLCAD_BASE_DIR AND BRLCAD_ROOT)
+	IF(BRLCAD_ROOT)
+		SET(BRLCAD_BASE_DIR ${BRLCAD_ROOT})
+	ENDIF(BRLCAD_ROOT)
+ENDIF(BRLCAD_BASE_DIR AND BRLCAD_ROOT)
 
 #First, find the install directories.
 IF(BRLCAD_BASE_DIR)
-    MESSAGE(STATUS "\t\t Using BRLCAD_BASE_DIR...")
     #if BRLCAD_BASE_DIR is set, then this makes it easy!
     SET(BRLCAD_BIN_DIR "${BRLCAD_BASE_DIR}/bin")
     SET(BRLCAD_INC_DIRS "${BRLCAD_BASE_DIR}/include" "${BRLCAD_BASE_DIR}/include/brlcad" "${BRLCAD_BASE_DIR}/include/openNURBS")
     SET(BRLCAD_LIB_DIR "${BRLCAD_BASE_DIR}/lib")
 ELSE(BRLCAD_BASE_DIR)
-    MESSAGE(STATUS "\t\t Searching for BRLCAD components...")
-    #if BRLCAD_BASE_DIR is NOT set, then search for files KNOWN to be in the BRLCAD installation.
+	 #try looking for BRL-CAD's brlcad-config - it should give us
+	 #a location
+    FIND_PATH(BRLCAD_BIN_DIR brlcad-config)
+	 IF(BRLCAD_BIN_PATH)
+		 EXEC_PROGRAM(${BRLCAD_BIN_DIR} ARGS --prefix OUTPUT_VARIABLE BRLCAD_BASE_DIR)
+	 ENDIF(BRLCAD_BIN_PATH)
+	 IF(NOT BRLCAD_BASE_DIR)
+		 SET(BRLCAD_HEADERS_DIR_CANDIDATES 
+			 /usr/brlcad/include/brlcad 
+			 /usr/local/brlcad/include/brlcad
+			 )
+		 #Look for headers if brlcad-config fails
+		 FIND_PATH(BRLCAD_HEADERS_DIR NAMES bu.h bn.h rt.h PATHS ${BRLCAD_HEADERS_DIR_CANDIDATES})
+		 IF(BRLCAD_HEADERS_DIR)
+			 GET_FILENAME_COMPONENT(BRLCAD_BASE_DIR ${BRLCAD_HEADERS_DIR} PATH)
+		 ENDIF(BRLCAD_HEADERS_DIR)
+	 ENDIF(NOT BRLCAD_BASE_DIR)
 
-    #Find /bin
-    FIND_PATH(BRLCAD_BIN_DIR brlcad-config "$ENV{PATH}")
-    IF(NOT BRLCAD_BIN_DIR)
- 	    MESSAGE(STATUS "\t\t Could not find BRLCAD bin directory anywhere in paths: $ENV{PATH}")
-	    RETURN()
-    ENDIF(NOT BRLCAD_BIN_DIR)
+	 IF(NOT BRLCAD_BASE_DIR)
+		 MESSAGE(FATAL_ERROR "\nCould not find BRL-CAD root directory - please set BRLCAD_BASE_DIR in CMake")
+	 ENDIF(NOT BRLCAD_BASE_DIR)
 
     #Find include directories (aka more than one)
     SET(HEADERS_TO_SEARCH_FOR brlcad/bu.h bu.h opennurbs.h )
@@ -69,15 +127,7 @@ ELSE(BRLCAD_BASE_DIR)
     FOREACH (tHead ${HEADERS_TO_SEARCH_FOR})
             
 		 FIND_PATH(_HEADER_DIR_${tHead} ${tHead} ${INCLUDE_PATH_LIST})
-    
-        IF(RT3_VERBOSE_CMAKE_OUTPUT)   
-            IF(_HEADER_DIR_${tHead})
-                MESSAGE(STATUS "\t\t\t'${tHead}' was found: ${_HEADER_DIR_${tHead}}")
-            ELSE(_HEADER_DIR_${tHead})
-                MESSAGE(STATUS "\t\t\t'${tHead}' was NOT found.")
-            ENDIF(_HEADER_DIR_${tHead})
-        ENDIF(RT3_VERBOSE_CMAKE_OUTPUT)       
-       
+          
         IF(_HEADER_DIR_${tHead})
 			  SET(BRLCAD_INC_DIRS ${BRLCAD_INC_DIRS} ${_HEADER_DIR_${tHead}} ${_HEADER_DIR_${tHead}}/brlcad ${_HEADER_DIR_${tHead}}/openNURBS)
             SET(BRLCAD_HEADERS_FOUND ${BRLCAD_HEADERS_FOUND} ${tHead})        
@@ -131,7 +181,6 @@ ENDIF(BRLCAD_CONFIGEXE)
 
 #TODO need to make the BRLCAD version checking a requirement for coreInterface, but nothing else.
 #TODO figure out why brlcad-config isn't present on Windows.
-
 ##########################################################################
 #Search for Libs
 
@@ -175,14 +224,6 @@ MESSAGE(STATUS "LIB_EXT: ${LIB_EXT}")
 
 FOREACH (tlib ${LIBS_TO_SEARCH_FOR})
 	 FIND_LIBRARY(_BRLCAD_LIBRARY_${tlib} ${tlib} ${BRLCAD_LIB_DIR} NO_SYSTEM_PATH)
-
-    IF(RT3_VERBOSE_CMAKE_OUTPUT)   
-        IF(_BRLCAD_LIBRARY_${tlib})
-            MESSAGE(STATUS "\t\t'${tlib}' was found: ${_BRLCAD_LIBRARY_${tlib}}")
-        ELSE(_BRLCAD_LIBRARY_${tlib})
-            MESSAGE(STATUS "\t\t'${tlib}' was NOT found.")
-        ENDIF(_BRLCAD_LIBRARY_${tlib})
-    ENDIF(RT3_VERBOSE_CMAKE_OUTPUT)       
    
     IF(_BRLCAD_LIBRARY_${tlib})
         SET(BRLCAD_LIBRARIES ${BRLCAD_LIBRARIES} ${_BRLCAD_LIBRARY_${tlib}})
