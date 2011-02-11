@@ -22,36 +22,68 @@
  */
 package org.brlcad.geometryservice.minimalclient.cmd;
 
+import java.util.HashMap;
+import java.util.Set;
+
 import org.brlcad.geometryservice.minimalclient.CmdConsolePanel;
 
 /**
  * @author david.h.loman
- *
+ * 
  */
 public class CmdManager {
 
-	
-	
-	public static final void parseCmd(String line, CmdConsolePanel output) {
-		
+	private static final HashMap<String, AbstractCmd> cmdMap = new HashMap<String, AbstractCmd>();
+
+	public static final void parseCmd(String line, CmdConsolePanel console) {
+
 		/* Id-10-T check */
 		if (line.length() < 1)
 			return;
-		
+
 		String[] cmdStack = line.split(" ");
-		
-		String cmd = cmdStack[0];
-		
-		if (cmd.equals("Testing")) {
-			output.addTextToConsole(line);
+
+		/* handle all strings in lowercase */
+		String cmdStr = cmdStack[0].toLowerCase();
+
+		AbstractCmd aCmd = CmdManager.getCmdByName(cmdStr);
+
+		if (aCmd != null) {
+			console.addTextToConsole(line);
+			aCmd.doCmd(cmdStack);
+			// TODO handle boolean return val?
+			console.addTextToConsole("\n");
 			return;
 		}
-		
-		
-		
-		
-		output.addTextToConsole("Unknown Command String: '" +  line + "'");
-		
+
+		console.addTextToConsole("Unknown Command String: '" + line + "'");
+		console.addTextToConsole("Try 'help'\n");
+	}
+
+	public static final void registerCmd(AbstractCmd cmd) {
+		String cmdStr = cmd.getCmd().toLowerCase();
+
+		if (CmdManager.cmdMap.containsKey(cmdStr)) {
+			// TODO error here?
+			return;
+		}
+
+		CmdManager.cmdMap.put(cmdStr, cmd);
+	}
+
+	public static final void registerBuiltInCmds(CmdConsolePanel console) {
+		CmdManager.registerCmd(new HelpCmd(console));
+	}
+
+	/**
+	 * @return
+	 * @see java.util.HashMap#keySet()
+	 */
+	public static final Set<String> getAllRegisteredCmds() {
+		return cmdMap.keySet();
 	}
 	
+	public static final AbstractCmd getCmdByName(String name) {
+		return CmdManager.cmdMap.get(name);
+	}
 }

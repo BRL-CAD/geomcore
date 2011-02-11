@@ -118,6 +118,10 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 			this.cmdLine.setText(this.prompt);
 		}
 	}
+	
+	public final void giveFocusToCmdLine() {
+		this.cmdLine.grabFocus();
+	}
 
 	/**
 	 * @return the prompt

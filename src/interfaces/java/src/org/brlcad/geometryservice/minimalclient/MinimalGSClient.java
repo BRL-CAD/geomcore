@@ -34,6 +34,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.brlcad.geometryservice.minimalclient.cmd.CmdManager;
 
 /**
  * @author david.h.loman
@@ -103,6 +104,10 @@ public class MinimalGSClient extends JFrame implements ActionListener {
 		/*  */
 		CmdConsolePanel consolePanel = new CmdConsolePanel(this);
 		masterPanel.add(consolePanel);
+
+		consolePanel.giveFocusToCmdLine();
+
+		CmdManager.registerBuiltInCmds(consolePanel);
 	}
 
 	@Override
