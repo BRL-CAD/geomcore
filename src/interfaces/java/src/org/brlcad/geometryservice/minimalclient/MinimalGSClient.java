@@ -32,10 +32,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 import org.brlcad.geometryservice.CmdConsolePanel;
 import org.brlcad.geometryservice.RepositoryViewerPanel;
@@ -47,10 +44,6 @@ import org.brlcad.geometryservice.RepositoryViewerPanel;
 public class MinimalGSClient extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = -839046331894878664L;
-
-	private JTextArea area01 = new JTextArea();
-	private JTextArea area02 = new JTextArea();
-	private JTextField area03 = new JTextField();
 
 	/**
 	 * @throws HeadlessException
@@ -117,13 +110,6 @@ public class MinimalGSClient extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		Object source = event.getSource();
-
-		if (source == this.area03) {
-			String val = this.area03.getText();
-
-			JOptionPane.showMessageDialog(null, val, "Message Dialog", JOptionPane.PLAIN_MESSAGE);
-			setVisible(true); // show something
-		}
 	}
 
 }
