@@ -22,7 +22,6 @@
  */
 package org.brlcad.geometryservice.net.msg;
 
-import org.brlcad.geometryservice.net.msg.AbstractNetMsg;
 import org.brlcad.geometryservice.net.ByteBufferReader;
 import org.brlcad.geometryservice.net.ByteBufferWriter;
 

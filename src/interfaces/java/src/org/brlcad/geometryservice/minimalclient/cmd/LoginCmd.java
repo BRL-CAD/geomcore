@@ -22,8 +22,6 @@
  */
 package org.brlcad.geometryservice.minimalclient.cmd;
 
-import java.util.Set;
-
 import org.brlcad.geometryservice.minimalclient.CmdConsolePanel;
 
 /**
