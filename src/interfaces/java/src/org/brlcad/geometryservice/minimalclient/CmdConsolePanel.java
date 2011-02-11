@@ -20,7 +20,7 @@
 /** @file CmdConsolePanel.java
  * 
  */
-package org.brlcad.geometryservice;
+package org.brlcad.geometryservice.minimalclient;
 
 import java.awt.Dimension;
 import java.awt.LayoutManager;

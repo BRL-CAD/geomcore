@@ -34,8 +34,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.brlcad.geometryservice.CmdConsolePanel;
-import org.brlcad.geometryservice.RepositoryViewerPanel;
 
 /**
  * @author david.h.loman
