@@ -29,9 +29,11 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  * @author david.h.loman
@@ -40,7 +42,8 @@ import javax.swing.border.EtchedBorder;
 public class RepositoryViewerPanel extends JPanel {
 
 	private static final long serialVersionUID = -4138207212648943638L;
-	private JTextArea treeview;
+	private JTree jtree;
+	private JScrollPane treeView;
 
 	/**
 	 * 
@@ -80,13 +83,24 @@ public class RepositoryViewerPanel extends JPanel {
 		
 		Border myBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
 
-		/*  */
-		treeview = new JTextArea();
-		treeview.setLineWrap(true);
-		treeview.setWrapStyleWord(true);
-		treeview.setEditable(false);
-		treeview.setBorder(myBorder);
-		this.add(treeview);
+		DefaultMutableTreeNode top = new DefaultMutableTreeNode("Tops!!");
+
+		jtree = new JTree(top);
+		jtree.setRootVisible(true);
+		//jtree.setPreferredSize(new Dimension(300, 560));
+		
+		this.treeView = new JScrollPane(jtree);
+		treeView.setBorder(myBorder);
+		this.add(this.treeView);
+
+	
+	 /* */
+	
+		top.add(new DefaultMutableTreeNode("one"));
+		top.add(new DefaultMutableTreeNode("two"));
+		top.add(new DefaultMutableTreeNode("three"));
+		top.add(new DefaultMutableTreeNode("four"));
+		
 	}
 
 }
