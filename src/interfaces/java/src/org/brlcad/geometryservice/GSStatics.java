@@ -23,10 +23,19 @@
 
 package org.brlcad.geometryservice;
 
+import java.io.PrintStream;
+
 public final class GSStatics {
 
 	public final static short magic01 = 0x41FE;
 	public final static short magic02 = 0x5309;
 	public final static int pkgHeaderSize = 8;
-	
+
+	/*
+	 * Give use of this lib a way to hook in their custom logging system. For
+	 * now, pipe all out/err text to their normal place.
+	 */
+	public static PrintStream stdOut = System.out;
+	public static PrintStream stdErr = System.err;
+
 }
