@@ -174,33 +174,65 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
         StyleConstants.setFontFamily(def, "SansSerif");
         
 
-        Style s = doc.addStyle("red", def);
+        Style s = doc.addStyle(STYLE_RED, def);
         StyleConstants.setForeground(s, new Color(0.7f, 0.0f, 0.0f));
         CmdConsolePanel.addSubStyles(s, doc, "red");
 
-        s = doc.addStyle("green", def);
+        s = doc.addStyle(STYLE_GREEN, def);
         StyleConstants.setForeground(s, new Color(0.0f, 0.7f, 0.0f));
         CmdConsolePanel.addSubStyles(s, doc, "greed");
 
-        s = doc.addStyle("blue", def);
+        s = doc.addStyle(STYLE_BLUE, def);
         StyleConstants.setForeground(s, new Color(0.0f, 0.0f, 0.7f));
         CmdConsolePanel.addSubStyles(s, doc, "blue");
 }
     
     private static void addSubStyles(Style main, StyledDocument doc, String subname) {
-        Style s = doc.addStyle(subname + "-italic", main);
+        Style s = doc.addStyle(subname + STYLE_SUB_ITALIC, main);
         StyleConstants.setItalic(s, true);
 
-        s = doc.addStyle(subname + "-bold", main);
+        s = doc.addStyle(subname + STYLE_SUB_BOLD, main);
         StyleConstants.setBold(s, true);
 
-        s = doc.addStyle(subname + "-underline", main);
+        s = doc.addStyle(subname + STYLE_SUB_UNDERLINE, main);
         StyleConstants.setUnderline(s, true);
 
-        s = doc.addStyle(subname + "-small", main);
+        s = doc.addStyle(subname + STYLE_SUB_SMALL, main);
         StyleConstants.setFontSize(s, 10);
 
-        s = doc.addStyle(subname + "-large", main);
+        s = doc.addStyle(subname + STYLE_SUB_LARGE, main);
         StyleConstants.setFontSize(s, 16);        
     }
+
+    /*
+     * Style statics.
+     */
+    
+    private final static String STYLE_SUB_ITALIC = "-italic";
+    private final static String STYLE_SUB_BOLD = "-bold";
+    private final static String STYLE_SUB_UNDERLINE = "-underline";
+    private final static String STYLE_SUB_SMALL = "-small";
+    private final static String STYLE_SUB_LARGE = "-large";
+    
+    public final static String STYLE_RED = "red";
+    public final static String STYLE_GREEN = "green";
+    public final static String STYLE_BLUE = "blue";
+    
+    public final static String STYLE_RED_ITALIC = STYLE_RED + STYLE_SUB_ITALIC;
+    public final static String STYLE_RED_BOLD = STYLE_RED + STYLE_SUB_BOLD;
+    public final static String STYLE_RED_UNDERLINE = STYLE_RED + STYLE_SUB_UNDERLINE;
+    public final static String STYLE_RED_SMALL = STYLE_RED + STYLE_SUB_SMALL;
+    public final static String STYLE_RED_LARGE = STYLE_RED + STYLE_SUB_LARGE;
+    
+    public final static String STYLE_GREEN_ITALIC = STYLE_GREEN + STYLE_SUB_ITALIC;
+    public final static String STYLE_GREEN_BOLD = STYLE_GREEN + STYLE_SUB_BOLD;
+    public final static String STYLE_GREEN_UNDERLINE = STYLE_GREEN + STYLE_SUB_UNDERLINE;
+    public final static String STYLE_GREEN_SMALL = STYLE_GREEN + STYLE_SUB_SMALL;
+    public final static String STYLE_GREEN_LARGE = STYLE_GREEN + STYLE_SUB_LARGE;
+    
+    public final static String STYLE_BLUE_ITALIC = STYLE_BLUE + STYLE_SUB_ITALIC;
+    public final static String STYLE_BLUE_BOLD = STYLE_BLUE + STYLE_SUB_BOLD;
+    public final static String STYLE_BLUE_UNDERLINE = STYLE_BLUE + STYLE_SUB_UNDERLINE;
+    public final static String STYLE_BLUE_SMALL = STYLE_BLUE + STYLE_SUB_SMALL;
+    public final static String STYLE_BLUE_LARGE = STYLE_BLUE + STYLE_SUB_LARGE;
 }

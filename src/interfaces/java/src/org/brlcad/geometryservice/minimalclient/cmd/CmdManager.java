@@ -49,17 +49,17 @@ public class CmdManager {
 		AbstractCmd aCmd = CmdManager.getCmdByName(cmdStr);
 
 		if (aCmd != null) {
-			console.printLnToConsole(line, "red");
+			console.printLnToConsole(line, CmdConsolePanel.STYLE_RED);
 			aCmd.doCmd(cmdStack);
 			// TODO handle boolean return val?
-			console.printLnToConsole("\n", "red");
+			console.printLnToConsole("\n", CmdConsolePanel.STYLE_RED);
 			return;
 		}
 
-		console.printToConsole("Unknown Command String: ", "blue");
-		console.printLnToConsole("'" + line + "'", "blue-bold");
+		console.printToConsole("Unknown Command String: ", CmdConsolePanel.STYLE_BLUE);
+		console.printLnToConsole("'" + line + "'", CmdConsolePanel.STYLE_BLUE_BOLD);
 		
-		console.printLnToConsole("Try 'help'\n", "blue");
+		console.printLnToConsole("Try 'help'\n", CmdConsolePanel.STYLE_BLUE);
 	}
 
 	public static final void registerCmd(AbstractCmd cmd) {

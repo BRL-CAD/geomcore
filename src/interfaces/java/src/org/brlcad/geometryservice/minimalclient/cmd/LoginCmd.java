@@ -49,11 +49,11 @@ public class LoginCmd extends AbstractCmd {
 	public boolean doCmd(String[] args) {
 
 		if (args.length < 3 || args.length > 4) {
-			this.cmdConsole.printToConsole(this.getUsage(), "blue");
+			this.cmdConsole.printToConsole(this.getUsage(), CmdConsolePanel.STYLE_BLUE);
 			return false;
 		}
 
-		this.cmdConsole.printToConsole("Not Implemented yet.", "blue-bold");
+		this.cmdConsole.printToConsole("Not Implemented yet.", CmdConsolePanel.STYLE_BLUE_BOLD);
 
 		return true;
 	}
