@@ -112,7 +112,7 @@ public class MinimalGSClient extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		Object source = event.getSource();
+/*		Object source = event.getSource(); */
 	}
 
 }
