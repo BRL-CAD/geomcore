@@ -61,11 +61,11 @@ public class HelpCmd extends AbstractCmd {
 		AbstractCmd aCmd = CmdManager.getCmdByName(cmdToList);
 
 		if (aCmd == null) {
-			this.cmdConsole.addTextToConsole("help: Unknown Command");
+			this.cmdConsole.printToConsole("help: Unknown Command", "blue-bold");
 			return true;
 		}
 
-		this.cmdConsole.addTextToConsole(aCmd.getCmd() + ": " + aCmd.getHelp());
+		this.cmdConsole.printToConsole(aCmd.getCmd() + ": " + aCmd.getHelp(), "blue");
 
 		return true;
 	}
@@ -83,7 +83,7 @@ public class HelpCmd extends AbstractCmd {
 			out += tCmd + ", ";
 		}
 		
-		this.cmdConsole.addTextToConsole(out);
+		this.cmdConsole.printToConsole(out, "blue");
 	}
 
 	/*

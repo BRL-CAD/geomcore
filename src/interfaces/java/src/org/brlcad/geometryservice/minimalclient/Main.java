@@ -39,7 +39,6 @@ public class Main {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				MinimalGSClient cli = new MinimalGSClient("Testing Text!!");
-
 				cli.setVisible(true);
 			}
 		});
