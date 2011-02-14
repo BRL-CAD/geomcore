@@ -28,13 +28,16 @@ import java.awt.GraphicsConfiguration;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.InetAddress;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.brlcad.geometryservice.GSStatics;
 import org.brlcad.geometryservice.minimalclient.cmd.CmdManager;
+import org.brlcad.geometryservice.net.GSConnection;
 
 /**
  * @author david.h.loman
@@ -44,6 +47,11 @@ public class MinimalGSClient extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = -839046331894878664L;
 
+	//TODO upgrade this to a map of some sort later so we can manage multiple connections
+	private GSConnection conn ;
+	
+	
+	
 	/**
 	 * @throws HeadlessException
 	 */
@@ -115,4 +123,22 @@ public class MinimalGSClient extends JFrame implements ActionListener {
 /*		Object source = event.getSource(); */
 	}
 
+	public boolean connectToHost(InetAddress addy, short port, String uname, String passwd){
+
+		try {
+			this.conn = GSConnection.connectToHost(addy, port, uname, passwd);
+		
+		} catch (Exception e) {
+			GSStatics.stdErr.println(e.getMessage());
+			return false;
+		}
+	
+		if (this.conn == null) {
+			GSStatics.stdErr.println("Null GSConnection without throwing an error... odd.");
+			return false;			
+		}
+		
+		return true;
+	}
+	
 }
