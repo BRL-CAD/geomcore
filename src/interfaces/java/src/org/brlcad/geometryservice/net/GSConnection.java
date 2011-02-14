@@ -225,7 +225,7 @@ public class GSConnection {
 
 		} catch (BufferUnderflowException bufe) {
 			// exhausted the buffer!
-			bufe.printStackTrace();
+			GSStatics.stdErr.println(bufe.getMessage());
 		}
 
 		this.connReadBuf.compact();
@@ -306,6 +306,7 @@ public class GSConnection {
 				msg = NetMsgFactory.makeMsg(gsMsgType, reader);
 			} catch (BufferUnderflowException e) {
 				// This shouldn't have happened....
+				GSStatics.stdErr.println(e.getMessage());
 				return null;
 			}
 
@@ -338,7 +339,7 @@ public class GSConnection {
 
 		} catch (Exception e) {
 			this.disconnect();
-			e.printStackTrace();
+			GSStatics.stdErr.println(e.getMessage());
 			return -1;
 		}
 
@@ -375,7 +376,7 @@ public class GSConnection {
 				continue;
 			} catch (Exception e) {
 				// something bad happened!!!
-				e.printStackTrace();
+				GSStatics.stdErr.println(e.getMessage());
 				return false;
 			}
 
@@ -387,8 +388,8 @@ public class GSConnection {
 			this.write(bb);
 			return true;
 		} catch (Exception e) {
-			// Something happened on the socket write.
-			e.printStackTrace();
+			// Something BAD happened on the socket write.
+			GSStatics.stdErr.println(e.getMessage());
 			return false;
 		}
 	}

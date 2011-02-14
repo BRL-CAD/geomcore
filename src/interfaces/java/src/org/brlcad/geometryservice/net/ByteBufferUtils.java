@@ -27,6 +27,8 @@ import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
+import org.brlcad.geometryservice.GSStatics;
+
 public class ByteBufferUtils {
 	public static String getString(ByteBuffer bb) throws BufferUnderflowException {
 		return getString(bb, false);
@@ -56,7 +58,7 @@ public class ByteBufferUtils {
 			try {
 				out = new String(b, "UTF-16BE");
 			} catch (UnsupportedEncodingException e) {
-				// TODO do something here for this error!
+				GSStatics.stdErr.println(e.getMessage());
 			}
 		}
 		return out;

@@ -42,6 +42,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
+import org.brlcad.geometryservice.GSStatics;
 import org.brlcad.geometryservice.minimalclient.cmd.CmdManager;
 
 /**
@@ -157,8 +158,7 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 		int len = doc.getLength();
 			doc.insertString(len, line, doc.getStyle(style));
 		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			GSStatics.stdErr.println(e.getMessage());
 		}
 	}
 
