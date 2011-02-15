@@ -79,7 +79,9 @@ void Logger::log(const char *lvl, std::string origin, std::string string) {
 	char buf[BUFSIZ];
 
 	if (this->verbose) {
-	    bu_log(" \tSTACK TRACE GOES HERE");
+	    /* DUMP A STACK TRACE (uhm, why do we want to do this??? --CSM) */
+	    bu_log(" \t");
+	    bu_backtrace(stderr);
 	}
 
 	snprintf(buf, BUFSIZ, "%26s %20s %12s %s %s %s\n", ctime(&t),
