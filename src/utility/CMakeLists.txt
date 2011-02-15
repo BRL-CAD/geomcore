@@ -30,19 +30,20 @@ include_directories(
     ${QT_INCLUDE_DIR}
     ${TCL_INCLUDE_DIRS}
 	 ${BRLCAD_INCLUDE_DIRS}
-	 ${CMAKE_CURRENT_SOURCE_DIR}/../other/uuid
-	 ${CMAKE_CURRENT_BINARY_DIR}/../other/uuid
+    ${CMAKE_CURRENT_SOURCE_DIR}/../other/uuid
+    ${CMAKE_CURRENT_BINARY_DIR}/../other/uuid
 )
 
 SET(gcutil_SRCS
 	ByteArray.cxx
 	Config.cxx
+	ControlledThread.cxx
 	DataStream.cxx
 	DataStreamUtils.cxx
 	GSException.cxx
-	Logger.cxx
 	GSThread.cxx
-	ControlledThread.cxx
+	GSUuid.cxx
+	Logger.cxx
 )
 
 IF(BUILD_SHARED_LIBS)
@@ -65,10 +66,11 @@ ENDIF(BUILD_STATIC_LIBS)
 
 SET(util_inst_HDRS
 	Config.h
+	ControlledThread.h
 	DataStreamUtils.h
 	GSException.h
-	Logger.h
 	GSThread.h
-	ControlledThread.h
+	GSUuid.h
+	Logger.h
 )
 INSTALL(FILES ${util_inst_HDRS} DESTINATION include/gcutil)
