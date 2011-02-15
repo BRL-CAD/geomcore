@@ -37,7 +37,7 @@
 #include <string>
 
 static const uint16_t DEFAULT_LISTEN_PORT = 5309;
-static const std::string DEFAULT_LISTEN_ADDY = "0.0.0.0";
+static const std::string DEFAULT_LISTEN_ADDY = "127.0.0.1";
 
 class GeometryService : public ControlledThread, public INetMsgHandler
 {
