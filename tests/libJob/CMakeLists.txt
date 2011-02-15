@@ -27,9 +27,8 @@
 ##########################################################################
 
 include_directories(
-    ${QT_INCLUDE_DIR}
-	 ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_executable(gjobtest BasicJMTest.cxx PrintToStdOutJob.cxx)
-target_link_libraries(gjobtest libJob libgcutil ${QT_LIBRARIES})
+target_link_libraries(gjobtest libJob libgcutil)

@@ -24,9 +24,8 @@
 ##########################################################################
 
 include_directories(
-    ${QT_INCLUDE_DIR}
     ${TCL_INCLUDE_DIRS}
-	 ${BRLCAD_INCLUDE_DIRS}
+    ${BRLCAD_INCLUDE_DIRS}
 )
 
 SET(libNet_SRCS
@@ -58,13 +57,13 @@ SET(libNet_SRCS
 
 IF(BUILD_SHARED_LIBS)
 	add_library(libNet SHARED ${libNet_SRCS})
-	target_link_libraries(libNet libgeomengine libJob libgcutil libEvent libPkgCpp ${QT_LIBRARIES})
+	target_link_libraries(libNet libgeomengine libJob libgcutil libEvent libPkgCpp)
 	set_target_properties(libNet PROPERTIES PREFIX "")
 	install(TARGETS libNet DESTINATION lib)
 ENDIF(BUILD_SHARED_LIBS)
 IF(BUILD_STATIC_LIBS)
 	add_library(libNet-static STATIC ${libNet_SRCS})
-	target_link_libraries(libNet-static libgeomengine libJob libgcutil libEvent libPkgCpp ${QT_LIBRARIES})
+	target_link_libraries(libNet-static libgeomengine libJob libgcutil libEvent libPkgCpp)
 	IF(NOT WIN32)
 		set_target_properties(libNet-static PROPERTIES PREFIX "")
 	ELSE(NOT WIN32)

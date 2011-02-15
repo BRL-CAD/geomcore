@@ -26,7 +26,6 @@
 ##########################################################################
 
 include_directories(
-   ${QT_INCLUDE_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -42,13 +41,13 @@ SET(libEvent_SRCS
 
 IF(BUILD_SHARED_LIBS)
 	add_library(libEvent SHARED ${libEvent_SRCS})
-	target_link_libraries(libEvent libgcutil libJob ${QT_LIBRARIES})
+	target_link_libraries(libEvent libgcutil libJob)
 	set_target_properties(libEvent PROPERTIES PREFIX "")
 	install(TARGETS libEvent DESTINATION lib)
 ENDIF(BUILD_SHARED_LIBS)
 IF(BUILD_STATIC_LIBS)
 	add_library(libEvent-static STATIC ${libEvent_SRCS})
-	target_link_libraries(libEvent-static libgcutil libJob ${QT_LIBRARIES})
+	target_link_libraries(libEvent-static libgcutil libJob)
 	IF(NOT WIN32)
 		set_target_properties(libEvent-static PROPERTIES PREFIX "")
 		set_target_properties(libEvent-static PROPERTIES OUTPUT_NAME "libEvent")

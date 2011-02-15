@@ -27,13 +27,12 @@
 ##########################################################################
 
 include_directories(
-    ${QT_INCLUDE_DIR}
     ${TCL_INCLUDE_DIRS}
-	 ${BRLCAD_INCLUDE_DIRS}
+    ${BRLCAD_INCLUDE_DIRS}
 )
 
 add_executable(gNetMsgSerialtest netMsgSerialTest.cxx)
-target_link_libraries(gNetMsgSerialtest libNet libPkgCpp libgcutil ${QT_LIBRARIES} ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})
+target_link_libraries(gNetMsgSerialtest libNet libPkgCpp libgcutil ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})
 
 add_executable(glibNetTest libNetTest.cxx)
-target_link_libraries(glibNetTest libNet libPkgCpp libgcutil ${QT_LIBRARIES} ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})
+target_link_libraries(glibNetTest libNet libPkgCpp libgcutil ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})

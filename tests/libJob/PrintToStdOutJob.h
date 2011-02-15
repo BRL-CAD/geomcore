@@ -26,8 +26,7 @@
 
 #include "AbstractJob.h"
 #include <string>
-#include <QtCore/QMutex>
-#include <QtCore/QMutexLocker>
+#include "GSThread.h"
 
 class PrintToStdOutJob : public AbstractJob
 {
@@ -40,7 +39,7 @@ protected:
 
 private:
     std::string text;
-    QMutex* streamLock;
+    GSMutex* streamLock;
 };
 
 #endif /* __PRINTTOSTDOUTJOB_H__ */

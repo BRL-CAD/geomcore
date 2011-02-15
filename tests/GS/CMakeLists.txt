@@ -27,10 +27,9 @@
 ##########################################################################
 
 include_directories( 
-    ${QT_INCLUDE_DIR}
-	 ${BRLCAD_INCLUDE_DIRS}
+    ${BRLCAD_INCLUDE_DIRS}
 )
 
 add_executable(gstest GeometryServiceTest.cxx)
-target_link_libraries(gstest libgeomserv libNet ${QT_LIBRARIES} ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})
+target_link_libraries(gstest libgeomserv libNet ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})
 

@@ -26,9 +26,7 @@
 #
 ##########################################################################
 
-include_directories(
-    ${QT_INCLUDE_DIR}
-)
+include_directories()
 
 add_executable(geventtest BasicEventTest.cxx)
-target_link_libraries(geventtest libJob libgcutil libEvent ${QT_LIBRARIES})
+target_link_libraries(geventtest libJob libgcutil libEvent)

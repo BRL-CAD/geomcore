@@ -29,7 +29,7 @@
 PrintToStdOutJob::PrintToStdOutJob(std::string text)
 {
     this->text = text;
-    this->streamLock = new QMutex();
+    this->streamLock = new GSMutex();
 }
 
 PrintToStdOutJob::~PrintToStdOutJob()
@@ -40,7 +40,7 @@ PrintToStdOutJob::~PrintToStdOutJob()
 JobResult PrintToStdOutJob::_doJob()
 {
 	usleep(2500);
-    QMutexLocker(this->streamLock);
+    GSMutexLocker(this->streamLock);
     std::cout << "JobID:" << this->jobID << " Text: "<< text;
     return JOB_COMPLETED_NO_ERRORS;
 }

@@ -29,11 +29,10 @@
 PROJECT(GEOMETRY_SERVICE)
 
 include_directories(
-	${QT_INCLUDE_DIR}
 	${TCL_INCLUDE_DIRS}
 	${BRLCAD_INCLUDE_DIRS}
 	${CMAKE_CURRENT_SOURCE_DIR}
-	)
+)
 
 SET(geomserv_SRCS
 	GeometryService.cxx
@@ -59,13 +58,13 @@ SET(geomserv_SRCS
 	)
 IF(BUILD_SHARED_LIBS)
 	add_library(libgeomserv SHARED ${geomserv_SRCS})
-	target_link_libraries(libgeomserv ${QT_LIBRARIES} libNet libgcutil)
+	target_link_libraries(libgeomserv libNet libgcutil)
 	set_target_properties(libgeomserv PROPERTIES PREFIX "")
 	install(TARGETS libgeomserv DESTINATION lib)
 ENDIF(BUILD_SHARED_LIBS)
 IF(BUILD_STATIC_LIBS)
 	add_library(libgeomserv-static STATIC ${geomserv_SRCS})
-	target_link_libraries(libgeomserv-static ${QT_LIBRARIES} libNet libgcutil)
+	target_link_libraries(libgeomserv-static libNet libgcutil)
 	IF(NOT WIN32)
 		set_target_properties(libgeomserv-static PROPERTIES PREFIX "")
 		set_target_properties(libgeomserv-static PROPERTIES OUTPUT_NAME "${libname}")
@@ -98,13 +97,13 @@ SET(geomserv_inst_HDRS
 INSTALL(FILES ${geomserv_inst_HDRS} DESTINATION include)
 
 add_executable(geoserv geoserv.cxx)
-target_link_libraries(geoserv libgcutil libNet libgeomserv ${QT_LIBRARIES})
+target_link_libraries(geoserv libgcutil libNet libgeomserv)
 install(TARGETS geoserv DESTINATION bin)
 file(COPY geoserv.config DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 
 add_executable(geoclient geoclient.cxx)
-target_link_libraries(geoclient libgcutil libNet libgeomserv ${QT_LIBRARIES})
+target_link_libraries(geoclient libgcutil libNet libgeomserv)
 install(TARGETS geoclient DESTINATION bin)
 file(COPY geoclient.config DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 

@@ -27,7 +27,6 @@
 ##########################################################################
 
 include_directories(
-   ${QT_INCLUDE_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -40,13 +39,13 @@ SET(libJob_SRCS
 
 IF(BUILD_SHARED_LIBS)
 	add_library(libJob SHARED ${libJob_SRCS})
-	target_link_libraries(libJob libgcutil ${QT_LIBRARIES})
+	target_link_libraries(libJob libgcutil)
 	set_target_properties(libJob PROPERTIES PREFIX "")
 	install(TARGETS libJob DESTINATION lib)
 ENDIF(BUILD_SHARED_LIBS)
 IF(BUILD_STATIC_LIBS)
 	add_library(libJob-static STATIC ${libJob_SRCS})
-	target_link_libraries(libJob-static libgcutil ${QT_LIBRARIES})
+	target_link_libraries(libJob-static libgcutil)
 	IF(NOT WIN32)
 		set_target_properties(libJob-static PROPERTIES PREFIX "")
 		set_target_properties(libJob-static PROPERTIES OUTPUT_NAME "libJob")
