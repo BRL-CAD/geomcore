@@ -84,9 +84,8 @@ int main(int argc, char* argv[])
     	gsExit(1);
     }
 
-    bool ok;
-    uint16_t port = atoi(sPort.c_str());
-    if (!ok){
+    int port = atoi(sPort.c_str());
+    if ( port & !0xffff){
     	log->logERROR("geoserv", "Config File contains a 'ListenPort' key, however the value failed to parse to a valid number.");
     	return 1;
     }
