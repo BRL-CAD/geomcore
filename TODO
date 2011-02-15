@@ -14,3 +14,7 @@ codebase.
 //TODO review CMake logic
 
 Probably lots more...
+
+//TODO Implement GSMutex/GSMutexLocker
+//TODO Wire in the UUID stuff
+//TODO Fix segfaults in tests
