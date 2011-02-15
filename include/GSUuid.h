@@ -28,10 +28,8 @@
 
 #include <string>
 
-#if 0
 #ifndef _UUID_T
 # include <uuid.h>
-#endif
 #endif
 
 class GSUuid

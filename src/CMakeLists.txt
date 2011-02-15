@@ -29,6 +29,11 @@
 #Deps first
 ADD_SUBDIRECTORY(other)
 
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/other/uuid
+    ${CMAKE_CURRENT_BINARY_DIR}/other/uuid
+)
+
 #Libs next
 ADD_SUBDIRECTORY(GE)
 ADD_SUBDIRECTORY(utility)

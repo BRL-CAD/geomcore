@@ -30,8 +30,6 @@ include_directories(
     ${QT_INCLUDE_DIR}
     ${TCL_INCLUDE_DIRS}
 	 ${BRLCAD_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../other/uuid
-    ${CMAKE_CURRENT_BINARY_DIR}/../other/uuid
 )
 
 SET(gcutil_SRCS
