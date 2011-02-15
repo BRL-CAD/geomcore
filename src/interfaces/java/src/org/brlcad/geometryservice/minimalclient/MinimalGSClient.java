@@ -41,7 +41,9 @@ public class MinimalGSClient {
 		this.gui = new MinimalGSClientGUI();
 	}
 
+	
 	public final void run() {
+		//This call does NOT block.
 		this.gui.setVisible(true);
 	}
 	
