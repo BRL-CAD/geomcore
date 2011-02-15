@@ -28,8 +28,10 @@
 
 #include <string>
 
+#if 0
 #ifndef _UUID_T
 # include <uuid.h>
+#endif
 #endif
 
 class GSUuid
@@ -47,10 +49,12 @@ public:
   std::string toString();
 
 private:
+#if 0
 #if defined(uuid_s_ok)
   struct uuid uuid;
 #elif defined(UUID_VARIANT_DCE)
   uuid_t uuid;
+#endif
 #endif
 };
 
