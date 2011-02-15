@@ -29,7 +29,7 @@
 include_directories(
     ${QT_INCLUDE_DIR}
     ${TCL_INCLUDE_DIRS}
-    ${BRLCAD_INC_DIRS}
+	 ${BRLCAD_INCLUDE_DIRS}
 	 ${CMAKE_CURRENT_SOURCE_DIR}/../other/uuid
 	 ${CMAKE_CURRENT_BINARY_DIR}/../other/uuid
 )
@@ -47,13 +47,13 @@ SET(gcutil_SRCS
 
 IF(BUILD_SHARED_LIBS)
 	add_library(libgcutil SHARED ${gcutil_SRCS})
-	target_link_libraries(libgcutil ${_BRLCAD_LIBRARY_bu} ${TCL_LIBRARIES} ${QT_LIBRARIES} uuid)
+	target_link_libraries(libgcutil ${BRLCAD_BU_LIBRARY} ${TCL_LIBRARIES} ${QT_LIBRARIES} uuid)
 	set_target_properties(libgcutil PROPERTIES PREFIX "")
 	install(TARGETS libgcutil DESTINATION lib)
 ENDIF(BUILD_SHARED_LIBS)
 IF(BUILD_STATIC_LIBS)
 	add_library(libgcutil-static STATIC ${gcutil_SRCS})
-	target_link_libraries(libgcutil-static ${_BRLCAD_LIBRARY_bu} ${TCL_LIBRARIES} ${QT_LIBRARIES} uuid)
+	target_link_libraries(libgcutil-static ${BRLCAD_BU_LIBRARY} ${TCL_LIBRARIES} ${QT_LIBRARIES} uuid)
 	IF(NOT WIN32)
 		set_target_properties(libgcutil-static PROPERTIES PREFIX "")
 		set_target_properties(libgcutil-static PROPERTIES OUTPUT_NAME "libgcutil")

@@ -27,7 +27,7 @@
 
 include_directories(
     ${TCL_INCLUDE_DIRS}
-    ${BRLCAD_INC_DIRS}
+	 ${BRLCAD_INCLUDE_DIRS}
 )
 
 SET(libPkgCpp_SRCS
@@ -41,13 +41,13 @@ SET(libPkgCpp_SRCS
 
 IF(BUILD_SHARED_LIBS)
 	add_library(libPkgCpp SHARED ${libPkgCpp_SRCS})
-	target_link_libraries(libPkgCpp ${TCL_LIBRARY} ${_BRLCAD_LIBRARY_pkg} ${_BRLCAD_LIBRARY_bu})
+	target_link_libraries(libPkgCpp ${TCL_LIBRARY} ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})
 	set_target_properties(libPkgCpp PROPERTIES PREFIX "")
 	install(TARGETS libPkgCpp DESTINATION lib)
 ENDIF(BUILD_SHARED_LIBS)
 IF(BUILD_STATIC_LIBS)
 	add_library(libPkgCpp-static STATIC ${libPkgCpp_SRCS})
-	target_link_libraries(libPkgCpp-static ${TCL_LIBRARY} ${_BRLCAD_LIBRARY_pkg} ${_BRLCAD_LIBRARY_bu})
+	target_link_libraries(libPkgCpp-static ${TCL_LIBRARY} ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})
 	IF(NOT WIN32)
 		set_target_properties(libPkgCpp-static PROPERTIES PREFIX "")
 		set_target_properties(libPkgCpp-static PROPERTIES OUTPUT_NAME "libPkgCpp")

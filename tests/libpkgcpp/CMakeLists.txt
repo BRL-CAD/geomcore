@@ -29,8 +29,8 @@
 include_directories(
     ${QT_INCLUDE_DIR}
     ${TCL_INCLUDE_DIRS}
-    ${BRLCAD_INC_DIRS}
+	 ${BRLCAD_INCLUDE_DIRS}
 )
 
 add_executable(gPkgCpptest pkgcppTest.cxx)
-target_link_libraries(gPkgCpptest libPkgCpp libgcutil ${_BRLCAD_LIBRARY_pkg} ${QT_LIBRARIES} ${_BRLCAD_LIBRARY_bu})
+target_link_libraries(gPkgCpptest libPkgCpp libgcutil ${BRLCAD_PKG_LIBRARY} ${QT_LIBRARIES} ${BRLCAD_BU_LIBRARY})

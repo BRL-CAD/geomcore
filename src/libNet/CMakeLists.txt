@@ -26,7 +26,7 @@
 include_directories(
     ${QT_INCLUDE_DIR}
     ${TCL_INCLUDE_DIRS}
-    ${BRLCAD_INC_DIRS}
+	 ${BRLCAD_INCLUDE_DIRS}
 )
 
 SET(libNet_SRCS
