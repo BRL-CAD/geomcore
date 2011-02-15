@@ -82,7 +82,6 @@ public:
 
 private:
 	static Logger* instance;
-	static QMutex* lock;
 	bool verbose;
 	bool printToConsole;
 	bool printToFile;
@@ -91,7 +90,7 @@ private:
 	Logger(const Logger& logger){}; /* Disable Copy cstr */
 	Logger& operator=(const Logger& log){}; /* Disable equals operator */
 
-	void log(uint32_t logLevel, std::string origin, std::string string);
+	void log(const char *lvl, std::string origin, std::string string);
 };
 
 #endif /* __LOGGER_H__ */

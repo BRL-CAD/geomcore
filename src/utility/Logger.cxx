@@ -25,7 +25,7 @@
 
 #include "Logger.h"
 
-#include "brlcad/bu.h"
+#include "bu.h"
 
 #include <sys/time.h>
 #include <iomanip>
@@ -33,14 +33,10 @@
 
 //Statics instantiation
 Logger* Logger::instance;
-QMutex* Logger::lock = new QMutex();
-
 Logger::Logger() :
 	verbose(false), printToFile(false), printToConsole(true) {}
 
 Logger* Logger::getInstance() {
-	QMutexLocker locker(Logger::lock);
-
 	if (Logger::instance == NULL) {
 		Logger::instance = new Logger();
 	}
@@ -49,90 +45,50 @@ Logger* Logger::getInstance() {
 }
 
 void Logger::logBANNER(std::string origin, std::string string) {
-	this->log(Logger::BANNER, origin, string);
+	this->log((const char *)"(BANNER)", origin, string);
 }
 
 void Logger::logDEBUG(std::string origin, std::string string) {
-	this->log(Logger::DEBUG, origin, string);
+	this->log((const char *)"(DEBUG)", origin, string);
 }
 
 void Logger::logINFO(std::string origin, std::string string) {
-	this->log(Logger::INFO, origin, string);
+	this->log((const char *)"(INFO)", origin, string);
 }
 
 void Logger::logWARNING(std::string origin, std::string string) {
-	this->log(Logger::WARNING, origin, string);
+	this->log((const char *)"(WARNING)", origin, string);
 }
 
 void Logger::logERROR(std::string origin, std::string string) {
-	this->log(Logger::ERROR, origin, string);
+	this->log((const char *)"(ERROR)", origin, string);
 }
 
 void Logger::logFATAL(std::string origin, std::string string) {
-	this->log(Logger::FATAL, origin, string);
+	this->log((const char *)"(FATAL)", origin, string);
 }
 
-void Logger::log(uint32_t logLevel, std::string origin, std::string string) {
-	std::string type("");
+void Logger::log(const char *lvl, std::string origin, std::string string) {
 
-	/* chomp the newline. May want to switch this to localtime/strftime  */
+    if (this->printToFile) {
+	//TODO add file logging
+    }
+
+    if (this->printToConsole) {
 	time_t t = time(NULL);
-	std::string _time(ctime(&t));
-	_time.resize(_time.length()-1);
+	char buf[BUFSIZ];
 
-	switch (logLevel) {
-	case (Logger::FATAL):
-		type += "(FATAL) ";
-		break;
-	case (Logger::ERROR):
-		type += "(ERROR) ";
-		break;
-	case (Logger::WARNING):
-		type += "(WARNING) ";
-		break;
-	case (Logger::INFO):
-		type += "(INFO) ";
-		break;
-	case (Logger::BANNER):
-		type += "(BANNER) ";
-		break;
-	case (Logger::DEBUG):
-	default:
-		type += "(DEBUG) ";
-		break;
+	if (this->verbose) {
+	    bu_log(" \tSTACK TRACE GOES HERE");
 	}
 
-	QMutexLocker locker(Logger::lock);
+	snprintf(buf, BUFSIZ, "%26s %20s %12s %s %s %s\n", ctime(&t),
+		origin.c_str(), lvl, lvl[1]=='B'?"=======":"", 
+		string.c_str(), lvl[1]=='B'?"=======":"");
+	buf[25] = ' ';	// eliminate the newline from ctime()
 
-	if (this->printToFile) {
-		//TODO add file logging
-	}
-
-	std::ostringstream out("");
-
-	if (this->printToConsole) {
-		out << std::setw(26) << std::setfill(' ') << std::left << _time;
-		out << std::setw(20) << std::setfill(' ') << std::left
-				<< origin;
-		out << std::setw(12) << std::setfill(' ') << std::left << type;
-
-		if (logLevel == Logger::BANNER) {
-			out << std::setfill(' ') << std::left << "======= " << string << " =======";
-		} else {
-			out << std::setfill(' ') << std::left << string;
-		}
-
-		if (this->verbose) {
-			out << std::setfill(' ') << " \t" << "STACK TRACE GOES HERE";
-		}
-
-		out << std::endl;
-
-		std::string std_string = out.str();
-		const char* c_string = std_string.c_str();
-
-		bu_log("%s", c_string);
-	}
+	bu_log(buf);
+    }
 }
 
 uint64_t
