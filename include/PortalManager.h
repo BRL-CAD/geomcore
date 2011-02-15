@@ -44,7 +44,7 @@ class Portal;
 class PortalManager : public ControlledThread, public INetMsgHandler
 {
 public:
-	PortalManager(std::string localNodeName, uint16_t port = 0, std::string address = std::string("0.0.0.0"));
+	PortalManager(std::string localNodeName, uint16_t port = 0, std::string address = std::string("127.0.0.1"));
 	~PortalManager();
 
 	Portal* connectToHost(std::string host, uint16_t port);
