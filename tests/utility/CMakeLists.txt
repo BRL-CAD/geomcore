@@ -27,7 +27,6 @@
 ##########################################################################
 
 include_directories(
-	${QT_INCLUDE_DIR}
 	${TCL_INCLUDE_DIRS}
 	${BRLCAD_INCLUDE_DIRS}
 )
@@ -35,7 +34,10 @@ include_directories(
 add_executable(gloggerTest loggerTest.cxx)
 target_link_libraries(gloggerTest libgcutil)
 
+add_executable(gthreadTest threadTest.cxx)
+target_link_libraries(gthreadTest libgcutil)
+
 add_executable(gconfigTest configTest.cxx)
-target_link_libraries(gconfigTest libgcutil ${QT_LIBRARIES})
+target_link_libraries(gconfigTest libgcutil)
 
 file(COPY test.config DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
