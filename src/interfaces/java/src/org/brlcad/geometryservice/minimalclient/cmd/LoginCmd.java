@@ -22,7 +22,6 @@
  */
 package org.brlcad.geometryservice.minimalclient.cmd;
 
-import org.brlcad.geometryservice.GSStatics;
 import org.brlcad.geometryservice.minimalclient.CmdConsolePanel;
 
 /**
