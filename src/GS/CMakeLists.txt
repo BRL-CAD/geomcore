@@ -99,7 +99,12 @@ INSTALL(FILES ${geomserv_inst_HDRS} DESTINATION include)
 add_executable(geoserv geoserv.cxx)
 target_link_libraries(geoserv libgcutil libNet libgeomserv ${QT_LIBRARIES})
 install(TARGETS geoserv DESTINATION bin)
+file(COPY geoserv.config DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
 
 add_executable(geoclient geoclient.cxx)
 target_link_libraries(geoclient libgcutil libNet libgeomserv ${QT_LIBRARIES})
 install(TARGETS geoclient DESTINATION bin)
+file(COPY geoclient.config DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+
