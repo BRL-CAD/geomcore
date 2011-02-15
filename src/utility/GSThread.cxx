@@ -94,12 +94,13 @@ GSThread::isRunning()
     return this->running;
 }
 
-GSMutex::GSMutex(){}
+GSMutex::GSMutex(){ pthread_mutex_init(&this->lck,NULL); }
 GSMutex::~GSMutex(){}
-void GSMutex::lock(){}
-void GSMutex::unlock(){}
-GSMutexLocker::GSMutexLocker(GSMutex*){}
-GSMutexLocker::~GSMutexLocker(){}
+void GSMutex::lock(){ pthread_mutex_lock(&this->lck);}
+void GSMutex::unlock(){ pthread_mutex_unlock(&this->lck);}
+
+GSMutexLocker::GSMutexLocker(GSMutex*mutex){ this->mutex=mutex; mutex->lock(); }
+GSMutexLocker::~GSMutexLocker(){ mutex->unlock(); }
 
 /*
  * Local Variables:

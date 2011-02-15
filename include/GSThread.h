@@ -69,6 +69,8 @@ class GSMutex
 	~GSMutex();
 	void lock();
 	void unlock();
+    private:
+	pthread_mutex_t lck;
 };
 
 class GSMutexLocker
@@ -76,6 +78,8 @@ class GSMutexLocker
     public:
 	GSMutexLocker(GSMutex*);
 	~GSMutexLocker();
+    private:
+	GSMutex* mutex;
 };
 
 #endif /* __GSTHREAD_H__ */
