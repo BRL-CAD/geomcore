@@ -26,28 +26,40 @@
 #ifndef __GSTHREAD_H__
 #define __GSTHREAD_H__
 
-#include <QtCore/QThread>
 #include <list>
 
-class GSThread : public QThread
+#include <pthread.h>
+
+class GSThread
 {
-public:
-  GSThread();
-  virtual ~GSThread();
+    public:
+	GSThread();
+	~GSThread();
 
-  void terminate();
+	void start();
+	bool wait(int&);
+	void terminate();
+	bool isRunning();
 
-protected:
+	virtual void run() {};
 
-  /* For thread management */
-  static std::list<GSThread*> threads;
-  static void addThread(GSThread* thread);
-  static void remThread(GSThread* thread);
+    protected:
 
-private:
+	/* For thread management */
+	static std::list<GSThread*> threads;
+	static void addThread(GSThread* thread);
+	static void remThread(GSThread* thread);
+
+    private:
 	/* Disable copy cstr and =operator */
 	GSThread(GSThread const&){};
 	GSThread& operator=(GSThread const&){};
+
+	static void* runner(void *);
+
+	bool running;
+	pthread_t p;
+	int pthid;
 };
 
 #endif /* __GSTHREAD_H__ */

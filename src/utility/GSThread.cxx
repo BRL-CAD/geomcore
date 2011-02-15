@@ -25,22 +25,28 @@
 
 #include "GSThread.h"
 
+#include <bu.h>
+
 std::list<GSThread*> GSThread::threads;
 
 GSThread::GSThread()
 {
-  GSThread::addThread(this);
+    this->running = false;
+    this ->pthid = -1;
+    GSThread::addThread(this);
 }
 
 GSThread::~GSThread()
 {
-  GSThread::remThread(this);
+    this->running = false;
+    pthread_join(this->p, NULL);
+    GSThread::remThread(this);
 }
 
 void
 GSThread::terminate()
 {
-	QThread::terminate();
+    this->running = false;
 }
 
 void
@@ -53,6 +59,39 @@ void
 GSThread::remThread(GSThread* thread)
 {
     GSThread::threads.remove(thread);
+}
+
+bool
+GSThread::wait(int& t)
+{
+}
+
+
+void *
+GSThread::runner(void *obj) {
+    GSThread *me = (GSThread *)obj;
+    me->run();
+}
+
+void
+GSThread::start() 
+{
+    this->running = true;
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+
+    this->pthid = pthread_create(&this->p, &attr, runner, this);
+    if(this->pthid < 0) {
+	    bu_log("Crud: %d\n", this->pthid);
+	    this->running = false;
+    }
+}
+
+bool
+GSThread::isRunning()
+{
+    return this->running;
 }
 
 /*
