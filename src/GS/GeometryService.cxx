@@ -30,14 +30,14 @@
 #include "PongMsg.h"
 
 
-GeometryService::GeometryService(const std::string localNodeName, const uint16_t listenPort, const std::string listenAddy) : ControlledThread(localNodeName), listenPort(listenPort)
+GeometryService::GeometryService(const std::string localNodeName, const uint16_t listenPort, const std::string listenAddy) : ControlledThread(localNodeName)
 {
     this->localNodeName.assign(localNodeName);
-    this->listenAddy.assign(listenAddy);
+
     this->log = Logger::getInstance();
     this->log->logINFO("GeometryService", localNodeName + " is starting up...");
 
-    this->portalMan = new PortalManager(localNodeName, listenPort);
+    this->portalMan = new PortalManager(localNodeName, listenPort, listenAddy);
     this->registerMsgRoutes();
 
     this->dataMan = DataManager::getInstance();

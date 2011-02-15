@@ -55,8 +55,6 @@ protected:
 private:
 	Logger* log;
 	std::string localNodeName;
-	uint16_t listenPort;
-	std::string listenAddy;
 
 	PortalManager* portalMan;
 	DataManager* dataMan;
