@@ -27,8 +27,9 @@
 ##########################################################################
 
 include_directories(
-    ${QT_INCLUDE_DIR}
-	 ${BRLCAD_INCLUDE_DIRS}
+	${QT_INCLUDE_DIR}
+	${TCL_INCLUDE_DIRS}
+	${BRLCAD_INCLUDE_DIRS}
 )
 
 add_executable(gloggerTest loggerTest.cxx)
