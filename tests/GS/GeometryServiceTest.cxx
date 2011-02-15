@@ -33,7 +33,7 @@
 #include "GeometryService.h"
 #include "GSClient.h"
 
-#include <QtCore/QUuid>
+#include "GSUuid.h"
 
 static const uint16_t DEFAULT_PORT = 5309;
 
@@ -117,7 +117,7 @@ public:
 class GeometryClient
 {
 private:
-    QUuid testClientID;
+    GSUuid* testClientID;
     GSClient* gsClient;
     Portal* portal;
 
@@ -132,8 +132,8 @@ private:
 public:
     GeometryClient()
     {
-    	this->testClientID = QUuid::createUuid();
-    	this->gsClient = new GSClient(this->testClientID.toString().toStdString());
+    	this->testClientID = GSUuid::createUuid();
+    	this->gsClient = new GSClient(this->testClientID->toString());
     	this->portal == NULL;
 		std::cerr << "Portal:" << this->portal << std::endl;
     }
