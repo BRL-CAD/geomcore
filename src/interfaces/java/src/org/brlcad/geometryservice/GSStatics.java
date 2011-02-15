@@ -37,5 +37,11 @@ public final class GSStatics {
 	 */
 	public static PrintStream stdOut = System.out;
 	public static PrintStream stdErr = System.err;
+	
+	public static final String tab = "   ";
+	public static final String newline = "\n";
+	public static final String tabnl = tab + newline;
+	public static final String nltab = newline + tab;
+	public static final String tab2x = tab + tab;
 
 }
