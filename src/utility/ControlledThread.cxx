@@ -23,7 +23,6 @@
 
 #include "ControlledThread.h"
 #include "Logger.h"
-#include <QtCore/QMutexLocker>
 
 ControlledThread::ControlledThread(std::string threadName) {
 	if (threadName.length() <= 0) {
@@ -62,7 +61,7 @@ ControlledThread::shutdown(bool block) {
 
 void
 ControlledThread::run() {
-	QMutexLocker(&this->threadExitLock);
+	GSMutexLocker(&this->threadExitLock);
 
 	if(!this->preRunHook())
 		return;
@@ -126,27 +125,27 @@ ControlledThread::getThreadName()
 bool
 ControlledThread::getRunCmd()
 {
-	QMutexLocker(&this->runCmdLock);
+	GSMutexLocker(&this->runCmdLock);
 	return this->runCmd;
 }
 
 bool
 ControlledThread::getRunStatus()
 {
-	QMutexLocker(&this->runStatusLock);
+	GSMutexLocker(&this->runStatusLock);
 	return this->runStatus;
 }
 
 void
 ControlledThread::setRunCmd(bool newVal) {
-	QMutexLocker(&this->runCmdLock);
+	GSMutexLocker(&this->runCmdLock);
 /*	std::cout << threadName.toStdString() << " Old RunCmd:" << this->runCmd << "\t New RunCmd:" << newVal << "\n"; */
 	this->runCmd = newVal;
 }
 
 void
 ControlledThread::setRunStatus(bool newVal) {
-	QMutexLocker(&this->runStatusLock);
+	GSMutexLocker(&this->runStatusLock);
 /*	std::cout << threadName.toStdString() << " Old runStatus:" << this->runStatus << "\t New runStatus:" << newVal << "\n"; */
 	this->runStatus = newVal;
 }

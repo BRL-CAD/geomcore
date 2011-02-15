@@ -28,7 +28,7 @@
 #include "NetMsgTypes.h"
 #include "FailureMsg.h"
 
-#include <QtCore/QMutexLocker>
+#include <GSThread.h>
 
 SessionManager* SessionManager::pInstance = NULL;
 
@@ -64,7 +64,7 @@ SessionManager::newSession(Account* a)
 
 Session*
 SessionManager::getSession(Account* a) {
-	QMutexLocker locker(&this->listLock);
+	GSMutexLocker locker(&this->listLock);
 	for (std::list<Session*>::iterator it=sessionList.begin(); it!=sessionList.end(); it++)
 		if ((*it)->getAccount() == a)
 			return (*it);
@@ -74,7 +74,7 @@ SessionManager::getSession(Account* a) {
 //TODO need to verify the GSUuid* == GSUuid* works.
 Session*
 SessionManager::getSession(GSUuid* sessID) {
-	QMutexLocker locker(&this->listLock);
+	GSMutexLocker locker(&this->listLock);
 	for (std::list<Session*>::iterator it=sessionList.begin(); it!=sessionList.end(); it++)
 		if ((*it)->getSessionID() == sessID)
 			return (*it);
@@ -83,7 +83,7 @@ SessionManager::getSession(GSUuid* sessID) {
 
 Session*
 SessionManager::getSession(Portal* p) {
-	QMutexLocker locker(&this->listLock);
+	GSMutexLocker locker(&this->listLock);
 	for (std::list<Session*>::iterator it=sessionList.begin(); it!=sessionList.end(); it++)
 		if ((*it)->getAccount()->getPortal() == p)
 			return (*it);
@@ -93,7 +93,7 @@ SessionManager::getSession(Portal* p) {
 void
 SessionManager::putCache(Session* s)
 {
-	QMutexLocker locker(&this->listLock);
+	GSMutexLocker locker(&this->listLock);
 	if (std::find(this->sessionList.begin(), this->sessionList.end(), s) != this->sessionList.end()) {
 		log->logWARNING("SessionManager", "Attempted to cache an already cached Session.");
 	} else {
@@ -104,7 +104,7 @@ SessionManager::putCache(Session* s)
 void
 SessionManager::remCache(Session* s)
 {
-	QMutexLocker locker(&this->listLock);
+	GSMutexLocker locker(&this->listLock);
 	if (std::find(this->sessionList.begin(), this->sessionList.end(), s) != this->sessionList.end()) {
 		this->sessionList.remove(s);
 	} else {

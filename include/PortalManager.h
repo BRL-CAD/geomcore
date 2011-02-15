@@ -37,7 +37,7 @@
 #include <string>
 #include <map>
 
-#include <QtCore/QMutex>
+#include <GSThread.h>
 
 class Portal;
 
@@ -63,11 +63,11 @@ private:
 	std::string listenAddress;
 	PkgTcpServer* tcpServer;
 
-	QMutex masterFDSLock;
+	GSMutex masterFDSLock;
 	fd_set masterfds;
 	int fdmax;
 
-	QMutex* portalsLock;
+	GSMutex* portalsLock;
 	std::map<int, Portal*>* fdPortalMap;
 
 	Portal* makeNewPortal(PkgTcpClient* client, struct pkg_switch* table);

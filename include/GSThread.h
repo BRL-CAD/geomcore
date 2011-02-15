@@ -62,6 +62,22 @@ class GSThread
 	int pthid;
 };
 
+class GSMutex
+{
+    public:
+	GSMutex();
+	~GSMutex();
+	void lock();
+	void unlock();
+};
+
+class GSMutexLocker
+{
+    public:
+	GSMutexLocker(GSMutex*);
+	~GSMutexLocker();
+};
+
 #endif /* __GSTHREAD_H__ */
 
 /*

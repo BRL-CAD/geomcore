@@ -31,7 +31,7 @@
 #include <string>
 #include <list>
 
-#include <QtCore/QMutex>
+#include <GSThread.h>
 
 class FileDataSource : public IDataSource
 {
@@ -50,7 +50,7 @@ public:
 private:
 	std::string repoPath;
 
-	QMutex lockLock;
+	GSMutex lockLock;
 	std::list<std::string> pathLocks;
 	bool hasPathLock(std::string path);
 	void setPathLock(std::string path);

@@ -34,7 +34,7 @@
 
 #include <list>
 #include <map>
-#include <QtCore/QMutex>
+#include <GSThread.h>
 
 class SessionManager : public INetMsgHandler
 {
@@ -53,7 +53,7 @@ private:
 
     Logger* log;
 
-    QMutex listLock;
+    GSMutex listLock;
     std::list<Session*> sessionList;
 
     Session* newSession(Account* a);

@@ -32,7 +32,7 @@
 
 #include <map>
 #include <list>
-#include <QtCore/QMutex>
+#include <GSThread.h>
 
 class NetMsgRouter
 {
@@ -54,7 +54,7 @@ private:
 	 */
 	std::list<INetMsgHandler*>* getListOfHandlers(uint16_t type);
 
-	QMutex mapLock;
+	GSMutex mapLock;
 	std::map<uint16_t,std::list<INetMsgHandler*>*>* routingTable;
 
 	/* Disable copy cstr and =operator */

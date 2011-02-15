@@ -29,7 +29,7 @@
 #include "TypeOnlyMsg.h"
 #include "GeometryManifestMsg.h"
 
-#include <QtCore/QMutexLocker>
+#include <GSThread.h>
 
 DataManager* DataManager::pInstance = NULL;
 
@@ -50,7 +50,7 @@ std::string DataManager::getDbObjectByUUID(GSUuid* uuid)
 void
 DataManager::addDataSource(IDataSource* source)
 {
-	QMutexLocker lock (&this->sourceLock);
+	GSMutexLocker lock (&this->sourceLock);
 	this->datasources.push_back(source);
 }
 

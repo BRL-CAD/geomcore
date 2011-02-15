@@ -24,16 +24,16 @@
 #include <iostream>
 #include <list>
 
-#include <QtCore/QMutexLocker>
+#include <GSThread.h>
 
 //Declares for statics.
 JobManager* JobManager::pInstance = NULL;
-QMutex* JobManager::singletonLock = new QMutex();
+GSMutex* JobManager::singletonLock = new GSMutex();
 
 JobManager::JobManager() {
 	this->log = Logger::getInstance();
 	this->jobQueue = new std::list<AbstractJob*> ();
-	this->queueLock = new QMutex();
+	this->queueLock = new GSMutex();
 	this->jobWorkers = new std::list<JobWorker*> ();
 	this->acceptJobs = false;
 
@@ -116,7 +116,7 @@ void JobManager::shutdown(bool finishJobQueue) {
 }
 
 JobManager* JobManager::getInstance() {
-	QMutexLocker locker(JobManager::singletonLock);
+	GSMutexLocker locker(JobManager::singletonLock);
 
 	if (!JobManager::pInstance) {
 		pInstance = new JobManager();
@@ -132,13 +132,13 @@ void JobManager::submitJob(AbstractJob* job) {
 		return;
 	}
 
-	QMutexLocker locker(this->queueLock);
+	GSMutexLocker locker(this->queueLock);
 	this->jobQueue->push_back(job);
 }
 
 AbstractJob* JobManager::getNextJob() {
 	AbstractJob* j;
-	QMutexLocker locker(this->queueLock);
+	GSMutexLocker locker(this->queueLock);
 	if (!this->jobQueue->empty()) {
 		j = this->jobQueue->front();
 		this->jobQueue->pop_front();
@@ -149,12 +149,12 @@ AbstractJob* JobManager::getNextJob() {
 }
 
 bool JobManager::hasNextJob() {
-	QMutexLocker locker(this->queueLock);
+	GSMutexLocker locker(this->queueLock);
 	return !this->jobQueue->empty();
 }
 
 uint32_t JobManager::getWorkQueueLen() {
-	QMutexLocker locker(this->queueLock);
+	GSMutexLocker locker(this->queueLock);
 	return this->jobQueue->size();
 }
 

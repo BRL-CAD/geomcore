@@ -28,14 +28,14 @@
 #include "DeliverEventJob.h"
 #include "SubmitEventJob.h"
 
-#include <QtCore/QMutexLocker>
+#include <GSThread.h>
 
 EventManager* EventManager::pInstance = NULL;
 
 EventManager::EventManager()
 {
     this->subscriptions = new std::list<EventSubscription*> ();
-    this->subscriptionsLock = new QMutex();
+    this->subscriptionsLock = new GSMutex();
     this->log = Logger::getInstance();
 }
 
@@ -78,7 +78,7 @@ void EventManager::processEvent(Event* e)
 
 std::list<EventSubscriber*>* EventManager::buildSubscriberList(Event* e)
 {
-    QMutexLocker locker(this->subscriptionsLock);
+    GSMutexLocker locker(this->subscriptionsLock);
 
     uint32_t eType = e->getEventType();
     EventPublisher* ePub = e->getPublisher();
@@ -106,7 +106,7 @@ std::list<EventSubscriber*>* EventManager::buildSubscriberList(Event* e)
 void EventManager::subscribe(EventSubscriber* sub, uint32_t eventType,
 	EventPublisher* pub)
 {
-    QMutexLocker locker(this->subscriptionsLock);
+    GSMutexLocker locker(this->subscriptionsLock);
 
     EventSubscription* es = new EventSubscription(sub, eventType, pub);
 
@@ -127,7 +127,7 @@ void EventManager::subscribe(EventSubscriber* sub, uint32_t eventType,
 void EventManager::unsubscribe(EventSubscriber* sub, uint32_t eventType,
 	EventPublisher* pub)
 {
-    QMutexLocker locker(this->subscriptionsLock);
+    GSMutexLocker locker(this->subscriptionsLock);
     subscriptions->remove(new EventSubscription(sub, eventType, pub));
 }
 

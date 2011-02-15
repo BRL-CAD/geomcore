@@ -27,7 +27,7 @@
 #include "ClientCmdRegistry.h"
 #include "AbstractClientCmd.h"
 
-#include <QtCore/QMutexLocker>
+#include <GSThread.h>
 
 ClientCmdRegistry* ClientCmdRegistry::pInstance = NULL;
 
@@ -52,7 +52,7 @@ ClientCmdRegistry::~ClientCmdRegistry() {
 bool ClientCmdRegistry::registerCmd(AbstractClientCmd* cmd) {
 	std::string cmdString = cmd->getCmd();
 
-	QMutexLocker(&this->mapLock);
+	GSMutexLocker(&this->mapLock);
 	if(cmdMap->insert(std::pair<std::string,AbstractClientCmd*>(cmdString, cmd)).second != false)
 		return true;
 	this->log->logWARNING("ClientCmdRegistry","An AbstractClientCmd '" + cmdString + "' already exists in Registry.");
@@ -62,7 +62,7 @@ bool ClientCmdRegistry::registerCmd(AbstractClientCmd* cmd) {
 AbstractClientCmd*
 ClientCmdRegistry::getCmd(std::string cmd)
 {
-	QMutexLocker(&this->mapLock);
+	GSMutexLocker(&this->mapLock);
 
 	if (this->cmdMap->find(cmd) == cmdMap->end())
 		return NULL;
@@ -72,7 +72,7 @@ ClientCmdRegistry::getCmd(std::string cmd)
 
 std::list<std::string>*
 ClientCmdRegistry::getListOfCmds() {
-	QMutexLocker(&this->mapLock);
+	GSMutexLocker(&this->mapLock);
 
 	std::list<std::string>* keys = new std::list<std::string>();
 	for(std::map<std::string,AbstractClientCmd*>::iterator it=cmdMap->begin(); it!=cmdMap->end(); it++)

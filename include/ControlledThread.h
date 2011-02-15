@@ -28,7 +28,7 @@
 
 #include <string>
 
-#include <QtCore/QMutex>
+#include <GSThread.h>
 
 class ControlledThread : public GSThread
 {
@@ -65,13 +65,13 @@ private:
 	/* fields */
 	std::string threadName;
 
-	QMutex runCmdLock;
+	GSMutex runCmdLock;
 	volatile bool runCmd;
 
-	QMutex runStatusLock;
+	GSMutex runStatusLock;
 	volatile bool runStatus;
 
-	QMutex threadExitLock;
+	GSMutex threadExitLock;
 
 	/* Disable copy cstr and =operator */
 	ControlledThread(ControlledThread const&){};

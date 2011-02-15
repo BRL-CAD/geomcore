@@ -24,7 +24,7 @@
  */
 
 #include "NetMsgRouter.h"
-#include <QtCore/QMutexLocker>
+#include <GSThread.h>
 #include "Portal.h"
 #include "FailureMsg.h"
 
@@ -77,7 +77,7 @@ bool NetMsgRouter::routeMsg(NetMsg* msg) {
 
 std::list<INetMsgHandler*>*
 NetMsgRouter::getListOfHandlers(uint16_t type) {
-	QMutexLocker(&this->mapLock);
+	GSMutexLocker(&this->mapLock);
 
 	std::list<INetMsgHandler*>* l = this->routingTable->find(type)->second;
 

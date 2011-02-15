@@ -34,7 +34,7 @@
 #include <string>
 #include <list>
 
-#include <QtCore/QMutex>
+#include <GSThread.h>
 
 class AccountManager
 {
@@ -49,7 +49,7 @@ private:
     AccountManager();
 
     Logger* log;
-    QMutex accountListLock;
+    GSMutex accountListLock;
     std::list<Account*>* accounts;
 
     int32_t validateLoginCreds(std::string uname, std::string passwd);

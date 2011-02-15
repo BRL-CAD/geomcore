@@ -42,7 +42,7 @@ PortalManager::PortalManager(std::string localNodeName, uint16_t listenPort, std
 	this->listenPort = listenPort;
 	this->tcpServer = new PkgTcpServer();
 	this->fdPortalMap = new std::map<int, Portal*> ();
-	this->portalsLock = new QMutex();
+	this->portalsLock = new GSMutex();
 	this->log = Logger::getInstance();
 	this->fdmax = 0;
 }

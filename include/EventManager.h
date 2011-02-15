@@ -31,7 +31,7 @@
 #include "Logger.h"
 #include "JobManager.h"
 
-#include <QtCore/QMutex>
+#include <GSThread.h>
 
 class EventSubscriber;
 class EventSubscription;
@@ -61,7 +61,7 @@ private:
 
 	Logger* log;
 
-	QMutex* subscriptionsLock;
+	GSMutex* subscriptionsLock;
 	std::list<EventSubscription*>* subscriptions;
 
 	/* Disable copy cstr and =operator */

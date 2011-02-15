@@ -32,7 +32,7 @@
 #include <string>
 #include <list>
 #include <map>
-#include <QtCore/QMutex>
+#include <GSThread.h>
 
 class AbstractClientCmd;
 
@@ -52,7 +52,7 @@ private:
 	ClientCmdRegistry();
 	Logger* log;
 
-	QMutex mapLock;
+	GSMutex mapLock;
 	std::map<std::string,AbstractClientCmd*>* cmdMap;
 
 	/* Disable copy cstr and =operator */

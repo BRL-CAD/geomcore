@@ -28,7 +28,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
-#include <QtCore/QMutexLocker>
+#include <GSThread.h>
 
 FileDataSource::FileDataSource(std::string repoPath) :
 	repoPath(repoPath)
@@ -128,7 +128,7 @@ FileDataSource::putObject(DbObject* obj)
 bool
 FileDataSource::hasPathLock(std::string path)
 {
-	QMutexLocker(&this->lockLock);
+	GSMutexLocker(&this->lockLock);
 	for(std::list<std::string>::iterator it = this->pathLocks.begin(); it!=this->pathLocks.end(); it++)
 		if( *it == path )
 			return true;
@@ -138,14 +138,14 @@ FileDataSource::hasPathLock(std::string path)
 void
 FileDataSource::setPathLock(std::string path)
 {
-	QMutexLocker(&this->lockLock);
+	GSMutexLocker(&this->lockLock);
 	if (!this->hasPathLock(path))
 		this->pathLocks.push_back(path);
 }
 
 void
 FileDataSource::remPathLock(std::string path) {
-	QMutexLocker(&this->lockLock);
+	GSMutexLocker(&this->lockLock);
 	this->pathLocks.push_back(path);
 }
 

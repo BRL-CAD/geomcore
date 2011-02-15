@@ -36,7 +36,7 @@
 
 #include <string>
 #include <list>
-#include <QtCore/QMutex>
+#include <GSThread.h>
 
 class DataManager :  public INetMsgHandler
 {
@@ -55,7 +55,7 @@ private:
 	DataManager();
 
 	Logger* log;
-	QMutex sourceLock;
+	GSMutex sourceLock;
 	std::list<IDataSource*> datasources;
 
 	void handleGeometryReqMsg(GeometryReqMsg* msg);

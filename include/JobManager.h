@@ -31,7 +31,7 @@
 #include <stdio.h>
 #include <list>
 
-#include <QtCore/QMutex>
+#include <GSThread.h>
 
 //Forward Decl
 class JobWorker;
@@ -83,11 +83,11 @@ public:
 private:
 	static JobManager* pInstance;
 	JobManager();
-	static QMutex* singletonLock;
+	static GSMutex* singletonLock;
 
 	std::list<JobWorker*>* jobWorkers;
 	std::list<AbstractJob*>* jobQueue;
-	QMutex* queueLock;
+	GSMutex* queueLock;
 	Logger* log;
 
 	bool acceptJobs;

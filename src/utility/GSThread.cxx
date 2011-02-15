@@ -94,6 +94,13 @@ GSThread::isRunning()
     return this->running;
 }
 
+GSMutex::GSMutex(){}
+GSMutex::~GSMutex(){}
+void GSMutex::lock(){}
+void GSMutex::unlock(){}
+GSMutexLocker::GSMutexLocker(GSMutex*){}
+GSMutexLocker::~GSMutexLocker(){}
+
 /*
  * Local Variables:
  * tab-width: 8
