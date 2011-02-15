@@ -40,7 +40,6 @@ public class Main {
 			public void run() {
 				MinimalGSClient cli = new MinimalGSClient();
 				cli.run();
-				System.out.println("Ping!!!");
 			}
 		});
 
