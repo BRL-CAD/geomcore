@@ -44,38 +44,43 @@ public class MinimalGSClientGUI extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = -839046331894878664L;
 
+	private final MinimalGSClient client;
 
 	/**
 	 * @throws HeadlessException
 	 */
-	public MinimalGSClientGUI() throws HeadlessException {
+	public MinimalGSClientGUI( MinimalGSClient client) throws HeadlessException {
 		this.commonCstr();
+		this.client = client;
 	}
 
 	/**
 	 * @param arg0
 	 */
-	public MinimalGSClientGUI(GraphicsConfiguration arg0) {
+	public MinimalGSClientGUI( MinimalGSClient client, GraphicsConfiguration arg0) {
 		super(arg0);
 		this.commonCstr();
+		this.client = client;
 	}
 
 	/**
 	 * @param arg0
 	 * @throws HeadlessException
 	 */
-	public MinimalGSClientGUI(String arg0) throws HeadlessException {
+	public MinimalGSClientGUI( MinimalGSClient client, String arg0) throws HeadlessException {
 		super(arg0);
 		this.commonCstr();
+		this.client = client;
 	}
 
 	/**
 	 * @param arg0
 	 * @param arg1
 	 */
-	public MinimalGSClientGUI(String arg0, GraphicsConfiguration arg1) {
+	public MinimalGSClientGUI( MinimalGSClient client, String arg0, GraphicsConfiguration arg1) {
 		super(arg0, arg1);
 		this.commonCstr();
+		this.client = client;
 	}
 
 	private void commonCstr() {
@@ -119,4 +124,13 @@ public class MinimalGSClientGUI extends JFrame implements ActionListener {
 		// TODO Auto-generated method stub
 		
 	}
+
+	/**
+	 * @return the client
+	 */
+	public final MinimalGSClient getClient() {
+		return client;
+	}
+	
+	
 }

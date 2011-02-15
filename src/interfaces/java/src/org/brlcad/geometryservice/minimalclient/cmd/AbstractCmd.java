@@ -22,6 +22,7 @@
  */
 package org.brlcad.geometryservice.minimalclient.cmd;
 
+import org.brlcad.geometryservice.GSJavaInterface;
 import org.brlcad.geometryservice.GSStatics;
 import org.brlcad.geometryservice.minimalclient.CmdConsolePanel;
 
@@ -44,7 +45,7 @@ public abstract class AbstractCmd {
 		this.cmdConsole = cmdConsole;
 	}
 
-	public abstract boolean doCmd(String[] args);
+	public abstract boolean doCmd(String[] args, GSJavaInterface gsji);
 
 	/**
 	 * @return the cmd

@@ -22,10 +22,8 @@
  */
 package org.brlcad.geometryservice.minimalclient;
 
-import java.net.InetAddress;
+import org.brlcad.geometryservice.GSJavaInterface;
 
-import org.brlcad.geometryservice.GSStatics;
-import org.brlcad.geometryservice.net.GSConnection;
 
 /**
  * @author david.h.loman
@@ -33,41 +31,25 @@ import org.brlcad.geometryservice.net.GSConnection;
  */
 public class MinimalGSClient {
 
-	private GSConnection conn;
 	private final MinimalGSClientGUI gui;
+	private final GSJavaInterface jgs;
 	
 	public MinimalGSClient() {
-		this.conn = null;
-		this.gui = new MinimalGSClientGUI();
+		this.gui = new MinimalGSClientGUI(this);
+		this.jgs = new GSJavaInterface();
 	}
 
-	
 	public final void run() {
 		//This call does NOT block.
 		this.gui.setVisible(true);
 	}
-	
-	public boolean connectToHost(InetAddress addy, short port, String uname, String passwd) {
 
-		if (this.conn != null) {
-			GSStatics.stdErr.println("There is already a Connection present.");
-			return false;
-		}
-
-		try {
-			this.conn = GSConnection.connectToHost(addy, port, uname, passwd);
-
-		} catch (Exception e) {
-			GSStatics.stdErr.println(e.getMessage());
-			return false;
-		}
-
-		if (this.conn == null) {
-			GSStatics.stdErr.println("Null GSConnection without throwing an error... odd.");
-			return false;
-		}
-
-		return true;
+	/**
+	 * @return the jgs
+	 */
+	public final GSJavaInterface getGSJavaInterface() {
+		return jgs;
 	}
+	
 
 }

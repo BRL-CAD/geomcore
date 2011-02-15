@@ -22,6 +22,7 @@
  */
 package org.brlcad.geometryservice.minimalclient.cmd;
 
+import org.brlcad.geometryservice.GSJavaInterface;
 import org.brlcad.geometryservice.minimalclient.CmdConsolePanel;
 
 /**
@@ -46,7 +47,7 @@ public class LoginCmd extends AbstractCmd {
 	 * .String[])
 	 */
 	@Override
-	public boolean doCmd(String[] args) {
+	public boolean doCmd(String[] args, GSJavaInterface gsji) {
 		
 		if (args.length < 4 || args.length > 5) {
 			this.printUsage();

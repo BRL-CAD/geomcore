@@ -24,6 +24,7 @@ package org.brlcad.geometryservice.minimalclient.cmd;
 
 import java.util.Set;
 
+import org.brlcad.geometryservice.GSJavaInterface;
 import org.brlcad.geometryservice.GSStatics;
 import org.brlcad.geometryservice.minimalclient.CmdConsolePanel;
 
@@ -49,7 +50,7 @@ public class HelpCmd extends AbstractCmd {
 	 * .String[])
 	 */
 	@Override
-	public boolean doCmd(String[] args) {
+	public boolean doCmd(String[] args, GSJavaInterface gsji) {
 
 		if (args.length <= 1) {
 			/* list ALL cmds */

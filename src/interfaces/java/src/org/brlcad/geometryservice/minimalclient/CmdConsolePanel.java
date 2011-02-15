@@ -42,6 +42,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
+import org.brlcad.geometryservice.GSJavaInterface;
 import org.brlcad.geometryservice.GSStatics;
 import org.brlcad.geometryservice.minimalclient.cmd.CmdManager;
 
@@ -57,40 +58,46 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 
 	private static final String DEFAULT_PROMPT = "gsMinClient> ";
 	private String prompt;
+	
+	private final MinimalGSClientGUI parentFrame;
 
 	/**
 	 * 
 	 */
-	public CmdConsolePanel(ActionListener actListener) {
-		this.commonCstr(actListener);
+	public CmdConsolePanel(MinimalGSClientGUI parentFrame) {
+		this.commonCstr();
+		this.parentFrame = parentFrame;
 	}
 
 	/**
 	 * @param arg0
 	 */
-	public CmdConsolePanel(ActionListener actListener, LayoutManager arg0) {
+	public CmdConsolePanel(MinimalGSClientGUI parentFrame, LayoutManager arg0) {
 		super(arg0);
-		this.commonCstr(actListener);
+		this.commonCstr();
+		this.parentFrame = parentFrame;
 	}
 
 	/**
 	 * @param arg0
 	 */
-	public CmdConsolePanel(ActionListener actListener, boolean arg0) {
+	public CmdConsolePanel(MinimalGSClientGUI parentFrame, boolean arg0) {
 		super(arg0);
-		this.commonCstr(actListener);
+		this.commonCstr();
+		this.parentFrame = parentFrame;
 	}
 
 	/**
 	 * @param arg0
 	 * @param arg1
 	 */
-	public CmdConsolePanel(ActionListener actListener, LayoutManager arg0, boolean arg1) {
+	public CmdConsolePanel(MinimalGSClientGUI parentFrame, LayoutManager arg0, boolean arg1) {
 		super(arg0, arg1);
-		this.commonCstr(actListener);
+		this.commonCstr();
+		this.parentFrame = parentFrame;
 	}
 
-	private final void commonCstr(ActionListener actListener) {
+	private final void commonCstr() {
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		Border myBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
 		
@@ -124,7 +131,9 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 
 		if (source == this.cmdLine) {
 			String cmd = this.cmdLine.getText().replace(this.prompt, "");
-			CmdManager.parseCmd(cmd, this);
+			
+			GSJavaInterface gsji = this.parentFrame.getClient().getGSJavaInterface();
+			CmdManager.parseCmd(cmd, this, gsji);
 			this.cmdLine.setText(this.prompt);
 		}
 	}

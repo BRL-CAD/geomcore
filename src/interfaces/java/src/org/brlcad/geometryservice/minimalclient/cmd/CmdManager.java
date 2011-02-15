@@ -25,6 +25,7 @@ package org.brlcad.geometryservice.minimalclient.cmd;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.brlcad.geometryservice.GSJavaInterface;
 import org.brlcad.geometryservice.GSStatics;
 import org.brlcad.geometryservice.minimalclient.CmdConsolePanel;
 
@@ -36,7 +37,7 @@ public class CmdManager {
 
 	private static final HashMap<String, AbstractCmd> cmdMap = new HashMap<String, AbstractCmd>();
 
-	public static final void parseCmd(String line, CmdConsolePanel console) {
+	public static final void parseCmd(String line, CmdConsolePanel console, GSJavaInterface gsji) {
 
 		/* Id-10-T check */
 		if (line.length() < 1)
@@ -53,7 +54,7 @@ public class CmdManager {
 		AbstractCmd aCmd = CmdManager.getCmdByName(cmdStr);
 
 		if (aCmd != null) {
-			aCmd.doCmd(cmdStack);
+			aCmd.doCmd(cmdStack, gsji);
 			// TODO handle boolean return val?
 			console.printLnToConsole("\n", CmdConsolePanel.STYLE_RED);
 			return;
