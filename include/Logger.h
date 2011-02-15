@@ -28,10 +28,7 @@
 
 #include <iostream>
 #include <stdint.h>
-#include <QtCore/QThread>
 #include <string>
-#include <QtCore/QMutex>
-#include <QtCore/QMutexLocker>
 
 class Logger
 {

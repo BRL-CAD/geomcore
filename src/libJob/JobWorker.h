@@ -30,16 +30,16 @@
 //TODO Move this to preferences.
 #define MAX_JOBWORKERS 5
 
-#include <QtCore/QThread>
 #include <string>
 
+#include "GSThread.h"
 #include "GSUuid.h"
 
 enum JobWorkerStatus {
 	WORKER_NOTREADY, WORKER_READY, WORKER_WORKING
 };
 
-class JobWorker : public QThread {
+class JobWorker : public GSThread {
 public:
 	/**
 	 * Standard Constructor.  Instantiates a new JobWorker with a unique ID.
@@ -48,7 +48,7 @@ public:
 	virtual ~JobWorker();
 
 	/**
-	 * Override of QThread.run(). Starts JobWorker execution.
+	 * Override of GSThread.run(). Starts JobWorker execution.
 	 */
 	void run();
 

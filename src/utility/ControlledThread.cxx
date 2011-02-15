@@ -41,7 +41,7 @@ void ControlledThread::start() {
 	bool preRetVal = this->preStartupHook();
 	GSThread::start(); /* call super class start */
 	bool postRetVal = this->postStartupHook();
-	GSThread::msleep(100);
+	usleep(100000);
 }
 
 void
@@ -57,7 +57,7 @@ ControlledThread::shutdown(bool block) {
 		std::cout << "Tripped " << this->threadName << "::terminate's failsafe." << std::endl;
 	}
 	bool postRetVal = this->postShutdownHook();
-	GSThread::msleep(10);
+	usleep(10000);
 }
 
 void
@@ -84,7 +84,7 @@ void ControlledThread::_run() {
 
 void ControlledThread::_runLoopPass() {
 	/* DOES NOTHING BY DEFAULT */
-	GSThread::msleep(1);
+	usleep(100);
 }
 
 /**

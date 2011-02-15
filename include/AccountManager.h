@@ -34,6 +34,8 @@
 #include <string>
 #include <list>
 
+#include <QtCore/QMutex>
+
 class AccountManager
 {
 public:

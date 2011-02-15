@@ -28,9 +28,9 @@
 
 #include "libutility.h"
 
-#include <QtCore/QThread>
+#include "GSThread.h"
 
-class BaseApp : public QThread
+class BaseApp : public GSThread
 {
 public:
     BaseApp();

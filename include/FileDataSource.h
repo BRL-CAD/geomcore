@@ -28,6 +28,9 @@
 
 #include "IDataSource.h"
 
+#include <string>
+#include <list>
+
 #include <QtCore/QMutex>
 
 class FileDataSource : public IDataSource

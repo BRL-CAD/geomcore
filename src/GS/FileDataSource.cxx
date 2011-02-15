@@ -24,7 +24,6 @@
  */
 
 #include "FileDataSource.h"
-#include "GSThread.h"
 
 #include <fcntl.h>
 #include <sys/stat.h>

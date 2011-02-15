@@ -89,7 +89,7 @@ void Logger::log(const char *lvl, std::string origin, std::string string) {
 		string.c_str(), lvl[1]=='B'?"=======":"");
 	buf[25] = ' ';	// eliminate the newline from ctime()
 
-	bu_log(buf);
+	bu_log("%s", buf);
     }
 }
 

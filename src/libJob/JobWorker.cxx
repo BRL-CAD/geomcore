@@ -51,7 +51,7 @@ void JobWorker::run()
     	this->status = WORKER_READY;
     	if (!jm->hasNextJob()) {
     		//TODO put the 100ms sleep into preferences, or make it dynamic.
-    		this->msleep(100);
+    		usleep(100000);
 
     	} else {
     		this->status = WORKER_WORKING;

@@ -26,6 +26,8 @@
 
 #include "GSThread.h"
 
+#include <string>
+
 #include <QtCore/QMutex>
 
 class ControlledThread : public GSThread

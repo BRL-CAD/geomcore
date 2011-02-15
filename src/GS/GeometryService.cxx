@@ -88,7 +88,7 @@ GeometryService::_run() {
 	this->portalMan->start();
 
 	while (this->getRunCmd() == true) {
-		this->msleep(50);
+		usleep(50000);
 	}
 
 	this->portalMan->shutdown(true);
