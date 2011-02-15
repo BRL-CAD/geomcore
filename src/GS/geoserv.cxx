@@ -75,20 +75,25 @@ int main(int argc, char* argv[])
     log->logBANNER("geoserv", "Booting GeometryService: " + localNodeName);
 
     std::string sPort = c->getConfigValue("ListenPort");
+    uint16_t port = 0;
+
     if (sPort.length() == 0){
-    	log->logERROR("geoserv", "Config File does not contain a 'ListenPort' parameter");
-    	gsExit(1);
-    }
-    if (sPort.length() <= 0){
-    	log->logERROR("geoserv", "Config File contains a 'ListenPort' key, however the value length was <= 0.");
-    	gsExit(1);
+    	log->logERROR("geoserv", "Config File does not contain a 'ListenPort' parameter, using default");
+    	port = DEFAULT_LISTEN_PORT;
+    } else {
+	if (sPort.length() <= 0){
+	    log->logERROR("geoserv", "Config File contains a 'ListenPort' key, however the value length was <= 0.");
+	    gsExit(1);
+	}
+
+	port = atoi(sPort.c_str());
+
+	if (port < 1){
+	    log->logERROR("geoserv", "Config File contains a 'ListenPort' key, however the value failed to parse to a valid number.");
+	    return 1;
+	}
     }
 
-    int port = atoi(sPort.c_str());
-    if ( port & !0xffff){
-    	log->logERROR("geoserv", "Config File contains a 'ListenPort' key, however the value failed to parse to a valid number.");
-    	return 1;
-    }
 
 
     GeometryService gs (localNodeName, port);
