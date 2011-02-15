@@ -22,6 +22,7 @@
  */
 package org.brlcad.geometryservice.minimalclient.cmd;
 
+import org.brlcad.geometryservice.GSStatics;
 import org.brlcad.geometryservice.minimalclient.CmdConsolePanel;
 
 /**
@@ -52,6 +53,28 @@ public abstract class AbstractCmd {
 		return cmd;
 	}
 
+	public void printUsage() {
+		String out = GSStatics.tab2x + "Usage:";
+		this.cmdConsole.printToConsole(out, CmdConsolePanel.STYLE_BLUE_BOLD);
+
+		out = GSStatics.tab + this.getUsage() ;
+		this.cmdConsole.printLnToConsole(out, CmdConsolePanel.STYLE_BLUE);
+	}
+	
+	public void printHelp() {
+		String out = GSStatics.tab2x + "Help: " + GSStatics.tab;
+		this.cmdConsole.printToConsole(out, CmdConsolePanel.STYLE_BLUE_BOLD);
+
+		out = GSStatics.tab + this.getHelp();
+		this.cmdConsole.printToConsole(out, CmdConsolePanel.STYLE_BLUE);
+
+	}
+	
+	public void printUsageAndHelp() {
+		this.printUsage();
+		this.printHelp();
+	}
+	
 	public abstract String getHelp();
 	public abstract String getUsage();
 
