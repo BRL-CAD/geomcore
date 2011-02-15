@@ -26,7 +26,7 @@
 #include "Portal.h"
 #include "PortalManager.h"
 #include "Logger.h"
-#include "brlcad/bu.h"
+#include "bu.h"
 #include "NetMsgFactory.h"
 #include "NetMsgTypes.h"
 #include "NetMsgRouter.h"

@@ -33,7 +33,7 @@
 #include "NetMsg.h"
 #include "Logger.h"
 
-#include "brlcad/pkg.h"
+#include "pkg.h"
 
 #include <string>
 

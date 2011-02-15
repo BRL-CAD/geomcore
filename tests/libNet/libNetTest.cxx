@@ -23,7 +23,7 @@
  *
  */
 
-#include "brlcad/bu.h"
+#include "bu.h"
 
 #include "Logger.h"
 #include "NetMsg.h"
@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
 		pm.start();
 
 		/* listen for a loooong time. */
-		GSThread::sleep(60 * 60); /* 1 hr */
+		sleep(60 * 60); /* 1 hr */
 		logInfo("Shutting down...");
 		pm.shutdown();
 
@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
 		PortalManager pm("TestClient");
 		pm.start();
 
-		GSThread::sleep(2);
+		sleep(2);
 
 		s = "Trying to connect to ";
 		s.append(ip.c_str());
@@ -162,23 +162,23 @@ int main(int argc, char* argv[]) {
 		Portal* p = pm.connectToHost(ip, port);
 
 		if (p != 0) {
-			GSThread::sleep(3);
+			sleep(3);
 			TypeOnlyMsg tom(RUALIVE);
 			p->send(&tom);
-			GSThread::sleep(2);
+			sleep(2);
 			logInfo("Disconnecting...");
 			p->disconnect();
 		}
 
-		GSThread::sleep(2);
+		sleep(2);
 		logInfo("Shutting down Portal Manager...");
 		pm.shutdown();
 	}
 
-	GSThread::sleep(1);
+	sleep(1);
 	logInfo("Shutting down JobManager...");
 	JobManager::getInstance()->shutdown(true);
-	GSThread::sleep(1);
+	sleep(1);
 	return 0;
 }
 /*

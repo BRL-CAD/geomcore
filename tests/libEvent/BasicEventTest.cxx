@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 {
     JobManager* jMan = JobManager::getInstance();
     jMan->startup();
-    GSThread::usleep(100);//Give the JobWorkers a chance to init.
+    usleep(100);//Give the JobWorkers a chance to init.
 
     EventManager* eMan = EventManager::getInstance();
     Logger* log = Logger::getInstance();
@@ -116,39 +116,39 @@ int main(int argc, char* argv[])
     eMan->subscribe(&tSub01, 100, ALL_EVENT_PUBLISHERS);
     tPubA.generateEvent02();
 
-    GSThread::sleep(1);
+    sleep(1);
     log->logBANNER("BasicEventTest", "Testing Subscription Unsubscribe");
     eMan->unsubscribe(&tSub01, 100, ALL_EVENT_PUBLISHERS);
     tPubA.generateEvent02();
 
-    GSThread::sleep(1);
+    sleep(1);
     log->logBANNER("BasicEventTest", "All Publishers, Subscriber 01(Event #100)");
     eMan->subscribe(&tSub01, 100, ALL_EVENT_PUBLISHERS);
     tPubA.generateEventSequence();
 
-    GSThread::sleep(1);
+    sleep(1);
     log->logBANNER("BasicEventTest", "All Publishers, Subscriber 02(Event #100)");
     eMan->subscribe(&tSub02, 100, ALL_EVENT_PUBLISHERS);
     tPubA.generateEventSequence();
 
-    GSThread::sleep(1);
+    sleep(1);
     log->logBANNER("BasicEventTest", "Publisher A, Subscriber 02(Event# 101)");
     eMan->subscribe(&tSub02, 101, &tPubA);
     tPubA.generateEventSequence();
     tPubB.generateEventSequence();
 
-    GSThread::sleep(3);
+    sleep(3);
     jMan->shutdown();
     return 0;
 
-    GSThread::sleep(1);
+    sleep(1);
     log->logBANNER("BasicEventTest", "Publisher B, Subscriber 03(All Events)");
     eMan->subscribe(&tSub03, ALL_EVENT_TYPES, &tPubB);
 
     tPubA.generateEventSequence();
     tPubB.generateEventSequence();
 
-    GSThread::sleep(1);
+    sleep(1);
     log->logBANNER("BasicEventTest", "DONE");
 
     jMan->shutdown();

@@ -39,7 +39,7 @@ PrintToStdOutJob::~PrintToStdOutJob()
 
 JobResult PrintToStdOutJob::_doJob()
 {
-	GSThread::usleep(2500);
+	usleep(2500);
     QMutexLocker(this->streamLock);
     std::cout << "JobID:" << this->jobID << " Text: "<< text;
     return JOB_COMPLETED_NO_ERRORS;

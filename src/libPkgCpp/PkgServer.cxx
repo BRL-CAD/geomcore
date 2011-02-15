@@ -23,8 +23,8 @@
  */
 
 #include "PkgServer.h"
-#include "brlcad/bu.h"
-#include "brlcad/pkg.h"
+#include "bu.h"
+#include "pkg.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>

@@ -32,6 +32,8 @@
 #include <string>
 #include <list>
 
+#include <bu.h>
+
 class Config
 {
 public:
@@ -53,7 +55,6 @@ private:
 			std::string replace);
 
 	Logger* log;
-	QMutex mapLock;
 	std::map<std::string, std::string>* configMap;
 
 	static Config* pInstance;

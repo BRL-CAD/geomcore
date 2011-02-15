@@ -28,7 +28,7 @@
 
 #include "NetMsg.h"
 
-#include "brlcad/pkg.h"
+#include "pkg.h"
 
 #include "ByteArray.h"
 #include <string>

@@ -27,7 +27,7 @@
 
 #include "pkgcppcommon.h"
 
-#include "brlcad/pkg.h"
+#include "pkg.h"
 
 #include <stdio.h>
 #include <iostream>

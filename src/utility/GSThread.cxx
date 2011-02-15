@@ -44,24 +44,6 @@ GSThread::terminate()
 }
 
 void
-GSThread::sleep(unsigned long secs)
-{
-  sleep(secs);
-}
-
-void
-GSThread::msleep(unsigned long msecs)
-{
-  usleep(1000 * msecs);
-}
-
-void
-GSThread::usleep(unsigned long usecs)
-{
-  usleep(usecs);
-}
-
-void
 GSThread::addThread(GSThread* thread)
 {
     GSThread::threads.push_back(thread);

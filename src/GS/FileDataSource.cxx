@@ -61,7 +61,7 @@ FileDataSource::getByPath(std::string path)
 
 	//TODO failsafe this loop!
 	while (hasLock) {
-		GSThread::msleep(567);
+		usleep(567000);
 		hasLock = this->hasPathLock(path);
 	}
 
@@ -108,7 +108,7 @@ FileDataSource::putObject(DbObject* obj)
 
 	//TODO failsafe this loop!
 	while (hasLock) {
-		GSThread::msleep(567);
+		usleep(567000);
 		hasLock = this->hasPathLock(path);
 	}
 

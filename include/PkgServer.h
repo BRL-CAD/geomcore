@@ -25,7 +25,7 @@
 #ifndef __PKGSERVER_H__
 #define __PKGSERVER_H__
 
-#include "brlcad/pkg.h"
+#include "pkg.h"
 #include "pkgcppcommon.h"
 #include "PkgClient.h"
 

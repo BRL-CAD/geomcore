@@ -35,10 +35,6 @@ public:
   GSThread();
   virtual ~GSThread();
 
-  static void sleep (unsigned long secs);
-  static void msleep (unsigned long msecs);
-  static void usleep (unsigned long usecs);
-
   void terminate();
 
 protected:

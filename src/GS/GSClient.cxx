@@ -36,7 +36,7 @@ GSClient::GSClient(std::string localNodeName) {
 
 	this->portMan = new PortalManager(localNodeName);
 	this->portMan->start();
-	GSThread::msleep(100);
+	usleep(100000);
 
 	this->registerMsgRoutes();
 }

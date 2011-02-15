@@ -23,8 +23,8 @@
  *
  */
 
-#include "brlcad/bu.h"
-#include "brlcad/pkg.h"
+#include "bu.h"
+#include "pkg.h"
 
 #include "PkgTcpServer.h"
 #include "PkgTcpClient.h"

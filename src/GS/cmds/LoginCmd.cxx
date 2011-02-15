@@ -82,7 +82,7 @@ LoginCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
 	}
 
 	/* Give the Portal some time to handshake. */
-	GSThread::msleep(100);
+	usleep(100000);
 
 	client->setCurrentPortal(p);
 
@@ -90,7 +90,7 @@ LoginCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
 	NewSessionReqMsg nsrm(uname, passwd);
 	p->send(&nsrm);
 
-	GSThread::msleep(100);
+	usleep(100000);
 
 	std::string remNodename = p->getRemoteNodeName();
 	this->log->logINFO("LoginCmd", "Connected to: '" + remNodename+ "'.");

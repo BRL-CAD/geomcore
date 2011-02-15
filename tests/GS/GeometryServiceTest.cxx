@@ -64,7 +64,7 @@ public:
 
     bool stillRunning() const
     {
-        GSThread::sleep(1);
+        sleep(1);
         std::cout << "\tGS:" << this->gs << std::endl;
 
     	if (this->gs == NULL)
@@ -72,7 +72,7 @@ public:
 
     	bool isRun = this->gs->isRunning();
 
-    	GSThread::sleep(1);
+    	sleep(1);
         std::cout << "\tisRun "<< isRun << std::endl;
 
 
@@ -104,7 +104,7 @@ public:
     	}
 
     	this->gs->shutdown();
-    	GSThread::msleep(100);
+    	usleep(100000);
     	delete this->gs;
     }
 };
@@ -531,30 +531,30 @@ int main(int ac, char *av[])
     REQUIREMENT("Server restarts");
 
     gs->stop();
-    GSThread::sleep(1);
+    sleep(1);
     std::cout << "\t1\n";
 
     GAS(!gs->stillRunning(), "Server shutting down");
-    GSThread::sleep(1);
+    sleep(1);
     std::cout << "\t2\n";
 
     gc->connect();
-    GSThread::sleep(1);
+    sleep(1);
     std::cout << "\t3\n";
 
     GAS(!gc->connected(), "Client prevented from connecting");
-    GSThread::sleep(1);
+    sleep(1);
     std::cout << "\t4\n";
 
     gs->start();
-    GSThread::sleep(1);
+    sleep(1);
     std::cout << "\t5\n";
 
 
     RESULT();
 
 /* cleanup */
-GSThread::msleep(1000 * 3);
+usleep(1000 * 1000 * 3);
 gs->stop();
 
 //TODO BOOKMARK

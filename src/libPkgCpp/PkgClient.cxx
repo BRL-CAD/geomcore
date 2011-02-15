@@ -22,7 +22,7 @@
  *
  */
 #include "PkgClient.h"
-#include "brlcad/bu.h"
+#include "bu.h"
 #include <string.h>
 
 //TODO Need a path for a callback table to get to this

@@ -28,8 +28,6 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include <QtCore/QMutexLocker>
-
 Config* Config::pInstance = NULL;
 
 Config::Config()
@@ -106,15 +104,14 @@ void Config::removeAllOccurances(std::string* data, std::string search, std::str
 
 std::string Config::getConfigValue(std::string key)
 {
-	QMutexLocker(&this->mapLock);
-    return this->configMap->find(key)->second + "";
+    std::string ret = this->configMap->find(key)->second + "";
+    return ret;
 }
 
 void
 Config::updateValue(std::string key, std::string value)
 {
-	QMutexLocker(&this->mapLock);
-	this->configMap->insert(std::pair<std::string,std::string>(key, value));
+    this->configMap->insert(std::pair<std::string,std::string>(key, value));
 }
 
 std::list<std::string>* Config::getAllKeys()
@@ -122,7 +119,6 @@ std::list<std::string>* Config::getAllKeys()
 	std::list<std::string>* l = new std::list<std::string>();
 	std::map<std::string, std::string>::iterator it;
 
-	QMutexLocker(&this->mapLock);
 	for(it=configMap->begin() ; it != configMap->end(); it++) {
 		std::string s = it->first;
 		l->push_back(s);

@@ -20,7 +20,6 @@
 
 #include "JobManager.h"
 #include "JobWorker.h"
-#include "GSThread.h"
 
 #include <iostream>
 #include <list>
@@ -91,7 +90,7 @@ void JobManager::shutdown(bool finishJobQueue) {
 	while (this->jobQueue->size() != 0 && finishJobQueue) {
 		snprintf(buf, BUFSIZ, "Waiting for JobWorkers to process JobQueue. %d items remain...", (int)this->jobQueue->size());
 		this->log->logINFO("JobManager", buf);
-		GSThread::sleep(waitTimePerLoopSecs);
+		sleep(waitTimePerLoopSecs);
 		++curPasses;
 		if (curPasses >= maxPasses) {
 			this->log->logINFO("JobManager",

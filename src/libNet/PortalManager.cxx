@@ -22,7 +22,7 @@
  * Brief description
  *
  */
-#include "brlcad/bu.h"
+#include "bu.h"
 #include "Portal.h"
 #include "PortalManager.h"
 #include "NetMsgFactory.h"
