@@ -62,8 +62,11 @@ bool Config::loadFile(std::string pathAndFileName, bool verbose)
     }
 
     while (!feof(f)) {
-	if(fgets(buf, BUFSIZ, f) == NULL)
-	    log->logINFO("Config", std::string("Error reading file: ") + strerror(errno));
+	if(fgets(buf, BUFSIZ, f) == NULL) {
+	    if (!feof(f))
+		log->logINFO("Config", std::string("Error reading file: ") + strerror(errno));
+	    break;
+	}
 	if(*buf == '#')
 	    continue;
 
