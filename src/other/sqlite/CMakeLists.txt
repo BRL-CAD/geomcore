@@ -61,3 +61,5 @@ ENDIF(BUILD_STATIC_LIBS)
 add_executable(sqlite shell.c)
 target_link_libraries(sqlite libsqlite3)
 install(TARGETS sqlite DESTINATION bin)
+
+SET(SQLITE3_LIBRARIES libsqlite3 CACHE STRING "sqlite lib")

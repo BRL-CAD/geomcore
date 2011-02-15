@@ -131,6 +131,9 @@ ELSE(CMAKE_BUILD_TYPE)
 	OPTION(BUILD_STATIC_LIBS "Build static libraries" ON)
 ENDIF(CMAKE_BUILD_TYPE)
 
+# Enable/disable Subversion related build (default off)
+OPTION(BUILD_SVN_TARGETS "Build subversion related code" OFF)
+
 # We need BRL-CAD
 find_package(BRLCAD REQUIRED)
 

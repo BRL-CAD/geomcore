@@ -5,11 +5,11 @@ ENDIF(COMMAND CMAKE_POLICY)
 
 PROJECT(SUBVERSION)
 
-SET(CMAKE_MODULE_PATH "${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/CMake;${CMAKE_MODULE_PATH}")
+SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake;${CMAKE_MODULE_PATH}")
 
-INCLUDE(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/CMake/SVN_CheckFunctions.cmake)
+INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/CMake/SVN_CheckFunctions.cmake)
 
-SET(SVN_CONFIG_H_FILE "${${CMAKE_PROJECT_NAME}_BINARY_DIR}/include/svn_private_config.h.in")
+SET(SVN_CONFIG_H_FILE "${CMAKE_CURRENT_BINARY_DIR}/include/svn_private_config.h.in")
 FILE(WRITE ${SVN_CONFIG_H_FILE} "/**** Define statements for Subversion ****/\n")
 
 # Define some basic info
@@ -112,7 +112,7 @@ OPTION(BUILD_SHARED_LIBS "Build shared libraries" ON)
 # build static libs by default
 OPTION(BUILD_STATIC_LIBS "Build static libraries" ON)
 
-INCLUDE(${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/CMake/ThirdParty.cmake)
+INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/CMake/ThirdParty.cmake)
 
 find_package(ZLIB)
 find_package(EXPAT)
@@ -154,16 +154,16 @@ SET(SVN_CONF_H_ENDING "
 FILE(APPEND ${SVN_CONFIG_H_FILE} "${SVN_CONF_H_ENDING}")
 
 include_directories(
-	${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/include
-	${${CMAKE_PROJECT_NAME}_BINARY_DIR}/include
-	${${CMAKE_PROJECT_NAME}_SOURCE_DIR}/include/private
+	${CMAKE_CURRENT_SOURCE_DIR}/include
+	${CMAKE_CURRENT_BINARY_DIR}/include
+	${CMAKE_CURRENT_SOURCE_DIR}/include/private
 	${APR_INCLUDE_DIR}
 	${APU_INCLUDE_DIR}
 	${ZLIB_INCLUDE_DIRS}
 )
 
 # Now that all the tests are done, configure the svn_private_config.h file:
-configure_file(${SVN_CONFIG_H_FILE} ${${CMAKE_PROJECT_NAME}_BINARY_DIR}/include/svn_private_config.h)
+configure_file(${SVN_CONFIG_H_FILE} ${CMAKE_CURRENT_BINARY_DIR}/include/svn_private_config.h)
 
 ADD_SUBDIRECTORY(libsvn_subr)
 ADD_SUBDIRECTORY(libsvn_delta)
@@ -181,6 +181,5 @@ ADD_SUBDIRECTORY(libsvn_client)
 ADD_SUBDIRECTORY(svnserve)
 ADD_SUBDIRECTORY(svnadmin)
 ADD_SUBDIRECTORY(svn)
-ADD_SUBDIRECTORY(svntest)
 ADD_SUBDIRECTORY(svnstress)
 

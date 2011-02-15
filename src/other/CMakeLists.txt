@@ -27,4 +27,7 @@
 ##########################################################################
 
 ADD_SUBDIRECTORY(sqlite)
+IF(BUILD_SVN_TARGETS)
+	ADD_SUBDIRECTORY(subversion)
+ENDIF(BUILD_SVN_TARGETS)
 ADD_SUBDIRECTORY(uuid)
