@@ -31,8 +31,9 @@
 #define MAX_JOBWORKERS 5
 
 #include <QtCore/QThread>
-#include <QtCore/QUuid>
 #include <string>
+
+#include "GSUuid.h"
 
 enum JobWorkerStatus {
 	WORKER_NOTREADY, WORKER_READY, WORKER_WORKING
@@ -64,7 +65,7 @@ public:
 	/**
 	 * Gets the UUID of the JobWorker.
 	 */
-	QUuid getWorkerId();
+	GSUuid* getWorkerId();
 
 	/**
 	 * Gets the UUID of the JobWorker as a STL string.
@@ -80,7 +81,7 @@ private:
 	Logger* log;
 	JobWorkerStatus status;
 	bool runCmd;
-	QUuid workerId;
+	GSUuid* workerId;
 };
 
 #endif

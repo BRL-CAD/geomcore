@@ -206,7 +206,7 @@ int main(int argc, char* argv[]) {
 	RemoteNodenameSetMsg msg142(&msg141, "RogerRamJet");
 	testMsg(&msg142, "RemoteNodenameSetMsg-Reply");
 
-	QUuid uuid = QUuid::createUuid();
+	GSUuid* uuid = GSUuid::createUuid();
 
 	/* Test Normal */
 	SessionInfoMsg msg151(uuid);

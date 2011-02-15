@@ -44,7 +44,7 @@ public:
     bool handleNetMsg(NetMsg* msg);
 
     Session* getSession(Account* a);
-    Session* getSession(QUuid sessID);
+    Session* getSession(GSUuid* sessID);
     Session* getSession(Portal* p);
 
 private:

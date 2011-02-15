@@ -90,7 +90,7 @@ FileDataSource::getByPath(std::string path)
 }
 
 DbObject*
-FileDataSource::getByID(QUuid id)
+FileDataSource::getByID(GSUuid* id)
 {
 	return NULL;
 }

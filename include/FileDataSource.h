@@ -41,7 +41,7 @@ public:
 	bool unlock(DbObject* obj);
 
 	DbObject* getByPath(std::string path);
-	DbObject* getByID(QUuid id);
+	DbObject* getByID(GSUuid* id);
 	bool putObject(DbObject* obj);
 
 private:

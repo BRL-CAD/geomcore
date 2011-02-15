@@ -71,9 +71,9 @@ SessionManager::getSession(Account* a) {
 	return NULL;
 }
 
-//TODO need to verify the QUuid == QUuid works.
+//TODO need to verify the GSUuid* == GSUuid* works.
 Session*
-SessionManager::getSession(QUuid sessID) {
+SessionManager::getSession(GSUuid* sessID) {
 	QMutexLocker locker(&this->listLock);
 	for (std::list<Session*>::iterator it=sessionList.begin(); it!=sessionList.end(); it++)
 		if ((*it)->getSessionID() == sessID)

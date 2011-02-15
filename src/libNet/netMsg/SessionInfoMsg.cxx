@@ -29,12 +29,12 @@
 #include <sstream>
 
 /* Normal Constructor */
-SessionInfoMsg::SessionInfoMsg(QUuid sessionID) :
+SessionInfoMsg::SessionInfoMsg(GSUuid* sessionID) :
     NetMsg(SESSIONINFO), sessionID(sessionID)
 {}
 
 /* Reply Constructor */
-SessionInfoMsg::SessionInfoMsg(NetMsg* msg, QUuid sessionID) :
+SessionInfoMsg::SessionInfoMsg(NetMsg* msg, GSUuid* sessionID) :
 	NetMsg(SESSIONINFO, msg), sessionID(sessionID)
 {}
 
@@ -42,7 +42,7 @@ SessionInfoMsg::SessionInfoMsg(NetMsg* msg, QUuid sessionID) :
 SessionInfoMsg::SessionInfoMsg(DataStream* ds, Portal* origin) :
     NetMsg(ds, origin)
 {
-    this->sessionID = *DataStreamUtils::getQUuid(ds);
+    this->sessionID = DataStreamUtils::getGSUuid(ds);
 }
 
 /* Destructor */
@@ -51,7 +51,7 @@ SessionInfoMsg::~SessionInfoMsg()
 
 bool SessionInfoMsg::_serialize(DataStream* ds)
 {
-    DataStreamUtils::putQUuid(ds, this->sessionID);
+    DataStreamUtils::putGSUuid(ds, this->sessionID);
     return true;
 }
 
@@ -61,7 +61,7 @@ std::string SessionInfoMsg::toString()
 
     out.append(NetMsg::toString());
     out.append("\t  SessionID: ");
-    out.append(this->sessionID.toString().toStdString());
+    out.append(this->sessionID->toString());
 
     return out;
 }
@@ -80,7 +80,7 @@ bool SessionInfoMsg::_equals(const NetMsg& msg)
 /*
  *Getters n Setters
  */
-QUuid SessionInfoMsg::getSessionID()
+GSUuid* SessionInfoMsg::getSessionID()
 {
     return this->sessionID;
 }

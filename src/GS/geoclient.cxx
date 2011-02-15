@@ -26,7 +26,6 @@
 #include "GSClient.h"
 #include "GSCmdLineClient.h"
 #include "Config.h"
-#include <QtCore/QUuid>
 
 int gsExit(int code)
 {

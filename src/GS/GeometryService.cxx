@@ -119,7 +119,7 @@ GeometryService::handleNetMsg(NetMsg* msg)
 			FailureMsg* fMsg = (FailureMsg*)msg;
 			uint8_t fc = fMsg->getFailureCode();
 
-			QUuid re = fMsg->getReUUID();
+			GSUuid re = fMsg->getReUUID();
 
 			snprintf(buf, BUFSIZ, "Recv'ed A FailureMsg with code: %d (%x)", fc, fc);
 			log->logINFO("GeometryService", buf);

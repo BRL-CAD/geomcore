@@ -30,7 +30,7 @@ DbObject::DbObject(std::string path, ByteArray* data) :
 	path(path), id(NULL), data(data)
 {}
 
-DbObject::DbObject(QUuid id, ByteArray* data) :
+DbObject::DbObject(GSUuid* id, ByteArray* data) :
 	path(""), id(id), data(data)
 {}
 
@@ -43,7 +43,7 @@ DbObject::getPath()
 	return this->path;
 }
 
-QUuid
+GSUuid*
 DbObject::getID()
 {
 	return this->id;

@@ -32,10 +32,10 @@
 #include "GeometryReqMsg.h"
 #include "GeometryChunkMsg.h"
 #include "Logger.h"
+#include "GSUuid.h"
 
 #include <string>
 #include <list>
-#include <QtCore/QUuid>
 #include <QtCore/QMutex>
 
 class DataManager :  public INetMsgHandler
@@ -46,7 +46,7 @@ public:
     bool handleNetMsg(NetMsg* msg);
 
 	std::string getDbObjectByURL(std::string url);
-	std::string getDbObjectByUUID(QUuid& uuid);
+	std::string getDbObjectByUUID(GSUuid* uuid);
 
 	void addDataSource(IDataSource* source);
 

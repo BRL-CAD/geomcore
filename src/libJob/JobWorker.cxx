@@ -32,7 +32,7 @@ JobWorker::JobWorker()
 {
     this->status = WORKER_NOTREADY;
     this->runCmd = true;
-    this->workerId = QUuid::createUuid();
+    this->workerId = GSUuid::createUuid();
     this->log = Logger::getInstance();
 }
 
@@ -82,14 +82,14 @@ JobWorkerStatus JobWorker::getStatus()
     return this->status;
 }
 
-QUuid JobWorker::getWorkerId()
+GSUuid* JobWorker::getWorkerId()
 {
     return this->workerId;
 }
 
 std::string JobWorker::getWorkerIdAsString()
 {
-    return this->getWorkerId().toString().toStdString();
+    return this->getWorkerId()->toString();
 }
 
 void JobWorker::shutdown()

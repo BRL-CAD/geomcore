@@ -31,8 +31,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <DataStream.h>
-#include <QtCore/QUuid>
+#include "DataStream.h"
+#include "GSUuid.h"
 
 #include "ByteArray.h"
 
@@ -61,9 +61,9 @@ public:
 	 *Getters n Setters
 	 */
 	uint16_t getMsgType() const;
-	QUuid getMsgUUID() const;
+	GSUuid *getMsgUUID() const;
 	bool msgHasReUUID() const;
-	QUuid getReUUID() const;
+	GSUuid *getReUUID() const;
 	Portal* getOrigin() const;
 
 	/*
@@ -78,9 +78,9 @@ public:
 
 protected:
 	uint16_t msgType;
-	QUuid msgUUID;
+	GSUuid *msgUUID;
 	bool hasReUUID;
-	QUuid reUUID;
+	GSUuid *reUUID;
 	Portal* origin;
 
 	virtual bool _serialize(DataStream* ds) = 0;

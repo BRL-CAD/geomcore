@@ -28,23 +28,23 @@
 #define __DBOBJECT_H__
 
 #include <string>
-#include <QtCore/QUuid>
 #include <ByteArray.h>
+#include "GSUuid.h"
 
 class DbObject
 {
 public:
 	DbObject(std::string path, ByteArray* data);
-	DbObject(QUuid id, ByteArray* data);
+	DbObject(GSUuid* id, ByteArray* data);
 	virtual ~DbObject();
 
 	std::string getPath();
-	QUuid getID();
+	GSUuid* getID();
 	ByteArray* getData();
 
 private:
 	std::string path;
-	QUuid id;
+	GSUuid* id;
 	ByteArray* data;
 
 	/* Disable copy cstr and =operator */

@@ -44,7 +44,7 @@ DataManager::~DataManager()
 std::string DataManager::getDbObjectByURL(std::string url)
 {}
 
-std::string DataManager::getDbObjectByUUID(QUuid& uuid)
+std::string DataManager::getDbObjectByUUID(GSUuid* uuid)
 {}
 
 void

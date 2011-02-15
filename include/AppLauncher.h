@@ -30,7 +30,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <string>
-#include <QtCore/QUuid>
+#include <GSUuid>
 
 class AppLauncher : public QCoreApplication
 {

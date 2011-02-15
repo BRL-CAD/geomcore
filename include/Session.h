@@ -35,7 +35,7 @@
 #include <fstream>
 #include <ctime>
 
-#include <QtCore/QUuid>
+#include "GSUuid.h"
 
 class Session
 {
@@ -43,7 +43,7 @@ friend class SessionManager;
 public:
     virtual ~Session();
 
-    QUuid getSessionID();
+    GSUuid* getSessionID();
     Account* getAccount();
 
     time_t getInactivityTime();
@@ -54,7 +54,7 @@ public:
 private:
     Session(Account* a);
 
-    QUuid sessionID;
+    GSUuid* sessionID;
     Account* a;
     time_t lastAccess;
 

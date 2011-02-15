@@ -30,7 +30,7 @@
 #include <map>
 #include <string>
 
-#include <QtCore/QUuid>
+#include "GSUuid.h"
 
 class DbObjectManifest
 {
@@ -39,8 +39,8 @@ public:
 	virtual ~DbObjectManifest();
 
 private:
-	std::list<QUuid> DbObjectList;
-	std::map<QUuid, std::string > DbObjectMap;
+	std::list<GSUuid*> DbObjectList;
+	std::map<GSUuid*, std::string > DbObjectMap;
 };
 
 #endif /* __DBOBJECTMANIFEST_H__ */

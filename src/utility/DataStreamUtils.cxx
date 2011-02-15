@@ -23,28 +23,22 @@
  *
  */
 
-#include <arpa/inet.h>	/* ntohl */
-
+#include "uuid.h"
 #include "DataStreamUtils.h"
 
-QUuid* 
-DataStreamUtils::getQUuid(DataStream* ds)
+#include <arpa/inet.h>	/* ntohl */
+
+
+GSUuid * 
+DataStreamUtils::getGSUuid(DataStream* ds)
 {
-  std::string* strUUID = DataStreamUtils::getString(ds);
-
-  //std::cout << strUUID->toStdString();
-
-  QUuid* out = new QUuid(strUUID->c_str());
-
-  delete strUUID;
-
-  return out;
+    return new GSUuid(DataStreamUtils::getString(ds));
 }
 
 void
-DataStreamUtils::putQUuid(DataStream* ds, QUuid uuid)
+DataStreamUtils::putGSUuid(DataStream* ds, GSUuid *uuid)
 {
-  DataStreamUtils::putString(ds, uuid.toString().toStdString());
+  DataStreamUtils::putString(ds, uuid->toString());
 }
 
 std::string* DataStreamUtils::getString(DataStream* ds)

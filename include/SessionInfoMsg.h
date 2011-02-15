@@ -32,10 +32,10 @@ class SessionInfoMsg : public NetMsg
 {
 public:
 	/* Normal Constructor */
-	SessionInfoMsg(QUuid sessionID);
+	SessionInfoMsg(GSUuid* sessionID);
 
 	/* Reply Constructor */
-	SessionInfoMsg(NetMsg* msg, QUuid sessionID);
+	SessionInfoMsg(NetMsg* msg, GSUuid* sessionID);
 
 	/* Deserializing Constructor */
 	SessionInfoMsg(DataStream* ds, Portal* origin);
@@ -47,10 +47,10 @@ public:
 	 * Utilities
 	 */
 	virtual std::string toString();
-	QUuid getSessionID();
+	GSUuid* getSessionID();
 
 protected:
-	QUuid sessionID;
+	GSUuid* sessionID;
 
 	bool _serialize(DataStream* ds);
 	bool _equals(const NetMsg& msg);
