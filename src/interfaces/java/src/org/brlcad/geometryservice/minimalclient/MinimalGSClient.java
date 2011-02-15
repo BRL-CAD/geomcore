@@ -86,6 +86,8 @@ public class MinimalGSClient extends JFrame implements ActionListener {
 	}
 
 	private void commonCstr(String labelText) {
+		this.conn = null;
+		
 		this.setSize(new Dimension(800, 600));
 		this.setTitle("GeometryService Minimal Client");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -125,6 +127,11 @@ public class MinimalGSClient extends JFrame implements ActionListener {
 
 	public boolean connectToHost(InetAddress addy, short port, String uname, String passwd){
 
+		if (this.conn!= null) {
+			GSStatics.stdErr.println("There is already a Connection present.");
+			return false;
+		}
+		
 		try {
 			this.conn = GSConnection.connectToHost(addy, port, uname, passwd);
 		
