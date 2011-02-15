@@ -22,6 +22,7 @@
  */
 package org.brlcad.geometryservice.minimalclient.cmd;
 
+import org.brlcad.geometryservice.GSStatics;
 import org.brlcad.geometryservice.minimalclient.CmdConsolePanel;
 
 /**
@@ -47,9 +48,9 @@ public class LoginCmd extends AbstractCmd {
 	 */
 	@Override
 	public boolean doCmd(String[] args) {
-
-		if (args.length < 3 || args.length > 4) {
-			this.cmdConsole.printToConsole(this.getUsage(), CmdConsolePanel.STYLE_BLUE);
+		
+		if (args.length < 4 || args.length > 5) {
+			this.printUsage();
 			return false;
 		}
 

@@ -25,6 +25,7 @@ package org.brlcad.geometryservice.minimalclient.cmd;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.brlcad.geometryservice.GSStatics;
 import org.brlcad.geometryservice.minimalclient.CmdConsolePanel;
 
 /**
@@ -41,6 +42,9 @@ public class CmdManager {
 		if (line.length() < 1)
 			return;
 
+		console.printLnToConsole(line, CmdConsolePanel.STYLE_RED_BOLD);
+		
+		String out = "";			
 		String[] cmdStack = line.split(" ");
 
 		/* handle all strings in lowercase */
@@ -49,17 +53,20 @@ public class CmdManager {
 		AbstractCmd aCmd = CmdManager.getCmdByName(cmdStr);
 
 		if (aCmd != null) {
-			console.printLnToConsole(line, CmdConsolePanel.STYLE_RED);
 			aCmd.doCmd(cmdStack);
 			// TODO handle boolean return val?
 			console.printLnToConsole("\n", CmdConsolePanel.STYLE_RED);
 			return;
 		}
 
-		console.printToConsole("Unknown Command String: ", CmdConsolePanel.STYLE_BLUE);
-		console.printLnToConsole("'" + line + "'", CmdConsolePanel.STYLE_BLUE_BOLD);
+		out = GSStatics.tab + "Unknown Command String: ";
+		console.printToConsole(out, CmdConsolePanel.STYLE_BLUE);
+
+		out = "'" + line + "'";
+		console.printLnToConsole(out, CmdConsolePanel.STYLE_BLUE_ITALIC);
 		
-		console.printLnToConsole("Try 'help'\n", CmdConsolePanel.STYLE_BLUE);
+		out  = GSStatics.tab + "Try 'help'" + GSStatics.newline;
+		console.printLnToConsole(out, CmdConsolePanel.STYLE_BLUE);
 	}
 
 	public static final void registerCmd(AbstractCmd cmd) {

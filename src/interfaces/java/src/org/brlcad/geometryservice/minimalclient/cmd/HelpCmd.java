@@ -24,6 +24,7 @@ package org.brlcad.geometryservice.minimalclient.cmd;
 
 import java.util.Set;
 
+import org.brlcad.geometryservice.GSStatics;
 import org.brlcad.geometryservice.minimalclient.CmdConsolePanel;
 
 /**
@@ -55,34 +56,43 @@ public class HelpCmd extends AbstractCmd {
 			this.listAllCmds();
 			return true;
 		}
-
+		String out = "";
 		String cmdToList = args[1];
 
 		AbstractCmd aCmd = CmdManager.getCmdByName(cmdToList);
 
 		if (aCmd == null) {
-			this.cmdConsole.printToConsole("help: Unknown Command", CmdConsolePanel.STYLE_BLUE_BOLD);
+			out = GSStatics.tab + "Help: ";
+			this.cmdConsole.printLnToConsole(out, CmdConsolePanel.STYLE_BLUE_BOLD);
+
+			out = GSStatics.tab2x + "Unknown Command";
+			this.cmdConsole.printToConsole(out, CmdConsolePanel.STYLE_BLUE);
 			return true;
 		}
+		
+		/* Get help for just ONE command.*/
+		
+		out = GSStatics.tab + aCmd.getCmd() + ": ";
+		this.cmdConsole.printLnToConsole(out, CmdConsolePanel.STYLE_BLUE_BOLD);
 
-		this.cmdConsole.printToConsole(aCmd.getCmd() + ": " + aCmd.getHelp(), CmdConsolePanel.STYLE_BLUE);
-
+		aCmd.printUsageAndHelp();
+		
 		return true;
 	}
 
 	private void listAllCmds() {
 		Set<String> cmds = CmdManager.getAllRegisteredCmds();
-		String out = "Available Commands:";
+		String out = GSStatics.tab + "Available Commands:";
 
 		for (int a = 0; a < cmds.size(); ++a) {
 			if (a % 2 == 0)
-				out += "\n\t";
+				out += GSStatics.nltab;
 
 			String tCmd = (String) cmds.toArray()[a];
 
 			out += tCmd + ", ";
 		}
-		
+
 		this.cmdConsole.printToConsole(out, CmdConsolePanel.STYLE_BLUE);
 	}
 
@@ -96,7 +106,9 @@ public class HelpCmd extends AbstractCmd {
 		return "Displays all registered commands if no argument is given.  If a specific command is supplied, e.g. 'help login', then the help statement for the supplied command will be printed.";
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.brlcad.geometryservice.minimalclient.cmd.AbstractCmd#getUsage()
 	 */
 	@Override
