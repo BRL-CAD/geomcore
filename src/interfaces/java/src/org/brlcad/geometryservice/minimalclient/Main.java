@@ -38,8 +38,9 @@ public class Main {
 		/* Use .invokeLater() to prevent certain types of concurrency deadlocks */
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				MinimalGSClient cli = new MinimalGSClient("Testing Text!!");
-				cli.setVisible(true);
+				MinimalGSClient cli = new MinimalGSClient();
+				cli.run();
+				System.out.println("Ping!!!");
 			}
 		});
 
