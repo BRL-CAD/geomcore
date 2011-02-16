@@ -446,6 +446,29 @@ main(int argc, const char *argv[])
   }
 #endif
 
+#if 0
+  /* Beginnings of code intended to use search results to identify
+   * regions and assemblies.
+   */
+  struct rt_search_dbinfo dbinfo;
+  struct rt_search_results results;
+  struct rt_search_dir_list *entry;
+  dbinfo.dbip = dbip;
+  dbinfo.wdbp = wdbp;
+  bu_vls_init(&results.result_str);
+  BU_LIST_INIT(&(results.dir_list.l));
+  /* will have to construct an argc/argv pair with the assembly search
+   * logic to feed to rtsearch
+   */
+  rt_search(&dbinfo, &results, argc, argv);
+  while (BU_LIST_WHILE(entry, rt_search_dir_list, &(results.dir_list.l))) {
+	  bu_log("Entry value is %s\n", entry->dp->d_namep);
+	  BU_LIST_DEQUEUE(&(entry->l));
+	  bu_free(entry, "free rt_search_dir_list entry");
+  }
+#endif
+
+
   svn_pool_clear(subpool);
   svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
   *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
