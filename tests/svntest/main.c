@@ -24,6 +24,8 @@
 
 #include "svn_private_config.h"
 
+#include <sys/stat.h>
+
 #include "bu.h"
 #include "vmath.h"
 #include "bn.h"
@@ -390,12 +392,51 @@ main(int argc, const char *argv[])
   svn_pool_clear(subpool);
   printf("svn checkout:  repo: %s, target: %s\n", full_repository_url, full_checkout_path2);
   svn_client_checkout3(NULL, full_repository_url, full_checkout_path2, &peg_revision, &revision, svn_depth_infinity, 0, 0, ctx, subpool);
+ 
+  struct db_i *dbip = DBI_NULL;
+  struct db_i *new_dbip = DBI_NULL;
+  struct rt_wdb *wdbp = RT_WDB_NULL;
+  struct rt_wdb *keepfp = RT_WDB_NULL;
+  struct ged gedp;
+  dbip = db_open("./havoc.g", "r");
+  if(dbip == DBI_NULL) {
+     printf("need ./havoc.g\n");
+     exit(EXIT_FAILURE);
+  }
 
-  /* Add a new file to the first working copy and svn add it to the repository */
+  /* list of targets to commit */
+  apr_array_header_t *targets = apr_array_make(pool, 5, sizeof(const char *));
+  
+  /* Add a new directory to the first working copy and svn add it to the repository */
+  char parent_path[1024];
+  sprintf(parent_path,"havoc.g", full_checkout_path1);
   char file_path[1024];
-  FILE *fp;
-  sprintf(file_path,"%s/test_file", full_checkout_path1);
+  sprintf(file_path,"%s/%s", full_checkout_path1, parent_path);
   printf("file_path: %s\n", file_path);
+  if(mkdir(file_path, (S_IRWXU | S_IRWXG | S_IRWXO))) {
+     printf("mkdir failed: %s\n", file_path);
+     exit(EXIT_FAILURE);
+  } else { 
+     svn_pool_clear(subpool);
+     svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
+     *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
+  }
+
+  char pieces_path[1024];
+  sprintf(pieces_path,"%s/havoc_contents", parent_path);
+  sprintf(file_path,"%s/%s", full_checkout_path1, pieces_path);
+  printf("file_path: %s\n", file_path);
+  if(mkdir(file_path, (S_IRWXU | S_IRWXG | S_IRWXO))) {
+     printf("mkdir failed: %s\n", file_path);
+     exit(EXIT_FAILURE);
+  } else { 
+     svn_pool_clear(subpool);
+     svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
+     *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
+  }
+
+#if 0
+  FILE *fp;
   fp = fopen(file_path,"w");
   if(fp != NULL){
      fputs ("subversion test", fp);
@@ -403,23 +444,12 @@ main(int argc, const char *argv[])
   } else {
      printf("augh - no file written: %s\n", file_path);
   }
+#endif
 
   svn_pool_clear(subpool);
   svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
-  apr_array_header_t *targets = apr_array_make(pool, 5, sizeof(const char *));
   *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
 
-  
-  struct db_i *dbip = DBI_NULL;
-  struct db_i *new_dbip = DBI_NULL;
-  struct rt_wdb *wdbp = RT_WDB_NULL;
-  struct rt_wdb *keepfp = RT_WDB_NULL;
-  struct ged gedp;
-  dbip = db_open("./ktank.g", "r");
-  if(dbip == DBI_NULL) {
-     printf("need ./ktank.g\n");
-     exit(EXIT_FAILURE);
-  }
   (void)db_dirbuild(dbip);
   wdbp = wdb_dbopen(dbip, RT_WDB_TYPE_DB_DISK);
   GED_INIT(&gedp, wdbp);
@@ -432,11 +462,21 @@ main(int argc, const char *argv[])
   for(inc = 0; inc < RT_DBNHASH; inc++) {
 	  for (dp = dbip->dbi_Head[inc]; dp != RT_DIR_NULL; dp = dp->d_forw) {
 		  if (dp->d_nref != 0) {
-			  continue;
+			  sprintf(file_path, "%s/%s/%s", full_checkout_path1, pieces_path, dp->d_namep);
+			  printf("file_path: %s\n", file_path);
+			  keepfp = wdb_fopen_v(file_path, db_version(dbip));
+			  knd.wdbp = keepfp;
+			  knd.gedp = &gedp;
+			  db_update_ident(keepfp->dbip, "svn test", dbip->dbi_local2base);
+			  node_write(dbip, dp, (genptr_t)&knd);
+			  wdb_close(keepfp);
+			  svn_pool_clear(subpool);
+			  svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
+  			  *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
 		  } else {
 			  if(!BU_STR_EQUAL(dp->d_namep, "_GLOBAL")) {
-			  sprintf(file_path, "%s/%s", full_checkout_path1, dp->d_namep);
-			  printf("file_path: %s\n", file_path);
+			  sprintf(file_path, "%s/%s/%s", full_checkout_path1, parent_path, dp->d_namep);
+			  printf("toplevel: %s\n", file_path);
 			  keepfp = wdb_fopen_v(file_path, db_version(dbip));
 			  knd.wdbp = keepfp;
 			  knd.gedp = &gedp;
@@ -461,7 +501,7 @@ main(int argc, const char *argv[])
   svn_commit_info_t *commit_info = NULL;
   svn_client_commit4(&commit_info, targets, svn_depth_empty, FALSE, FALSE, NULL, NULL, ctx, subpool);
 
-
+  printf("committed the changes\n");
   
   /* Perform an update operation on the second repository */
   svn_pool_clear(subpool);
@@ -471,6 +511,8 @@ main(int argc, const char *argv[])
   svnrev.kind = svn_opt_revision_unspecified;
   svn_client_update3(NULL, update_targets, &svnrev, svn_depth_unknown, 0, 0, 0, ctx, subpool);
 
+  printf("updated second repository\n");
+  
   /* Done, now clean up */
   svn_pool_destroy(pool);
   /* Ensure that everything is written to stdout, so the user will
