@@ -1,3 +1,5 @@
+#include "common.h"
+
 #include <apr_file_io.h>
 #include <apr_signal.h>
 
@@ -21,6 +23,21 @@
 #include "private/svn_opt_private.h"
 
 #include "svn_private_config.h"
+
+#include "bu.h"
+#include "vmath.h"
+#include "bn.h"
+#include "dg.h"
+#include "mater.h"
+#include "libtermio.h"
+#include "db.h"
+#include "ged.h"
+
+struct keep_node_data {
+	struct rt_wdb *wdbp;
+	struct ged *gedp;
+};
+
 
 /*** Code. ***/
 
@@ -389,15 +406,63 @@ main(int argc, const char *argv[])
 
   svn_pool_clear(subpool);
   svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
+  apr_array_header_t *targets = apr_array_make(pool, 5, sizeof(const char *));
+  *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
+
+  
+  struct db_i *dbip = DBI_NULL;
+  struct db_i *new_dbip = DBI_NULL;
+  struct rt_wdb *wdbp = RT_WDB_NULL;
+  struct rt_wdb *keepfp = RT_WDB_NULL;
+  struct ged gedp;
+  dbip = db_open("./ktank.g", "r");
+  if(dbip == DBI_NULL) {
+     printf("need ./ktank.g\n");
+     exit(EXIT_FAILURE);
+  }
+  (void)db_dirbuild(dbip);
+  wdbp = wdb_dbopen(dbip, RT_WDB_TYPE_DB_DISK);
+  GED_INIT(&gedp, wdbp);
+  ged_tops(&gedp, 1, NULL);
+  printf("tops: %s\n", bu_vls_addr(&gedp.ged_result_str));
+  db_update_nref(dbip, &rt_uniresource);
+  int inc;
+  struct directory *dp;
+  struct keep_node_data knd;
+  for(inc = 0; inc < RT_DBNHASH; inc++) {
+	  for (dp = dbip->dbi_Head[inc]; dp != RT_DIR_NULL; dp = dp->d_forw) {
+		  if (dp->d_nref != 0) {
+			  continue;
+		  } else {
+			  if(!BU_STR_EQUAL(dp->d_namep, "_GLOBAL")) {
+			  sprintf(file_path, "%s/%s", full_checkout_path1, dp->d_namep);
+			  printf("file_path: %s\n", file_path);
+			  keepfp = wdb_fopen_v(file_path, db_version(dbip));
+			  knd.wdbp = keepfp;
+			  knd.gedp = &gedp;
+			  db_update_ident(keepfp->dbip, "svn test", dbip->dbi_local2base);
+			  node_write(dbip, dp, (genptr_t)&knd);
+			  wdb_close(keepfp);
+			  svn_pool_clear(subpool);
+			  svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
+  			  *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
+			  }
+		  }
+	  }
+  }
+
+  for(i=0; i< targets->nelts;  i++){
+	  const char *s = ((const char**)targets->elts)[i];
+	  printf("%d: %s\n", i, s);
+  }
 
   /* Commit the changes */
-  apr_array_header_t *targets = apr_array_make(pool, 5, sizeof(const char *));
-  APR_ARRAY_PUSH(targets, const char *) = file_path;
   svn_pool_clear(subpool);
-
   svn_commit_info_t *commit_info = NULL;
   svn_client_commit4(&commit_info, targets, svn_depth_empty, FALSE, FALSE, NULL, NULL, ctx, subpool);
 
+
+  
   /* Perform an update operation on the second repository */
   svn_pool_clear(subpool);
   apr_array_header_t *update_targets = apr_array_make(pool, 5, sizeof(const char *));
