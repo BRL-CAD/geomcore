@@ -31,6 +31,8 @@ include_directories(
 	${CMAKE_CURRENT_BINARY_DIR}/../src/other/uuid
 )
 
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${GEOMCORE_BINARY_DIR}/tests-bin CACHE INTERNAL "Single output directory for building all test executables.")
+
 ADD_SUBDIRECTORY(libNet)
 ADD_SUBDIRECTORY(GE)
 ADD_SUBDIRECTORY(GS)
