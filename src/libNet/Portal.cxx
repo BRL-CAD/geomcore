@@ -37,7 +37,9 @@
 Portal::Portal(PortalManager* pm, PkgTcpClient* client, struct pkg_switch* table):
 pm(pm), pkgClient(client), callbackTable(table), log(Logger::getInstance()), handshakeComplete(false)
 {
-	this->remoteNodeName.assign("NotSetYet-" + GSUuid::createUuid()->toString());
+	std::string *str = GSUuid::createUuid()->toString();
+	this->remoteNodeName.assign("NotSetYet-" + *str);
+	delete str;
 
 	/* set the struct's userdata */
 	this->callbackTable[0].pks_user_data = this;
@@ -80,7 +82,11 @@ Portal::sendGSNodeName() {
 	localNodeName.assign(this->pm->getLocalNodeName());
 
 	if (localNodeName.length() == 0) {
-		localNodeName.assign(GSUuid::createUuid()->toString());
+		GSUuid *uuid = GSUuid::createUuid();
+		std::string *str = uuid->toString();
+		delete uuid;
+		localNodeName.assign(*str);
+		delete str;
 	}
 
 	RemoteNodenameSetMsg msg(localNodeName);
@@ -170,6 +176,10 @@ Portal::callbackSpringboard(struct pkg_conn* conn, char* buf) {
 
 	int len = conn->pkc_inend - sizeof(pkg_header);
 
+	printf("length: %d\n", len);
+		if(len == 0) {
+			return;
+		}
 	ByteArray ba(buf, len);
 
 	if (conn->pkc_user_data == 0) {

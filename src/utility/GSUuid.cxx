@@ -23,39 +23,53 @@
  *
  */
 
+#include "uuid.h"
 #include "GSUuid.h"
 
 GSUuid::GSUuid()
 {
+	uuid_create((uuid_t **)&this->uuid);
+	uuid_make((uuid_t *)this->uuid, UUID_MAKE_V4);
 }
 
 GSUuid::GSUuid(GSUuid* src)
 {
+	uuid_clone((uuid_t *)src->uuid, (uuid_t **)&this->uuid);
 }
 
 GSUuid::GSUuid(std::string* str)
 {
+	uuid_create((uuid_t **)&this->uuid);
+	uuid_import((uuid_t *)this->uuid, UUID_FMT_STR, (void *)str->c_str(), str->length());
 }
 
 GSUuid::~GSUuid()
 {
+	uuid_destroy((uuid_t*)this->uuid);
 }
 
-std::string
+std::string*
 GSUuid::toString()
 {
+	char *buf = NULL;
+	size_t len = 0;
+	uuid_export((uuid_t *)this->uuid, UUID_FMT_STR, &buf, &len);
+	free(buf);
+	return new std::string(buf,len);
 }
 
 GSUuid *
 GSUuid::createUuid()
 {
-	return NULL;
+	return new GSUuid();
 }
 
 bool
 GSUuid::equals(GSUuid* other)
 {
-	return false;
+	int eh;
+	uuid_compare((uuid_t*)this->uuid, (uuid_t*)other->uuid, &eh);
+	return eh == 0 ? true : false;
 }
 
 /*

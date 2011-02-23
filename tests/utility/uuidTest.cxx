@@ -1,4 +1,4 @@
-/*                      G S U U I D . H
+/*                  U U I D T E S T . C X X
  * BRL-CAD
  *
  * Copyright (c) 2011 United States Government as represented by
@@ -17,43 +17,26 @@
  * License along with this file; see the file named COPYING for more
  * information.
  */
-/** @file GSUuid.h
+/** @file uuidTest.cxx
  *
  * Brief description
  *
  */
 
-#ifndef __GSUUID_H__
-#define __GSUUID_H__
+#include "GSUuid.h"
 
-#include <string>
-
-class GSUuid
+int main(int argc, char* argv[])
 {
-public:
-  GSUuid();
-  GSUuid(GSUuid*);
-  GSUuid(std::string*);
-  ~GSUuid();
 
-  static GSUuid *createUuid();
+	GSUuid* uuid = new GSUuid();
+	printf("%s\n", uuid->toString()->c_str());
+    return 0;
+}
 
-  bool equals(GSUuid*);
-
-  std::string* toString();
-
-private:
-  void *uuid;
-};
-
-#endif /* __GSUUID_H__ */
-
-/*
- * Local Variables:
- * tab-width: 8
- * mode: C
- * indent-tabs-mode: t
- * c-file-style: "stroustrup"
- * End:
- * ex: shiftwidth=4 tabstop=8
- */
+// Local Variables: ***
+// mode: C++ ***
+// tab-width: 8 ***
+// c-basic-offset: 4 ***
+// indent-tabs-mode: t ***
+// End: ***
+// ex: shiftwidth=4 tabstop=8

@@ -61,7 +61,7 @@ std::string SessionInfoMsg::toString()
 
     out.append(NetMsg::toString());
     out.append("\t  SessionID: ");
-    out.append(this->sessionID->toString());
+    out.append(*this->sessionID->toString());
 
     return out;
 }

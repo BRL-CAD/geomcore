@@ -86,6 +86,7 @@ NetMsg::serialize(ByteArray* ba)
 
     /* Serialize Header */
     mt = htons(this->msgType);
+    std::cout << "Erm, serialize? " << this->msgType << ":" << this->msgUUID << std::endl;
     subDS.append((const char *)&mt, 2);
     DataStreamUtils::putGSUuid(&subDS, this->msgUUID);
     subDS.append((const char *)&this->hasReUUID, 1);
@@ -167,7 +168,7 @@ std::string NetMsg::toString()
     out.assign(buf);
 
     if (this->msgUUID != NULL) {
-	snprintf(buf, BUFSIZ, "'\t msgUUID: %s'", this->msgUUID->toString().c_str());
+	snprintf(buf, BUFSIZ, "'\t msgUUID: %s'", this->msgUUID->toString()->c_str());
 	out.append(buf);
     }
 
@@ -175,7 +176,7 @@ std::string NetMsg::toString()
     out.append(buf);
 
     if (this->reUUID != NULL) {
-	snprintf(buf, BUFSIZ, "'\t reUUID: %s'", this->reUUID->toString().c_str());
+	snprintf(buf, BUFSIZ, "'\t reUUID: %s'", this->reUUID->toString()->c_str());
 	out.append(buf);
     }
 

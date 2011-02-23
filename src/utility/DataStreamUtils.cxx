@@ -23,7 +23,7 @@
  *
  */
 
-#include "uuid.h"
+#include "GSUuid.h"
 #include "DataStreamUtils.h"
 
 #include <arpa/inet.h>	/* ntohl */
@@ -38,7 +38,9 @@ DataStreamUtils::getGSUuid(DataStream* ds)
 void
 DataStreamUtils::putGSUuid(DataStream* ds, GSUuid *uuid)
 {
+    std::string* str = uuid->toString();
   DataStreamUtils::putString(ds, uuid->toString());
+  delete str;
 }
 
 std::string* DataStreamUtils::getString(DataStream* ds)
@@ -65,6 +67,11 @@ void DataStreamUtils::putString(DataStream* ds, std::string str)
   *l = htonl((uint32_t)str.length());
   ds->append((const char *)l, 4);
   ds->append(str.c_str(), *l);
+}
+
+void DataStreamUtils::putString(DataStream* ds, std::string *str)
+{
+	DataStreamUtils::putString(ds, *str);
 }
 
 void DataStreamUtils::printByteArray(ByteArray* ba) 

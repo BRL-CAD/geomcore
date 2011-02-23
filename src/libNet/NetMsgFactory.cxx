@@ -63,6 +63,10 @@ NetMsgFactory::~NetMsgFactory()
 NetMsg*
 NetMsgFactory::deserializeNetMsg(ByteArray& data, Portal* origin)
 {
+  if(data.length() == 0) {
+	  printf("Empty data buffer??\n");
+	  return NULL;
+  }
   uint16_t msgType = ntohs(*(uint16_t*)data.data());
   DataStream qds(data.data(), data.size());
 

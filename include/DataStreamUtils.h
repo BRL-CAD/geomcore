@@ -40,6 +40,7 @@ class DataStreamUtils
 public:
 	static std::string* getString(DataStream* ds);
 	static void putString(DataStream* ds, std::string str);
+	static void putString(DataStream* ds, std::string *str);
 	static GSUuid* getGSUuid(DataStream* ds);
 	static void putGSUuid(DataStream* ds, GSUuid*);
 	static void printByteArray(ByteArray* ba);
