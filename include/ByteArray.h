@@ -39,7 +39,6 @@ public:
 
 	char* data();
 	int size();
-	char at(int i);
 
 private:
 	bu_vlb vlb;
