@@ -35,7 +35,6 @@ ByteArray::~ByteArray() { bu_vlb_free(&vlb); }
 
 char *ByteArray::data() { return (char *)bu_vlb_addr(&vlb); }
 int ByteArray::size() { return bu_vlb_buflen(&vlb); }
-int ByteArray::length() { return this->size(); }
 char ByteArray::at(int i) { return *(char *)(bu_vlb_addr(&vlb)+i); }
 
 /*

@@ -116,7 +116,7 @@ FileDataSource::putObject(DbObject* obj)
 
 	snprintf(buf, BUFSIZ, "%s/%s", repoPath.c_str(), path.c_str());
 	fd = open(buf, O_CREAT|O_WRONLY);
-	write(fd, obj->getData()->data(), obj->getData()->length());
+	write(fd, obj->getData()->data(), obj->getData()->size());
 	close(fd);
 
 	//unlock it

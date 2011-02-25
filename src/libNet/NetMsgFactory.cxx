@@ -63,7 +63,7 @@ NetMsgFactory::~NetMsgFactory()
 NetMsg*
 NetMsgFactory::deserializeNetMsg(ByteArray& data, Portal* origin)
 {
-  if(data.length() == 0) {
+  if(data.size() == 0) {
 	  printf("Empty data buffer??\n");
 	  return NULL;
   }

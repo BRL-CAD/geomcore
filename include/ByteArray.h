@@ -39,7 +39,6 @@ public:
 
 	char* data();
 	int size();
-	int length();
 	char at(int i);
 
 private:
