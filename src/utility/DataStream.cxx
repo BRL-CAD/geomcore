@@ -41,14 +41,14 @@ void DataStream::append(const char *data, int len) { bu_vlb_write(&vlb, (unsigne
 
 std::string* DataStream::getString()
 {
-  char *dsp = getptr();
+  char *dsp = getptr() + ind;
   uint32_t len;
   std::string* out = new std::string();
 
   len = ntohl(*(uint32_t *)dsp);
+  dsp += sizeof(uint32_t);
 
-  bu_log("Read String length of: %d\n", len);
-  out->append(dsp+sizeof(uint32_t), len);
+  out->append(dsp, len);
   advance(len+sizeof(uint32_t));
 
   return out;
@@ -60,7 +60,7 @@ void DataStream::putString(std::string str)
 
   *l = htonl((uint32_t)str.length());
   this->append((const char *)l, 4);
-  this->append(str.c_str(), *l);
+  this->append(str.c_str(), str.length());
 }
 
 void DataStream::putString(std::string *str)
@@ -68,7 +68,10 @@ void DataStream::putString(std::string *str)
 	this->putString(*str);
 }
 
-
+int DataStream::size()
+{
+	return bu_vlb_buflen(&vlb);
+}
 
 /*
  * Local Variables:

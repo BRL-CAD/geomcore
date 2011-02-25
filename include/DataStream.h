@@ -43,6 +43,7 @@ public:
 	char *get(int);
 	void advance(int);
 	void append(const char *data, int len);
+	int size();
 
 	std::string* getString();
 	void putString(std::string str);
