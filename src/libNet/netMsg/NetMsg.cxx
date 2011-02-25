@@ -85,20 +85,19 @@ NetMsg::serialize(ByteArray* ba)
 
     /* Serialize Header */
     mt = htons(this->msgType);
-    std::cout << "Erm, serialize? " << this->msgType << ":" << this->msgUUID << std::endl;
     subDS.append((const char *)&mt, 2);
     subDS.putString(this->msgUUID->toString());
     subDS.append((const char *)&this->hasReUUID, 1);
 
-    if (this->hasReUUID) {
+    if (this->hasReUUID)
 	subDS.putString(this->reUUID->toString());
-    }
 
     /* Call subclass serialize */
     if (!this->_serialize(&subDS)) {
 	std::cerr << "A serialization Error in NetMsg::serialize() occurred.\n";
 	return;
     }
+    ba->assign(subDS.getptr(), subDS.size());
 }
 
 /*
