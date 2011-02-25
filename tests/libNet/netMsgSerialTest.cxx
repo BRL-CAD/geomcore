@@ -45,6 +45,8 @@
 
 #include <string>
 
+static int verbose = 0x3;
+
 void logInfo(std::string s) {
 	Logger::getInstance()->logINFO("NetMsgSerialTest", s);
 }
@@ -63,14 +65,17 @@ void testMsg(NetMsg* msg01, std::string typeName) {
 	bool pass = (msg02 != NULL) && (*msg01 == *msg02);
 
 	if (pass) {
-		logInfo(typeName + ": \x1B[31mPASSED\x1B[m");
+		if(verbose&1)
+			logInfo(typeName + ": \x1B[32mPASSED\x1B[m");
 	} else {
-		logInfo(typeName + ": \x1B[32mFAILED\x1B[m");
-		logInfo("\tMsg01: " + msg01->toString());
-		if(msg02)
-			logInfo("\tMsg02: " + msg02->toString());
-		else
-			logInfo("\tMsg02: (NULL)");
+		logInfo(typeName + ": \x1B[31mFAILED\x1B[m");
+		if(verbose&2) {
+			logInfo("\tMsg01: " + msg01->toString());
+			if(msg02)
+				logInfo("\tMsg02: " + msg02->toString());
+			else
+				logInfo("\tMsg02: (NULL)");
+		}
 	}
 	delete msg02;
 }
