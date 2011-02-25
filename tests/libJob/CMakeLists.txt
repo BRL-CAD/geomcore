@@ -30,5 +30,5 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_executable(gjobtest BasicJMTest.cxx PrintToStdOutJob.cxx)
-target_link_libraries(gjobtest libJob libgcutil)
+add_executable(gjobTest BasicJMTest.cxx PrintToStdOutJob.cxx)
+target_link_libraries(gjobTest libJob libgcutil)

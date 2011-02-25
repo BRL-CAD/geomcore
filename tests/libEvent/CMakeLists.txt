@@ -28,5 +28,5 @@
 
 include_directories()
 
-add_executable(geventtest BasicEventTest.cxx)
-target_link_libraries(geventtest libJob libgcutil libEvent)
+add_executable(geventTest BasicEventTest.cxx)
+target_link_libraries(geventTest libJob libgcutil libEvent)

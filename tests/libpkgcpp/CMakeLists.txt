@@ -31,5 +31,5 @@ include_directories(
     ${BRLCAD_INCLUDE_DIRS}
 )
 
-add_executable(gPkgCpptest pkgcppTest.cxx)
-target_link_libraries(gPkgCpptest libPkgCpp libgcutil ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})
+add_executable(gPkgCppTest pkgcppTest.cxx)
+target_link_libraries(gPkgCppTest libPkgCpp libgcutil ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})

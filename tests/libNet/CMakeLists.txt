@@ -31,8 +31,8 @@ include_directories(
     ${BRLCAD_INCLUDE_DIRS}
 )
 
-add_executable(gNetMsgSerialtest netMsgSerialTest.cxx)
-target_link_libraries(gNetMsgSerialtest libNet libPkgCpp libgcutil ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})
+add_executable(gNetMsgSerialTest netMsgSerialTest.cxx)
+target_link_libraries(gNetMsgSerialTest libNet libPkgCpp libgcutil ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})
 
 add_executable(glibNetTest libNetTest.cxx)
 target_link_libraries(glibNetTest libNet libPkgCpp libgcutil ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})

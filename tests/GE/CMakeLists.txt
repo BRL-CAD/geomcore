@@ -1,1 +1,1 @@
-add_executable(getest GeometryEngineTest.cxx)
+add_executable(geTest GeometryEngineTest.cxx)
