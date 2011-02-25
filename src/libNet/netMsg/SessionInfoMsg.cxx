@@ -70,7 +70,7 @@ bool SessionInfoMsg::_equals(const NetMsg& msg)
 {
     SessionInfoMsg& gmsg = (SessionInfoMsg&) msg;
 
-    if (this->getSessionID() != gmsg.getSessionID()) {
+    if (! this->getSessionID()->equals(gmsg.getSessionID())) {
 	return false;
     }
 
