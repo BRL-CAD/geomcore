@@ -52,7 +52,7 @@ GeometryManifestMsg::GeometryManifestMsg(DataStream* ds, Portal* origin) :
     this->itemData = new std::list<std::string> ();
 
     uint32_t numOfItems;
-    numOfItems = ntohl(*ds->get(4));
+    numOfItems = ntohl(*(uint32_t*)ds->get(4));
 
     for (uint32_t i = 0; i < numOfItems; ++i) {
 	std::string* tString = ds->getString();
