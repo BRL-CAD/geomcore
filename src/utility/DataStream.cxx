@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <arpa/inet.h>
 
 #include "DataStream.h"
 
@@ -37,6 +38,36 @@ char* DataStream::getptr() { return (char *)bu_vlb_addr(&vlb); }
 char* DataStream::get(int i) { char *t = (char *)bu_vlb_addr(&vlb)+ind; ind+=i; return t; }
 void DataStream::advance(int i) { ind+=i; }
 void DataStream::append(const char *data, int len) { bu_vlb_write(&vlb, (unsigned char *)data, len); }
+
+std::string* DataStream::getString()
+{
+  char *dsp = getptr();
+  uint32_t len;
+  std::string* out = new std::string();
+
+  len = ntohl(*(uint32_t *)dsp);
+
+  bu_log("Read String length of: %d\n", len);
+  out->append(dsp+sizeof(uint32_t), len);
+  advance(len+sizeof(uint32_t));
+
+  return out;
+}
+
+void DataStream::putString(std::string str)
+{
+  int l[1];
+
+  *l = htonl((uint32_t)str.length());
+  this->append((const char *)l, 4);
+  this->append(str.c_str(), *l);
+}
+
+void DataStream::putString(std::string *str)
+{
+	this->putString(*str);
+}
+
 
 
 /*

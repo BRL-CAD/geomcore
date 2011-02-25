@@ -27,7 +27,6 @@
 
 #include "NetMsg.h"
 #include "Portal.h"
-#include "DataStreamUtils.h"
 #include "GSUuid.h"
 
 #include <sstream>
@@ -58,10 +57,10 @@ NetMsg::NetMsg(DataStream* ds, Portal* origin)
 {
     this->origin = origin;
     this->msgType = ntohs(*(uint16_t*)ds->get(2));
-    this->msgUUID = DataStreamUtils::getGSUuid(ds);
+    this->msgUUID = new GSUuid(ds->getString());
     this->hasReUUID = *(unsigned char*)ds->get(1);
     if (this->hasReUUID)
-	this->reUUID = DataStreamUtils::getGSUuid(ds);
+	this->reUUID = new GSUuid(ds->getString());
 }
 
 /* Destructor */
@@ -88,11 +87,11 @@ NetMsg::serialize(ByteArray* ba)
     mt = htons(this->msgType);
     std::cout << "Erm, serialize? " << this->msgType << ":" << this->msgUUID << std::endl;
     subDS.append((const char *)&mt, 2);
-    DataStreamUtils::putGSUuid(&subDS, this->msgUUID);
+    subDS.putString(this->msgUUID->toString());
     subDS.append((const char *)&this->hasReUUID, 1);
 
     if (this->hasReUUID) {
-	DataStreamUtils::putGSUuid(&subDS, this->reUUID);
+	subDS.putString(this->reUUID->toString());
     }
 
     /* Call subclass serialize */

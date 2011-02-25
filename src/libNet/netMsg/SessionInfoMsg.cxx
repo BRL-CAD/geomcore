@@ -25,7 +25,7 @@
 
 #include "NetMsgTypes.h"
 #include "SessionInfoMsg.h"
-#include "DataStreamUtils.h"
+#include "DataStream.h"
 #include <sstream>
 
 /* Normal Constructor */
@@ -42,7 +42,7 @@ SessionInfoMsg::SessionInfoMsg(NetMsg* msg, GSUuid* sessionID) :
 SessionInfoMsg::SessionInfoMsg(DataStream* ds, Portal* origin) :
     NetMsg(ds, origin)
 {
-    this->sessionID = DataStreamUtils::getGSUuid(ds);
+    this->sessionID = new GSUuid(ds->getString());
 }
 
 /* Destructor */
@@ -51,7 +51,7 @@ SessionInfoMsg::~SessionInfoMsg()
 
 bool SessionInfoMsg::_serialize(DataStream* ds)
 {
-    DataStreamUtils::putGSUuid(ds, this->sessionID);
+    ds->putString(this->sessionID->toString());
     return true;
 }
 

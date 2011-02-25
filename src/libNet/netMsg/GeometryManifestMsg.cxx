@@ -29,7 +29,7 @@
 
 #include "NetMsgTypes.h"
 #include "GeometryManifestMsg.h"
-#include "DataStreamUtils.h"
+#include "DataStream.h"
 
 /* Normal Constructor */
 GeometryManifestMsg::GeometryManifestMsg(std::list<std::string>& items) :
@@ -55,7 +55,7 @@ GeometryManifestMsg::GeometryManifestMsg(DataStream* ds, Portal* origin) :
     numOfItems = ntohl(*ds->get(4));
 
     for (uint32_t i = 0; i < numOfItems; ++i) {
-	std::string* tString = DataStreamUtils::getString(ds);
+	std::string* tString = ds->getString();
 	std::string newStr;
 	newStr.append(*tString);
 	this->itemData->push_back(newStr);
@@ -74,7 +74,7 @@ bool GeometryManifestMsg::_serialize(DataStream* ds)
     ds->append((const char *)&mt, 4);
 
     for (std::list<std::string>::iterator it = this->itemData->begin(); it != this->itemData->end(); it++)
-	DataStreamUtils::putString(ds, *it);
+	ds->putString(*it);
 
     return true;
 }

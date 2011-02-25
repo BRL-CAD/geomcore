@@ -23,7 +23,7 @@
  *
  */
 
-#include "DataStreamUtils.h"
+#include "DataStream.h"
 #include "GenericOneStringMsg.h"
 #include <sstream>
 
@@ -41,7 +41,7 @@ GenericOneStringMsg::GenericOneStringMsg(uint32_t type, NetMsg* msg, std::string
 GenericOneStringMsg::GenericOneStringMsg(DataStream* ds, Portal* origin) :
     NetMsg(ds, origin)
 {
-    this->strData = *DataStreamUtils::getString(ds);
+    this->strData = ds->getString()->c_str();
 }
 
 /* Destructor */
@@ -50,7 +50,7 @@ GenericOneStringMsg::~GenericOneStringMsg()
 
 bool GenericOneStringMsg::_serialize(DataStream* ds)
 {
-    DataStreamUtils::putString(ds, this->strData);
+    ds->putString(this->strData);
     return true;
 }
 

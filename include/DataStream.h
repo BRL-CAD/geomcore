@@ -27,6 +27,7 @@
 #define __DATASTREAM_H__
 
 #include <stdio.h>
+#include <string>
 
 #include <bu.h>
 
@@ -42,6 +43,10 @@ public:
 	char *get(int);
 	void advance(int);
 	void append(const char *data, int len);
+
+	std::string* getString();
+	void putString(std::string str);
+	void putString(std::string *str);
 private:
 	bu_vlb vlb;
 	int ind;

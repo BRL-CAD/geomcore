@@ -36,7 +36,6 @@ SET(gcutil_SRCS
 	Config.cxx
 	ControlledThread.cxx
 	DataStream.cxx
-	DataStreamUtils.cxx
 	GSException.cxx
 	GSThread.cxx
 	GSUuid.cxx
