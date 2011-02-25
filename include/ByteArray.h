@@ -28,6 +28,8 @@
 
 #include <stdio.h>
 
+#include <bu.h>
+
 class ByteArray
 {
 public:
@@ -41,9 +43,7 @@ public:
 	char at(int i);
 
 private:
-	char *databuf;
-	int len;
-	int maxlen;
+	bu_vlb vlb;
 };
 
 #endif /* __CONFIG_H__ */

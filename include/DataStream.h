@@ -28,13 +28,13 @@
 
 #include <stdio.h>
 
-#include "ByteArray.h"
+#include <bu.h>
 
 class DataStream
 {
 public:
 	DataStream();
-	DataStream(char* buf, int len);
+	DataStream(const char* buf, int len);
 
 	~DataStream();
 
@@ -43,9 +43,8 @@ public:
 	void advance(int);
 	void append(const char *data, int len);
 private:
-	char *buf;
+	bu_vlb vlb;
 	int ind;
-	int maxlen;
 };
 
 #endif /* __CONFIG_H__ */

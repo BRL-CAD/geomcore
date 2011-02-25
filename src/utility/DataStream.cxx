@@ -29,24 +29,14 @@
 
 #include "DataStream.h"
 
-DataStream::DataStream() { buf = NULL, ind = 0, maxlen = 0; }
-DataStream::DataStream(char* data, int len) {
-    buf = (char *)malloc(len);
-    memcpy(buf, data, len);
-    ind = 0;
-    maxlen = len;
-}
-DataStream::~DataStream() { if(buf)free(buf); }
+DataStream::DataStream() { bu_vlb_init(&vlb); ind=0; }
+DataStream::DataStream(const char* data, int len) { bu_vlb_init(&vlb); bu_vlb_write(&vlb, (unsigned char *)data, len); ind=0; }
+DataStream::~DataStream() { bu_vlb_free(&vlb); }
 
-char* DataStream::getptr() { return buf; }
-char* DataStream::get(int i) { char *t = buf+ind; ind+=i; return t; }
+char* DataStream::getptr() { return (char *)bu_vlb_addr(&vlb); }
+char* DataStream::get(int i) { char *t = (char *)bu_vlb_addr(&vlb)+ind; ind+=i; return t; }
 void DataStream::advance(int i) { ind+=i; }
-void DataStream::append(const char *data, int len) {
-    if(ind + len > maxlen)
-	buf = (char *)realloc(buf, maxlen += len>BUFSIZ?len:BUFSIZ);
-    memcpy(buf+ind, data, len);
-    ind+=len;
-}
+void DataStream::append(const char *data, int len) { bu_vlb_write(&vlb, (unsigned char *)data, len); }
 
 
 /*

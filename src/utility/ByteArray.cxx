@@ -29,29 +29,14 @@
 
 #include "ByteArray.h"
 
-ByteArray::ByteArray()
-{
-    this->databuf = NULL;
-    this->len = 0;
-    this->maxlen = 0;
-}
+ByteArray::ByteArray() { bu_vlb_init(&vlb); }
+ByteArray::ByteArray(char *buf, int len) { bu_vlb_initialize(&vlb, len); bu_vlb_write(&vlb, (unsigned char *)buf, len); }
+ByteArray::~ByteArray() { bu_vlb_free(&vlb); }
 
-ByteArray::ByteArray(char *buf, int len) {
-    this->len = len;
-    this->maxlen = len;
-    this->databuf = (char *)malloc(len);
-    memcpy(databuf, buf, len);
-}
-
-ByteArray::~ByteArray()
-{
-    delete this->databuf;
-}
-
-char *ByteArray::data() { return databuf; }
-int ByteArray::size() { return len; }
-int ByteArray::length() { return len; }
-char ByteArray::at(int i) { return databuf[i]; }
+char *ByteArray::data() { return (char *)bu_vlb_addr(&vlb); }
+int ByteArray::size() { return bu_vlb_buflen(&vlb); }
+int ByteArray::length() { return this->size(); }
+char ByteArray::at(int i) { return *(char *)(bu_vlb_addr(&vlb)+i); }
 
 /*
  * Local Variables:
