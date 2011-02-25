@@ -82,6 +82,8 @@ bool GeometryManifestMsg::_serialize(DataStream* ds)
 bool GeometryManifestMsg::_equals(const NetMsg& msg)
 {
     GeometryManifestMsg& gmsg = (GeometryManifestMsg&) msg;
+    if( this->itemData->size() != gmsg.itemData->size() )
+	    return false;
     std::list<std::string>::iterator it = this->itemData->begin(), git = gmsg.itemData->begin();
 
     for (; it != this->itemData->end(); it++, git++)
