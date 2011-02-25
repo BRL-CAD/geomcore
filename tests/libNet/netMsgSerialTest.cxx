@@ -63,9 +63,9 @@ void testMsg(NetMsg* msg01, std::string typeName) {
 	bool pass = (msg02 != NULL) && (*msg01 == *msg02);
 
 	if (pass) {
-		logInfo(typeName + ": PASSED");
+		logInfo(typeName + ": \x1B[31mPASSED\x1B[m");
 	} else {
-		logInfo(typeName + ": FAILED");
+		logInfo(typeName + ": \x1B[32mFAILED\x1B[m");
 		logInfo("\tMsg01: " + msg01->toString());
 		if(msg02)
 			logInfo("\tMsg02: " + msg02->toString());
