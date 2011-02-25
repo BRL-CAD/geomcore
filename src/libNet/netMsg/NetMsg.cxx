@@ -144,10 +144,10 @@ NetMsg::operator==(const NetMsg& other)
 	if (this->getMsgType() != other.getMsgType())
 	    return false;
 
-	if (this->getMsgUUID()->equals(other.getMsgUUID()))
+	if (!this->getMsgUUID()->equals(other.getMsgUUID()))
 	    return false;
 
-	if (this->msgHasReUUID() == other.msgHasReUUID())
+	if (this->msgHasReUUID() != other.msgHasReUUID())
 	    return false;
 
 	if (this->msgHasReUUID())
