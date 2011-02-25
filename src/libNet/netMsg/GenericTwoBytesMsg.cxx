@@ -42,7 +42,7 @@ GenericTwoBytesMsg::GenericTwoBytesMsg(uint32_t type, NetMsg* msg, uint16_t b) :
 GenericTwoBytesMsg::GenericTwoBytesMsg(DataStream* ds, Portal* origin) :
     NetMsg(ds, origin)
 {
-    this->data = ntohs(*ds->get(2));
+    this->data = ntohs(*(short *)ds->get(2));
 }
 
 /* Destructor */
