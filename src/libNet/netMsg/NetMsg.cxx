@@ -153,7 +153,7 @@ NetMsg::operator==(const NetMsg& other)
 	    return false;
 
 	if (this->msgHasReUUID())
-	    if (this->getReUUID()->equals(other.getReUUID()))
+	    if (!this->getReUUID()->equals(other.getReUUID()))
 		return false;
 
 	return this->_equals(other);
