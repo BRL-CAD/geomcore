@@ -67,7 +67,10 @@ void testMsg(NetMsg* msg01, std::string typeName) {
 	} else {
 		logInfo(typeName + ": FAILED");
 		logInfo("\tMsg01: " + msg01->toString());
-		logInfo("\tMsg02: " + msg02->toString());
+		if(msg02)
+			logInfo("\tMsg02: " + msg02->toString());
+		else
+			logInfo("\tMsg02: (NULL)");
 	}
 	delete msg02;
 }
