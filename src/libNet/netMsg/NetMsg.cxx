@@ -61,6 +61,8 @@ NetMsg::NetMsg(DataStream* ds, Portal* origin)
     this->hasReUUID = *(unsigned char*)ds->get(1);
     if (this->hasReUUID)
 	this->reUUID = new GSUuid(ds->getString());
+    else
+	this->reUUID = NULL;
 }
 
 /* Destructor */
@@ -173,7 +175,7 @@ std::string NetMsg::toString()
     snprintf(buf, BUFSIZ, "'\t hasReUUID: %d'", this->hasReUUID);
     out.append(buf);
 
-    if (this->reUUID != NULL) {
+    if (this->hasReUUID) {
 	snprintf(buf, BUFSIZ, "'\t reUUID: %s'", this->reUUID->toString()->c_str());
 	out.append(buf);
     }
