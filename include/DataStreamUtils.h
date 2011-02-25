@@ -43,7 +43,7 @@ public:
 	static void putString(DataStream* ds, std::string *str);
 	static GSUuid* getGSUuid(DataStream* ds);
 	static void putGSUuid(DataStream* ds, GSUuid*);
-	static void printByteArray(ByteArray* ba);
+//	static void printByteArray(ByteArray* ba);
 
 private:
 	DataStreamUtils(){};

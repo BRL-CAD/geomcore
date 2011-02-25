@@ -38,9 +38,7 @@ DataStreamUtils::getGSUuid(DataStream* ds)
 void
 DataStreamUtils::putGSUuid(DataStream* ds, GSUuid *uuid)
 {
-    std::string* str = uuid->toString();
   DataStreamUtils::putString(ds, uuid->toString());
-  delete str;
 }
 
 std::string* DataStreamUtils::getString(DataStream* ds)
@@ -57,7 +55,6 @@ std::string* DataStreamUtils::getString(DataStream* ds)
   ds->advance(len+sizeof(uint32_t));
 
   return out;
-  
 }
 
 void DataStreamUtils::putString(DataStream* ds, std::string str)
@@ -74,25 +71,21 @@ void DataStreamUtils::putString(DataStream* ds, std::string *str)
 	DataStreamUtils::putString(ds, *str);
 }
 
+/*
 void DataStreamUtils::printByteArray(ByteArray* ba) 
 {
-  std::cout << std::endl;
+    uint32_t size = ba->size();
+    char *b = ba->data();
+    bu_log("\nByteArray.Size(): %d\n", size);
 
-  uint32_t size = ba->size();
-
-  std::cout << "ByteArray.Size(): " << size << std::endl;
-
-  for (uint32_t i = 0; i < size; ++i)
-    {
-      char c = ba->at(i);
-      std::cout << (int)c << " '" << c << "', ";
-      
-      if ((i + 1) % 25 == 0) {
-          std::cout << std::endl;
-      }
+    for (uint32_t i = 0; i < size; ++i, b++) {
+	bu_log("%d '%c' ", *b, *b);
+	if ((i + 1) % 25 == 0)
+	    bu_log("\n");
     }
-  std::cout << std::endl << std::endl;
+    bu_log("\n");
 }
+*/
 
 /*
  * Local Variables:
