@@ -39,6 +39,7 @@ public:
 
 	char* data();
 	int size();
+	void assign(const char *buf, int len);
 
 private:
 	bu_vlb vlb;

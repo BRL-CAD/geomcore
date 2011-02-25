@@ -35,6 +35,7 @@ ByteArray::~ByteArray() { bu_vlb_free(&vlb); }
 
 char *ByteArray::data() { return (char *)bu_vlb_addr(&vlb); }
 int ByteArray::size() { return bu_vlb_buflen(&vlb); }
+void ByteArray::assign(const char *buf, int size) { bu_vlb_reset(&vlb); bu_vlb_write(&vlb, (unsigned char *)buf, size); }
 
 /*
  * Local Variables:
