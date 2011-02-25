@@ -105,6 +105,9 @@ int main(int argc, char* argv[]) {
 	items->push_back(strUUID05);
 	items->push_back(strUUID06);
 
+	if(argc == 3 && argv[1][0] == '-' && argv[1][1] == 'v')
+		verbose = atoi(argv[2]);
+
 	Logger::getInstance();
 
 	/* Test Normal */
