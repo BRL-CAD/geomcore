@@ -37,10 +37,7 @@ GenericMultiByteMsg::GenericMultiByteMsg(uint32_t type, char* dataIn,
 {
     /* Deep copy */
     this->data = (char*) malloc(dataInLen);
-
-    for (uint32_t i = 0; i < dataInLen; ++i) {
-	this->data[i] = dataIn[i];
-    }
+    memcpy(this->data, dataIn, dataInLen);
 }
 
 /* Reply Constructor */
@@ -49,25 +46,16 @@ GenericMultiByteMsg::GenericMultiByteMsg(uint32_t type, NetMsg* msg, char* dataI
 {
     /* Deep copy */
     this->data = (char*) malloc(dataInLen);
-
-    for (uint32_t i = 0; i < dataInLen; ++i) {
-	this->data[i] = dataIn[i];
-    }
+    memcpy(this->data,  dataIn, dataInLen);
 }
 
 /* Deserializing Constructor */
 GenericMultiByteMsg::GenericMultiByteMsg(DataStream* ds, Portal* origin) :
     NetMsg(ds, origin)
 {
-    uint32_t len = htonl(this->dataLen);
-    ds->append((const char *)&len, 4);
-    this->data = (char*) malloc(dataLen);
-
-    for (uint32_t i = 0; i < this->dataLen; ++i) {
-	uint8_t c;
-	ds->append((const char *)&c, 1);
-	this->data[i] = c;
-    }
+    dataLen = htonl(*(uint32_t*)ds->get(sizeof(uint32_t)));
+    data = (char*) malloc(dataLen);
+    memcpy(data, ds->get(dataLen), dataLen);
 }
 
 /* Destructor */
@@ -80,12 +68,7 @@ bool GenericMultiByteMsg::_serialize(DataStream* ds)
 {
     uint32_t len = htonl(this->dataLen);
     ds->append((const char *)&len, 4);
-    for (uint32_t i = 0; i < this->dataLen; ++i) {
-
-	/* Oddness, the DataStream won't detect this is a uint8_t */
-	/* Therefore you MUST cast it. */
-	ds->append((const char *)this->data+i, 1);
-    }
+    ds->append((const char *)this->data, dataLen);
     return true;
 }
 
