@@ -54,8 +54,9 @@ GSUuid::toString()
 	char *buf = NULL;
 	size_t len = 0;
 	uuid_export((uuid_t *)this->uuid, UUID_FMT_STR, &buf, &len);
+	std::string* out = new std::string(buf,len);
 	free(buf);
-	return new std::string(buf,len);
+	return out;
 }
 
 GSUuid *
