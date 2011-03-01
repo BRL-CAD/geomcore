@@ -39,7 +39,7 @@ GSThread::GSThread()
 GSThread::~GSThread()
 {
     this->running = false;
-    pthread_join(this->p, NULL);
+    //pthread_join(this->p, NULL);
     GSThread::remThread(this);
 }
 
