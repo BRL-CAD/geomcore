@@ -450,22 +450,13 @@ main(int argc, const char *argv[])
   /* Beginnings of code intended to use search results to identify
    * regions and assemblies.
    */
-  struct rt_search_dbinfo dbinfo;
-  struct rt_search_results results;
-  struct rt_search_dir_list *entry;
-  dbinfo.dbip = dbip;
-  dbinfo.wdbp = wdbp;
-  bu_vls_init(&results.result_str);
-  BU_LIST_INIT(&(results.dir_list.l));
-  /* will have to construct an argc/argv pair with the assembly search
-   * logic to feed to rtsearch
-   */
-  rt_search(&dbinfo, &results, argc, argv);
-  while (BU_LIST_WHILE(entry, rt_search_dir_list, &(results.dir_list.l))) {
-	  bu_log("Entry value is %s\n", entry->dp->d_namep);
-	  BU_LIST_DEQUEUE(&(entry->l));
-	  bu_free(entry, "free rt_search_dir_list entry");
-  }
+  1.  construct search argv for finding regions
+  2.  build search plan
+  3.  build list of toplevel objects (perhaps search logic should do this for empty path list?)
+  4.  db_search_unique_objects with assembly plan
+  5.  do the same for regions - will need to decide how to handle nested regions
+  6.  iterate over the tables, doing shallow writes for assemblies and deep copy writes
+      for regions.  add everything to svn
 #endif
 
 
