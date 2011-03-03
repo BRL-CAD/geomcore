@@ -452,10 +452,9 @@ main(int argc, const char *argv[])
    */
   1.  construct search argv for finding regions
   2.  build search plan
-  3.  build list of toplevel objects (perhaps search logic should do this for empty path list?)
-  4.  db_search_unique_objects with assembly plan
-  5.  do the same for regions - will need to decide how to handle nested regions
-  6.  iterate over the tables, doing shallow writes for assemblies and deep copy writes
+  3.  db_search_unique_objects with assembly plan
+  4.  do the same for regions - will need to decide how to handle nested regions
+  5.  iterate over the tables, doing shallow writes for assemblies and deep copy writes
       for regions.  add everything to svn
 #endif
 
