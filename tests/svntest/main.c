@@ -545,10 +545,6 @@ main(int argc, const char *argv[])
   BU_GETSTRUCT(path_list, db_full_path_list);
   BU_LIST_INIT(&(path_list->l));
   assembly_objs = db_search_unique_objects(dbplan, path_list, dbip, wdbp);
-  for (inc=0; inc < (int)BU_PTBL_LEN(assembly_objs); inc++) {
-	  dp = (struct directory *)BU_PTBL_GET(assembly_objs, inc);
-	  printf("assembly: %s\n", dp->d_namep);
-  }
   bu_free(dbplan, "free plan");
   db_free_full_path_list(path_list);
   /*
@@ -562,10 +558,6 @@ main(int argc, const char *argv[])
   BU_GETSTRUCT(path_list, db_full_path_list);
   BU_LIST_INIT(&(path_list->l));
   region_objs = db_search_unique_objects(dbplan, path_list, dbip, wdbp);
-  for (inc=0; inc < (int)BU_PTBL_LEN(region_objs); inc++) {
-	  dp = (struct directory *)BU_PTBL_GET(region_objs, inc);
-	  printf("region: %s\n", dp->d_namep);
-  }
   bu_free(dbplan, "free plan");
   db_free_full_path_list(path_list);
 
@@ -582,7 +574,7 @@ main(int argc, const char *argv[])
 	  keepfp = wdb_fopen_v(file_path, db_version(dbip));
 	  knd.wdbp = keepfp;
 	  knd.gedp = &gedp;
-	  db_update_ident(keepfp->dbip, "svn test", dbip->dbi_local2base);
+	  db_update_ident(keepfp->dbip, "assembly", dbip->dbi_local2base);
 	  node_write(dbip, dp, (genptr_t)&knd);
 	  wdb_close(keepfp);
 	  svn_pool_clear(subpool);
@@ -592,13 +584,12 @@ main(int argc, const char *argv[])
   for (inc=0; inc < (int)BU_PTBL_LEN(region_objs); inc++) {
 	  dp = (struct directory *)BU_PTBL_GET(region_objs, inc);
 	  sprintf(file_path, "%s/%s/%s", full_checkout_path1, pieces_path, dp->d_namep);
-	  printf("file_path: %s\n", file_path);
+	  printf("region: %s\n", file_path);
 	  keepfp = wdb_fopen_v(file_path, db_version(dbip));
 	  knd.wdbp = keepfp;
 	  knd.gedp = &gedp;
-	  db_update_ident(keepfp->dbip, "svn test", dbip->dbi_local2base);
-/*	  db_functree(dbip, dp, node_write, node_write, &rt_uniresource, (void *)&knd);*/
-	  node_write(dbip, dp, (genptr_t)&knd);
+	  db_update_ident(keepfp->dbip, "region", dbip->dbi_local2base);
+	  db_functree(dbip, dp, node_write, node_write, &rt_uniresource, (void *)&knd);
 	  wdb_close(keepfp);
 	  svn_pool_clear(subpool);
 	  svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
