@@ -48,10 +48,10 @@ node_write(struct db_i *dbip, struct directory *dp, genptr_t ptr)
 	struct rt_db_internal intern;
 
 	RT_CK_WDB(kndp->wdbp);
-
+/*
 	if (dp->d_nref++ > 0)
-		return;         /* already written */
-
+		return;      
+*/
 	if (rt_db_get_internal(&intern, dp, dbip, NULL, &rt_uniresource) < 0) {
 		bu_vls_printf(&kndp->gedp->ged_result_str, "Database read error, aborting\n");
 		return;
