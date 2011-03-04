@@ -41,6 +41,54 @@ struct keep_node_data {
 	struct ged *gedp;
 };
 
+void
+node_write(struct db_i *dbip, struct directory *dp, genptr_t ptr)
+{
+	struct keep_node_data *kndp = (struct keep_node_data *)ptr;
+	struct rt_db_internal intern;
+
+	RT_CK_WDB(kndp->wdbp);
+
+	if (dp->d_nref++ > 0)
+		return;         /* already written */
+
+	if (rt_db_get_internal(&intern, dp, dbip, NULL, &rt_uniresource) < 0) {
+		bu_vls_printf(&kndp->gedp->ged_result_str, "Database read error, aborting\n");
+		return;
+	}
+
+	/* if this is an extrusion, keep the referenced sketch */
+	if (dp->d_major_type == DB5_MAJORTYPE_BRLCAD && dp->d_minor_type == DB5_MINORTYPE_BRLCAD_EXTRUDE) {
+		struct rt_extrude_internal *extr;
+		struct directory *dp2;
+
+		extr = (struct rt_extrude_internal *)intern.idb_ptr;
+		RT_EXTRUDE_CK_MAGIC(extr);
+
+		if ((dp2 = db_lookup(dbip, extr->sketch_name, LOOKUP_QUIET)) != RT_DIR_NULL) {
+			node_write(dbip, dp2, ptr);
+		}
+	} else if (dp->d_major_type == DB5_MAJORTYPE_BRLCAD && dp->d_minor_type == DB5_MINORTYPE_BRLCAD_DSP) {
+		struct rt_dsp_internal *dsp;
+		struct directory *dp2;
+
+		/* this is a DSP, if it uses a binary object, keep it also */
+		dsp = (struct rt_dsp_internal *)intern.idb_ptr;
+		RT_DSP_CK_MAGIC(dsp);
+
+		if (dsp->dsp_datasrc == RT_DSP_SRC_OBJ) {
+			/* need to keep this object */
+			if ((dp2 = db_lookup(dbip, bu_vls_addr(&dsp->dsp_name),  LOOKUP_QUIET)) != RT_DIR_NULL) {
+				node_write(dbip, dp2, ptr);
+			}
+		}
+	}
+
+	if (wdb_put_internal(kndp->wdbp, dp->d_namep, &intern, 1.0) < 0) {
+		bu_vls_printf(&kndp->gedp->ged_result_str, "Database write error, aborting\n");
+		return;
+	}
+}
 
 /*** Code. ***/
 
@@ -464,9 +512,9 @@ main(int argc, const char *argv[])
    */
   /* 1.  construct search argv for finding regions */
   int inc = 0;
-  char **av;
+  char **av,**reg_av;
   void *dbplan;
-  struct bu_ptbl *assembly_objs;
+  struct bu_ptbl *assembly_objs, *region_objs;
   struct db_full_path_list *path_list;
   struct directory *dp;
   av = (char **)bu_malloc(sizeof(char *)*7, "assemblies argv");
@@ -477,6 +525,13 @@ main(int argc, const char *argv[])
   av[4] = "-type";
   av[5] = "region";
   av[6] = '\0';
+
+  /* Regions should probably be done with the traditional loop
+   * over all db objects, but for now test search some more */
+  reg_av = (char **)bu_malloc(sizeof(char *)*3, "assemblies argv");
+  reg_av[0] = "-type";
+  reg_av[1] = "region";
+  reg_av[2] = '\0';
 
 
   /* 2.  build search plan */
@@ -494,9 +549,27 @@ main(int argc, const char *argv[])
 	  dp = (struct directory *)BU_PTBL_GET(assembly_objs, inc);
 	  printf("assembly: %s\n", dp->d_namep);
   }
+  bu_free(dbplan, "free plan");
   db_free_full_path_list(path_list);
   /*
-  4.  do the same for regions - will need to decide how to handle nested regions
+  4.  do the same for regions - will need to decide how to handle nested regions */
+  dbplan = db_search_formplan(&reg_av[0], dbip, wdbp);
+  bu_free((void *)reg_av, "free assemblies argv");
+  if(!dbplan) {
+	  printf("auugh - no plan!\n");
+	  exit(EXIT_FAILURE);
+  }
+  BU_GETSTRUCT(path_list, db_full_path_list);
+  BU_LIST_INIT(&(path_list->l));
+  region_objs = db_search_unique_objects(dbplan, path_list, dbip, wdbp);
+  for (inc=0; inc < (int)BU_PTBL_LEN(region_objs); inc++) {
+	  dp = (struct directory *)BU_PTBL_GET(region_objs, inc);
+	  printf("region: %s\n", dp->d_namep);
+  }
+  bu_free(dbplan, "free plan");
+  db_free_full_path_list(path_list);
+
+  /*
   5.  iterate over the tables, doing shallow writes for assemblies and deep copy writes
       for regions.  add everything to svn
       */
@@ -504,35 +577,35 @@ main(int argc, const char *argv[])
   struct keep_node_data knd;
   for (inc=0; inc < (int)BU_PTBL_LEN(assembly_objs); inc++) {
 	  dp = (struct directory *)BU_PTBL_GET(assembly_objs, inc);
-	  if (dp->d_nref != 0) {
-		  sprintf(file_path, "%s/%s/%s", full_checkout_path1, pieces_path, dp->d_namep);
-		  printf("file_path: %s\n", file_path);
-		  keepfp = wdb_fopen_v(file_path, db_version(dbip));
-		  knd.wdbp = keepfp;
-		  knd.gedp = &gedp;
-		  db_update_ident(keepfp->dbip, "svn test", dbip->dbi_local2base);
-		  node_write(dbip, dp, (genptr_t)&knd);
-		  wdb_close(keepfp);
-		  svn_pool_clear(subpool);
-		  svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
-		  *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
-	  } else {
-		  if(!BU_STR_EQUAL(dp->d_namep, "_GLOBAL")) {
-			  sprintf(file_path, "%s/%s/%s", full_checkout_path1, parent_path, dp->d_namep);
-			  printf("toplevel: %s\n", file_path);
-			  keepfp = wdb_fopen_v(file_path, db_version(dbip));
-			  knd.wdbp = keepfp;
-			  knd.gedp = &gedp;
-			  db_update_ident(keepfp->dbip, "svn test", dbip->dbi_local2base);
-			  node_write(dbip, dp, (genptr_t)&knd);
-			  wdb_close(keepfp);
-			  svn_pool_clear(subpool);
-			  svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
-			  *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
-		  }
-	  }
+	  sprintf(file_path, "%s/%s/%s", full_checkout_path1, parent_path, dp->d_namep);
+	  printf("assembly: %s\n", file_path);
+	  keepfp = wdb_fopen_v(file_path, db_version(dbip));
+	  knd.wdbp = keepfp;
+	  knd.gedp = &gedp;
+	  db_update_ident(keepfp->dbip, "svn test", dbip->dbi_local2base);
+	  node_write(dbip, dp, (genptr_t)&knd);
+	  wdb_close(keepfp);
+	  svn_pool_clear(subpool);
+	  svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
+	  *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
+  }
+  for (inc=0; inc < (int)BU_PTBL_LEN(region_objs); inc++) {
+	  dp = (struct directory *)BU_PTBL_GET(region_objs, inc);
+	  sprintf(file_path, "%s/%s/%s", full_checkout_path1, pieces_path, dp->d_namep);
+	  printf("file_path: %s\n", file_path);
+	  keepfp = wdb_fopen_v(file_path, db_version(dbip));
+	  knd.wdbp = keepfp;
+	  knd.gedp = &gedp;
+	  db_update_ident(keepfp->dbip, "svn test", dbip->dbi_local2base);
+/*	  db_functree(dbip, dp, node_write, node_write, &rt_uniresource, (void *)&knd);*/
+	  node_write(dbip, dp, (genptr_t)&knd);
+	  wdb_close(keepfp);
+	  svn_pool_clear(subpool);
+	  svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
+	  *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
   }
 
+  bu_ptbl_free(region_objs);
   bu_ptbl_free(assembly_objs);
 
   for(i=0; i< targets->nelts;  i++){
