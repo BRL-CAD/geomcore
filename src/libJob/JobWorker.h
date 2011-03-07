@@ -19,7 +19,7 @@
  */
 /** @file JobWorker.h
  *
- * Represents a single QThread implementation that is managed by the
+ * Represents a single GSThread implementation that is managed by the
  * JobManager and executes AbstractJob objects.
  *
  */

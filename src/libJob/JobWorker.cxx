@@ -46,7 +46,7 @@ void JobWorker::run()
     this->status = WORKER_READY;
 
     //TODO There MUST be a more dynamic way to have the workers idle other than a sleep
-    //NOTE Semaphore perhaps?  QT Signal?
+    //NOTE Semaphore perhaps?
     while (this->runCmd) {
     	this->status = WORKER_READY;
     	if (!jm->hasNextJob()) {
