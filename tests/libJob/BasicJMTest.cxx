@@ -44,8 +44,9 @@ int main(int argc, char* argv[])
 
     sleep(1);
 
-    jm->shutdown();
-    sleep(1);
+    for (int i = 0; i<NUMJOBS;++i)
+     	delete jobs[i];
+
     delete jm;
     return 0;
 }
