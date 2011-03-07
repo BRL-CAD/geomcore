@@ -26,6 +26,7 @@
 #include "GSThread.h"
 
 #include <bu.h>
+#include <unistd.h>
 
 class Bah : public GSThread
 {

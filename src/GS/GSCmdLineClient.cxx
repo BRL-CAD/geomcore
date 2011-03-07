@@ -28,6 +28,7 @@
 #include <string>
 #include <list>
 #include <sstream>
+#include <algorithm>
 
 #include "AbstractClientCmd.h"
 #include "ExitCmd.h"

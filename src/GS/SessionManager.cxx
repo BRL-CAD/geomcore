@@ -29,6 +29,7 @@
 #include "FailureMsg.h"
 
 #include <GSThread.h>
+#include <algorithm>
 
 SessionManager* SessionManager::pInstance = NULL;
 
