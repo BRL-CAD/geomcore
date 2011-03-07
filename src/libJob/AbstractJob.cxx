@@ -29,7 +29,6 @@
 AbstractJob::AbstractJob()
 {
     this->status = JOB_NOTSTARTED;
-    this->jobID = 0;
 }
 
 AbstractJob::~AbstractJob()
@@ -48,7 +47,7 @@ JobStatus AbstractJob::getStatus()
     return this->status;
 }
 
-uint32_t AbstractJob::getJobId()
+GSUuid AbstractJob::getJobId()
 {
     return this->jobID;
 }

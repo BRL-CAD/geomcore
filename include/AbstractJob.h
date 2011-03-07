@@ -25,6 +25,7 @@
 #define __ABSTRACTJOB_H__
 
 #include <stdint.h>
+#include "GSUuid.h"
 
 /** @enum JobStatus
  * Defines three values relating to the potential status of the job.
@@ -84,7 +85,7 @@ public:
 	/**
 	 * Returns the JobID for this job.  JobID is a 32bit integer value.
 	 */
-	uint32_t getJobId();
+	GSUuid getJobId();
 
 protected:
 	/**
@@ -101,7 +102,7 @@ protected:
 	/**
 	 * Internal field for storing Job's ID.
 	 */
-	uint32_t jobID;
+	GSUuid jobID;
 
 	/**
 	 * Internal field for storing Job's current status.
