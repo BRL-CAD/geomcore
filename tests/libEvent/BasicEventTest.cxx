@@ -32,8 +32,6 @@
 #include "EventPublisher.h"
 #include "EventTypes.h"
 
-#include <QtCore/Qt>
-
 class TestSubscriber : public EventSubscriber
 {
 public:

@@ -27,7 +27,7 @@
 
 #include "libnet.h"
 
-#include <QtCore/QString>
+#include <string>
 
 class PrintingMsgHandler : public INetMsgHandler
 {
@@ -40,7 +40,7 @@ public:
     }
 
 private:
-    QString _name;
+    std::string _name;
 };
 #endif /* __PRINTINGMSGHANDLER_H__ */
 
