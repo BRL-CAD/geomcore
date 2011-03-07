@@ -41,7 +41,7 @@ JobResult PrintToStdOutJob::_doJob()
 {
 	usleep(2500);
     GSMutexLocker(this->streamLock);
-    std::cout << "JobID:" << this->jobID << " Text: "<< text;
+    std::cout << "JobID:" << *(this->jobID.toString()) << " Text: "<< text;
     return JOB_COMPLETED_NO_ERRORS;
 }
 

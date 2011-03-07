@@ -27,18 +27,25 @@
 #include "JobManager.h"
 #include "GSThread.h"
 
+#define NUMJOBS 30
+
 int main(int argc, char* argv[])
 {
-    PrintToStdOutJob* ptsoJob = new PrintToStdOutJob("The quick brown fox jumps over the lazy dog.\n");
-
     JobManager* jm = JobManager::getInstance();
     jm->startup();
 
-    for (int i = 0; i< 30;++i) {
-	jm->submitJob(ptsoJob);
-	usleep(100);
-    }
+    //Prep array of jobs
+    PrintToStdOutJob* jobs[NUMJOBS];
+    for (int i = 0; i<NUMJOBS;++i)
+    	jobs[i] = new PrintToStdOutJob("The quick brown fox jumps over the lazy dog.\n");
 
+    for (int i = 0; i<NUMJOBS;++i)
+    	jm->submitJob(jobs[i]);
+
+    sleep(1);
+
+    jm->shutdown();
+    sleep(1);
     delete jm;
     return 0;
 }
