@@ -140,14 +140,6 @@ find_package(BRLCAD REQUIRED)
 # If BRL-CAD doesn't provide TCL, we need to find it
 find_package(TCL REQUIRED)
 
-# For the moment, we need Qt
-find_package(Qt4 REQUIRED QtCore QtNetwork)
-
-# Configure QT4
-ADD_DEFINITIONS(${QT_DEFINITIONS})
-include(${QT_USE_FILE})
-SET(QT_VERSION "${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}")
-
 # Always include the toplevel include dir
 include_directories(
 	${GEOMCORE_SOURCE_DIR}/include
