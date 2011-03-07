@@ -29,6 +29,7 @@
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <string.h>
 
 /* Normal Constructor */
 GenericMultiByteMsg::GenericMultiByteMsg(uint32_t type, char* dataIn,
