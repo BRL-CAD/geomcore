@@ -65,10 +65,6 @@ JobManager::~JobManager() {
 }
 
 void JobManager::startup() {
-
-	if (this->jobWorkers->size() > 0)
-		return;
-
 	for (std::list<JobWorker*>::iterator it=this->jobWorkers->begin(); it != this->jobWorkers->end(); it++)
 		(*it)->start();
 	this->acceptJobs = true;
