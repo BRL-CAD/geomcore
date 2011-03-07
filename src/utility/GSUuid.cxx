@@ -25,6 +25,7 @@
 
 #include "uuid.h"
 #include "GSUuid.h"
+#include <stdlib.h>
 
 GSUuid::GSUuid()
 {
