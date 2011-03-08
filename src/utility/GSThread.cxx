@@ -95,7 +95,7 @@ GSThread::isRunning()
 }
 
 GSMutex::GSMutex(){ pthread_mutex_init(&this->lck,NULL); }
-GSMutex::~GSMutex(){}
+GSMutex::~GSMutex(){ pthread_mutex_destroy(&this->lck); }
 void GSMutex::lock(){ pthread_mutex_lock(&this->lck);}
 void GSMutex::unlock(){ pthread_mutex_unlock(&this->lck);}
 
