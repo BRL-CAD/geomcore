@@ -471,19 +471,6 @@ main(int argc, const char *argv[])
      *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
   }
 
-  char pieces_path[1024];
-  sprintf(pieces_path,"%s/havoc_contents", parent_path);
-  sprintf(file_path,"%s/%s", full_checkout_path1, pieces_path);
-  printf("file_path: %s\n", file_path);
-  if(mkdir(file_path, (S_IRWXU | S_IRWXG | S_IRWXO))) {
-     printf("mkdir failed: %s\n", file_path);
-     exit(EXIT_FAILURE);
-  } else { 
-     svn_pool_clear(subpool);
-     svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
-     *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
-  }
-
 #if 0
   FILE *fp;
   fp = fopen(file_path,"w");
@@ -583,7 +570,7 @@ main(int argc, const char *argv[])
   }
   for (inc=0; inc < (int)BU_PTBL_LEN(region_objs); inc++) {
 	  dp = (struct directory *)BU_PTBL_GET(region_objs, inc);
-	  sprintf(file_path, "%s/%s/%s", full_checkout_path1, pieces_path, dp->d_namep);
+	  sprintf(file_path, "%s/%s/%s", full_checkout_path1, parent_path, dp->d_namep);
 	  printf("region: %s\n", file_path);
 	  keepfp = wdb_fopen_v(file_path, db_version(dbip));
 	  knd.wdbp = keepfp;
