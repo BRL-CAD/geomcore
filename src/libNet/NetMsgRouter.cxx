@@ -77,15 +77,16 @@ bool NetMsgRouter::routeMsg(NetMsg* msg) {
 
 std::list<INetMsgHandler*>*
 NetMsgRouter::getListOfHandlers(uint16_t type) {
-	GSMutexLocker(&this->mapLock);
+    GSMutexLocker(&this->mapLock);
 
-	std::list<INetMsgHandler*>* l = this->routingTable->find(type)->second;
+    std::map<uint16_t,std::list<INetMsgHandler*>*>::iterator it = this->routingTable->find(type);
 
-	if (l == 0) {
-		l = new std::list<INetMsgHandler*> ();
-		this->routingTable->insert(std::pair<int,std::list<INetMsgHandler*>*>(type, l));
-	}
+    if (it == this->routingTable->end()) {
+	std::list<INetMsgHandler*>* l = new std::list<INetMsgHandler*> ();
+	this->routingTable->insert(std::pair<int,std::list<INetMsgHandler*>*>(type, l));
 	return l;
+    }
+    return it->second;
 }
 
 void
