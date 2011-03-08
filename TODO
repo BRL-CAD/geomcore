@@ -9,12 +9,9 @@ codebase.
 
 //TODO Look at /src/GE/exception and see if anything is actually using those files.  If not, remove them.
 
-//TODO Look at removing requirement for Qt
-
 //TODO review CMake logic
 
 Probably lots more...
 
 //TODO Implement GSMutex/GSMutexLocker
-//TODO Wire in the UUID stuff
 //TODO Fix segfaults in tests
