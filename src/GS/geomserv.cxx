@@ -17,7 +17,7 @@
  * License along with this file; see the file named COPYING for more
  * information.
  */
-/** @file geoserv.cxx
+/** @file geomserv.cxx
  *
  * Brief description
  *
@@ -36,11 +36,11 @@
 int gsExit(int code)
 {
 	Logger* log = Logger::getInstance();
-    log->logBANNER("geoserv", "GeometryService is Shutting Down...");
+    log->logBANNER("geomserv", "GeometryService is Shutting Down...");
 
 	JobManager::getInstance()->shutdown(true);
 
-	log->logINFO("geoserv", "Exiting.");
+	log->logINFO("geomserv", "Exiting.");
 	usleep(1000); /* Yeild main thread, let other threads finish unlocking */
 	exit(code);
 }
@@ -53,43 +53,43 @@ int main(int argc, char* argv[])
 	JobManager::getInstance()->startup();
 
     Logger* log = Logger::getInstance();
-    log->logBANNER("geoserv", "GeometryService Config Loader");
+    log->logBANNER("geomserv", "GeometryService Config Loader");
 
     Config* c = Config::getInstance();
 
     /* Load configs from File */
-    bool goodLoad = c->loadFile("geoserv.config", true);
+    bool goodLoad = c->loadFile("geomserv.config", true);
 
     if ( ! goodLoad) {
-    	log->logERROR("geoserv","Failed to properly Load config File.  Exiting.");
+    	log->logERROR("geomserv","Failed to properly Load config File.  Exiting.");
     	gsExit(1);
     }
 
     /* Check for a local node name.  This is imperative to be set. */
     std::string localNodeName(c->getConfigValue("LocalNodeName"));
     if (localNodeName.length() == 0) {
-		log->logERROR("geoserv", "Config File does not contain a 'LocalNodeName' parameter");
+		log->logERROR("geomserv", "Config File does not contain a 'LocalNodeName' parameter");
 		gsExit(1);
 	}
 
-    log->logBANNER("geoserv", "Booting GeometryService: " + localNodeName);
+    log->logBANNER("geomserv", "Booting GeometryService: " + localNodeName);
 
     std::string sPort = c->getConfigValue("ListenPort");
     uint16_t port = 0;
 
     if (sPort.length() == 0){
-    	log->logERROR("geoserv", "Config File does not contain a 'ListenPort' parameter, using default");
+    	log->logERROR("geomserv", "Config File does not contain a 'ListenPort' parameter, using default");
     	port = DEFAULT_LISTEN_PORT;
     } else {
 	if (sPort.length() <= 0){
-	    log->logERROR("geoserv", "Config File contains a 'ListenPort' key, however the value length was <= 0.");
+	    log->logERROR("geomserv", "Config File contains a 'ListenPort' key, however the value length was <= 0.");
 	    gsExit(1);
 	}
 
 	port = atoi(sPort.c_str());
 
 	if (port < 1){
-	    log->logERROR("geoserv", "Config File contains a 'ListenPort' key, however the value failed to parse to a valid number.");
+	    log->logERROR("geomserv", "Config File contains a 'ListenPort' key, however the value failed to parse to a valid number.");
 	    return 1;
 	}
     }
@@ -104,11 +104,11 @@ int main(int argc, char* argv[])
     	std::string fileRepoPath(c->getConfigValue("FileRepoPath"));
 
     	if (fileRepoPath.length() == 0) {
-         	log->logERROR("geoserv", "FileRepo was flagged for use, but no 'FilePathRepo' var was configured.");
+         	log->logERROR("geomserv", "FileRepo was flagged for use, but no 'FilePathRepo' var was configured.");
     		return 1;
     	}
 
-     	log->logINFO("geoserv", "FileDataSouce being used.");
+     	log->logINFO("geomserv", "FileDataSouce being used.");
         FileDataSource* fds = new FileDataSource(fileRepoPath);
         gs.getDataManager()->addDataSource(fds);
      }
@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
 
     gs.run(); /* blocks */
 
-	log->logINFO("geoserv", "Exiting...");
+	log->logINFO("geomserv", "Exiting...");
     return 0;
 }
 

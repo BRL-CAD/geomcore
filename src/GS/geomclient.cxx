@@ -17,7 +17,7 @@
  * License along with this file; see the file named COPYING for more
  * information.
  */
-/** @file geoclient.cxx
+/** @file geomclient.cxx
  *
  * Brief description
  *
@@ -30,11 +30,11 @@
 int gsExit(int code)
 {
 	Logger* log = Logger::getInstance();
-    log->logBANNER("geoclient", "GSClient is Shutting Down...");
+    log->logBANNER("geomclient", "GSClient is Shutting Down...");
 
 	JobManager::getInstance()->shutdown(true);
 
-	log->logINFO("geoclient", "Exiting.");
+	log->logINFO("geomclient", "Exiting.");
 	usleep(1000); /* Yeild main thread, let other threads finish unlocking */
 	exit(code);
 }
@@ -48,22 +48,22 @@ main(int argc, char* argv[])
 	JobManager::getInstance()->startup();
 
 	Logger* log = Logger::getInstance();
-	log->logBANNER("geoclient", "GSClient Config Loader");
+	log->logBANNER("geomclient", "GSClient Config Loader");
 
 	Config* c = Config::getInstance();
 
 	/* Load configs from File */
-	bool goodLoad = c->loadFile("geoclient.config", true);
+	bool goodLoad = c->loadFile("geomclient.config", true);
 
 	if ( ! goodLoad) {
-		log->logERROR("geoclient","Failed to properly Load config File.  Exiting.");
+		log->logERROR("geomclient","Failed to properly Load config File.  Exiting.");
 		gsExit(1);
 	}
 
 	/* Check for a local node name.  This is imperative to be set. */
 	std::string localNodeName = c->getConfigValue("LocalNodeName");
 	if (localNodeName.length() == 0) {
-		log->logERROR("geoclient", "Config File does not contain a 'LocalNodeName' parameter");
+		log->logERROR("geomclient", "Config File does not contain a 'LocalNodeName' parameter");
 		gsExit(1);
 	}
 
