@@ -25,6 +25,7 @@
 
 #include "Config.h"
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -54,6 +55,8 @@ bool Config::loadFile(std::string pathAndFileName, bool verbose)
 {
     FILE *f;
     char buf[BUFSIZ];
+    char *realpathptr;
+    char realpathstr[MAXPATHLEN];
 
     this->log->logINFO("Config", "Attemping to load config from: '" + pathAndFileName + "'.");
 
@@ -75,8 +78,9 @@ bool Config::loadFile(std::string pathAndFileName, bool verbose)
 	if (verbose && key.length() > 0)
 	    log->logINFO("Config", "Read key/value: '" + key + "'->'" + configMap->find(key)->second + "'");
     }
-
-    log->logINFO("Config", std::string("Done loading config from: ") + realpath(pathAndFileName.c_str(), NULL));
+    
+    realpathptr = realpath(pathAndFileName.c_str(), realpathstr);
+    log->logINFO("Config", std::string("Done loading config from: ") + realpathptr);
     return true;
 }
 

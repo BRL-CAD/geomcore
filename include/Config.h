@@ -26,6 +26,8 @@
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
+#include "commonDefines.h"
+
 #include "Logger.h"
 
 #include <map>

@@ -26,6 +26,23 @@
 #ifndef __COMMONDEFINES_H__
 #define __COMMONDEFINES_H__
 
+/**
+ * Maximum length of a filesystem path.  Typically defined in a system
+ * file but if it isn't set, we create it.
+ */
+#ifndef MAXPATHLEN
+#  ifdef PATH_MAX
+#    define MAXPATHLEN PATH_MAX
+#  else
+#    ifdef _MAX_PATH
+#      define MAXPATHLEN _MAX_PATH
+#    else
+#      define MAXPATHLEN 1024
+#    endif
+#  endif
+#endif
+
+
 #define ALL_EVENT_PUBLISHERS	0
 
 #endif /* __COMMONDEFINES_H__ */
