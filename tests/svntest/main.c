@@ -458,6 +458,7 @@ main(int argc, const char *argv[])
   
   /* Add a new directory to the first working copy and svn add it to the repository */
   char parent_path[1024];
+  char child_path[1024];
   sprintf(parent_path,"havoc.g", full_checkout_path1);
   char file_path[1024];
   sprintf(file_path,"%s/%s", full_checkout_path1, parent_path);
@@ -557,7 +558,16 @@ main(int argc, const char *argv[])
   for (inc=0; inc < (int)BU_PTBL_LEN(assembly_objs); inc++) {
 	  dp = (struct directory *)BU_PTBL_GET(assembly_objs, inc);
 	  sprintf(file_path, "%s/%s/%s", full_checkout_path1, parent_path, dp->d_namep);
-	  printf("assembly: %s\n", file_path);
+	  printf("file_path: %s\n", file_path);
+	  if(mkdir(file_path, (S_IRWXU | S_IRWXG | S_IRWXO))) {
+		  printf("mkdir failed: %s\n", file_path);
+		  exit(EXIT_FAILURE);
+	  } else { 
+		  svn_pool_clear(subpool);
+		  svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
+		  *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
+	  }
+	  sprintf(file_path, "%s/%s/%s/%s", full_checkout_path1, parent_path, dp->d_namep, dp->d_namep);
 	  keepfp = wdb_fopen_v(file_path, db_version(dbip));
 	  knd.wdbp = keepfp;
 	  knd.gedp = &gedp;
@@ -571,6 +581,15 @@ main(int argc, const char *argv[])
   for (inc=0; inc < (int)BU_PTBL_LEN(region_objs); inc++) {
 	  dp = (struct directory *)BU_PTBL_GET(region_objs, inc);
 	  sprintf(file_path, "%s/%s/%s", full_checkout_path1, parent_path, dp->d_namep);
+	  if(mkdir(file_path, (S_IRWXU | S_IRWXG | S_IRWXO))) {
+		  printf("mkdir failed: %s\n", file_path);
+		  exit(EXIT_FAILURE);
+	  } else { 
+		  svn_pool_clear(subpool);
+		  svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
+		  *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
+	  }
+	  sprintf(file_path, "%s/%s/%s/%s", full_checkout_path1, parent_path, dp->d_namep, dp->d_namep);
 	  printf("region: %s\n", file_path);
 	  keepfp = wdb_fopen_v(file_path, db_version(dbip));
 	  knd.wdbp = keepfp;
