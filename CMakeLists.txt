@@ -28,7 +28,7 @@ ENDIF(COMMAND CMAKE_POLICY)
 PROJECT(GEOMCORE)
 
 #Set path for cmake modules.
-SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
 
 #---------------------------------------------------------------------
 # We want to check /usr/local by default, so add it 
