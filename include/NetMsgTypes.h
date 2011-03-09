@@ -19,14 +19,38 @@
  */
 /** @file NetMsgTypes.h
  *
- * Brief description
+ * Types for use in sending messages over a Geometry Service connection
  *
  */
 
 #ifndef __NETMSGTYPES_H__
 #define __NETMSGTYPES_H__
 
-/*  NetMsg Types */
+/**  
+ * NetMsg Types
+ *
+ * <table>
+ *   <tr><td>MsgType ID</td> <td>Name</td> <td>Parent Class</td> <td>Additional Info</td></tr>
+ *   <tr><td>0x0042</td> <td>RUALIVE</td> <td>TypeOnlyMsg</td> <td></td></tr>
+ *   <tr><td>0x0043</td> <td>IMALIVE</td> <td>TypeOnlyMsg</td> <td></td></tr>
+ *   <tr><td>0x0050</td> <td>Failure</td> <td>GenericOneByteMsg</td> <td></td></tr>
+ *   <tr><td>0x0051</td> <td>Success</td> <td>GenericOneByteMsg</td> <td></td></tr>
+ *   <tr><td>0x0060</td> <td>PING</td> <td>GenericEightByteMsg</td> <td></td></tr>
+ *   <tr><td>0x0061</td> <td>PONG</td> <td>GenericEightByteMsg</td> <td></td></tr>
+ *   <tr><td>0x0100</td> <td>GS Remote Nodename Set</td> <td>GenericOneStringMsg</td> <td></td></tr>
+ *   <tr><td>0x0150</td> <td>Disconnect Request</td> <td>TypeOnlyMsg</td> <td></td></tr>
+ *   <tr><td>0x0200</td> <td>New Node On Network</td> <td>GenericOneStringMsg</td> <td></td></tr>
+ *   <tr><td>0x0250</td> <td>Full Nodename List Request</td> <td></td> <td>Not Implemented Yet</td></tr>
+ *   <tr><td>0x0255</td> <td>Full Nodename List</td> <td></td> <td>Not Implemented Yet</td></tr>
+ *   <tr><td>0x0300</td> <td>New Session Request</td> <td>NetMsg</td> <td></td></tr>
+ *   <tr><td>0x0305</td> <td>Session Information</td> <td>NetMsg</td> <td></td></tr>
+ *   <tr><td>0x0400</td> <td>Geometry Request</td> <td>GenericOneStringMsg</td> <td>Had additional Custom fields.</td></tr>
+ *   <tr><td>0x0405</td> <td>Geometry Manifest</td> <td>NetMsg</td> <td></td></tr>
+ *   <tr><td>0x0410</td> <td>Geometry Chuck</td> <td>GenericMultiByteMsg</td> <td></td></tr>
+* </table>
+*   
+*
+*/
 
 #define	TEST_GENERIC_4BYTE_MSG	        0x0020
 #define	TEST_GENERIC_2BYTE_MSG	        0x0021

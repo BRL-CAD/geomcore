@@ -19,7 +19,7 @@
  */
 /** @file GenericOneByteMsg.h
  *
- * Brief description
+ *  Generic NetMsg Virtual Subclass containing a single One Byte Field 
  *
  */
 

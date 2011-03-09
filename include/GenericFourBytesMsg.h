@@ -19,7 +19,7 @@
  */
 /** @file GenericFourBytesMsg.h
  *
- * Brief description
+ * Generic NetMsg Virtual Subclass containing a single Four Byte Field
  *
  */
 

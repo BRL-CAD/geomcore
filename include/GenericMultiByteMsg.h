@@ -19,7 +19,7 @@
  */
 /** @file GenericMultiByteMsg.h
  *
- * Brief description
+ * Generic NetMsg Virtual Subclass containing a 32 bit Length and a variable length Byte[] Field
  *
  */
 
