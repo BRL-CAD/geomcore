@@ -87,6 +87,8 @@ GSCmdLineClient::run()
 		std::string cmd(*(list.begin()));
 		std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
 
+		list.pop_front(); /* remove the cmd from the front */
+
 		this->execCmd(cmd, list);
 	}
 
