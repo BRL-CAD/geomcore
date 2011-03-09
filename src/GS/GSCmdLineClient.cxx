@@ -67,14 +67,16 @@ GSCmdLineClient::run()
 		std::cout << prompt;
 		getline (std::cin, in);
 
-		/* cathc zero length strings here */
+		/* Catch zero length strings here */
 		if (in.length() == 0)
 			continue;
 
 	    /* split string */
 		std::istringstream iss(in.c_str());
 		std::list<std::string> list;
-		do { std::string tok; iss>>tok; list.push_back(tok); } while(iss);
+		do { std::string tok; iss>>tok; list.push_back(tok); std::cout <<tok<<std::endl;} while(iss);
+		list.pop_back(); /* remove the empty end */
+
 
 		/* check to see if there is at least one element */
 		if (list.size() <= 0) {
