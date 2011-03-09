@@ -24,4 +24,9 @@
 ##########################################################################
 
 PROJECT(gsclient)
-add_library(gsclient SHARED STATIC gsclient.c)
+add_library(gsclient SHARED gsclient.c)
+add_library(gsclient-static STATIC gsclient.c)
+IF(NOT WIN32)
+	SET_TARGET_PROPERTIES(gsclient-static PROPERTIES OUTPUT_NAME "gsclient")
+ENDIF(NOT WIN32)
+
