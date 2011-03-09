@@ -134,6 +134,9 @@ ENDIF(CMAKE_BUILD_TYPE)
 # Enable/disable Subversion related build (default off)
 OPTION(BUILD_SVN_TARGETS "Build subversion related code" OFF)
 
+# Enable the doxygen documentation build
+OPTION(BUILD_GEOMCORE_DOXYGEN_DOCS "Create doxygen documentation for developers" OFF)
+
 # We need BRL-CAD
 find_package(BRLCAD REQUIRED)
 
@@ -153,7 +156,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 ADD_SUBDIRECTORY(src)
 
 # Set up Docs
-#ADD_SUBDIRECTORY(docs)
+ADD_SUBDIRECTORY(doc)
 
 OPTION(GEOMCORE_BUILD_TESTS "Build GeomCore Tests" ON)
 #Decend into the test tree.
