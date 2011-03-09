@@ -1,0 +1,60 @@
+The formal way to specify the URL of a directory or concrete resource in a Geometry Service repository is as follows:
+
+gs://host.of.geometry.service[:port]/name[:revision]/name[:revision]/...etc[:revision}[/]
+
+where:
+
+[port] Port is an optional paramater, default is 5309.
+
+[revision] Revision is an optional per path step parameter, default is HEAD.
+
+[/] A trailing backslash indicates a directory, whereas the absense of a backslash indicates a concrete resource. 
+
+
+
+Examples
+--------
+
+* Requesting a directory listing for all lotus models:
+
+gs://geoserv.brlcad.org/wheeled/civilian/cars/sports/lotus/ 
+
+Returns:
+
+2-eleven.g
+elise.g
+exige.g
+evora.g
+t125_exos.g
+...
+
+* Requesting a directory listing of elise.g
+
+gs://geoserv.brlcad.org/wheeled/civilian/cars/sports/lotus/elise.g/
+
+Returns:
+
+elise-top
+elise-frame
+elise-exterior_panels
+elise-windows
+elise-interior
+elise-fuel
+elise-engine
+elise-drive_train
+elise-electrical
+elise-lamps
+...
+
+* Requesting the geometry of elise.g
+
+gs://geoserv.brlcad.org/wheeled/civilian/cars/sports/lotus/elise.g
+
+Returns a bu_external array with the contents of elise.g
+
+* Requesting an image
+
+gs://geoserv.brlcad.org/wheeled/civilian/cars/sports/lotus/elise.png
+
+would return a raytraced PNG image of the associated geometry with default
+dimensions.
