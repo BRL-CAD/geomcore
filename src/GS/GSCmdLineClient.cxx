@@ -74,7 +74,7 @@ GSCmdLineClient::run()
 	    /* split string */
 		std::istringstream iss(in.c_str());
 		std::list<std::string> list;
-		do { std::string tok; iss>>tok; list.push_back(tok); std::cout <<tok<<std::endl;} while(iss);
+		do { std::string tok; iss>>tok; list.push_back(tok);} while(iss);
 		list.pop_back(); /* remove the empty end */
 
 
