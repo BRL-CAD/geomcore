@@ -378,20 +378,10 @@ class GeometryClient
 /*******************************************/
 
 /* used for keeping track of failures */
-int failures = 0;
+static int failures = 0;
 
 /* assert that a specific test condition is true */
-#define GAS(cond, m) \
-    if (cond) { \
-	std::string msg = "      [ \x1B[32mSUCCESS\x1B[m ] "; \
-	msg += m; \
-	Report(msg); \
-    } else { \
-	std::string msg = "      [ \x1B[32mFAILURE\x1B[m ] "; \
-	msg += m; \
-	Report(msg); \
-	failures++; \
-    }
+#define GAS(cond, m) bu_log("      [ \x1B[3%s\x1B[m ] %s\n", cond?"2mSUCCESS":(failures++,"1mFAILURE"), m);
 
 /* helper function to report each section while keeping count */
 static void Report(const std::string msg, bool showTitle = false)
@@ -403,18 +393,18 @@ static void Report(const std::string msg, bool showTitle = false)
 }
 
 /* basic end-of-section sanity testing with summary reporting */
-#define RESULT() \
+#define RESULT() { \
     GAS(gs != NULL && gs->stillRunning(), "Server is still running"); \
     if (failures == 0) { \
-	std::string msg = "OK :)"; \
+	std::string msg = "\x1B[32mOK :)\x1B[m"; \
 	Report(msg, true); \
 	std::cout << std::endl; \
     } else { \
-	std::string msg = "NO !!"; \
+	std::string msg = "\x1B[21mNO !!\x1B[m"; \
 	Report(msg, true);   \
 	std::cout << std::endl; \
     } \
-    failures = 0;
+    failures = 0; }
 
 /* basic beginning of section marker */
 #define REQUIREMENT(m) \
@@ -430,19 +420,16 @@ static void Connect(GeometryClient *gc, GeometryClient *gc2 = NULL,
     if (gc && !gc2 && !gc3) {
 	gc->connect();
 	GAS(gc->connected(), "Connecting client");
-    }
-    else if (gc && gc2 && !gc3) {
+    } else if (gc && gc2 && !gc3) {
 	gc->connect();
 	gc2->connect();
 	GAS(gc->connected() && gc2->connected(), "Connecting two clients");
-    }
-    else if (gc && gc2 && gc3) {
+    } else if (gc && gc2 && gc3) {
 	gc->connect();
 	gc2->connect();
 	gc3->connect();
 	GAS(gc->connected() && gc2->connected() && gc3->connected(), "Connecting three clients");
-    }
-    else {
+    } else {
 	std::cerr << "Unexpected test harness state" << std::endl;
 	exit(1);
     }
@@ -455,36 +442,29 @@ static void Disconnect(GeometryClient *gc, GeometryClient *gc2 = NULL,
 	if (gc->connected()) {
 	    gc->disconnect();
 	    GAS(!gc->connected(), "Disconnecting client");
-	}
-	else {
+	} else
 	    GAS(gc->connected(), "Disconnecting client");
-	}
-    }
-    else if (gc && gc2 && !gc3) {
+    } else if (gc && gc2 && !gc3) {
 	if (gc->connected() || gc2->connected()) {
 	    gc->disconnect();
 	    gc2->disconnect();
 	    GAS(!gc->connected() || !gc2->connected(), "Disconnecting two clients");
-	}
-	else {
+	} else {
 	    GAS(gc->connected(), "Disconnecting client one");
 	    GAS(gc2->connected(), "Disconnecting client two");
 	}
-    }
-    else if (gc && gc2 && gc3) {
+    } else if (gc && gc2 && gc3) {
 	if (gc->connected() || gc2->connected() || gc3->connected()) {
 	    gc->disconnect();
 	    gc2->disconnect();
 	    gc3->disconnect();
 	    GAS(!gc->connected() || !gc2->connected() || !gc3->connected(), "Disconnecting three clients");
-	}
-	else {
+	} else {
 	    GAS(gc->connected(), "Disconnecting client one");
 	    GAS(gc2->connected(), "Disconnecting client two");
 	    GAS(gc3->connected(), "Disconnecting client three");
 	}
-    }
-    else {
+    } else {
 	std::cerr << "Unexpected test harness state" << std::endl;
 	exit(1);
     }
@@ -507,10 +487,8 @@ int main(int ac, char *av[])
 
     /* don't need no params just yet */
     if (ac > 1) {
-	for (int i = 1; i < ac; i++) {
-	    std::cerr << "Unexpected test harness parameter: [" << av[i] << "]"
-		<< std::endl;
-	}
+	for (int i = 1; i < ac; i++)
+	    std::cerr << "Unexpected test harness parameter: [" << av[i] << "]" << std::endl;
 	exit(1);
     }
 
@@ -538,6 +516,7 @@ int main(int ac, char *av[])
     sleep(1);
     std::cout << "\t2\n";
 
+#if 0	/* it makes no sense to connect without a server... */
     gc->connect();
     sleep(1);
     std::cout << "\t3\n";
@@ -545,6 +524,7 @@ int main(int ac, char *av[])
     GAS(!gc->connected(), "Client prevented from connecting");
     sleep(1);
     std::cout << "\t4\n";
+#endif
 
     gs->start();
     sleep(1);
@@ -716,10 +696,8 @@ int main(int ac, char *av[])
 	attr.clear();
 	gc->getAttribute(gcdir[0], "foo", attr);
 	GAS(attr.size() == 0, "Client ensuring attribute now exists");
-    }
-    else {
+    } else
 	GAS(false, "Unable to test attributes");
-    }
     Disconnect(gc);
 
     RESULT();
@@ -846,9 +824,8 @@ int main(int ac, char *av[])
 	GAS(rep2.size() != 0, "Getting updated mesh representation of object");
 	GAS(rep.size() > 0 && rep2.size() > 0 && rep != rep2, "Ensuring representations are different");
     }
-    else {
+    else
 	GAS(false, "Unable to test getting mesh representations");
-    }
     Disconnect(gc);
 
     RESULT();
@@ -873,9 +850,8 @@ int main(int ac, char *av[])
 	//sleep(1); // give server time to process
 	GAS(gc->eventsReceived() > 0, "Client received representation events");
     }
-    else {
+    else
 	GAS(false, "Unable to test getting point cloud representations");
-    }
 
     Disconnect(gc);
 
