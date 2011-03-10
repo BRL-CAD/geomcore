@@ -44,69 +44,69 @@ static const uint16_t DEFAULT_PORT = 5309;
  */
 class GeometryServer
 {
-private:
-    uint16_t _port;
-    std::string* _addy;
-    GeometryService* gs;
+    private:
+	uint16_t _port;
+	std::string* _addy;
+	GeometryService* gs;
 
-public:
-    GeometryServer(std::string* addy = new std::string("127.0.0.1"), const uint16_t port = DEFAULT_PORT)
-    {
-		if (port > 0)
-			start(addy, port);
-    }
+    public:
+	GeometryServer(std::string* addy = new std::string("127.0.0.1"), const uint16_t port = DEFAULT_PORT)
+	{
+	    if (port > 0)
+		start(addy, port);
+	}
 
-    ~GeometryServer()
-    {
-    	if (this->gs != NULL)
-    		delete this->gs;
-    }
+	~GeometryServer()
+	{
+	    if (this->gs != NULL)
+		delete this->gs;
+	}
 
-    bool stillRunning() const
-    {
-        sleep(1);
-        std::cout << "\tGS:" << this->gs << std::endl;
+	bool stillRunning() const
+	{
+	    sleep(1);
+	    std::cout << "\tGS:" << this->gs << std::endl;
 
-    	if (this->gs == NULL)
-    		return false;
+	    if (this->gs == NULL)
+		return false;
 
-    	bool isRun = this->gs->isRunning();
+	    bool isRun = this->gs->isRunning();
 
-    	sleep(1);
-        std::cout << "\tisRun "<< isRun << std::endl;
-
-
-		return isRun;
-    }
-
-    void start(std::string* addy, const uint16_t port = DEFAULT_PORT)
-    {
-	std::string localName("Athena");
-    	/* FIXME Are these two internals really needed? */
-    	this->_port = port;
-    	this->_addy = addy;
-
-       	this->gs = new GeometryService(localName, port, *addy);
-
-       	this->gs->start();
-    }
-
-    void start()
-    {
-       	this->gs->start();
-    }
+	    sleep(1);
+	    std::cout << "\tisRun "<< isRun << std::endl;
 
 
-    void stop() const
-    {
-    	if (this->gs == NULL) {
-    		return;
-    	}
+	    return isRun;
+	}
 
-    	this->gs->shutdown();
-    	usleep(100000);
-    	delete this->gs;
-    }
+	void start(std::string* addy, const uint16_t port = DEFAULT_PORT)
+	{
+	    std::string localName("Athena");
+	    /* FIXME Are these two internals really needed? */
+	    this->_port = port;
+	    this->_addy = addy;
+
+	    this->gs = new GeometryService(localName, port, *addy);
+
+	    this->gs->start();
+	}
+
+	void start()
+	{
+	    this->gs->start();
+	}
+
+
+	void stop() const
+	{
+	    if (this->gs == NULL) {
+		return;
+	    }
+
+	    this->gs->shutdown();
+	    usleep(100000);
+	    delete this->gs;
+	}
 };
 
 /**
@@ -116,261 +116,261 @@ public:
  */
 class GeometryClient
 {
-private:
-    GSUuid* testClientID;
-    GSClient* gsClient;
-    Portal* portal;
+    private:
+	GSUuid* testClientID;
+	GSClient* gsClient;
+	Portal* portal;
 
-    bool exists(std::string object) const
-    {
-	if (object.size() == 0)
+	bool exists(std::string object) const
+	{
+	    if (object.size() == 0)
+		return false;
+
+	    // ask server if object exists
 	    return false;
+	}
+    public:
+	GeometryClient()
+	{
+	    this->testClientID = GSUuid::createUuid();
+	    this->gsClient = new GSClient(*this->testClientID->toString());
+	    this->portal == NULL;
+	    std::cerr << "Portal:" << this->portal << std::endl;
+	}
 
-	// ask server if object exists
-	return false;
-    }
-public:
-    GeometryClient()
-    {
-    	this->testClientID = GSUuid::createUuid();
-    	this->gsClient = new GSClient(*this->testClientID->toString());
-    	this->portal == NULL;
-		std::cerr << "Portal:" << this->portal << std::endl;
-    }
+	~GeometryClient()
+	{
+	    if (this->gsClient != NULL)
+		delete gsClient;
+	}
 
-    ~GeometryClient()
-    {
-    	if (this->gsClient != NULL)
-    		delete gsClient;
-    }
+	void connect(const char *address = "127.0.0.1", int port = DEFAULT_PORT)
+	{
+	    if (port < 0) {
+		std::cerr << "Unexpected test harness state: port<0" << std::endl;
+		exit(1);
+	    }
+	    if (this->gsClient == NULL) {
+		std::cerr << "Unexpected test harness state: Null GSClient" << std::endl;
+		exit(1);
+	    }
 
-    void connect(const char *address = "127.0.0.1", int port = DEFAULT_PORT)
-    {
-		if (port < 0) {
-			std::cerr << "Unexpected test harness state: port<0" << std::endl;
-			exit(1);
-		}
-		if (this->gsClient == NULL) {
-			std::cerr << "Unexpected test harness state: Null GSClient" << std::endl;
-			exit(1);
-		}
+	    PortalManager* clientPortMan = this->gsClient->getPortMan();
 
-		PortalManager* clientPortMan = this->gsClient->getPortMan();
+	    if (clientPortMan == NULL) {
+		std::cerr << "Unexpected test harness state: Null PortalManager" << std::endl;
+		exit(1);
+	    }
 
-		if (clientPortMan == NULL) {
-			std::cerr << "Unexpected test harness state: Null PortalManager" << std::endl;
-			exit(1);
-		}
+	    Portal* p = clientPortMan->connectToHost("localhost", 12345);
 
-		Portal* p = clientPortMan->connectToHost("localhost", 12345);
+	    if (p == NULL) {
+		std::cerr << "Unexpected test harness state: Failure on ConnectToHost.  Portal:" << this->portal << std::endl;
+		return;
+	    }
 
-		if (p == NULL) {
-			std::cerr << "Unexpected test harness state: Failure on ConnectToHost.  Portal:" << this->portal << std::endl;
-			return;
-		}
+	    this->portal = p;
+	}
 
-		this->portal = p;
-    }
+	void disconnect() const
+	{
+	}
 
-    void disconnect() const
-    {
-    }
+	bool connected() const
+	{
+	    return (this->portal != NULL);
+	}
 
-    bool connected() const
-    {
-    	return (this->portal != NULL);
-    }
+	//TODO implement 'getDirectory'
+	std::vector<std::string> getDirectory() const
+	{
+	    std::vector<std::string> v;
+	    return v;
+	}
 
-    //TODO implement 'getDirectory'
-    std::vector<std::string> getDirectory() const
-    {
-	std::vector<std::string> v;
-	return v;
-    }
+	//TODO implement 'getObject'
+	std::string getObject(const std::string object, const std::string version =
+		std::string("")) const
+	{
+	    std::string encoding = "";
 
-    //TODO implement 'getObject'
-    std::string getObject(const std::string object, const std::string version =
-	    std::string("")) const
-    {
-	std::string encoding = "";
+	    // get encoding from server for a given object version ("" is current)
 
-	// get encoding from server for a given object version ("" is current)
+	    return encoding;
+	}
 
-	return encoding;
-    }
+	//TODO implement 'getVersion'
+	std::string getVersion(const std::string object) const
+	{
+	    if (exists(object))
+		return std::string("");
 
-    //TODO implement 'getVersion'
-    std::string getVersion(const std::string object) const
-    {
-	if (exists(object))
-	    return std::string("");
-
-	// get the version from server, return as string
-
-	return std::string("");
-    }
-
-    //TODO implement 'putObject'
-    bool putObject(const std::string encoding) const
-    {
-	if (encoding.size() == 0)
-	    return false;
-
-	// write object encoding to server
-
-	return false;
-    }
-
-    //TODO implement 'addObject'
-    bool addObject(const std::string object) const
-    {
-	if (exists(object))
-	    return false;
-
-	// encode object for put
-	std::string encoding = object;
-
-	return putObject(encoding);
-    }
-
-    //TODO implement 'updateObject'
-    bool updateObject(const std::string object) const
-    {
-	if (!exists(object))
-	    return false;
-
-	std::string encoding = getObject(object);
-	if (encoding.size() == 0)
-	    return false;
-
-	// modify the encoding
-
-	return putObject(object);
-    }
-
-    //TODO implement 'deleteObject'
-    bool deleteObject(const std::string object) const
-    {
-	if (!exists(object))
-	    return false;
-
-	// remove it, return true
-
-	return false;
-    }
-
-    //TODO implement 'getAttribute'
-    bool getAttribute(const std::string object, const std::string name,
-	    std::string &value) const
-    {
-	if (!exists(object))
-	    return false;
-
-	// see if object has a name attribute, set value, return true
-
-	return false;
-    }
-
-    //TODO implement 'setAttribute'
-    bool setAttribute(const std::string object, const std::string name,
-	    std::string value) const
-    {
-	if (!exists(object))
-	    return false;
-
-	// set name=value on object, return true
-
-	return false;
-    }
-
-    typedef enum _representation_t
-    {
-	WIREFRAME, TRIANGLES, POINTS, NURBS, CAD
-    } representation_t;
-
-    //TODO implement 'getRepresentation'
-    std::string getRepresentation(const std::string object,
-	    representation_t representation, bool blocking = true) const
-    {
-	if (!blocking) {
-	    // get unevaluated representation handle, return it
+	    // get the version from server, return as string
 
 	    return std::string("");
 	}
 
-	switch (representation) {
-	case WIREFRAME:
-	    {
-		// get wireframe representation from server, return true
+	//TODO implement 'putObject'
+	bool putObject(const std::string encoding) const
+	{
+	    if (encoding.size() == 0)
+		return false;
 
-		break;
-	    }
-	case TRIANGLES:
-	    {
-		// get triangle mesh representation from server, return true
+	    // write object encoding to server
 
-		break;
-	    }
-	case POINTS:
-	    {
-		// get point-cloud representation from server, return true
-
-		break;
-	    }
-	case NURBS:
-	    {
-		// get NURBS representation from server, return true
-
-		break;
-	    }
-	case CAD:
-	    {
-		// get .g representation from server, return true
-
-		break;
-	    }
+	    return false;
 	}
-	return std::string("");
-    }
 
-    //TODO implement 'evaluateRepresentation'
-    void evaluateRepresentation(const std::string representation) const
-    {
-	// tell server to begin evaluating the non-blocking representation handle
-    }
+	//TODO implement 'addObject'
+	bool addObject(const std::string object) const
+	{
+	    if (exists(object))
+		return false;
 
-    //TODO implement 'subscribeEvent'
-   bool subscribeEvent() const
-    {
-	// subscribe to all events on server, return true
+	    // encode object for put
+	    std::string encoding = object;
 
-	return false;
-    }
+	    return putObject(encoding);
+	}
 
-   //TODO implement 'unsubscribeEvent'
-    bool unsubscribeEvent() const
-    {
-	// unsubscribe to all events on server, return true
+	//TODO implement 'updateObject'
+	bool updateObject(const std::string object) const
+	{
+	    if (!exists(object))
+		return false;
 
-	return false;
-    }
+	    std::string encoding = getObject(object);
+	    if (encoding.size() == 0)
+		return false;
 
-    //TODO implement 'eventsReceived'
-    int eventsReceived() const
-    {
-	// retrieved any events buffered on server, return count
+	    // modify the encoding
 
-	return 0;
-    }
+	    return putObject(object);
+	}
 
-    //TODO implement 'shootRay'
-    bool shootRay(const double point[3], const double direction[3],
-	    const std::string object) const
-    {
-	// tell server to fire ray at object, return true
+	//TODO implement 'deleteObject'
+	bool deleteObject(const std::string object) const
+	{
+	    if (!exists(object))
+		return false;
 
-	return false;
-    }
+	    // remove it, return true
+
+	    return false;
+	}
+
+	//TODO implement 'getAttribute'
+	bool getAttribute(const std::string object, const std::string name,
+		std::string &value) const
+	{
+	    if (!exists(object))
+		return false;
+
+	    // see if object has a name attribute, set value, return true
+
+	    return false;
+	}
+
+	//TODO implement 'setAttribute'
+	bool setAttribute(const std::string object, const std::string name,
+		std::string value) const
+	{
+	    if (!exists(object))
+		return false;
+
+	    // set name=value on object, return true
+
+	    return false;
+	}
+
+	typedef enum _representation_t
+	{
+	    WIREFRAME, TRIANGLES, POINTS, NURBS, CAD
+	} representation_t;
+
+	//TODO implement 'getRepresentation'
+	std::string getRepresentation(const std::string object,
+		representation_t representation, bool blocking = true) const
+	{
+	    if (!blocking) {
+		// get unevaluated representation handle, return it
+
+		return std::string("");
+	    }
+
+	    switch (representation) {
+		case WIREFRAME:
+		    {
+			// get wireframe representation from server, return true
+
+			break;
+		    }
+		case TRIANGLES:
+		    {
+			// get triangle mesh representation from server, return true
+
+			break;
+		    }
+		case POINTS:
+		    {
+			// get point-cloud representation from server, return true
+
+			break;
+		    }
+		case NURBS:
+		    {
+			// get NURBS representation from server, return true
+
+			break;
+		    }
+		case CAD:
+		    {
+			// get .g representation from server, return true
+
+			break;
+		    }
+	    }
+	    return std::string("");
+	}
+
+	//TODO implement 'evaluateRepresentation'
+	void evaluateRepresentation(const std::string representation) const
+	{
+	    // tell server to begin evaluating the non-blocking representation handle
+	}
+
+	//TODO implement 'subscribeEvent'
+	bool subscribeEvent() const
+	{
+	    // subscribe to all events on server, return true
+
+	    return false;
+	}
+
+	//TODO implement 'unsubscribeEvent'
+	bool unsubscribeEvent() const
+	{
+	    // unsubscribe to all events on server, return true
+
+	    return false;
+	}
+
+	//TODO implement 'eventsReceived'
+	int eventsReceived() const
+	{
+	    // retrieved any events buffered on server, return count
+
+	    return 0;
+	}
+
+	//TODO implement 'shootRay'
+	bool shootRay(const double point[3], const double direction[3],
+		const std::string object) const
+	{
+	    // tell server to fire ray at object, return true
+
+	    return false;
+	}
 };
 
 /*******************************************/
@@ -496,8 +496,8 @@ static void Disconnect(GeometryClient *gc, GeometryClient *gc2 = NULL,
 
 int main(int ac, char *av[])
 {
-	Logger::getInstance();
-	JobManager::getInstance();
+    Logger::getInstance();
+    JobManager::getInstance();
 
     //disable the logger for now.
     Logger::getInstance()->disableLogToConsole();
@@ -509,7 +509,7 @@ int main(int ac, char *av[])
     if (ac > 1) {
 	for (int i = 1; i < ac; i++) {
 	    std::cerr << "Unexpected test harness parameter: [" << av[i] << "]"
-		    << std::endl;
+		<< std::endl;
 	}
 	exit(1);
     }
@@ -553,20 +553,20 @@ int main(int ac, char *av[])
 
     RESULT();
 
-/* cleanup */
-usleep(1000 * 1000 * 3);
-gs->stop();
+    /* cleanup */
+    usleep(1000 * 1000 * 3);
+    gs->stop();
 
-//TODO BOOKMARK
+    //TODO BOOKMARK
 
-/* delete gc3; */
-/* delete gc2; */
-delete gc;
-delete gs;
+    /* delete gc3; */
+    /* delete gc2; */
+    delete gc;
+    delete gs;
 
-JobManager::getInstance()->shutdown(true);
+    JobManager::getInstance()->shutdown(true);
 
-return 0;
+    return 0;
 
     /**********************************************/
     /* MAKE SURE A CLIENT CAN CONNECT TO A SERVER */
