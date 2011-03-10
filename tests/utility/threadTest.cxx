@@ -30,11 +30,11 @@
 
 #include <list>
 
+#define ATTEMPT(func,name) bu_log("%s\t[\x1B[3%s\x1B[m]\n", name, func()?"1mFAILED":"2mPASSED")
+
+/**************** GSThread Test Section ************************/
 std::list<int> *resbucket;
 GSMutex *mut;
-
-
-#define ATTEMPT(func,name) bu_log("%s\t[\x1B[3%s\x1B[m]\n", name, func()?"1mFAILED":"2mPASSED")
 
 class Bah : public GSThread
 {
@@ -92,9 +92,19 @@ testGSThread()
     return -1;
 }
 
+/*************** Controlled Thread Test Section ***************/
+
+int
+testControlledThread()
+{
+    return -1;
+}
+
+/*************** main driver ***************/
 int main(int argc, char* argv[])
 {
-    ATTEMPT(testGSThread, "GSThread");
+    ATTEMPT(testGSThread,         "GSThread        ");
+    ATTEMPT(testControlledThread, "ControlledThread");
 
     return 0;
 }
