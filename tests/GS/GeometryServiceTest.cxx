@@ -383,11 +383,11 @@ int failures = 0;
 /* assert that a specific test condition is true */
 #define GAS(cond, m) \
     if (cond) { \
-	std::string msg = "      [ SUCCESS ] "; \
+	std::string msg = "      [ \x1B[32mSUCCESS\x1B[m ] "; \
 	msg += m; \
 	Report(msg); \
     } else { \
-	std::string msg = "      [ FAILURE ] "; \
+	std::string msg = "      [ \x1B[32mFAILURE\x1B[m ] "; \
 	msg += m; \
 	Report(msg); \
 	failures++; \
