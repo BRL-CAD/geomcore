@@ -64,10 +64,10 @@ protected:
 
 /*
  * Local Variables: ***
- * mode: C++ ***
- * tab-width: 8 ***
+ * mode: C
+ * tab-width: 8
  * c-basic-offset: 2 ***
- * indent-tabs-mode: t ***
+ * indent-tabs-mode: t
  * End: ***
- * ex: shiftwidth=2 tabstop=8
+ * ex: shiftwidth=4 tabstop=8
 */
