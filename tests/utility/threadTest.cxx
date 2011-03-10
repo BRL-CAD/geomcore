@@ -28,31 +28,73 @@
 #include <bu.h>
 #include <unistd.h>
 
+#include <list>
+
+std::list<int> *resbucket;
+GSMutex *mut;
+
+
+#define ATTEMPT(func,name) bu_log("%s\t[\x1B[3%s\x1B[m]\n", name, func()?"1mFAILED":"2mPASSED")
+
 class Bah : public GSThread
 {
-    void run();
+    void run() {
+	for(int i = 0; i < 10; i++) {
+	    mut->lock();
+	    resbucket->push_back(i);
+	    mut->unlock();
+	    usleep(rand()%0xf * 1000);
+	}
+    }
 };
 
-void Bah::run() {
-    int i;
-    pthread_t self;
-    self = pthread_self();
-    for(i = 0; i < 10; i++) {
-	bu_log("%d:%d\n", self, i);
-	usleep(rand()%0xf * 1000);
-    }
-}
-
-int main(int argc, char* argv[])
+int
+testGSThread()
 {
-    int i;
+    int i, prev;
     Bah *b[5];
+
+    resbucket = new std::list<int>();
+    mut = new GSMutex();
+
+    /* throw threads to fill the list */
     for(i=0;i<5;i++) b[i] = new Bah();
     for(i=0;i<5;i++) b[i]->start();
     sleep(1);
     for(i=0;i<5;i++) b[i]->terminate();
-    sleep(1);
+    usleep(10 * (2 + 0xf) * 1000);	/* TODO: spinloop the list cleaning finished threads until empty? */
     for(i=0;i<5;i++) delete b[i];
+
+    /* verify the results */
+    if(resbucket->size() != 5*10) {
+	bu_log("result bucket is not 50, but %d!\n", (int)resbucket->size());
+	return -1;
+    }
+
+    /* make sure the list is NOT sequential */
+    std::list<int>::iterator it = resbucket->begin();
+    prev = *it;
+    while(++it != resbucket->end()) {
+	/* if not sequential, then insertions were probably threaded */
+	if(*it < prev) {
+	    delete resbucket;
+	    delete mut;
+	    return 0;
+	}
+	prev = *it;
+    }
+
+    delete resbucket;
+    delete mut;
+
+    bu_log("All elements sequentional, no threading?\n");
+
+    return -1;
+}
+
+int main(int argc, char* argv[])
+{
+    ATTEMPT(testGSThread, "GSThread");
 
     return 0;
 }
