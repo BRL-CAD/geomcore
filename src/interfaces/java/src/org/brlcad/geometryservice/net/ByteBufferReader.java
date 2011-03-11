@@ -156,9 +156,9 @@ public class ByteBufferReader {
 
 	public final String getString() {
 		if (this.endianFlip)
-			return ByteBufferUtils.getString(this.bb, true);
+			return ByteBufferUtils.get8BitCharString(this.bb, true);
 		else
-			return ByteBufferUtils.getString(this.bb);
+			return ByteBufferUtils.get8BitCharString(this.bb);
 
 	}
 

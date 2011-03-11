@@ -30,11 +30,14 @@ import java.nio.ByteBuffer;
 import org.brlcad.geometryservice.GSStatics;
 
 public class ByteBufferUtils {
-	public static String getString(ByteBuffer bb) throws BufferUnderflowException {
-		return getString(bb, false);
+
+	public static String get16BitCharString(ByteBuffer bb)
+			throws BufferUnderflowException {
+		return get16BitCharString(bb, false);
 	}
 
-	public static String getString(ByteBuffer bb, boolean switchEndian) throws BufferUnderflowException {
+	public static String get16BitCharString(ByteBuffer bb, boolean switchEndian)
+			throws BufferUnderflowException {
 		String out = "";
 		synchronized (bb) {
 
@@ -64,11 +67,13 @@ public class ByteBufferUtils {
 		return out;
 	}
 
-	public static void putString(ByteBuffer bb, String data) throws BufferOverflowException {
-		putString(bb, data, false);
+	public static void put16BitCharString(ByteBuffer bb, String data)
+			throws BufferOverflowException {
+		put16BitCharString(bb, data, false);
 	}
 
-	public static void putString(ByteBuffer bb, String data, boolean switchEndian) throws BufferOverflowException {
+	public static void put16BitCharString(ByteBuffer bb, String data,
+			boolean switchEndian) throws BufferOverflowException {
 		if (data == null) {
 			data = new String("");
 		}
@@ -88,6 +93,53 @@ public class ByteBufferUtils {
 				} else {
 					bb.putChar(c);
 				}
+			}
+		}
+	}
+
+	public static String get8BitCharString(ByteBuffer bb)
+			throws BufferUnderflowException {
+		return get8BitCharString(bb, false);
+	}
+
+	public static String get8BitCharString(ByteBuffer bb, boolean switchEndian)
+			throws BufferUnderflowException {
+		String out = "";
+		synchronized (bb) {
+
+			int stringLen = bb.getInt();
+
+			if (switchEndian)
+				stringLen = Integer.reverseBytes(stringLen);
+
+			for (int i = 0; i < stringLen; ++i)
+				out += (char) bb.get();
+		}
+		return out;
+	}
+
+	public static void put8BitCharString(ByteBuffer bb, String data)
+			throws BufferOverflowException {
+		put8BitCharString(bb, data, false);
+	}
+
+	public static void put8BitCharString(ByteBuffer bb, String data,
+			boolean switchEndian) throws BufferOverflowException {
+		if (data == null) {
+			data = new String("");
+		}
+		char[] chars = data.toCharArray();
+
+		synchronized (bb) {
+			// Write length
+			if (switchEndian) {
+				bb.putInt(Integer.reverseBytes(chars.length));
+			} else {
+				bb.putInt(chars.length);
+			}
+			// Write chars
+			for (char c : chars) {
+				bb.put((byte) c);
 			}
 		}
 	}

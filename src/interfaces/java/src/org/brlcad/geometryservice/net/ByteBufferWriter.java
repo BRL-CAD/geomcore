@@ -101,9 +101,9 @@ public class ByteBufferWriter {
 
 	public void putString(String x) {
 		if (this.endianFlip) {
-			ByteBufferUtils.putString(this.bb, x, true);
+			ByteBufferUtils.put8BitCharString(this.bb, x, true);
 		} else {
-			ByteBufferUtils.putString(this.bb, x, false);
+			ByteBufferUtils.put8BitCharString(this.bb, x, false);
 		}
 		return;
 	}
