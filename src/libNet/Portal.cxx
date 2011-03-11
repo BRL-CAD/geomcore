@@ -176,10 +176,11 @@ Portal::callbackSpringboard(struct pkg_conn* conn, char* buf) {
 
 	int len = conn->pkc_inend - sizeof(pkg_header);
 
-	printf("length: %d\n", len);
-		if(len == 0) {
-			return;
-		}
+	//printf("Recv'd Data.  inend: %d , length: %d\n", conn->pkc_inend, len);
+
+	if(len < 1)
+		return;
+
 	ByteArray ba(buf, len);
 
 	if (conn->pkc_user_data == 0) {
