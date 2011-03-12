@@ -137,6 +137,14 @@ OPTION(BUILD_SVN_TARGETS "Build subversion related code" OFF)
 # Enable the doxygen documentation build
 OPTION(BUILD_GEOMCORE_DOXYGEN_DOCS "Create doxygen documentation for developers" OFF)
 
+# There is a test client for the Geometry Service in src/GS/testclient
+# that does not and should not share headers or other code with
+# the rest of geomcore - the idea is that it should have knowledge
+# only of the GS protocal.  Consequently, we configure that directory
+# before setting any include directories or compile flags for the
+# rest of geomcore.
+ADD_SUBDIRECTORY(src/GS/testclient)
+
 # We need BRL-CAD
 find_package(BRLCAD REQUIRED)
 
