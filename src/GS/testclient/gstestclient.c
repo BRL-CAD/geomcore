@@ -1,5 +1,6 @@
 #include "bu.h"
 #include "pkg.h"
+#include "string.h"
 
 /* Define Magic numbers and Message Types for GS Protocol */
 
@@ -38,11 +39,14 @@ main(int argc, char **argv) {
 	struct pkg_conn *connection;
 	const char *server;
 	int port = 5309;
+	char *msg;
 	char s_port[32] = {0};
 	int bytes_sent = 0;
 	int pkg_result = 1;
 
+	msg = (char *)bu_malloc(2 * sizeof(char), "msg");
 	/* First, make sure we can do SOMETHING - hard code everything for now */
+	bu_log("GSRUALIVE: %d %p\n", GSRUALIVE, GSRUALIVE);
 	if (!argv[1]) bu_exit(1, "Please supply server address\n");
 	server = argv[1];
 	snprintf(s_port, 31, "%d", port);
@@ -50,13 +54,15 @@ main(int argc, char **argv) {
 	if (connection == PKC_ERROR) {
 		bu_exit(1, "Connection to %s, port %d, failed.\n", server, port);
 	}
-        bytes_sent = pkg_send(GSRUALIVE, NULL, 0, connection);
+	pkg_pshort(msg, GSRUALIVE);
+        bytes_sent = pkg_send(5309, msg, strlen(msg), connection);
 	if (bytes_sent < 0) {
 		pkg_close(connection);
 		bu_exit(1, "Unable to successfully send GSRUALIVE to %s, port %d\n", server, port);
 	} else {
 		bu_log("Sent %p to %s\n", GSRUALIVE, server);
 	}
+	bu_free(msg, "free msg");
 
 
         /* TODO */
