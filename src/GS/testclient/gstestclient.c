@@ -1,4 +1,4 @@
-
+#include "bu.h"
 #include "pkg.h"
 
 /* Define Magic numbers and Message Types for GS Protocol */
@@ -37,7 +37,29 @@ int
 main(int argc, char **argv) {
 	struct pkg_conn *connection;
 	const char *server;
-	int port;
+	int port = 5309;
+	char s_port[32] = {0};
+	int bytes_sent = 0;
+	int pkg_result = 1;
+
+	/* First, make sure we can do SOMETHING - hard code everything for now */
+	if (!argv[1]) bu_exit(1, "Please supply server address\n");
+	server = argv[1];
+	snprintf(s_port, 31, "%d", port);
+	connection = pkg_open(server, s_port, "tcp",  NULL, NULL, NULL, NULL);
+	if (connection == PKC_ERROR) {
+		bu_exit(1, "Connection to %s, port %d, failed.\n", server, port);
+	}
+        bytes_sent = pkg_send(GSRUALIVE, NULL, 0, connection);
+	if (bytes_sent < 0) {
+		pkg_close(connection);
+		bu_exit(1, "Unable to successfully send GSRUALIVE to %s, port %d\n", server, port);
+	} else {
+		bu_log("Sent %p to %s\n", GSRUALIVE, server);
+	}
+
+
+        /* TODO */
 
 	/* Define a command table so we can do things like type "ping" on the 
 	 * server command prompt to send GSPING to the server */
