@@ -128,10 +128,20 @@ GeometryService::handleNetMsg(NetMsg* msg)
 	case PING:
 		{
 			Portal* p = msg->getOrigin();
+			PingMsg* pingMsg = (PingMsg*)msg;
+
+			std::stringstream ss;
+
+			std::string remNodeName("unknown");
+			if (p != NULL)
+				remNodeName = p->getRemoteNodeName();
+
+			ss << "PING from: '" << remNodeName << "' ";
+			ss << "Start Time: " << pingMsg->getStartTime();
+
+			log->logINFO("GeometryService", ss.str());
 
 			if (p != NULL) {
-				std::string remNodeName = p->getRemoteNodeName();
-				log->logINFO("GeometryService", "PING from: '" + remNodeName + "'");
 				PongMsg pongMsg((PingMsg*)msg);
 				p->send(&pongMsg);
 			} else {
@@ -148,15 +158,20 @@ GeometryService::handleNetMsg(NetMsg* msg)
 			/* calc current and differential times */
 			uint64_t start = pongMsg->getStartTime();
 			uint64_t now = Logger::getCurrentTime();
-			uint64_t diff = now -start;
+			uint64_t diff = now - start;
 
 			std::string remNodeName("unknown");
 
 			if (p != NULL)
 				remNodeName = p->getRemoteNodeName();
 
-			snprintf(buf, BUFSIZ, "Pong from '%s' + %lld ms", remNodeName.c_str(), diff);
-			log->logINFO("GSClient", buf);
+			std::stringstream ss;
+			ss << "PONG from: '" << remNodeName << "' ";
+			ss << " Start: " << start;
+			ss << " Now: " << now;
+			ss << " Diff: " << diff;
+
+			log->logINFO("GSClient", ss.str());
 			return true;
 		}
 	}
