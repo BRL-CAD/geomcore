@@ -23,9 +23,14 @@
  *
  */
 
+#include <common.h>
 
 #include "GenericEightBytesMsg.h"
 #include <sstream>
+
+#include <arpa/inet.h>
+
+#include <bu.h>
 
 /* Normal Constructor */
 GenericEightBytesMsg::GenericEightBytesMsg(uint32_t type, uint64_t data) :
@@ -41,13 +46,7 @@ GenericEightBytesMsg::GenericEightBytesMsg(uint32_t type, NetMsg* msg, uint64_t 
 GenericEightBytesMsg::GenericEightBytesMsg(DataStream* ds, Portal* origin) :
     NetMsg(ds, origin)
 {
-    data = *(uint64_t*)ds->get(8);
-#if _BYTE_ORDER == _LITTLE_ENDIAN
-    (((char *)data)[0]) ^= (((char *)data)[7]) ^= (((char *)data)[0]) ^= (((char *)data)[7]);
-    (((char *)data)[1]) ^= (((char *)data)[6]) ^= (((char *)data)[1]) ^= (((char *)data)[6]);
-    (((char *)data)[2]) ^= (((char *)data)[5]) ^= (((char *)data)[2]) ^= (((char *)data)[5]);
-    (((char *)data)[3]) ^= (((char *)data)[4]) ^= (((char *)data)[3]) ^= (((char *)data)[4]);
-#endif
+    data = ntohll(*(uint64_t*)ds->get(8));
 }
 
 /* Destructor */
@@ -98,7 +97,7 @@ uint64_t GenericEightBytesMsg::getData()
 
 /*
  * Local Variables:
- * mode: C
+ * mode: C++
  * tab-width: 8
  * indent-tabs-mode: t
  * c-file-style: "stroustrup"
