@@ -24,9 +24,12 @@
  */
 
 #include <common.h>
+#include "Logger.h"
 
 #include "GenericEightBytesMsg.h"
 #include <sstream>
+#include <cstdio>
+#include <iostream>
 
 #include <arpa/inet.h>
 
@@ -46,7 +49,8 @@ GenericEightBytesMsg::GenericEightBytesMsg(uint32_t type, NetMsg* msg, uint64_t 
 GenericEightBytesMsg::GenericEightBytesMsg(DataStream* ds, Portal* origin) :
     NetMsg(ds, origin)
 {
-    data = ntohll(*(uint64_t*)ds->get(8));
+	uint64_t t = *(uint64_t*)ds->get(8);
+    data = ntohll(t);
 }
 
 /* Destructor */
@@ -58,11 +62,9 @@ bool GenericEightBytesMsg::_serialize(DataStream* ds)
     uint64_t t = this->data;
 
 #if _BYTE_ORDER == _LITTLE_ENDIAN
-    (((char *)data)[0]) ^= (((char *)data)[7]) ^= (((char *)data)[0]) ^= (((char *)data)[7]);
-    (((char *)data)[1]) ^= (((char *)data)[6]) ^= (((char *)data)[1]) ^= (((char *)data)[6]);
-    (((char *)data)[2]) ^= (((char *)data)[5]) ^= (((char *)data)[2]) ^= (((char *)data)[5]);
-    (((char *)data)[3]) ^= (((char *)data)[4]) ^= (((char *)data)[3]) ^= (((char *)data)[4]);
+    t = htonll(this->data);
 #endif
+
     ds->append((const char *)&t, 8);
     return true;
 }
@@ -71,7 +73,7 @@ std::string GenericEightBytesMsg::toString()
 {
     char out[BUFSIZ];
 
-    snprintf(out, BUFSIZ, "%s\t data: '%d'", NetMsg::toString().c_str(), (uint32_t)this->data);
+    snprintf(out, BUFSIZ, "%s\t data: '%ld'", NetMsg::toString().c_str(), (uint64_t)this->data);
 
     return std::string(out);
 }
