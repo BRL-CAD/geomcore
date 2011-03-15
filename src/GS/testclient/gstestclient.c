@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <uuid/uuid.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -31,12 +32,17 @@
 /* DO THIS FIRST - ALL messages currently need to be full GSNet msgs with UUIDs and such,
  * so define the necssary struct and UUID code up front */
 
+struct gs_string {
+	uint32_t length;
+	uint16_t *chararray;
+};
+
 struct gs_msg_struct {
 	uint16_t magic1;
 	uint16_t magic2;
 	uint16_t msgtype;
-	char *msguuid;
-	char *msgreuuid;
+	struct gs_string msguuid;
+	struct gs_string msgreuuid;
 	void *data;
 };
 
@@ -45,7 +51,7 @@ struct gs_msg_serialized {
 	void *serialized;
 };
 
-struct gs_msg_struct *create_new_msg(uint16_t mtype, char *msgreuuid) {
+struct gs_msg_struct *create_new_msg(uint16_t mtype, struct gs_string *msgreuuid) {
 	struct gs_msg_struct *new_msg;
 	uuid_t msguuid;
 	new_msg = malloc(sizeof(struct gs_msg_struct));
@@ -53,9 +59,30 @@ struct gs_msg_struct *create_new_msg(uint16_t mtype, char *msgreuuid) {
 	new_msg->magic2 = MAGIC2;
 	new_msg->msgtype = mtype;
 	uuid_generate(msguuid);
-	uuid_unparse(msguuid, new_msg->msguuid);
-	if (msgreuuid) new_msg->msgreuuid = msgreuuid;
+	new_msg->msguuid.chararray = malloc(sizeof(uuid_t) * 2 + 4);
+	uuid_unparse(msguuid, (char *)new_msg->msguuid.chararray);
+	if (msgreuuid) {
+		new_msg->msgreuuid.chararray = malloc(sizeof(uuid_t) * 2 + 4);
+		memcpy(msgreuuid->chararray, new_msg->msgreuuid.chararray, sizeof(uuid_t) * 2 + 4);
+	}
 	return new_msg;
+}
+
+void gs_msg_free(struct gs_msg_struct *msg) {
+	if (msg->msguuid.chararray) free(msg->msguuid.chararray);
+	if (msg->msgreuuid.chararray) free(msg->msgreuuid.chararray);
+	if (msg->data) free(msg->data);
+	free(msg);
+}
+
+/* Debug print function */
+void print_gs_msg(struct gs_msg_struct *new_msg) {
+	printf("MAGIC1: %p\n", new_msg->magic1);
+	printf("MAGIC2: %p\n", new_msg->magic2);
+	printf("msgtype: %p\n", new_msg->msgtype);
+	printf("msguuid: %s\n", (char *)new_msg->msguuid.chararray);
+	if (new_msg->msgreuuid.chararray)
+		printf("msgreuuid: %s\n", new_msg->msgreuuid);
 }
 
 /* Need:
@@ -73,7 +100,12 @@ struct gs_msg_struct *create_new_msg(uint16_t mtype, char *msgreuuid) {
 
 int
 main(int argc, char **argv) {
-        /* TODO */
+	struct gs_msg_struct *test_msg;
+	test_msg = create_new_msg(GSRUALIVE, NULL);
+	print_gs_msg(test_msg);
+	gs_msg_free(test_msg);
+
+	/* TODO */
 
 	/* Set up a vanilla socket based connector to the GS - better if we don't assume
 	 * libpkg so we can demonstrate reliance on nothing but the protocol docs */
