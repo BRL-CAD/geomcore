@@ -43,9 +43,13 @@ public:
 	static Config* getInstance();
 
 	bool loadFile(std::string pathAndFileName, bool verbose = false);
-	std::string getConfigValue(std::string key);
 	void updateValue(std::string key, std::string value);
+	std::string getConfigValue(std::string key);
 	std::list<std::string>* getAllKeys();
+
+
+	uint16_t getConfigValueAsUShort(std::string key);
+	uint32_t getConfigValueAsUInt(std::string key);
 
 private:
 	Config(); /* Turn off Default cstr */

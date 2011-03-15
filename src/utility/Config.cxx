@@ -139,6 +139,20 @@ Config::getAllKeys()
 	return l;
 }
 
+uint16_t
+Config::getConfigValueAsUShort(std::string key)
+{
+    std::string ret = this->getConfigValue(key);
+    return atoi(ret.c_str());
+}
+
+uint32_t
+Config::getConfigValueAsUInt(std::string key)
+{
+    std::string ret = this->getConfigValue(key);
+    return atoi(ret.c_str());
+}
+
 /*
  * Local Variables:
  * tab-width: 8
