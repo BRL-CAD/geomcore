@@ -91,8 +91,9 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 include_directories(
 	${TCL_INCLUDE_DIRS}
 	${BRLCAD_INCLUDE_DIRS}
+	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # And now, to business
-add_executable(gstestclient gstestclient.c)
+add_executable(gstestclient gstestclient.c tpl.c)
 target_link_libraries(gstestclient ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})

@@ -1,6 +1,13 @@
-#include "bu.h"
-#include "pkg.h"
-#include "string.h"
+#include <stdlib.h>
+#include <uuid/uuid.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <inttypes.h>
+#include "tpl.h"
+
+#define MAGIC1 0x41FE
+#define MAGIC2 0x5309
 
 /* Define Message Types for GS Protocol */
 
@@ -24,74 +31,52 @@
 /* DO THIS FIRST - ALL messages currently need to be full GSNet msgs with UUIDs and such,
  * so define the necssary struct and UUID code up front */
 
-struct gs_msg {
+struct gs_msg_struct {
+	uint16_t magic1;
+	uint16_t magic2;
+	uint16_t msgtype;
+	char *msguuid;
+	char *msgreuuid;
+	void *data;
+};
+
+struct gs_msg_serialized {
+	uint32_t length;
+	void *serialized;
+};
+
+struct gs_msg_struct *create_new_msg(uint16_t mtype, char *msgreuuid) {
+	struct gs_msg_struct *new_msg;
+	uuid_t msguuid;
+	new_msg = malloc(sizeof(struct gs_msg_struct));
+	new_msg->magic1 = MAGIC1;
+	new_msg->magic2 = MAGIC2;
+	new_msg->msgtype = mtype;
+	uuid_generate(msguuid);
+	uuid_unparse(msguuid, new_msg->msguuid);
+	if (msgreuuid) new_msg->msgreuuid = msgreuuid;
+	return new_msg;
 }
 
 /* Need:
  *
  * 1.  Definitions of structures to be sending and receiving (probably structs)
  *
- * 2.  Command prompt and basic set of commands to bounce basic requests at
- *     the server - command table and very basic parsing.
+ * 2.  Serialize message structures for sending down sockets
  *
- * 3.  actual logic to pack things up, send them, and unpack them (see g_transfer.c)
+ * 3.  actual logic to send msgs, receive responses and unpack them
  *
  * 4.  once communications are established, enough logic to do something basic with
  *     received geometry to validate it, like list all objects.
  */
 
-void gs_printmsg(struct pkg_conn *pc, char *buf) {
-	if (buf) {
-		bu_log("buffer: %s\n", buf);
-		(void)free(buf);
-	}
-}
 
 int
 main(int argc, char **argv) {
-	struct pkg_conn *connection;
-	const char *server;
-	int port = 5309;
-	char *msg;
-	char s_port[32] = {0};
-	int bytes_sent = 0;
-	int pkg_result = 1;
-
-	/* Figure out how pkg_switch works and what we need it to do if anything
-	 * we'll probably need to respond to server reports by doing things like
-	 * printing "PONG" if the server sends it back to us (and more sophisticated
-	 * things with geometry returns, of course) */
-	struct pkg_switch callbacks[] = {
-		{GSIMALIVE, gs_printmsg, "Log Message", NULL},
-		{0, 0, NULL, NULL}
-	};
-
-	/* First, make sure we can do SOMETHING - hard code everything for now */
-	if (!argv[1]) bu_exit(1, "Please supply server address\n");
-
-
-	msg = (char *)bu_malloc(2 * sizeof(char), "msg");
-	bu_log("GSPING: %d %p\n", GSPING, GSPING);
-	server = argv[1];
-	snprintf(s_port, 31, "%d", port);
-	connection = pkg_open(server, s_port, "tcp",  NULL, NULL, callbacks, NULL);
-	if (connection == PKC_ERROR) {
-		bu_exit(1, "Connection to %s, port %d, failed.\n", server, port);
-	} else {
-		connection->pkc_buf = (char *)bu_malloc(50 * sizeof(char), "pkc_buff");
-	}
-	pkg_pshort(msg, GSPING);
-        bytes_sent = pkg_send(5309, msg, strlen(msg), connection);
-	if (bytes_sent < 0) {
-		pkg_close(connection);
-		bu_exit(1, "Unable to successfully send GSPING to %s, port %d\n", server, port);
-	} else {
-		bu_log("Sent %p to %s\n", GSPING, server);
-	}
-	bu_free(msg, "free msg");
-
-
         /* TODO */
+
+	/* Set up a vanilla socket based connector to the GS - better if we don't assume
+	 * libpkg so we can demonstrate reliance on nothing but the protocol docs */
 
 	/* Define a command table so we can do things like type "ping" on the 
 	 * server command prompt to send GSPING to the server */
