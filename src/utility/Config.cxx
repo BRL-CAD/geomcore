@@ -43,7 +43,8 @@ Config::~Config()
     delete this->configMap;
 }
 
-Config* Config::getInstance()
+Config*
+Config::getInstance()
 {
     if (!Config::pInstance) {
     	pInstance = new Config();
@@ -51,7 +52,8 @@ Config* Config::getInstance()
     return Config::pInstance;
 }
 
-bool Config::loadFile(std::string pathAndFileName, bool verbose)
+bool
+Config::loadFile(std::string pathAndFileName, bool verbose)
 {
     FILE *f;
     char buf[BUFSIZ];
@@ -101,7 +103,8 @@ Config::processLine(std::string line)
     }
 }
 
-void Config::removeAllOccurances(std::string* data, std::string search, std::string replace)
+void
+Config::removeAllOccurances(std::string* data, std::string search, std::string replace)
 {
 	/*
     while (data->contains(search)) {
@@ -110,7 +113,8 @@ void Config::removeAllOccurances(std::string* data, std::string search, std::str
     */
 }
 
-std::string Config::getConfigValue(std::string key)
+std::string
+Config::getConfigValue(std::string key)
 {
     std::string ret = this->configMap->find(key)->second + "";
     return ret;
@@ -122,7 +126,8 @@ Config::updateValue(std::string key, std::string value)
     this->configMap->insert(std::pair<std::string,std::string>(key, value));
 }
 
-std::list<std::string>* Config::getAllKeys()
+std::list<std::string>*
+Config::getAllKeys()
 {
 	std::list<std::string>* l = new std::list<std::string>();
 	std::map<std::string, std::string>::iterator it;
