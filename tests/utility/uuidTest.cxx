@@ -29,9 +29,8 @@
 
 int main(int argc, char* argv[])
 {
-
-	GSUuid* uuid = new GSUuid();
-	printf("%s\n", uuid->toString()->c_str());
+    GSUuid* uuid = new GSUuid();
+    printf("uuid: %s\n", uuid->toString()->c_str());
     return 0;
 }
 
