@@ -2,7 +2,7 @@
 #include "pkg.h"
 #include "string.h"
 
-/* Define Magic numbers and Message Types for GS Protocol */
+/* Define Message Types for GS Protocol */
 
 #define GSRUALIVE 0x0042 /*Test if server is up*/
 #define GSIMALIVE 0x0043 /*Expected response from running server to GSRUALIVE*/
@@ -21,6 +21,12 @@
 #define GSGM      0x0405 /*Geometry Manifest*/
 #define GSGC      0x0410 /*Geometry Chunk*/
 
+/* DO THIS FIRST - ALL messages currently need to be full GSNet msgs with UUIDs and such,
+ * so define the necssary struct and UUID code up front */
+
+struct gs_msg {
+}
+
 /* Need:
  *
  * 1.  Definitions of structures to be sending and receiving (probably structs)
@@ -34,6 +40,13 @@
  *     received geometry to validate it, like list all objects.
  */
 
+void gs_printmsg(struct pkg_conn *pc, char *buf) {
+	if (buf) {
+		bu_log("buffer: %s\n", buf);
+		(void)free(buf);
+	}
+}
+
 int
 main(int argc, char **argv) {
 	struct pkg_conn *connection;
@@ -44,23 +57,36 @@ main(int argc, char **argv) {
 	int bytes_sent = 0;
 	int pkg_result = 1;
 
-	msg = (char *)bu_malloc(2 * sizeof(char), "msg");
+	/* Figure out how pkg_switch works and what we need it to do if anything
+	 * we'll probably need to respond to server reports by doing things like
+	 * printing "PONG" if the server sends it back to us (and more sophisticated
+	 * things with geometry returns, of course) */
+	struct pkg_switch callbacks[] = {
+		{GSIMALIVE, gs_printmsg, "Log Message", NULL},
+		{0, 0, NULL, NULL}
+	};
+
 	/* First, make sure we can do SOMETHING - hard code everything for now */
-	bu_log("GSRUALIVE: %d %p\n", GSRUALIVE, GSRUALIVE);
 	if (!argv[1]) bu_exit(1, "Please supply server address\n");
+
+
+	msg = (char *)bu_malloc(2 * sizeof(char), "msg");
+	bu_log("GSPING: %d %p\n", GSPING, GSPING);
 	server = argv[1];
 	snprintf(s_port, 31, "%d", port);
-	connection = pkg_open(server, s_port, "tcp",  NULL, NULL, NULL, NULL);
+	connection = pkg_open(server, s_port, "tcp",  NULL, NULL, callbacks, NULL);
 	if (connection == PKC_ERROR) {
 		bu_exit(1, "Connection to %s, port %d, failed.\n", server, port);
+	} else {
+		connection->pkc_buf = (char *)bu_malloc(50 * sizeof(char), "pkc_buff");
 	}
-	pkg_pshort(msg, GSRUALIVE);
+	pkg_pshort(msg, GSPING);
         bytes_sent = pkg_send(5309, msg, strlen(msg), connection);
 	if (bytes_sent < 0) {
 		pkg_close(connection);
-		bu_exit(1, "Unable to successfully send GSRUALIVE to %s, port %d\n", server, port);
+		bu_exit(1, "Unable to successfully send GSPING to %s, port %d\n", server, port);
 	} else {
-		bu_log("Sent %p to %s\n", GSRUALIVE, server);
+		bu_log("Sent %p to %s\n", GSPING, server);
 	}
 	bu_free(msg, "free msg");
 
@@ -69,18 +95,6 @@ main(int argc, char **argv) {
 
 	/* Define a command table so we can do things like type "ping" on the 
 	 * server command prompt to send GSPING to the server */
-
-	/* Figure out how pkg_switch works and what we need it to do if anything
-	 * we'll probably need to respond to server reports by doing things like
-	 * printing "PONG" if the server sends it back to us (and more sophisticated
-	 * things with geometry returns, of course) */
-	struct pkg_switch callbacks[] = {
-		{0, 0, NULL, NULL},
-		{0, 0, NULL, NULL},
-		{0, 0, NULL, NULL},
-		{0, 0, NULL, NULL},
-		{0, 0, NULL, NULL}
-	};
 
 	/* process either file or command line args (or both) for server info */
 
