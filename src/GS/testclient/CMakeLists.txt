@@ -104,5 +104,5 @@ include_directories(
 )
 
 # And now, to business
-add_executable(gstestclient gstestclient.c tpl.c)
+add_executable(gstestclient gstestclient.c)
 target_link_libraries(gstestclient ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})
