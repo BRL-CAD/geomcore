@@ -5,6 +5,8 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <inttypes.h>
+#include "bu.h"
+#include "pkg.h"
 
 #define MAGIC1 0x41FE
 #define MAGIC2 0x5309
@@ -36,52 +38,62 @@ struct gs_string {
 	uint16_t *chararray;
 };
 
-struct gs_msg_struct {
-	uint16_t magic1;
-	uint16_t magic2;
+struct gs_msg {
 	uint16_t msgtype;
 	struct gs_string msguuid;
 	struct gs_string msgreuuid;
 	void *data;
 };
 
-struct gs_msg_serialized {
-	uint32_t length;
-	void *serialized;
+struct gsnet_msg {
+	uint16_t magic1;
+	uint16_t magic2;
+	uint32_t msglength;
+	struct gs_msg *msg;
 };
 
-struct gs_msg_struct *create_new_msg(uint16_t mtype, struct gs_string *msgreuuid) {
-	struct gs_msg_struct *new_msg;
+struct gsnet_msg *create_new_msg(uint16_t mtype, struct gs_string *msgreuuid) {
+	struct gsnet_msg *new_msg;
+	struct gs_msg *core_msg;
 	uuid_t msguuid;
-	new_msg = malloc(sizeof(struct gs_msg_struct));
+	new_msg = malloc(sizeof(struct gsnet_msg));
 	new_msg->magic1 = MAGIC1;
 	new_msg->magic2 = MAGIC2;
-	new_msg->msgtype = mtype;
+	core_msg = malloc(sizeof(struct gs_msg));
+	new_msg->msg = core_msg;
+	core_msg->msgtype = mtype;
 	uuid_generate(msguuid);
-	new_msg->msguuid.chararray = malloc(sizeof(uuid_t) * 2 + 4);
-	uuid_unparse(msguuid, (char *)new_msg->msguuid.chararray);
+	core_msg->msguuid.chararray = malloc(sizeof(uuid_t) * 2 + 4);
+	uuid_unparse(msguuid, (char *)core_msg->msguuid.chararray);
+	core_msg->msguuid.length = strlen((char *)core_msg->msguuid.chararray);
+	core_msg->msgreuuid.chararray = malloc(sizeof(uuid_t) * 2 + 4);
 	if (msgreuuid) {
-		new_msg->msgreuuid.chararray = malloc(sizeof(uuid_t) * 2 + 4);
-		memcpy(msgreuuid->chararray, new_msg->msgreuuid.chararray, sizeof(uuid_t) * 2 + 4);
+		memcpy(msgreuuid->chararray, core_msg->msgreuuid.chararray, sizeof(uuid_t) * 2 + 4);
+		core_msg->msgreuuid.length = strlen((char *)core_msg->msgreuuid.chararray);
 	}
 	return new_msg;
 }
 
-void gs_msg_free(struct gs_msg_struct *msg) {
+void gs_msg_free(struct gs_msg *msg) {
 	if (msg->msguuid.chararray) free(msg->msguuid.chararray);
 	if (msg->msgreuuid.chararray) free(msg->msgreuuid.chararray);
 	if (msg->data) free(msg->data);
 	free(msg);
 }
 
+void gsnet_msg_free(struct gsnet_msg *netmsg) {
+	if (netmsg->msg) gs_msg_free(netmsg->msg);
+	free(netmsg);
+}
+
 /* Debug print function */
-void print_gs_msg(struct gs_msg_struct *new_msg) {
+void print_gs_msg(struct gsnet_msg *new_msg) {
 	printf("MAGIC1: %p\n", new_msg->magic1);
 	printf("MAGIC2: %p\n", new_msg->magic2);
-	printf("msgtype: %p\n", new_msg->msgtype);
-	printf("msguuid: %s\n", (char *)new_msg->msguuid.chararray);
-	if (new_msg->msgreuuid.chararray)
-		printf("msgreuuid: %s\n", new_msg->msgreuuid);
+	printf("msgtype: %p\n", new_msg->msg->msgtype);
+	printf("msguuid: %s\n", (char *)new_msg->msg->msguuid.chararray);
+	if (new_msg->msg->msgreuuid.chararray)
+		printf("msgreuuid: %s\n", new_msg->msg->msgreuuid);
 }
 
 /* Need:
@@ -99,15 +111,34 @@ void print_gs_msg(struct gs_msg_struct *new_msg) {
 
 int
 main(int argc, char **argv) {
-	struct gs_msg_struct *test_msg;
+	struct pkg_conn *connection;
+	const char *server;
+	int port = 5309;
+	char *msg;
+	char s_port[32] = {0};
+	int bytes_sent = 0;
+
+	struct gsnet_msg *test_msg;
+
+	if (!argv[1]) bu_exit(1, "Please supply server address\n");
+	server = argv[1];
+	snprintf(s_port, 31, "%d", port);
+	connection = pkg_open(server, s_port, "tcp",  NULL, NULL, NULL, NULL);
+	if (connection == PKC_ERROR) {
+		bu_exit(1, "Connection to %s, port %d, failed.\n", server, port);
+	}
+
 	test_msg = create_new_msg(GSRUALIVE, NULL);
 	print_gs_msg(test_msg);
-	gs_msg_free(test_msg);
+	msg = (char *)bu_malloc(2 * sizeof(char), "msg");
+	pkg_pshort(msg, test_msg->msg->msgtype);
+	bytes_sent = pkg_send(5309, msg, strlen(msg), connection);
+        bytes_sent = pkg_send(5309, (char *)test_msg->msg->msguuid.chararray, strlen((char *)test_msg->msg->msguuid.chararray), connection);
+        bytes_sent = pkg_send(5309, (char *)test_msg->msg->msgreuuid.chararray, strlen((char *)test_msg->msg->msgreuuid.chararray), connection);
+	gsnet_msg_free(test_msg);
 
 	/* TODO */
 
-	/* Set up a vanilla socket based connector to the GS - better if we don't assume
-	 * libpkg so we can demonstrate reliance on nothing but the protocol docs */
 
 	/* Define a command table so we can do things like type "ping" on the 
 	 * server command prompt to send GSPING to the server */
