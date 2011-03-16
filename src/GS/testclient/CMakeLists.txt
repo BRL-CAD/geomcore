@@ -83,6 +83,15 @@ find_package(BRLCAD REQUIRED)
 # If BRL-CAD doesn't provide TCL, we need to find it
 find_package(TCL REQUIRED)
 
+# If there's a UUID library, we want it
+INCLUDE(CheckLibraryExists)
+CHECK_LIBRARY_EXISTS(uuid uuid_generate "" HAVE_UUID)
+IF(HAVE_UUID)
+	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -luuid")
+	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -luuid")
+	SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -luuid")
+ENDIF(HAVE_UUID)
+
 # Add debugging flag for now
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
