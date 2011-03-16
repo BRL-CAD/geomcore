@@ -5,7 +5,6 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <inttypes.h>
-#include "tpl.h"
 
 #define MAGIC1 0x41FE
 #define MAGIC2 0x5309
