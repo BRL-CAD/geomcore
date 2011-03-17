@@ -115,8 +115,11 @@ main(int argc, char **argv) {
 	const char *server;
 	int port = 5309;
 	char *msg;
+	char *nextstr;
 	char s_port[32] = {0};
 	int bytes_sent = 0;
+	int i;
+	int gsnetheaderlength = 2 + (sizeof(uuid_t) * 2 + 4) * 2 + 1; /* MsgType + MessageUUID + RegardingMessageUUID + HasRegardingUUID */
 
 	struct gsnet_msg *test_msg;
 
@@ -130,11 +133,12 @@ main(int argc, char **argv) {
 
 	test_msg = create_new_msg(GSRUALIVE, NULL);
 	print_gs_msg(test_msg);
-	msg = (char *)bu_malloc(2 * sizeof(char), "msg");
-	pkg_pshort(msg, test_msg->msg->msgtype);
+	msg = (char *)bu_malloc(gsnetheaderlength, "msg");
+	msg[1] = test_msg->msg->msgtype;
+	msg[0] = test_msg->msg->msgtype >> 8;
+	memcpy(msg+2, (char *)test_msg->msg->msguuid.chararray, sizeof(uuid_t) * 2 + 4);
+	memcpy(msg+2+sizeof(uuid_t) * 2 + 4, (char *)test_msg->msg->msgreuuid.chararray, sizeof(uuid_t) * 2 + 4);
 	bytes_sent = pkg_send(5309, msg, strlen(msg), connection);
-        bytes_sent = pkg_send(5309, (char *)test_msg->msg->msguuid.chararray, strlen((char *)test_msg->msg->msguuid.chararray), connection);
-        bytes_sent = pkg_send(5309, (char *)test_msg->msg->msgreuuid.chararray, strlen((char *)test_msg->msg->msgreuuid.chararray), connection);
 	gsnet_msg_free(test_msg);
 
 	/* TODO */
