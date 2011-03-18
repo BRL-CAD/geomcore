@@ -114,13 +114,20 @@ main(int argc, char **argv) {
 	struct pkg_conn *connection;
 	const char *server;
 	int port = 5309;
+	unsigned short msgshort;
+	unsigned long strlength;
 	char *msg;
-	char *nextstr;
+	char *currpos;
 	char s_port[32] = {0};
 	int bytes_sent = 0;
 	int i;
-	int gsnetheaderlength = 2 + (sizeof(uuid_t) * 2 + 4) * 2 + 1; /* MsgType + MessageUUID + RegardingMessageUUID + HasRegardingUUID */
-
+	/* 
+	 * Need the byte length for a GSNet header:
+	 *
+       	 * MsgType + MsgUUIDLength + MessageUUID            +  HasRegardingUUID + RegardingMsgUUIDLength + RegardingMessageUUID
+	 * 2 bytes + 4 bytes       + 2* strlen(uuid_string) +  1 byte           + 4 bytes                + 2 * strlen(uuid_string)
+	 */
+	int gsnetheaderlength = 2 + 4 + (sizeof(uuid_t) * 2 + 4) + 1 + 4 + (sizeof(uuid_t) * 2 + 4);
 	struct gsnet_msg *test_msg;
 
 	if (!argv[1]) bu_exit(1, "Please supply server address\n");
@@ -131,14 +138,35 @@ main(int argc, char **argv) {
 		bu_exit(1, "Connection to %s, port %d, failed.\n", server, port);
 	}
 
-	test_msg = create_new_msg(GSRUALIVE, NULL);
+	test_msg = create_new_msg(GSPING, NULL);
 	print_gs_msg(test_msg);
-	msg = (char *)bu_malloc(gsnetheaderlength, "msg");
-	msg[1] = test_msg->msg->msgtype;
-	msg[0] = test_msg->msg->msgtype >> 8;
-	memcpy(msg+2, (char *)test_msg->msg->msguuid.chararray, sizeof(uuid_t) * 2 + 4);
-	memcpy(msg+2+sizeof(uuid_t) * 2 + 4, (char *)test_msg->msg->msgreuuid.chararray, sizeof(uuid_t) * 2 + 4);
-	bytes_sent = pkg_send(5309, msg, strlen(msg), connection);
+	msg = (char *)bu_malloc(gsnetheaderlength*sizeof(char), "msg");
+	msgshort = (unsigned short)test_msg->msg->msgtype;
+	msg[1] = msgshort;
+	msg[0] = msgshort >> 8;
+	currpos = msg + 2;
+	strlength = (unsigned long)strlen((char *)test_msg->msg->msguuid.chararray);
+	currpos[3] = strlength;
+	currpos[2] = (strlength >>= 8);
+	currpos[1] = (strlength >>= 8);
+	currpos[0] = strlength >> 8;
+	currpos = currpos + 4;
+	memcpy(currpos, (char *)test_msg->msg->msguuid.chararray, sizeof(uuid_t) * 2 + 4);
+	currpos = currpos + sizeof(uuid_t) * 2 + 4;
+	strlength = (unsigned long)strlen((char *)test_msg->msg->msguuid.chararray);
+	currpos[3] = strlength;
+	currpos[2] = (strlength >>= 8);
+	currpos[1] = (strlength >>= 8);
+	currpos[0] = strlength >> 8;
+	currpos = currpos + 4;
+	currpos[0] = 0;
+	currpos = currpos + 1;
+	memcpy(currpos, (char *)test_msg->msg->msgreuuid.chararray, sizeof(uuid_t) * 2 + 4);
+	bytes_sent = pkg_send(5309, msg, gsnetheaderlength , connection);
+	for(i = 0; i < gsnetheaderlength; i++) {
+		printf("%c", msg[i]);
+	}
+	printf("\n");
 	gsnet_msg_free(test_msg);
 
 	/* TODO */
