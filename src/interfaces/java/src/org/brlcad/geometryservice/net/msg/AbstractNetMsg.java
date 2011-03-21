@@ -79,9 +79,10 @@ public abstract class AbstractNetMsg {
 		/* libPKG header items */
 		writer.putShort(GSStatics.magic01);
 		writer.putShort(GSStatics.magic02);
-		writer.putInt(0); // placeholder for msgLen
+		writer.putInt(Integer.MAX_VALUE); // placeholder for msgLen
 
 		/* GS Header items */
+		writer.putShort(this.msgType);
 		writer.putUUID(this.msgUUID);
 		writer.putBoolean(this.hasReUUID);
 
