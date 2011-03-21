@@ -374,14 +374,6 @@ public class GSConnection {
 			// If we made it here, then the serialization was a success
 			break;
 		}
-		
-		String out = "";
-		byte[] ba = bb.array();
-		for (byte b: ba) {
-			out += Integer.toString(b & 0xff, 16).toUpperCase();
-		}
-		
-		System.out.println("Sending Data: " + out);
 
 		try {
 			this.write(bb);
