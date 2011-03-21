@@ -25,6 +25,7 @@ package org.brlcad.geometryservice.net.msg;
 
 import java.util.UUID;
 
+import org.brlcad.geometryservice.GSStatics;
 import org.brlcad.geometryservice.net.ByteBufferReader;
 import org.brlcad.geometryservice.net.ByteBufferWriter;
 
@@ -75,7 +76,12 @@ public abstract class AbstractNetMsg {
 	/* method used to serializing object's current state */
 	public void serialize(ByteBufferWriter writer) {
 
-		/* Header items */
+		/* libPKG header items */
+		writer.putShort(GSStatics.magic01);
+		writer.putShort(GSStatics.magic02);
+		writer.putInt(0); // placeholder for msgLen
+
+		/* GS Header items */
 		writer.putUUID(this.msgUUID);
 		writer.putBoolean(this.hasReUUID);
 
@@ -84,6 +90,10 @@ public abstract class AbstractNetMsg {
 
 		/* Subclass items */
 		this._serialize(writer);
+		
+		/* Calc and insert msgLen */
+		int dataLen = writer.position() - GSStatics.pkgHeaderSize;
+		writer.putIntAt(dataLen, 4);
 	}
 
 	/* Force subclasses to implement a means of serialization */

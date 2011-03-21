@@ -354,22 +354,13 @@ public class GSConnection {
 		ByteBuffer bb = null;
 
 		for (int i = 0; i < 10; ++i) {
-			// Start at 64k.
+			/* Start at 64k. */
 			bb = ByteBuffer.allocate(1024 * 64 * (2 ^ i));
 			ByteBufferWriter writer = new ByteBufferWriter(bb);
 
 			try {
-				/* libpkg header */
-				writer.putShort(GSStatics.magic01);
-				writer.putShort(GSStatics.magic02);
-				writer.putInt(0); // placeholder for msgLen
-
 				/* serialize gs msg */
 				msg.serialize(writer);
-
-				/* Calc and insert msgLen */
-				int dataLen = bb.position() - GSStatics.pkgHeaderSize;
-				writer.putIntAt(dataLen, 4);
 
 			} catch (BufferOverflowException boe) {
 				// Buffer wasn't big enough, try again!
@@ -383,6 +374,14 @@ public class GSConnection {
 			// If we made it here, then the serialization was a success
 			break;
 		}
+		
+		String out = "";
+		byte[] ba = bb.array();
+		for (byte b: ba) {
+			out += Integer.toString(b & 0xff, 16).toUpperCase();
+		}
+		
+		System.out.println("Sending Data: " + out);
 
 		try {
 			this.write(bb);
@@ -393,7 +392,7 @@ public class GSConnection {
 			return false;
 		}
 	}
-
+	
 	private final void write(ByteBuffer bb) throws IOException {
 		OutputStream os = this.sock.getOutputStream();
 
@@ -405,9 +404,14 @@ public class GSConnection {
 		 * OutputStream.write(byte[], int, int) both use loops calling
 		 * OutputStream.write(byte) anyways.
 		 */
-		for (int i = 0; i < amtToWrite; ++i)
-			os.write(bb.get());
-
+		String out = "";
+		for (int i = 0; i < amtToWrite; ++i) {
+			byte b = bb.get();
+			os.write(b);
+			out += Integer.toString(b & 0xff, 16).toUpperCase();
+		}
+	
+	System.out.println("Sending Data: " + out);
 	}
 
 	/**
