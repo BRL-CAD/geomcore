@@ -164,6 +164,11 @@ public class ByteBufferReader {
 
 	public final UUID getUUID() {
 		String str = this.getString();
+		
+		if (str.length() != 36) {
+			str = str.substring(0, 36);
+		}
+		
 		UUID id = UUID.fromString(str);
 		return id;
 	}
