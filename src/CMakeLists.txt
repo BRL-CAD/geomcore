@@ -1,0 +1,2 @@
+ADD_SUBDIRECTORY(libgeomvcs)
+ADD_SUBDIRECTORY(libgeomsrv)

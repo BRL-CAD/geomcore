@@ -1,0 +1,4 @@
+This effort is based on the code of fossil, a BSD licensed
+DVCS.  Because this is intended to be a set of libraries,
+the global variable approach used by fossil is not practical
+and extensive code changes are needed.
