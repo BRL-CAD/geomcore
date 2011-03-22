@@ -47,11 +47,13 @@ std::string DataManager::getDbObjectByURL(std::string url)
 std::string DataManager::getDbObjectByUUID(GSUuid* uuid)
 {}
 
-void
-DataManager::addDataSource(IDataSource* source)
+bool
+DataManager::setDataSource(IDataSource* source)
 {
-	GSMutexLocker lock (&this->sourceLock);
-	this->datasources.push_back(source);
+	if (this->datasource != NULL)
+		return false;
+
+	this->datasource = source;
 }
 
 bool
@@ -106,10 +108,9 @@ DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
 
 
 	//TODO remove hardcoded FileDataSource
-	if (this->datasources.size() > 0) {
-		IDataSource* ds = *this->datasources.begin();
+	if (this->datasource != NULL) {
 
-		DbObject* obj = NULL; //ds->getByPath(data);
+		DbObject* obj = NULL; //this->datasource->getByPath(data);
 
 		if (obj == NULL) {
 			TypeOnlyMsg* tom = new TypeOnlyMsg(COULD_NOT_FIND_GEOMETRY, msg);

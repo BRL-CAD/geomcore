@@ -48,15 +48,15 @@ public:
 	std::string getDbObjectByURL(std::string url);
 	std::string getDbObjectByUUID(GSUuid* uuid);
 
-	void addDataSource(IDataSource* source);
+	bool setDataSource(IDataSource* source);
 
 private:
 	static DataManager* pInstance;
 	DataManager();
 
 	Logger* log;
-	GSMutex sourceLock;
-	std::list<IDataSource*> datasources;
+
+	IDataSource* datasource;
 
 	void handleGeometryReqMsg(GeometryReqMsg* msg);
 	void handleGeometryChunkMsg(GeometryChunkMsg* msg);
