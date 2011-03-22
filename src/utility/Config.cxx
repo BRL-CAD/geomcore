@@ -139,10 +139,18 @@ Config::getAllKeys()
 	return l;
 }
 
+bool
+Config::hasConfigValue(std::string key)
+{
+	return (this->configMap->find(key) != this->configMap->end());
+}
+
 uint16_t
 Config::getConfigValueAsUShort(std::string key)
 {
     std::string ret = this->getConfigValue(key);
+    if (ret.length() == 0)
+    	return 0;
     return atoi(ret.c_str());
 }
 
@@ -150,6 +158,8 @@ uint32_t
 Config::getConfigValueAsUInt(std::string key)
 {
     std::string ret = this->getConfigValue(key);
+    if (ret.length() == 0)
+    	return 0;
     return atoi(ret.c_str());
 }
 

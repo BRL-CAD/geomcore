@@ -46,7 +46,7 @@ public:
 	void updateValue(std::string key, std::string value);
 	std::string getConfigValue(std::string key);
 	std::list<std::string>* getAllKeys();
-
+	bool hasConfigValue(std::string key);
 
 	uint16_t getConfigValueAsUShort(std::string key);
 	uint32_t getConfigValueAsUInt(std::string key);
