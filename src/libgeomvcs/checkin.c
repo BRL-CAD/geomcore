@@ -122,7 +122,7 @@ static void status_report(
 void changes_cmd(struct vcs_db *db){
   Blob report;
   int vid;
-  int useSha1sum = find_option("sha1sum", 0, 0)!=0;
+  int useSha1sum = find_option(db, "sha1sum", 0, 0)!=0;
   db_must_be_within_tree(db);
   blob_zero(&report);
   vid = db_lget_int("checkout", 0);
@@ -170,7 +170,7 @@ void ls_cmd(struct vcs_db *db){
   Stmt q;
   int isBrief;
 
-  isBrief = find_option("l","l", 0)==0;
+  isBrief = find_option(db, "l","l", 0)==0;
   db_must_be_within_tree(db);
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, 0, 0);
@@ -283,8 +283,8 @@ void extra_cmd(struct vcs_db *db){
   Blob repo;
   Stmt q;
   int n;
-  const char *zIgnoreFlag = find_option("ignore",0,1);
-  int allFlag = find_option("dotfiles",0,0)!=0;
+  const char *zIgnoreFlag = find_option(db, "ignore",0,1);
+  int allFlag = find_option(db, "dotfiles",0,0)!=0;
   int outputManifest;
 
   db_must_be_within_tree(db);
@@ -340,9 +340,9 @@ void clean_cmd(struct vcs_db *db){
   Blob path, repo;
   Stmt q;
   int n;
-  allFlag = find_option("force","f",0)!=0;
-  dotfilesFlag = find_option("dotfiles",0,0)!=0;
-  zIgnoreFlag = find_option("ignore",0,1);
+  allFlag = find_option(db, "force","f",0)!=0;
+  dotfilesFlag = find_option(db, "dotfiles",0,0)!=0;
+  zIgnoreFlag = find_option(db, "ignore",0,1);
   db_must_be_within_tree(db);
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get(db, "ignore-glob", 0);
@@ -882,26 +882,26 @@ void commit_cmd(struct vcs_db *db){
   int szB;               /* Size of the baseline manifest */
  
   url_proxy_options();
-  noSign = find_option("nosign",0,0)!=0;
-  forceDelta = find_option("delta",0,0)!=0;
-  forceBaseline = find_option("baseline",0,0)!=0;
+  noSign = find_option(db, "nosign",0,0)!=0;
+  forceDelta = find_option(db, "delta",0,0)!=0;
+  forceBaseline = find_option(db, "baseline",0,0)!=0;
   if( forceDelta && forceBaseline ){
     geomvcs_fatal(db, "cannot use --delta and --baseline together");
   }
-  testRun = find_option("test",0,0)!=0;
-  zComment = find_option("comment","m",1);
-  forceFlag = find_option("force", "f", 0)!=0;
-  zBranch = find_option("branch","b",1);
-  zBgColor = find_option("bgcolor",0,1);
-  zTag = find_option("tag",0,1);
-  zComFile = find_option("message-file", "M", 1);
-  if( find_option("private",0,0) ){
+  testRun = find_option(db, "test",0,0)!=0;
+  zComment = find_option(db, "comment","m",1);
+  forceFlag = find_option(db, "force", "f", 0)!=0;
+  zBranch = find_option(db, "branch","b",1);
+  zBgColor = find_option(db, "bgcolor",0,1);
+  zTag = find_option(db, "tag",0,1);
+  zComFile = find_option(db, "message-file", "M", 1);
+  if( find_option(db, "private",0,0) ){
     db->markPrivate = 1;
     if( zBranch==0 ) zBranch = "private";
     if( zBgColor==0 ) zBgColor = "#fec084";  /* Orange */
   }
-  zDateOvrd = find_option("date-override",0,1);
-  zUserOvrd = find_option("user-override",0,1);
+  zDateOvrd = find_option(db, "date-override",0,1);
+  zUserOvrd = find_option(db, "user-override",0,1);
   db_must_be_within_tree(db);
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
