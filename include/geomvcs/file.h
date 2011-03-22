@@ -6,3 +6,5 @@ int file_is_simple_pathname(const char *z);
 const char *file_tail(const char *z);
 int file_isdir(struct vcs_db *db, const char *zFilename);
 int file_isfile(const char *zFilename);
+int file_isexe(const char *zFilename);
+void file_relative_name(struct vcs_db *db, const char *zOrigName, Blob *pOut);

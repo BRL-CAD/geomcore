@@ -27,6 +27,8 @@
 #include "geomvcs/manifest.h"
 #include "geomvcs/md5.h"
 #include "geomvcs/sync.h"
+#include "geomvcs/file.h"
+#include "geomvcs/content.h"
 #include "geomvcs/db.h"
 #include <assert.h>
 
@@ -107,110 +109,6 @@ static void status_report(
 }
 
 /*
-** COMMAND: changes
-**
-** Usage: %fossil changes
-**
-** Report on the edit status of all files in the current checkout.
-** See also the "status" and "extra" commands.
-**
-** Options:
-**
-**    --sha1sum         Verify file status using SHA1 hashing rather
-**                      than relying on file mtimes.
-*/
-void changes_cmd(struct vcs_db *db){
-  Blob report;
-  int vid;
-  int useSha1sum = find_option(db, "sha1sum", 0, 0)!=0;
-  db_must_be_within_tree(db);
-  blob_zero(&report);
-  vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid, 0, useSha1sum);
-  status_report(db, &report, "", 0);
-  blob_write_to_file(&report, "-");
-}
-
-/*
-** COMMAND: status
-**
-** Usage: %fossil status
-**
-** Report on the status of the current checkout.
-**
-** Options:
-**
-**    --sha1sum         Verify file status using SHA1 hashing rather
-**                      than relying on file mtimes.
-*/
-void status_cmd(struct vcs_db *db){
-  int vid;
-  db_must_be_within_tree(db);
-       /* 012345678901234 */
-  printf("repository:   %s\n", db_lget(db, "repository",""));
-  printf("local-root:   %s\n", db->zLocalRoot);
-  printf("server-code:  %s\n", db_get(db, "server-code", ""));
-  vid = db_lget_int("checkout", 0);
-  if( vid ){
-    show_common_info(vid, "checkout:", 1, 1);
-  }
-  changes_cmd(db);
-}
-
-/*
-** COMMAND: ls
-**
-** Usage: %fossil ls [-l]
-**
-** Show the names of all files in the current checkout.  The -l provides
-** extra information about each file.
-*/
-void ls_cmd(struct vcs_db *db){
-  int vid;
-  Stmt q;
-  int isBrief;
-
-  isBrief = find_option(db, "l","l", 0)==0;
-  db_must_be_within_tree(db);
-  vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid, 0, 0);
-  db_prepare(db, &q,
-     "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
-     "  FROM vfile"
-     " ORDER BY 1"
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zPathname = db_column_text(&q,0);
-    int isDeleted = db_column_int(&q, 1);
-    int isNew = db_column_int(&q,2)==0;
-    int chnged = db_column_int(&q,3);
-    int renamed = db_column_int(&q,4);
-    char *zFullName = mprintf(db, "%s%s", db->zLocalRoot, zPathname);
-    if( isBrief ){
-      printf("%s\n", zPathname);
-    }else if( isNew ){
-      printf("ADDED      %s\n", zPathname);
-    }else if( isDeleted ){
-      printf("DELETED    %s\n", zPathname);
-    }else if( !file_isfile(zFullName) ){
-      if( access(zFullName, 0)==0 ){
-        printf("NOT_A_FILE %s\n", zPathname);
-      }else{
-        printf("MISSING    %s\n", zPathname);
-      }
-    }else if( chnged ){
-      printf("EDITED     %s\n", zPathname);
-    }else if( renamed ){
-      printf("RENAMED    %s\n", zPathname);
-    }else{
-      printf("UNCHANGED  %s\n", zPathname);
-    }
-    free(zFullName);
-  }
-  db_finalize(db, &q);
-}
-
-/*
 ** Construct and return a string which is an SQL expression that will
 ** be TRUE if value zVal matches any of the GLOB expressions in the list
 ** zGlobList.  For example:
@@ -262,119 +160,6 @@ char *glob_expr(struct vcs_db *db, const char *zVal, const char *zGlobList){
   }else{
     return "0";
   }
-}
-
-/*
-** COMMAND: extras
-** Usage: %fossil extras ?--dotfiles? ?--ignore GLOBPATTERN?
-**
-** Print a list of all files in the source tree that are not part of
-** the current checkout.  See also the "clean" command.
-**
-** Files and subdirectories whose names begin with "." are normally
-** ignored but can be included by adding the --dotfiles option.
-**
-** The GLOBPATTERN is a comma-separated list of GLOB expressions for
-** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
-** is used if the --ignore option is omitted.
-*/
-void extra_cmd(struct vcs_db *db){
-  Blob path;
-  Blob repo;
-  Stmt q;
-  int n;
-  const char *zIgnoreFlag = find_option(db, "ignore",0,1);
-  int allFlag = find_option(db, "dotfiles",0,0)!=0;
-  int outputManifest;
-
-  db_must_be_within_tree(db);
-  outputManifest = db_get_boolean("manifest",0);
-  db_multi_exec(db, "CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
-  n = strlen(db->zLocalRoot);
-  blob_init(&path, db->zLocalRoot, n-1);
-  if( zIgnoreFlag==0 ){
-    zIgnoreFlag = db_get(db, "ignore-glob", 0);
-  }
-  vfile_scan(0, &path, blob_size(&path), allFlag);
-  db_prepare(db, &q, 
-      "SELECT x FROM sfile"
-      " WHERE x NOT IN (%s)"
-      "   AND NOT %s"
-      " ORDER BY 1",
-      fossil_all_reserved_names(),
-      glob_expr(db, "x", zIgnoreFlag)
-  );
-  if( file_tree_name(db->zRepositoryName, &repo, 0) ){
-    db_multi_exec(db, "DELETE FROM sfile WHERE x=%B", &repo);
-  }
-  while( db_step(&q)==SQLITE_ROW ){
-    printf("%s\n", db_column_text(&q, 0));
-  }
-  db_finalize(db, &q);
-}
-
-/*
-** COMMAND: clean
-** Usage: %fossil clean ?--force? ?--dotfiles? ?--ignore GLOBPATTERN?
-**
-** Delete all "extra" files in the source tree.  "Extra" files are
-** files that are not officially part of the checkout.  See also
-** the "extra" command. This operation cannot be undone. 
-**
-** You will be prompted before removing each file. If you are
-** sure you wish to remove all "extra" files you can specify the
-** optional --force flag and no prompts will be issued.
-**
-** Files and subdirectories whose names begin with "." are
-** normally ignored.  They are included if the "--dotfiles" option
-** is used.
-**
-** The GLOBPATTERN is a comma-separated list of GLOB expressions for
-** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
-** is used if the --ignore option is omitted.
-*/
-void clean_cmd(struct vcs_db *db){
-  int allFlag;
-  int dotfilesFlag;
-  const char *zIgnoreFlag;
-  Blob path, repo;
-  Stmt q;
-  int n;
-  allFlag = find_option(db, "force","f",0)!=0;
-  dotfilesFlag = find_option(db, "dotfiles",0,0)!=0;
-  zIgnoreFlag = find_option(db, "ignore",0,1);
-  db_must_be_within_tree(db);
-  if( zIgnoreFlag==0 ){
-    zIgnoreFlag = db_get(db, "ignore-glob", 0);
-  }
-  db_multi_exec(db, "CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
-  n = strlen(db->zLocalRoot);
-  blob_init(&path, db->zLocalRoot, n-1);
-  vfile_scan(0, &path, blob_size(&path), dotfilesFlag);
-  db_prepare(db, &q, 
-      "SELECT %Q || x FROM sfile"
-      " WHERE x NOT IN (%s) AND NOT %s"
-      " ORDER BY 1",
-      db->zLocalRoot, fossil_all_reserved_names(), glob_expr(db, "x",zIgnoreFlag)
-  );
-  if( file_tree_name(db->zRepositoryName, &repo, 0) ){
-    db_multi_exec(db, "DELETE FROM sfile WHERE x=%B", &repo);
-  }
-  while( db_step(&q)==SQLITE_ROW ){
-    if( allFlag ){
-      unlink(db_column_text(&q, 0));
-    }else{
-      Blob ans;
-      char *prompt = mprintf(db, "remove unmanaged file \"%s\" (y/N)? ",
-                              db_column_text(&q, 0));
-      blob_zero(&ans);
-      prompt_user(prompt, &ans);
-      if( blob_str(db, &ans)[0]=='y' ){
-        unlink(db_column_text(&q, 0));
-      }
-    }
-  }
-  db_finalize(db, &q);
 }
 
 /*
@@ -453,7 +238,7 @@ static void prepare_commit_comment(
 #if defined(_WIN32)
   blob_add_cr(&text);
 #endif
-  blob_write_to_file(&text, zFile);
+  blob_write_to_file(db, &text, zFile);
   if( zEditor ){
     zCmd = mprintf(db, "%s \"%s\"", zEditor, zFile);
     printf("%s\n", zCmd);
@@ -470,7 +255,7 @@ static void prepare_commit_comment(
       blob_append(db, &text, zIn, -1);
     }
   }
-  blob_remove_cr(&text);
+  blob_remove_cr(db, &text);
   unlink(zFile);
   free(zFile);
   blob_zero(pComment);
@@ -490,41 +275,6 @@ static void prepare_commit_comment(
   i = strlen(zComment);
   while( i>0 && geomvcs_isspace(zComment[i-1]) ){ i--; }
   blob_resize(db, pComment, i);
-}
-
-/*
-** Populate the Global.aCommitFile[] based on the command line arguments
-** to a [commit] command. Global.aCommitFile is an array of integers
-** sized at (N+1), where N is the number of arguments passed to [commit].
-** The contents are the [id] values from the vfile table corresponding
-** to the filenames passed as arguments.
-**
-** The last element of aCommitFile[] is always 0 - indicating the end
-** of the array.
-**
-** If there were no arguments passed to [commit], aCommitFile is not
-** allocated and remains NULL. Other parts of the code interpret this
-** to mean "all files".
-*/
-void select_commit_files(struct vcs_db *db){
-  if( db->argc>2 ){
-    int ii;
-    Blob b;
-    blob_zero(&b);
-    db->aCommitFile = geomvcs_malloc(db, sizeof(int)*(db->argc-1));
-
-    for(ii=2; ii<db->argc; ii++){
-      int iId;
-      file_tree_name(db->argv[ii], &b, 1);
-      iId = db_int(db, -1, "SELECT id FROM vfile WHERE pathname=%Q", blob_str(db, &b));
-      if( iId<0 ){
-        geomvcs_fatal(db, "fossil knows nothing about: %s", db->argv[ii]);
-      }
-      db->aCommitFile[ii-2] = iId;
-      blob_reset(db, &b);
-    }
-    db->aCommitFile[ii-2] = 0;
-  }
 }
 
 /*
@@ -623,7 +373,7 @@ static void create_manifest(
   zParentUuid = db_text(db, 0, "SELECT uuid FROM blob WHERE rid=%d", vid);
   if( pBaseline ){
     blob_appendf(db, pOut, "B %s\n", zBaselineUuid);
-    manifest_file_rewind(pBaseline);
+    manifest_file_rewind(db, pBaseline);
     pFile = manifest_file_next(pBaseline, 0);
     nFBcard++;
   }else{
@@ -666,7 +416,7 @@ static void create_manifest(
     }else{
       zPerm = "";
     }
-    if( !db->markPrivate ) content_make_public(frid);
+    if( !db->markPrivate ) content_make_public(db, frid);
     while( pFile && geomvcs_strcmp(pFile->zName,zName)<0 ){
       blob_appendf(db, pOut, "F %F\n", pFile->zName);
       pFile = manifest_file_next(pBaseline, 0);
@@ -703,7 +453,7 @@ static void create_manifest(
   while( db_step(&q2)==SQLITE_ROW ){
     char *zMergeUuid;
     int mid = db_column_int(&q2, 0);
-    if( !db->markPrivate && content_is_private(mid) ) continue;
+    if( !db->markPrivate && content_is_private(db, mid) ) continue;
     zMergeUuid = db_text(db, 0, "SELECT uuid FROM blob WHERE rid=%d", mid);
     if( zMergeUuid ){
       blob_appendf(db, pOut, " %s", zMergeUuid);
@@ -788,7 +538,7 @@ static void cr_warning(struct vcs_db *db, const Blob *p, const char *zFilename){
   }
   if( nCrNl ){
     char c;
-    file_relative_name(zFilename, &fname);
+    file_relative_name(db, zFilename, &fname);
     blob_zero(&ans);
     zMsg = mprintf(db, "%s contains CR/NL line endings; commit anyhow (y/N/a)?", 
                    blob_str(db, &fname));
@@ -803,436 +553,5 @@ static void cr_warning(struct vcs_db *db, const Blob *p, const char *zFilename){
     }
     blob_reset(db, &ans);
     blob_reset(db, &fname);
-  }
-}
-
-/*
-** COMMAND: ci
-** COMMAND: commit
-**
-** Usage: %fossil commit ?OPTIONS? ?FILE...?
-**
-** Create a new version containing all of the changes in the current
-** checkout.  You will be prompted to enter a check-in comment unless
-** the comment has been specified on the command-line using "-m" or a 
-** file containing the comment using -M.  The editor defined in the
-** "editor" fossil option (see %fossil help set) will be used, or from
-** the "VISUAL" or "EDITOR" environment variables (in that order) if
-** no editor is set.
-**
-** All files that have changed will be committed unless some subset of
-** files is specified on the command line.
-**
-** The --branch option followed by a branch name causes the new check-in
-** to be placed in the named branch.  The --bgcolor option can be followed
-** by a color name (ex:  '#ffc0c0') to specify the background color of
-** entries in the new branch when shown in the web timeline interface.
-**
-** A check-in is not permitted to fork unless the --force or -f
-** option appears.  A check-in is not allowed against a closed check-in.
-**
-** The --private option creates a private check-in that is never synced.
-** Children of private check-ins are automatically private.
-**
-** the --tag option applies the symbolic tag name to the check-in.
-**
-** Options:
-**
-**    --comment|-m COMMENT-TEXT
-**    --message-file|-M COMMENT-FILE
-**    --branch NEW-BRANCH-NAME
-**    --bgcolor COLOR
-**    --nosign
-**    --force|-f
-**    --private
-**    --baseline
-**    --delta
-**    --tag TAG-NAME
-**    
-*/
-void commit_cmd(struct vcs_db *db){
-  int hasChanges;        /* True if unsaved changes exist */
-  int vid;               /* blob-id of parent version */
-  int nrid;              /* blob-id of a modified file */
-  int nvid;              /* Blob-id of the new check-in */
-  Blob comment;          /* Check-in comment */
-  const char *zComment;  /* Check-in comment */
-  Stmt q;                /* Query to find files that have been modified */
-  char *zUuid;           /* UUID of the new check-in */
-  int noSign = 0;        /* True to omit signing the manifest using GPG */
-  int isAMerge = 0;      /* True if checking in a merge */
-  int forceFlag = 0;     /* Force a fork */
-  int forceDelta = 0;    /* Force a delta-manifest */
-  int forceBaseline = 0; /* Force a baseline-manifest */
-  char *zManifestFile;   /* Name of the manifest file */
-  int useCksum;          /* True if checksums should be computed and verified */
-  int outputManifest;    /* True to output "manifest" and "manifest.uuid" */
-  int testRun;           /* True for a test run.  Debugging only */
-  const char *zBranch;   /* Create a new branch with this name */
-  const char *zBgColor;  /* Set background color when branching */
-  const char *zDateOvrd; /* Override date string */
-  const char *zUserOvrd; /* Override user name */
-  const char *zComFile;  /* Read commit message from this file */
-  const char *zTag;      /* Symbolic tag to apply to this check-in */
-  Blob manifest;         /* Manifest in baseline form */
-  Blob muuid;            /* Manifest uuid */
-  Blob cksum1, cksum2;   /* Before and after commit checksums */
-  Blob cksum1b;          /* Checksum recorded in the manifest */
-  int szD;               /* Size of the delta manifest */
-  int szB;               /* Size of the baseline manifest */
- 
-  url_proxy_options();
-  noSign = find_option(db, "nosign",0,0)!=0;
-  forceDelta = find_option(db, "delta",0,0)!=0;
-  forceBaseline = find_option(db, "baseline",0,0)!=0;
-  if( forceDelta && forceBaseline ){
-    geomvcs_fatal(db, "cannot use --delta and --baseline together");
-  }
-  testRun = find_option(db, "test",0,0)!=0;
-  zComment = find_option(db, "comment","m",1);
-  forceFlag = find_option(db, "force", "f", 0)!=0;
-  zBranch = find_option(db, "branch","b",1);
-  zBgColor = find_option(db, "bgcolor",0,1);
-  zTag = find_option(db, "tag",0,1);
-  zComFile = find_option(db, "message-file", "M", 1);
-  if( find_option(db, "private",0,0) ){
-    db->markPrivate = 1;
-    if( zBranch==0 ) zBranch = "private";
-    if( zBgColor==0 ) zBgColor = "#fec084";  /* Orange */
-  }
-  zDateOvrd = find_option(db, "date-override",0,1);
-  zUserOvrd = find_option(db, "user-override",0,1);
-  db_must_be_within_tree(db);
-  noSign = db_get_boolean("omitsign", 0)|noSign;
-  if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
-  useCksum = db_get_boolean("repo-cksum", 1);
-  outputManifest = db_get_boolean("manifest", 0);
-  verify_all_options();
-
-  /* So that older versions of Fossil (that do not understand delta-
-  ** manifest) can continue to use this repository, do not create a new
-  ** delta-manifest unless this repository already contains one or more
-  ** delta-manifets, or unless the delta-manifest is explicitly requested
-  ** by the --delta option.
-  */
-  if( !forceDelta && !db_get_boolean("seen-delta-manifest",0) ){
-    forceBaseline = 1;
-  }
-
-  /* Get the ID of the parent manifest artifact */
-  vid = db_lget_int("checkout", 0);
-  if( content_is_private(vid) ){
-    db->markPrivate = 1;
-  }
-
-  /*
-  ** Autosync if autosync is enabled and this is not a private check-in.
-  */
-  if( !db->markPrivate ){
-    if( autosync(AUTOSYNC_PULL) ){
-      Blob ans;
-      blob_zero(&ans);
-      prompt_user("continue in spite of sync failure (y/N)? ", &ans);
-      if( blob_str(db, &ans)[0]!='y' ){
-        geomvcs_exit(db, 1);
-      }
-    }
-  }
-
-  /* Require confirmation to continue with the check-in if there is
-  ** clock skew
-  */
-  if( db->clockSkewSeen ){
-    Blob ans;
-    blob_zero(&ans);
-    prompt_user("continue in spite of time skew (y/N)? ", &ans);
-    if( blob_str(db, &ans)[0]!='y' ){
-      geomvcs_exit(db, 1);
-    }
-  }
-
-  /* There are two ways this command may be executed. If there are
-  ** no arguments following the word "commit", then all modified files
-  ** in the checked out directory are committed. If one or more arguments
-  ** follows "commit", then only those files are committed.
-  **
-  ** After the following function call has returned, the Global.aCommitFile[]
-  ** array is allocated to contain the "id" field from the vfile table
-  ** for each file to be committed. Or, if aCommitFile is NULL, all files
-  ** should be committed.
-  */
-  select_commit_files(db);
-  isAMerge = db_exists(db, "SELECT 1 FROM vmerge");
-  if( db->aCommitFile && isAMerge ){
-    geomvcs_fatal(db, "cannot do a partial commit of a merge");
-  }
-
-  user_select();
-  /*
-  ** Check that the user exists.
-  */
-  if( !db_exists(db, "SELECT 1 FROM user WHERE login=%Q", db->zLogin) ){
-    geomvcs_fatal(db, "no such user: %s", db->zLogin);
-  }
-  
-  hasChanges = unsaved_changes();
-  db_begin_transaction(db);
-  db_record_repository_filename(0);
-  if( hasChanges==0 && !isAMerge && !forceFlag ){
-    geomvcs_fatal(db, "nothing has changed");
-  }
-
-  /* If one or more files that were named on the command line have not
-  ** been modified, bail out now.
-  */
-  if( db->aCommitFile ){
-    Blob unmodified;
-    memset(&unmodified, 0, sizeof(Blob));
-    blob_init(&unmodified, 0, 0);
-    db_blob(&unmodified, 
-      "SELECT pathname FROM vfile"
-      " WHERE chnged = 0 AND origname IS NULL AND file_is_selected(id)"
-    );
-    if( strlen(blob_str(db, &unmodified)) ){
-      geomvcs_fatal(db, "file %s has not changed", blob_str(db, &unmodified));
-    }
-  }
-
-  /*
-  ** Do not allow a commit that will cause a fork unless the --force flag
-  ** is used or unless this is a private check-in.
-  */
-  if( zBranch==0 && forceFlag==0 && db->markPrivate==0 && !is_a_leaf(db, vid) ){
-    geomvcs_fatal(db, "would fork.  \"update\" first or use -f or --force.");
-  }
-
-  /*
-  ** Do not allow a commit against a closed leaf 
-  */
-  if( db_exists(db, "SELECT 1 FROM tagxref"
-                " WHERE tagid=%d AND rid=%d AND tagtype>0",
-                TAG_CLOSED, vid) ){
-    geomvcs_fatal(db, "cannot commit against a closed leaf");
-  }
-
-  if( useCksum ) vfile_aggregate_checksum_disk(vid, &cksum1);
-  if( zComment ){
-    blob_zero(&comment);
-    blob_append(db, &comment, zComment, -1);
-  }else if( zComFile ){
-    blob_zero(&comment);
-    blob_read_from_file(db, &comment, zComFile);
-  }else{
-    char *zInit = db_text(db, 0, "SELECT value FROM vvar WHERE name='ci-comment'");
-    prepare_commit_comment(db, &comment, zInit, zBranch, vid);
-    free(zInit);
-  }
-  if( blob_size(&comment)==0 ){
-    Blob ans;
-    blob_zero(&ans);
-    prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
-    if( blob_str(db, &ans)[0]!='y' ){
-      geomvcs_exit(db, 1);
-    }
-  }else{
-    db_multi_exec(db, "REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
-    db_end_transaction(db, 0);
-    db_begin_transaction(db);
-  }
-
-  /* Step 1: Insert records for all modified files into the blob 
-  ** table. If there were arguments passed to this command, only
-  ** the identified fils are inserted (if they have been modified).
-  */
-  db_prepare(db, &q,
-    "SELECT id, %Q || pathname, mrid, %s FROM vfile "
-    "WHERE chnged==1 AND NOT deleted AND file_is_selected(id)",
-    db->zLocalRoot, glob_expr(db, "pathname", db_get(db, "crnl-glob",""))
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    int id, rid;
-    const char *zFullname;
-    Blob content;
-    int crnlOk;
-
-    id = db_column_int(&q, 0);
-    zFullname = db_column_text(&q, 1);
-    rid = db_column_int(&q, 2);
-    crnlOk = db_column_int(&q, 3);
-
-    blob_zero(&content);
-    blob_read_from_file(db, &content, zFullname);
-    if( !crnlOk ) cr_warning(db, &content, zFullname);
-    nrid = content_put(&content);
-    blob_reset(db, &content);
-    if( rid>0 ){
-      content_deltify(rid, nrid, 0);
-    }
-    db_multi_exec(db, "UPDATE vfile SET mrid=%d, rid=%d WHERE id=%d", nrid,nrid,id);
-    db_multi_exec(db, "INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-  }
-  db_finalize(db, &q);
-
-  /* Create the new manifest */
-  if( blob_size(&comment)==0 ){
-    blob_append(db, &comment, "(no comment)", -1);
-  }
-  if( forceDelta ){
-    blob_zero(&manifest);
-  }else{
-    create_manifest(db, &manifest, 0, 0, &comment, vid,
-                    !forceFlag, useCksum ? &cksum1 : 0,
-                    zDateOvrd, zUserOvrd, zBranch, zBgColor, zTag, &szB);
-  }
-
-  /* See if a delta-manifest would be more appropriate */
-  if( !forceBaseline ){
-    const char *zBaselineUuid;
-    Manifest *pParent;
-    Manifest *pBaseline;
-    pParent = manifest_get(vid, CFTYPE_MANIFEST);
-    if( pParent && pParent->zBaseline ){
-      zBaselineUuid = pParent->zBaseline;
-      pBaseline = manifest_get_by_name(zBaselineUuid, 0);
-    }else{
-      zBaselineUuid = db_text(db, 0, "SELECT uuid FROM blob WHERE rid=%d", vid);
-      pBaseline = pParent;
-    }
-    if( pBaseline ){
-      Blob delta;
-      create_manifest(db, &delta, zBaselineUuid, pBaseline, &comment, vid,
-                      !forceFlag, useCksum ? &cksum1 : 0,
-                      zDateOvrd, zUserOvrd, zBranch, zBgColor, zTag, &szD);
-      /*
-      ** At this point, two manifests have been constructed, either of
-      ** which would work for this checkin.  The first manifest (held
-      ** in the "manifest" variable) is a baseline manifest and the second
-      ** (held in variable named "delta") is a delta manifest.  The
-      ** question now is: which manifest should we use?
-      **
-      ** Let B be the number of F-cards in the baseline manifest and
-      ** let D be the number of F-cards in the delta manifest, plus one for
-      ** the B-card.  (B is held in the szB variable and D is held in the
-      ** szD variable.)  Assume that all delta manifests adds X new F-cards.
-      ** Then to minimize the total number of F- and B-cards in the repository,
-      ** we should use the delta manifest if and only if:
-      **
-      **      D*D < B*X - X*X
-      **
-      ** X is an unknown here, but for most repositories, we will not be
-      ** far wrong if we assume X=3.
-      */
-      if( forceDelta || (szD*szD)<(szB*3-9) ){
-        blob_reset(db, &manifest);
-        manifest = delta;
-      }else{
-        blob_reset(db, &delta);
-      }
-    }else if( forceDelta ){
-      geomvcs_panic(db, "unable to find a baseline-manifest for the delta");
-    }
-  }
-  if( !noSign && !db->markPrivate && clearsign(&manifest, &manifest) ){
-    Blob ans;
-    blob_zero(&ans);
-    prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
-    if( blob_str(db, &ans)[0]!='y' ){
-      geomvcs_exit(db, 1);
-    }
-  }
-
-  /* If the --test option is specified, output the manifest file
-  ** and rollback the transaction.  
-  */
-  if( testRun ){
-    blob_write_to_file(&manifest, "");
-  }
-
-  if( outputManifest ){
-    zManifestFile = mprintf(db, "%smanifest", db->zLocalRoot);
-    blob_write_to_file(&manifest, zManifestFile);
-    blob_reset(db, &manifest);
-    blob_read_from_file(db, &manifest, zManifestFile);
-    free(zManifestFile);
-  }
-  nvid = content_put(&manifest);
-  if( nvid==0 ){
-    geomvcs_panic(db, "trouble committing manifest: %s", db->zErrMsg);
-  }
-  db_multi_exec(db, "INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
-  manifest_crosslink(nvid, &manifest);
-  assert( blob_is_reset(&manifest) );
-  content_deltify(vid, nvid, 0);
-  zUuid = db_text(db, 0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
-  printf("New_Version: %s\n", zUuid);
-  if( outputManifest ){
-    zManifestFile = mprintf(db, "%smanifest.uuid", db->zLocalRoot);
-    blob_zero(&muuid);
-    blob_appendf(db, &muuid, "%s\n", zUuid);
-    blob_write_to_file(&muuid, zManifestFile);
-    free(zManifestFile);
-    blob_reset(db, &muuid);
-  }
-
-  
-  /* Update the vfile and vmerge tables */
-  db_multi_exec(db, 
-    "DELETE FROM vfile WHERE (vid!=%d OR deleted) AND file_is_selected(id);"
-    "DELETE FROM vmerge WHERE file_is_selected(id) OR id=0;"
-    "UPDATE vfile SET vid=%d;"
-    "UPDATE vfile SET rid=mrid, chnged=0, deleted=0, origname=NULL"
-    " WHERE file_is_selected(id);"
-    , vid, nvid
-  );
-  db_lset_int("checkout", nvid);
-
-  if( useCksum ){
-    /* Verify that the repository checksum matches the expected checksum
-    ** calculated before the checkin started (and stored as the R record
-    ** of the manifest file).
-    */
-    vfile_aggregate_checksum_repository(nvid, &cksum2);
-    if( blob_compare(&cksum1, &cksum2) ){
-      vfile_compare_repository_to_disk(nvid);
-      geomvcs_fatal(db, "working checkout does not match what would have ended "
-                   "up in the repository:  %b versus %b",
-                   &cksum1, &cksum2);
-    }
-  
-    /* Verify that the manifest checksum matches the expected checksum */
-    vfile_aggregate_checksum_manifest(nvid, &cksum2, &cksum1b);
-    if( blob_compare(&cksum1, &cksum1b) ){
-      geomvcs_fatal(db, "manifest checksum self-test failed: "
-                   "%b versus %b", &cksum1, &cksum1b);
-    }
-    if( blob_compare(&cksum1, &cksum2) ){
-      geomvcs_fatal(db, 
-         "working checkout does not match manifest after commit: "
-         "%b versus %b", &cksum1, &cksum2);
-    }
-  
-    /* Verify that the commit did not modify any disk images. */
-    vfile_aggregate_checksum_disk(nvid, &cksum2);
-    if( blob_compare(&cksum1, &cksum2) ){
-      geomvcs_fatal(db, "working checkout before and after commit does not match");
-    }
-  }
-
-  /* Clear the undo/redo stack */
-  undo_reset();
-
-  /* Commit */
-  db_multi_exec(db, "DELETE FROM vvar WHERE name='ci-comment'");
-  if( testRun ){
-    db_end_transaction(db, 1);
-    exit(1);
-  }
-  db_end_transaction(db, 0);
-
-  if( !db->markPrivate ){
-    autosync(AUTOSYNC_PUSH);  
-  }
-  if( count_nonbranch_children(vid)>1 ){
-    printf("**** warning: a fork has occurred *****\n");
   }
 }

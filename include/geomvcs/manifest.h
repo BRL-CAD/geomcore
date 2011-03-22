@@ -85,4 +85,6 @@ struct Manifest {
 */
 #define AGE_ADJUST_INCREMENT  (25.0/86400000.0)   /* 25 milliseconds */
 
-
+void manifest_file_rewind(struct vcs_db *db, Manifest *p);
+ManifestFile *manifest_file_next(Manifest *p, int *pErr);
+int manifest_crosslink(struct vcs_db *db, int rid, Blob *pContent);

@@ -305,51 +305,6 @@ int content_get(struct vcs_db *db, int rid, Blob *pBlob){
 }
 
 /*
-** COMMAND: artifact
-**
-** Usage: %fossil artifact ARTIFACT-ID ?OUTPUT-FILENAME? ?OPTIONS?
-**
-** Extract an artifact by its SHA1 hash and write the results on
-** standard output, or if the optional 4th argument is given, in
-** the named output file.
-**
-** Options:
-**
-**    -R|--repository FILE       Extract artifacts from repository FILE
-*/
-void artifact_cmd(struct vcs_db *db){
-  int rid;
-  Blob content;
-  const char *zFile;
-  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
-  if( db->argc!=4 && db->argc!=3 ) usage("ARTIFACT-ID ?FILENAME? ?OPTIONS?");
-  zFile = db->argc==4 ? db->argv[3] : "-";
-  rid = name_to_rid(db->argv[2]);
-  content_get(db, rid, &content);
-  blob_write_to_file(&content, zFile);
-}
-
-/*
-** COMMAND:  test-content-rawget
-**
-** Extract a blob from the database and write it into a file.  This
-** version does not expand the delta.
-*/
-void test_content_rawget_cmd(struct vcs_db *db){
-  int rid;
-  Blob content;
-  const char *zFile;
-  if( db->argc!=4 && db->argc!=3 ) usage("RECORDID ?FILENAME?");
-  zFile = db->argc==4 ? db->argv[3] : "-";
-  db_must_be_within_tree(db);
-  rid = name_to_rid(db->argv[2]);
-  blob_zero(&content);
-  db_blob(&content, "SELECT content FROM blob WHERE rid=%d", rid);
-  blob_uncompress(db, &content, &content);
-  blob_write_to_file(&content, zFile);
-}
-
-/*
 ** The following flag is set to disable the automatic calls to
 ** manifest_crosslink() when a record is dephantomized.  This
 ** flag can be set (for example) when doing a clone when we know
@@ -659,23 +614,6 @@ int content_new(struct vcs_db *db, const char *zUuid, int isPrivate){
   return rid;
 }
 
-
-/*
-** COMMAND:  test-content-put
-**
-** Extract a blob from a file and write it into the database
-*/
-void test_content_put_cmd(struct vcs_db *db){
-  int rid;
-  Blob content;
-  if( db->argc!=3 ) usage("FILENAME");
-  db_must_be_within_tree(db);
-  user_select();
-  blob_read_from_file(db, &content, db->argv[2]);
-  rid = content_put(db, &content);
-  printf("inserted as record %d\n", rid);
-}
-
 /*
 ** Make sure the content at rid is the original content and is not a
 ** delta.
@@ -695,19 +633,6 @@ void content_undelta(struct vcs_db *db, int rid){
       db_multi_exec(db, "DELETE FROM delta WHERE rid=%d", rid);
     }
   }
-}
-
-/*
-** COMMAND:  test-content-undelta
-**
-** Make sure the content at RECORDID is not a delta
-*/
-void test_content_undelta_cmd(struct vcs_db *db){
-  int rid;
-  if( db->argc!=2 ) usage("RECORDID");
-  db_must_be_within_tree(db);
-  rid = atoi(db->argv[2]);
-  content_undelta(db, rid);
 }
 
 /*
@@ -806,61 +731,4 @@ int content_deltify(struct vcs_db *db, int rid, int srcid, int force){
   blob_reset(db, &data);
   blob_reset(db, &delta);
   return rc;
-}
-
-/*
-** COMMAND:  test-content-deltify
-**
-** Convert the content at RID into a delta from SRCID.
-*/
-void test_content_deltify_cmd(struct vcs_db *db){
-  if( db->argc!=5 ) usage("RID SRCID FORCE");
-  db_must_be_within_tree(db);
-  content_deltify(db, atoi(db->argv[2]), atoi(db->argv[3]), atoi(db->argv[4]));
-}
-
-/*
-** COMMAND: test-integrity
-**
-** Verify that all content can be extracted from the BLOB table correctly.
-** If the BLOB table is correct, then the repository can always be
-** successfully reconstructed using "fossil rebuild".
-*/
-void test_integrity(struct vcs_db *db){
-  Stmt q;
-  Blob content;
-  Blob cksum;
-  int n1 = 0;
-  int n2 = 0;
-  int total;
-  db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
-  db_prepare(db, &q, "SELECT rid, uuid, size FROM blob ORDER BY rid");
-  total = db_int(db, 0, "SELECT max(rid) FROM blob");
-  while( db_step(&q)==SQLITE_ROW ){
-    int rid = db_column_int(&q, 0);
-    const char *zUuid = db_column_text(&q, 1);
-    int size = db_column_int(&q, 2);
-    n1++;
-    printf("  %d/%d\r", n1, total);
-    fflush(stdout);
-    if( size<0 ){
-      printf("skip phantom %d %s\n", rid, zUuid);
-      continue;  /* Ignore phantoms */
-    }
-    content_get(db, rid, &content);
-    if( blob_size(&content)!=size ){
-      geomvcs_warning(db, "size mismatch on blob rid=%d:  %d vs %d",
-                     rid, blob_size(&content), size);
-    }
-    sha1sum_blob(&content, &cksum);
-    if( strcmp(blob_str(db, &cksum), zUuid)!=0 ){
-      geomvcs_fatal(db, "checksum mismatch on blob rid=%d: %s vs %s",
-                   rid, blob_str(db, &cksum), zUuid);
-    }
-    blob_reset(db, &cksum);
-    blob_reset(db, &content);
-    n2++;
-  }
-  db_finalize(db, &q);
-  printf("%d non-phantom blobs (out of %d total) verified\n", n2, n1);
 }

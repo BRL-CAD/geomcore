@@ -674,19 +674,6 @@ void blob_compress(struct vcs_db *db, Blob *pIn, Blob *pOut){
 }
 
 /*
-** COMMAND: test-compress
-*/
-void compress_cmd(void){
-  Blob f;
-  #if 0
-  if( g.argc!=4 ) usage("INPUTFILE OUTPUTFILE");
-  blob_read_from_file(&f, g.argv[2]);
-  blob_compress(&f, &f);
-  blob_write_to_file(&f, g.argv[3]);
-  #endif
-}
-
-/*
 ** Compress the concatenation of a blobs pIn1 and pIn2.  Store the result 
 ** in pOut. 
 ** 
@@ -728,20 +715,6 @@ void blob_compress2(struct vcs_db *db, Blob *pIn1, Blob *pIn2, Blob *pOut){
 }
 
 /*
-** COMMAND: test-compress-2
-*/
-void compress2_cmd(void){
-  Blob f1, f2;
-  #if 0
-  if( g.argc!=5 ) usage("INPUTFILE1 INPUTFILE2 OUTPUTFILE");
-  blob_read_from_file(&f1, g.argv[2]);
-  blob_read_from_file(&f2, g.argv[3]);
-  blob_compress2(&f1, &f2, &f1);
-  blob_write_to_file(&f1, g.argv[4]);
-  #endif
-}
-
-/*
 ** Uncompress blob pIn and store the result in pOut.  It is ok for pIn and
 ** pOut to be the same blob.
 **
@@ -773,44 +746,6 @@ int blob_uncompress(struct vcs_db *db, Blob *pIn, Blob *pOut){
   assert_blob_is_reset(pOut);
   *pOut = temp;
   return 0;
-}
-
-/*
-** COMMAND: test-uncompress
-*/
-void uncompress_cmd(void){
-  Blob f;
-  #if 0
-  if( g.argc!=4 ) usage("INPUTFILE OUTPUTFILE");
-  blob_read_from_file(&f, g.argv[2]);
-  blob_uncompress(&f, &f);
-  blob_write_to_file(&f, g.argv[3]);
-  #endif
-}
-
-/*
-** COMMAND: test-cycle-compress
-**
-** Compress and uncompress each file named on the command line.
-** Verify that the original content is recovered.
-*/
-void test_cycle_compress(void){
-  int i;
-  Blob b1, b2, b3;
-  #if 0
-  for(i=2; i<g.argc; i++){
-    blob_read_from_file(&b1, g.argv[i]);
-    blob_compress(&b1, &b2);
-    blob_uncompress(&b2, &b3);
-    if( blob_compare(&b1, &b3) ){
-      geomvcs_panic("compress/uncompress cycle failed for %s", g.argv[i]);
-    }
-    blob_reset(&b1);
-    blob_reset(&b2);
-    blob_reset(&b3);
-  }
-  printf("ok\n");
-  #endif
 }
 
 #if defined(_WIN32)

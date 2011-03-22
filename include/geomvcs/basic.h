@@ -12,5 +12,3 @@ static void multi_column_list(const char **azWord, int nWord);
 int geomvcs_isspace(char c);
 int geomvcs_isalnum(char c);
 
-
-const char *find_option(struct vcs_db *db, const char *zLong, const char *zShort, int hasArg);

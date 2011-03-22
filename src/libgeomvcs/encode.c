@@ -335,23 +335,6 @@ char *encode64(struct vcs_db *db, const char *zData, int nData){
 }
 
 /*
-** COMMAND: test-encode64 
-** Usage: %fossil test-encode64 STRING
-*/
-void test_encode64_cmd(void){
-  char *z;
-  int i;
-  #if 0
-  for(i=2; i<g.argc; i++){
-    z = encode64(g.argv[i], -1);
-    printf("%s\n", z);
-    free(z);
-  }
-  #endif
-}
-
-
-/*
 ** This function treats its input as a base-64 string and returns the
 ** decoded value of that string.  Characters of input that are not
 ** valid base-64 characters (such as spaces and newlines) are ignored.
@@ -399,22 +382,6 @@ char *decode64(struct vcs_db *db, const char *z64, int *pnByte){
   zData[j] = 0;
   *pnByte = j;
   return zData;
-}
-
-/*
-** COMMAND: test-decode64 
-** Usage: %fossil test-decode64 STRING
-*/
-void test_decode64_cmd(void){
-  char *z;
-  int i, n;
-  #if 0
-  for(i=2; i<g.argc; i++){
-    z = decode64(g.argv[i], &n);
-    printf("%d: %s\n", n, z);
-    free(z);
-  }
-  #endif
 }
 
 /*
@@ -574,25 +541,3 @@ char *unobscure(struct vcs_db *db, const char *zIn){
   return zOut;
 }
 
-/*
-** Command to test obscure() and unobscure().  These commands are also useful
-** utilities for decoding passwords found in the database.
-**
-** COMMAND: test-obscure
-*/
-void test_obscure_cmd(void){
-  int i;
-  char *z, *z2;
-  #if 0
-  for(i=2; i<g.argc; i++){
-    z = obscure(g.argv[i]);
-    z2 = unobscure(z);
-    printf("OBSCURE:    %s -> %s (%s)\n", g.argv[i], z, z2);
-    free(z);
-    free(z2);
-    z = unobscure(g.argv[i]);
-    printf("UNOBSCURE:  %s -> %s\n", g.argv[i], z);
-    free(z);
-  }
-  #endif
-}

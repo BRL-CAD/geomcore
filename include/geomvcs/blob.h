@@ -60,4 +60,6 @@ void blob_set(Blob *pBlob, const char *zStr);
 int blob_is_reset(Blob *pBlob);
 int blob_uncompress(struct vcs_db *db, Blob *pIn, Blob *pOut);
 void blob_copy(struct vcs_db *db, Blob *pTo, Blob *pFrom);
-
+int blob_write_to_file(struct vcs_db *db, Blob *pBlob, const char *zFilename);
+void blob_remove_cr(struct vcs_db *db, Blob *p);
+int blob_line(Blob *pFrom, Blob *pTo);

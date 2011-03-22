@@ -38,6 +38,7 @@
 #include "geomvcs/md5.h"
 #include "geomvcs/encode.h"
 #include "geomvcs/file.h"
+#include "geomvcs/manifest.h"
 #if ! defined(_WIN32)
 #  include <pwd.h>
 #endif
@@ -845,38 +846,6 @@ void db_open_repository(struct vcs_db *db, const char *zDbName){
 }
 
 /*
-** Try to find the repository and open it.  Use the -R or --repository
-** option to locate the repository.  If no such option is available, then
-** use the repository of the open checkout if there is one.
-**
-** Error out if the repository cannot be opened.
-*/
-void db_find_and_open_repository(struct vcs_db *db, int bFlags, int nArgUsed){
-  const char *zRep = find_option(db, "repository", "R", 1);
-  if( zRep==0 && nArgUsed && db->argc==nArgUsed+1 ){
-    zRep = db->argv[nArgUsed];
-  }
-  if( zRep==0 ){
-    if( db_open_local(db)==0 ){
-      goto rep_not_found;
-    }
-    zRep = db_lget(db, "repository", 0);
-    if( zRep==0 ){
-      goto rep_not_found;
-    }
-  }
-  db_open_repository(db, zRep);
-  if( db->repositoryOpen ){
-    if( (bFlags & OPEN_ANY_SCHEMA)==0 ) db_verify_schema(db);
-    return;
-  }
-rep_not_found:
-  if( (bFlags & OPEN_OK_NOT_FOUND)==0 ){
-    geomvcs_fatal(db, "use --repository or -R to specify the repository database");
-  }
-}
-
-/*
 ** Return the name of the database "localdb", "configdb", or "repository".
 */
 const char *db_name(struct vcs_db *db, const char *zDb){
@@ -1088,7 +1057,7 @@ void db_initial_setup(
     blob_appendf(db, &manifest, "Z %b\n", &hash);
     blob_reset(db, &hash);
     rid = content_put(&manifest);
-    manifest_crosslink(rid, &manifest);
+    manifest_crosslink(db, rid, &manifest);
   }
 }
 
