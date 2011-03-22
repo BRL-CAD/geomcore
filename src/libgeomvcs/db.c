@@ -852,7 +852,7 @@ void db_open_repository(struct vcs_db *db, const char *zDbName){
 ** Error out if the repository cannot be opened.
 */
 void db_find_and_open_repository(struct vcs_db *db, int bFlags, int nArgUsed){
-  const char *zRep = find_option("repository", "R", 1);
+  const char *zRep = find_option(db, "repository", "R", 1);
   if( zRep==0 && nArgUsed && db->argc==nArgUsed+1 ){
     zRep = db->argv[nArgUsed];
   }
