@@ -31,7 +31,7 @@
 
 #include <iostream>
 #include <stdlib.h>
-
+#include <algorithm>
 
 int gsExit(int code)
 {
@@ -49,6 +49,7 @@ int main(int argc, char* argv[])
 {
     std::cout << std::endl << std::endl;
 
+    DataManager* dm = DataManager::getInstance();
     Logger::getInstance();
 	JobManager::getInstance()->startup();
 
@@ -91,25 +92,43 @@ int main(int argc, char* argv[])
     }
 
 
-    GeometryService gs (localNodeName, listenAddy, listenPort);
-
-    /* DataManager elements. */
-    std::string useFileRepo(c->getConfigValue("UseFileRepo"));
-     if (useFileRepo == "yes" || useFileRepo == "true"){
-    	std::string fileRepoPath(c->getConfigValue("FileRepoPath"));
-
-    	if (fileRepoPath.length() == 0) {
-         	log->logERROR("geomserv", "FileRepo was flagged for use, but no 'FilePathRepo' var was configured.");
-    		return 1;
-    	}
-
-     	log->logINFO("geomserv", "FileDataSouce being used.");
-        FileDataSource* fds = new FileDataSource(fileRepoPath);
-        gs.getDataManager()->addDataSource(fds);
-     }
+    /* Get DataSource type */
+    std::string repoType = c->getConfigValue("RepoType");
+    if (repoType.length() == 0)
+    {
+		log->logERROR("geomserv", "Config File does not contain a 'RepoType' parameter");
+		gsExit(1);
+    }
+    //to lower
+	for(int i=0; i < repoType.length(); ++i)
+		repoType[i] = std::tolower(repoType[i]);
 
 
-    gs.run(); /* blocks */
+	/* Attempt to instantiate a DataSource */
+	if (repoType == "file") {
+	    std::string fRepoPath(c->getConfigValue("FileRepoPath"));
+	    if (fRepoPath.length() == 0)
+	    {
+			log->logERROR("geomserv", "Config File does not contain a 'FileRepoPath' parameter");
+			gsExit(1);
+	    }
+
+    	log->logINFO("geomserv", "FileDataSouce being used.");
+        FileDataSource* fds = new FileDataSource(fRepoPath);
+        dm->setDataSource(fds);
+
+	} else if (repoType == "svn") {
+		log->logERROR("geomserv", "SVN repotype not implemented yet.");
+		gsExit(1);
+
+	} else {
+		log->logERROR("geomserv", "Invalid RepoType in config file.  Valid values are 'file' and 'svn'");
+		gsExit(1);
+	}
+
+
+     GeometryService gs (localNodeName, listenAddy, listenPort);
+     gs.run(); /* blocks */
 
 	log->logINFO("geomserv", "Exiting...");
     return 0;
