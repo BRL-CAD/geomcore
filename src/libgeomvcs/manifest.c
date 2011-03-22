@@ -30,6 +30,7 @@
 #include "geomvcs/md5.h"
 #include "geomvcs/encode.h"
 #include "geomvcs/file.h"
+#include "geomvcs/content.h"
 #include "geomvcs/db.h"
 #include <assert.h>
 
@@ -840,7 +841,7 @@ Manifest *manifest_get(struct vcs_db *db, int rid, int cfType){
     }
     return p;
   }
-  content_get(rid, &content);
+  content_get(db, rid, &content);
   p = manifest_parse(db, &content, rid);
   if( p && cfType!=CFTYPE_ANY && cfType!=p->type ){
     manifest_destroy(db, p);
@@ -1035,7 +1036,7 @@ static void add_one_mlink(
     fid = 0;
   }else{
     fid = uuid_to_rid(zToUuid, 1);
-    if( isPublic ) content_make_public(fid);
+    if( isPublic ) content_make_public(db, fid);
   }
   db_static_prepare(db, &s1,
     "INSERT INTO mlink(mid,pid,fid,fnid,pfnid,mperm)"
@@ -1049,7 +1050,7 @@ static void add_one_mlink(
   db_bind_int(db, &s1, ":mp", mperm);
   db_exec(db, &s1);
   if( pid && fid ){
-    content_deltify(pid, fid, 0);
+    content_deltify(db, pid, fid, 0);
   }
 }
 
@@ -1157,7 +1158,7 @@ static void add_mlink(struct vcs_db *db, int pid, Manifest *pParent, int cid, Ma
     otherRid = cid;
   }
   if( (*ppOther = manifest_cache_find(otherRid))==0 ){
-    content_get(otherRid, &otherContent);
+    content_get(db, otherRid, &otherContent);
     if( blob_size(&otherContent)==0 ) return;
     *ppOther = manifest_parse(db, &otherContent, otherRid);
     if( *ppOther==0 ) return;
@@ -1166,16 +1167,16 @@ static void add_mlink(struct vcs_db *db, int pid, Manifest *pParent, int cid, Ma
     manifest_destroy(db, *ppOther);
     return;
   }
-  isPublic = !content_is_private(cid);
+  isPublic = !content_is_private(db, cid);
 
   /* Try to make the parent manifest a delta from the child, if that
   ** is an appropriate thing to do.  For a new baseline, make the 
   ** previoius baseline a delta from the current baseline.
   */
   if( (pParent->zBaseline==0)==(pChild->zBaseline==0) ){
-    content_deltify(pid, cid, 0); 
+    content_deltify(db, pid, cid, 0); 
   }else if( pChild->zBaseline==0 && pParent->zBaseline!=0 ){
-    content_deltify(pParent->pBaseline->rid, cid, 0);
+    content_deltify(db, pParent->pBaseline->rid, cid, 0);
   }
 
   /* Remember all children less than a few seconds younger than their parent,
@@ -1466,7 +1467,7 @@ int manifest_crosslink(struct vcs_db *db, int rid, Blob *pContent){
       if( p->nParent==0 ){
         /* For root files (files without parents) add mlink entries
         ** showing all content as new. */
-        int isPublic = !content_is_private(rid);
+        int isPublic = !content_is_private(db, rid);
         for(i=0; i<p->nFile; i++){
           add_one_mlink(db, rid, 0, p->aFile[i].zUuid, p->aFile[i].zName, 0,
                         isPublic, manifest_file_mperm(&p->aFile[i]));
@@ -1570,7 +1571,7 @@ int manifest_crosslink(struct vcs_db *db, int rid, Blob *pContent){
       tagid, p->rDate
     );
     if( prior ){
-      content_deltify(prior, rid, 0);
+      content_deltify(db, prior, rid, 0);
     }
     if( nWiki>0 ){
       zComment = mprintf(db, "Changes to wiki page [%h]", p->zWikiTitle);
@@ -1610,7 +1611,7 @@ int manifest_crosslink(struct vcs_db *db, int rid, Blob *pContent){
       tagid, p->rDate
     );
     if( prior ){
-      content_deltify(prior, rid, 0);
+      content_deltify(db, prior, rid, 0);
       db_multi_exec(db,
         "DELETE FROM event"
         " WHERE type='e'"
@@ -1626,7 +1627,7 @@ int manifest_crosslink(struct vcs_db *db, int rid, Blob *pContent){
       tagid, p->rDate
     );
     if( subsequent ){
-      content_deltify(rid, subsequent, 0);
+      content_deltify(db, rid, subsequent, 0);
     }else{
       db_multi_exec(db,
         "REPLACE INTO event(type,mtime,objid,tagid,user,comment,bgcolor)"

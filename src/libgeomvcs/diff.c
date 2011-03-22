@@ -23,6 +23,7 @@
 #include "geomvcs/basic.h"
 #include "geomvcs/blob.h"
 #include "geomvcs/descendants.h"
+#include "geomvcs/content.h"
 #include "geomvcs/db.h"
 #include <assert.h>
 
@@ -699,7 +700,7 @@ static void annotate_file(struct vcs_db *db, Annotator *p, int fnid, int mid, in
   if( rid==0 ){
     geomvcs_panic(db, "file #%d is unchanged in manifest #%d", fnid, mid);
   }
-  if( !content_get(rid, &toAnnotate) ){
+  if( !content_get(db, rid, &toAnnotate) ){
     geomvcs_panic(db, "unable to retrieve content of artifact #%d", rid);
   }
   db_multi_exec(db, "CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
@@ -728,7 +729,7 @@ static void annotate_file(struct vcs_db *db, Annotator *p, int fnid, int mid, in
     }else{
       zLabel = mprintf(db, "%.10s %s %9.9s", zUuid, zDate, zUser);
     }
-    content_get(pid, &step);
+    content_get(db, pid, &step);
     annotation_step(db, p, &step, zLabel);
     blob_reset(db, &step);
   }
