@@ -33,10 +33,10 @@ class GeometryReqMsg : public GenericOneStringMsg
 public:
 
 	/* Only Constructor */
-	GeometryReqMsg(uint8_t requestType, std::string data);
+	GeometryReqMsg(std::string data, bool recurse);
 
 	/* Reply Constructor */
-	GeometryReqMsg(NetMsg* msg, uint8_t requestType, std::string data);
+	GeometryReqMsg(NetMsg* msg, std::string data, bool recurse);
 
 	/* Deserializing Constructor */
 	GeometryReqMsg(DataStream* ds, Portal* origin);
@@ -49,12 +49,12 @@ public:
 	/*
 	 *Getters n Setters
 	 */
-	uint8_t getRequestType();
+	bool getRecurse();
 
 	std::string getData();
 
 private:
-	uint8_t reqType;
+	bool recurse;
 
 	bool _serialize(DataStream* ds);
 	bool _equals(const NetMsg& msg);

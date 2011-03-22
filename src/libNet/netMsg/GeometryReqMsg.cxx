@@ -27,20 +27,20 @@
 #include "GeometryReqMsg.h"
 
 /* Normal Constructor */
-GeometryReqMsg::GeometryReqMsg(uint8_t requestType, std::string data) :
-    GenericOneStringMsg(GEOMETRYREQ, data), reqType(requestType)
+GeometryReqMsg::GeometryReqMsg(std::string data, bool recurse) :
+    GenericOneStringMsg(GEOMETRYREQ, data), recurse(recurse)
 {}
 
 /* Reply Constructor */
-GeometryReqMsg::GeometryReqMsg(NetMsg* msg, uint8_t requestType, std::string data) :
-	GenericOneStringMsg(GEOMETRYREQ, msg, data), reqType(requestType)
+GeometryReqMsg::GeometryReqMsg(NetMsg* msg, std::string data, bool recurse) :
+	GenericOneStringMsg(GEOMETRYREQ, msg, data), recurse(recurse)
 {}
 
 /* Deserializing Constructor */
 GeometryReqMsg::GeometryReqMsg(DataStream* ds, Portal* origin) :
     GenericOneStringMsg(ds, origin)
 {
-    reqType = *ds->get(1);
+    recurse = *ds->get(1);
 }
 
 /* Destructor */
@@ -52,7 +52,7 @@ bool GeometryReqMsg::_serialize(DataStream* ds)
     /* Call the super */
     GenericOneStringMsg::_serialize(ds);
 
-    ds->append((const char *)&reqType, 1);
+    ds->append((const char *)&recurse, 1);
     return true;
 }
 
@@ -60,7 +60,7 @@ std::string GeometryReqMsg::toString()
 {
     char out[BUFSIZ];
 
-    snprintf(out, BUFSIZ, "%s' requestType: '%d'", GenericOneStringMsg::toString().c_str(), this->reqType);
+    snprintf(out, BUFSIZ, "%s' recurse: '%d'", GenericOneStringMsg::toString().c_str(), this->recurse);
 
     return std::string(out);
 }
@@ -69,8 +69,8 @@ bool GeometryReqMsg::_equals(const NetMsg& msg)
 {
     GeometryReqMsg& gmsg = (GeometryReqMsg&) msg;
 
-    if (this->getRequestType() != gmsg.getRequestType()) {
-	return false;
+    if (this->getRecurse() != gmsg.getRecurse()) {
+    	return false;
     }
 
     return true;
@@ -79,9 +79,9 @@ bool GeometryReqMsg::_equals(const NetMsg& msg)
 /*
  *Getters n Setters
  */
-uint8_t GeometryReqMsg::getRequestType()
+bool GeometryReqMsg::getRecurse()
 {
-    return this->reqType;
+    return this->recurse;
 }
 
 std::string

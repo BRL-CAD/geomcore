@@ -80,8 +80,6 @@
 #define SESSIONINFO		        		0x0305
 
 #define	GEOMETRYREQ		        		0x0400
-#define  REQ_BY_UUID       	        	  0x00
-#define  REQ_BY_PATH	  		    	  0x01
 #define GEOMETRYMANIFEST	        	0x0405
 #define GEOMETRYCHUNK		        	0x0410
 

@@ -87,7 +87,7 @@ DataManager::handleGeometryChunkMsg(GeometryChunkMsg* msg)
 void
 DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
 {
-	uint8_t reqType = msg->getRequestType();
+	bool recurse = msg->getRecurse();
 	std::string data = msg->getData();
 	Portal* origin = msg->getOrigin();
 
@@ -97,54 +97,44 @@ DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
 		log->logERROR("DataManager", "handleGeometryReqMsg(): NULL Portal!");
 		return;
 	}
+
 	if (data.length() == 0) {
 		TypeOnlyMsg* tom = new TypeOnlyMsg(BAD_REQUEST, msg);
 		origin->send(tom);
 		return;
 	}
 
-	if (reqType == REQ_BY_PATH){
-		//TODO remove hardcoded FileDataSource
-		if (this->datasources.size() > 0) {
-			IDataSource* ds = *this->datasources.begin();
 
-			DbObject* obj = NULL; //ds->getByPath(data);
+	//TODO remove hardcoded FileDataSource
+	if (this->datasources.size() > 0) {
+		IDataSource* ds = *this->datasources.begin();
 
-			if (obj == NULL) {
-				TypeOnlyMsg* tom = new TypeOnlyMsg(COULD_NOT_FIND_GEOMETRY, msg);
-				origin->send(tom);
-				return;
-			}
+		DbObject* obj = NULL; //ds->getByPath(data);
 
-			std::list<std::string> items;
-			ByteArray* data = obj->getData();
-
-			GeometryChunkMsg* chunk = new GeometryChunkMsg(data->data(), data->size());
-			items.push_back(obj->getPath());
-
-			GeometryManifestMsg* manifest = new GeometryManifestMsg(items);
-			origin->send(manifest);
-
-			origin->send(chunk);
-			return;
-
-		} else {
-			TypeOnlyMsg* tom = new TypeOnlyMsg(OPERATION_NOT_AVAILABLE, msg);
+		if (obj == NULL) {
+			TypeOnlyMsg* tom = new TypeOnlyMsg(COULD_NOT_FIND_GEOMETRY, msg);
 			origin->send(tom);
 			return;
 		}
 
-	} else if (reqType == REQ_BY_UUID) {
-		//Not implemented!!!
-		TypeOnlyMsg* tom = new TypeOnlyMsg(OPERATION_NOT_AVAILABLE, msg);
-		origin->send(tom);
+		std::list<std::string> items;
+		ByteArray* data = obj->getData();
+
+		GeometryChunkMsg* chunk = new GeometryChunkMsg(data->data(), data->size());
+		items.push_back(obj->getPath());
+
+		GeometryManifestMsg* manifest = new GeometryManifestMsg(items);
+		origin->send(manifest);
+
+		origin->send(chunk);
 		return;
+
 	} else {
-		//Not implemented!!!
 		TypeOnlyMsg* tom = new TypeOnlyMsg(OPERATION_NOT_AVAILABLE, msg);
 		origin->send(tom);
 		return;
 	}
+
 }
 
 DataManager* DataManager::getInstance()
