@@ -8,6 +8,7 @@ SET(geomvcs_SRCS
 	diff.c
 	bag.c
 	pqueue.c
+	checkin.c
 	descendants.c
 	sha1.c
 	md5.c
