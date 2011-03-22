@@ -1,6 +1,0 @@
-Getting tag names from a Group of tags:
-SELECT t2.name FROM tags AS t1, tags AS t2, group_elements AS ge WHERE t1.id=ge.grpid AND t2.id=ge.tagid AND t1.name="platform type"
-
-Getting RepoObject Paths from a Group of Tags:
-SELECT t2.name, ro.path FROM tags AS t1, tags AS t2, group_elements AS ge, repoobjs AS ro, repoobjtags AS rot WHERE ro.id=rot.repoobjid AND rot.tagid=t2.id AND t1.id=ge.grpid AND t2.id=ge.tagid AND t1.name="service"
-

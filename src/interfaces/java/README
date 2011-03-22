@@ -1,4 +1,0 @@
-This interface to the GSNet Protocol was designed to simply be a set of classes to imported into a Java project.
-This interface was originally written using Eclipse IDE, so the dir and file structure will reflect that.
-
-This interface currently requires jBRLCAD as an external dependency.
