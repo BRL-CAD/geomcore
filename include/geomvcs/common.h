@@ -75,7 +75,7 @@ struct vcs_db {
    char **argv;
    char *zTop;
    int mainInFatalError;
-
+int clockSkewSeen;      /* True if clocks on client and server out of sync */
 };
 
 /*

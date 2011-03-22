@@ -1,0 +1,2 @@
+#define AUTOSYNC_PUSH  1
+#define AUTOSYNC_PULL  2

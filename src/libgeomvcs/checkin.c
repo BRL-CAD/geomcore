@@ -22,8 +22,11 @@
 #include "geomvcs/common.h"
 #include "geomvcs/basic.h"
 #include "geomvcs/blob.h"
+#include "geomvcs/schema.h"
 #include "geomvcs/printf.h"
-#include "geomvcs/file.h"
+#include "geomvcs/manifest.h"
+#include "geomvcs/md5.h"
+#include "geomvcs/sync.h"
 #include "geomvcs/db.h"
 #include <assert.h>
 
@@ -36,7 +39,7 @@
 ** If missingIsFatal is true, then any files that are missing or which
 ** are not true files results in a fatal error.
 */
-static void status_report(
+static void status_report( 
   struct vcs_db *db,
   Blob *report,          /* Append the status report here */
   const char *zPrefix,   /* Prefix on each line of the report */
@@ -45,7 +48,7 @@ static void status_report(
   Stmt q;
   int nPrefix = strlen(zPrefix);
   int nErr = 0;
-  db_prepare(db,  &q, 
+  db_prepare(db, &q, 
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
     " WHERE file_is_selected(id)"
@@ -91,7 +94,7 @@ static void status_report(
     free(zFullName);
   }
   db_finalize(db, &q);
-  db_prepare(db,  &q, "SELECT uuid FROM vmerge JOIN blob ON merge=rid"
+  db_prepare(db, &q, "SELECT uuid FROM vmerge JOIN blob ON merge=rid"
                  " WHERE id=0");
   while( db_step(&q)==SQLITE_ROW ){
     blob_append(db, report, zPrefix, nPrefix);
@@ -171,7 +174,7 @@ void ls_cmd(struct vcs_db *db){
   db_must_be_within_tree(db);
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, 0, 0);
-  db_prepare(db,  &q,
+  db_prepare(db, &q,
      "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
      "  FROM vfile"
      " ORDER BY 1"
@@ -293,13 +296,13 @@ void extra_cmd(struct vcs_db *db){
     zIgnoreFlag = db_get(db, "ignore-glob", 0);
   }
   vfile_scan(0, &path, blob_size(&path), allFlag);
-  db_prepare(db,  &q, 
+  db_prepare(db, &q, 
       "SELECT x FROM sfile"
       " WHERE x NOT IN (%s)"
       "   AND NOT %s"
       " ORDER BY 1",
-      geomvcs_all_reserved_names(),
-      glob_expr("x", zIgnoreFlag)
+      fossil_all_reserved_names(),
+      glob_expr(db, "x", zIgnoreFlag)
   );
   if( file_tree_name(db->zRepositoryName, &repo, 0) ){
     db_multi_exec(db, "DELETE FROM sfile WHERE x=%B", &repo);
@@ -330,7 +333,7 @@ void extra_cmd(struct vcs_db *db){
 ** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
 ** is used if the --ignore option is omitted.
 */
-void clean_cmd(void){
+void clean_cmd(struct vcs_db *db){
   int allFlag;
   int dotfilesFlag;
   const char *zIgnoreFlag;
@@ -348,11 +351,11 @@ void clean_cmd(void){
   n = strlen(db->zLocalRoot);
   blob_init(&path, db->zLocalRoot, n-1);
   vfile_scan(0, &path, blob_size(&path), dotfilesFlag);
-  db_prepare(db,  &q, 
+  db_prepare(db, &q, 
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s) AND NOT %s"
       " ORDER BY 1",
-      db->zLocalRoot, geomvcs_all_reserved_names(), glob_expr("x",zIgnoreFlag)
+      db->zLocalRoot, fossil_all_reserved_names(), glob_expr(db, "x",zIgnoreFlag)
   );
   if( file_tree_name(db->zRepositoryName, &repo, 0) ){
     db_multi_exec(db, "DELETE FROM sfile WHERE x=%B", &repo);
@@ -392,6 +395,7 @@ void clean_cmd(void){
 ** parent_rid is the recordid of the parent check-in.
 */
 static void prepare_commit_comment(
+  struct vcs_db *db, 
   Blob *pComment,
   char *zInit,
   const char *zBranch,
@@ -453,7 +457,7 @@ static void prepare_commit_comment(
   if( zEditor ){
     zCmd = mprintf(db, "%s \"%s\"", zEditor, zFile);
     printf("%s\n", zCmd);
-    if( geomvcs_system(zCmd) ){
+    if( fossil_system(zCmd) ){
       geomvcs_panic(db, "editor aborted");
     }
     blob_reset(db, &text);
@@ -502,7 +506,7 @@ static void prepare_commit_comment(
 ** allocated and remains NULL. Other parts of the code interpret this
 ** to mean "all files".
 */
-void select_commit_files(void){
+void select_commit_files(struct vcs_db *db){
   if( db->argc>2 ){
     int ii;
     Blob b;
@@ -527,7 +531,7 @@ void select_commit_files(void){
 ** Return true if the check-in with RID=rid is a leaf.
 ** A leaf has no children in the same branch. 
 */
-int is_a_leaf(int rid){
+int is_a_leaf(struct vcs_db *db, int rid){
   int rc;
   static const char zSql[] = 
     "SELECT 1 FROM plink\n"
@@ -546,13 +550,14 @@ int is_a_leaf(int rid){
 ** ancestor identified rid and zUuid.  Throw a fatal error if not.
 */
 static void checkin_verify_younger(
+  struct vcs_db *db, 
   int rid,              /* The record ID of the ancestor */
   const char *zUuid,    /* The artifact ID of the ancestor */
   const char *zDate     /* Date & time of the current check-in */
 ){
 #ifndef FOSSIL_ALLOW_OUT_OF_ORDER_DATES
   int b;
-  b = db_exists(
+  b = db_exists(db, 
     "SELECT 1 FROM event"
     " WHERE datetime(mtime)>=%Q"
     "   AND type='ci' AND objid=%d",
@@ -566,11 +571,11 @@ static void checkin_verify_younger(
 }
 
 /*
-** zDate should be a valid date strindb->  Convert this string into the
+** zDate should be a valid date string.  Convert this string into the
 ** format YYYY-MM-DDTHH:MM:SS.  If the string is not a valid date, 
 ** print a fatal error and quit.
 */
-char *date_in_standard_format(const char *zInputDate){
+char *date_in_standard_format(struct vcs_db *db, const char *zInputDate){
   char *zDate;
   zDate = db_text(db, 0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%f',%Q)",
                   zInputDate);
@@ -587,6 +592,7 @@ char *date_in_standard_format(const char *zInputDate){
 ** Create a manifest.
 */
 static void create_manifest(
+  struct vcs_db *db,
   Blob *pOut,                 /* Write the manifest here */
   const char *zBaselineUuid,  /* UUID of baseline, or zero */
   Manifest *pBaseline,        /* Make it a delta manifest if not zero */
@@ -624,10 +630,10 @@ static void create_manifest(
     pFile = 0;
   }
   blob_appendf(db, pOut, "C %F\n", blob_str(db, pComment));
-  zDate = date_in_standard_format(zDateOvrd ? zDateOvrd : "now");
+  zDate = date_in_standard_format(db, zDateOvrd ? zDateOvrd : "now");
   blob_appendf(db, pOut, "D %s\n", zDate);
   zDate[10] = ' ';
-  db_prepare(db,  &q,
+  db_prepare(db, &q,
     "SELECT pathname, uuid, origname, blob.rid, isexe,"
     "       file_is_selected(vfile.id)"
     "  FROM vfile JOIN blob ON vfile.mrid=blob.rid"
@@ -690,9 +696,9 @@ static void create_manifest(
     nFBcard++;
   }
   blob_appendf(db, pOut, "P %s", zParentUuid);
-  if( verifyDate ) checkin_verify_younger(vid, zParentUuid, zDate);
+  if( verifyDate ) checkin_verify_younger(db, vid, zParentUuid, zDate);
   free(zParentUuid);
-  db_prepare(db,  &q2, "SELECT merge FROM vmerge WHERE id=:id");
+  db_prepare(db, &q2, "SELECT merge FROM vmerge WHERE id=:id");
   db_bind_int(db, &q2, ":id", 0);
   while( db_step(&q2)==SQLITE_ROW ){
     char *zMergeUuid;
@@ -701,7 +707,7 @@ static void create_manifest(
     zMergeUuid = db_text(db, 0, "SELECT uuid FROM blob WHERE rid=%d", mid);
     if( zMergeUuid ){
       blob_appendf(db, pOut, " %s", zMergeUuid);
-      if( verifyDate ) checkin_verify_younger(mid, zMergeUuid, zDate);
+      if( verifyDate ) checkin_verify_younger(db, mid, zMergeUuid, zDate);
       free(zMergeUuid);
     }
   }
@@ -729,7 +735,7 @@ static void create_manifest(
   if( zBranch && zBranch[0] ){
     /* For a new branch, cancel all prior propagating tags */
     Stmt q;
-    db_prepare(db,  &q,
+    db_prepare(db, &q,
         "SELECT tagname FROM tagxref, tag"
         " WHERE tagxref.rid=%d AND tagxref.tagid=tadb->tagid"
         "   AND tagtype==2 AND tagname GLOB 'sym-*'"
@@ -743,7 +749,7 @@ static void create_manifest(
     db_finalize(db, &q);
   }  
   blob_appendf(db, pOut, "U %F\n", zUserOvrd ? zUserOvrd : db->zLogin);
-  md5sum_blob(pOut, &mcksum);
+  md5sum_blob(db, pOut, &mcksum);
   blob_appendf(db, pOut, "Z %b\n", &mcksum);
   if( pnFBcard ) *pnFBcard = nFBcard;
 }
@@ -752,7 +758,7 @@ static void create_manifest(
 ** Issue a warning and give the user an opportunity to abandon out
 ** if a \r\n line ending is seen in a text file.
 */
-static void cr_warning(const Blob *p, const char *zFilename){
+static void cr_warning(struct vcs_db *db, const Blob *p, const char *zFilename){
   int nCrNl = 0;          /* Number of \r\n line endings seen */
   const unsigned char *z; /* File text */
   int n;                  /* Size of the file in bytes */
@@ -844,7 +850,7 @@ static void cr_warning(const Blob *p, const char *zFilename){
 **    --tag TAG-NAME
 **    
 */
-void commit_cmd(void){
+void commit_cmd(struct vcs_db *db){
   int hasChanges;        /* True if unsaved changes exist */
   int vid;               /* blob-id of parent version */
   int nrid;              /* blob-id of a modified file */
@@ -955,8 +961,8 @@ void commit_cmd(void){
   ** for each file to be committed. Or, if aCommitFile is NULL, all files
   ** should be committed.
   */
-  select_commit_files();
-  isAMerge = db_exists("SELECT 1 FROM vmerge");
+  select_commit_files(db);
+  isAMerge = db_exists(db, "SELECT 1 FROM vmerge");
   if( db->aCommitFile && isAMerge ){
     geomvcs_fatal(db, "cannot do a partial commit of a merge");
   }
@@ -965,7 +971,7 @@ void commit_cmd(void){
   /*
   ** Check that the user exists.
   */
-  if( !db_exists("SELECT 1 FROM user WHERE login=%Q", db->zLogin) ){
+  if( !db_exists(db, "SELECT 1 FROM user WHERE login=%Q", db->zLogin) ){
     geomvcs_fatal(db, "no such user: %s", db->zLogin);
   }
   
@@ -996,14 +1002,14 @@ void commit_cmd(void){
   ** Do not allow a commit that will cause a fork unless the --force flag
   ** is used or unless this is a private check-in.
   */
-  if( zBranch==0 && forceFlag==0 && db->markPrivate==0 && !is_a_leaf(vid) ){
+  if( zBranch==0 && forceFlag==0 && db->markPrivate==0 && !is_a_leaf(db, vid) ){
     geomvcs_fatal(db, "would fork.  \"update\" first or use -f or --force.");
   }
 
   /*
   ** Do not allow a commit against a closed leaf 
   */
-  if( db_exists("SELECT 1 FROM tagxref"
+  if( db_exists(db, "SELECT 1 FROM tagxref"
                 " WHERE tagid=%d AND rid=%d AND tagtype>0",
                 TAG_CLOSED, vid) ){
     geomvcs_fatal(db, "cannot commit against a closed leaf");
@@ -1018,7 +1024,7 @@ void commit_cmd(void){
     blob_read_from_file(db, &comment, zComFile);
   }else{
     char *zInit = db_text(db, 0, "SELECT value FROM vvar WHERE name='ci-comment'");
-    prepare_commit_comment(&comment, zInit, zBranch, vid);
+    prepare_commit_comment(db, &comment, zInit, zBranch, vid);
     free(zInit);
   }
   if( blob_size(&comment)==0 ){
@@ -1038,10 +1044,10 @@ void commit_cmd(void){
   ** table. If there were arguments passed to this command, only
   ** the identified fils are inserted (if they have been modified).
   */
-  db_prepare(db,  &q,
+  db_prepare(db, &q,
     "SELECT id, %Q || pathname, mrid, %s FROM vfile "
     "WHERE chnged==1 AND NOT deleted AND file_is_selected(id)",
-    db->zLocalRoot, glob_expr("pathname", db_get(db, "crnl-glob",""))
+    db->zLocalRoot, glob_expr(db, "pathname", db_get(db, "crnl-glob",""))
   );
   while( db_step(&q)==SQLITE_ROW ){
     int id, rid;
@@ -1056,7 +1062,7 @@ void commit_cmd(void){
 
     blob_zero(&content);
     blob_read_from_file(db, &content, zFullname);
-    if( !crnlOk ) cr_warning(&content, zFullname);
+    if( !crnlOk ) cr_warning(db, &content, zFullname);
     nrid = content_put(&content);
     blob_reset(db, &content);
     if( rid>0 ){
@@ -1074,7 +1080,7 @@ void commit_cmd(void){
   if( forceDelta ){
     blob_zero(&manifest);
   }else{
-    create_manifest(&manifest, 0, 0, &comment, vid,
+    create_manifest(db, &manifest, 0, 0, &comment, vid,
                     !forceFlag, useCksum ? &cksum1 : 0,
                     zDateOvrd, zUserOvrd, zBranch, zBgColor, zTag, &szB);
   }
@@ -1094,7 +1100,7 @@ void commit_cmd(void){
     }
     if( pBaseline ){
       Blob delta;
-      create_manifest(&delta, zBaselineUuid, pBaseline, &comment, vid,
+      create_manifest(db, &delta, zBaselineUuid, pBaseline, &comment, vid,
                       !forceFlag, useCksum ? &cksum1 : 0,
                       zDateOvrd, zUserOvrd, zBranch, zBgColor, zTag, &szD);
       /*
