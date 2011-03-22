@@ -38,6 +38,7 @@ SET(geomserv_SRCS
 	GeometryService.cxx
 	DataManager.cxx
 	FileDataSource.cxx
+	SvnDataSource.cxx
 	DbObjectManifest.cxx
 	DbObject.cxx
 	GeometryProcessor.cxx
@@ -56,6 +57,7 @@ SET(geomserv_SRCS
 	cmds/ExitCmd.cxx
 	cmds/PingCmd.cxx
 	)
+	
 IF(BUILD_SHARED_LIBS)
 	add_library(libgeomserv SHARED ${geomserv_SRCS})
 	target_link_libraries(libgeomserv libNet libgcutil)
@@ -80,9 +82,10 @@ SET(geomserv_inst_HDRS
 	Account.h
 	AccountManager.h
 	GeometryService.h
-	DataManager.h
 	IDataSource.h
+	DataManager.h
 	FileDataSource.h
+	SvnDataSource.h
 	DbObject.h
 	GSClient.h
 	GSCmdLineClient.h
@@ -94,6 +97,7 @@ SET(geomserv_inst_HDRS
 	ShutdownCmd.h
 	ExitCmd.h
 	)
+	
 INSTALL(FILES ${geomserv_inst_HDRS} DESTINATION include)
 
 add_executable(geomserv geomserv.cxx)
