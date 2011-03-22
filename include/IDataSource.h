@@ -29,16 +29,25 @@
 
 #include "DbObject.h"
 #include "Account.h"
+#include <map>
+#include <list>
+
+//TODO should this be put into the common.h ?
+typedef std::pair<std::string, std::string>* prop;
 
 class IDataSource {
 public:
-	virtual bool lock(DbObject* obj, Account* a) = 0;
-	virtual bool hasLock(DbObject* obj, Account* a) = 0;
-	virtual bool unlock(DbObject* obj) = 0;
+	/* Get a single DbObject */
+	virtual DbObject* getObj(std::string path) = 0;
 
-	virtual DbObject* getByPath(std::string path) = 0;
-	virtual DbObject* getByID(GSUuid* id) = 0;
-	virtual bool putObject(DbObject* obj) = 0;
+	/* Get a single Attribute of an object */
+	virtual prop* getAttr(std::string path, std::string attrKey) = 0;
+
+	/* Get a set of objects */
+	virtual std::list<DbObject*>* getObjs(std::string path) = 0;
+
+	/* Get all Attributes from object */
+	virtual std::list<prop>* getAttrs(std::string path) = 0;
 };
 
 #endif /* __IDATASOURCE_H__ */

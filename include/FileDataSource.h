@@ -39,26 +39,20 @@ public:
 	FileDataSource(std::string repoPath);
 	virtual ~FileDataSource();
 
-	bool lock(DbObject* obj, Account* a);
-	bool hasLock(DbObject* obj, Account* a);
-	bool unlock(DbObject* obj);
+	/* Get a single DbObject */
+	DbObject* getObj(std::string path);
 
-	DbObject* getByPath(std::string path);
-	DbObject* getByID(GSUuid* id);
-	bool putObject(DbObject* obj);
+	/* Get a single Attribute of an object */
+	prop* getAttr(std::string path, std::string attrKey);
+
+	/* Get a set of objects */
+	std::list<DbObject*>* getObjs(std::string path);
+
+	/* Get all Attributes from object */
+	std::list<prop>* getAttrs(std::string path);
 
 private:
 	std::string repoPath;
-
-	GSMutex lockLock;
-	std::list<std::string> pathLocks;
-	bool hasPathLock(std::string path);
-	void setPathLock(std::string path);
-	void remPathLock(std::string path);
-
-	/* Disable copy cstr and =operator */
-	FileDataSource(FileDataSource const&){};
-	FileDataSource& operator=(FileDataSource const&){};
 };
 
 #endif /* __FILEDATASOURCE_H__ */

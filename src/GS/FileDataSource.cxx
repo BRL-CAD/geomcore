@@ -37,116 +37,32 @@ FileDataSource::FileDataSource(std::string repoPath) :
 FileDataSource::~FileDataSource()
 {}
 
-bool
-FileDataSource::lock(DbObject* obj, Account* a)
-{}
-
-bool
-FileDataSource::hasLock(DbObject* obj, Account* a)
-{}
-
-bool
-FileDataSource::unlock(DbObject* obj)
-{}
-
+/* Get a single DbObject */
 DbObject*
-FileDataSource::getByPath(std::string path)
+FileDataSource::getObj(std::string path)
 {
-	//See if there is a file lock on this path
-	bool hasLock = this->hasPathLock(path);
-	char name[BUFSIZ];
-	int f;
-	DbObject *object = NULL;
 
-	//TODO failsafe this loop!
-	while (hasLock) {
-		usleep(567000);
-		hasLock = this->hasPathLock(path);
-	}
-
-	//lock it
-	this->setPathLock(path);
-
-	snprintf(name, BUFSIZ, "%s/%s", repoPath.c_str(), path.c_str());
-	f = open(name, O_RDONLY);
-	if(f != -1) {
-		struct stat s;
-		char *buf;
-
-		fstat(f, &s);
-		if(read(f, buf = (char *)malloc(s.st_size), s.st_size) != s.st_size) {
-			fprintf(stderr, "Failed reading %s", name);
-			perror("FileDataSource::getByPath");
-		}
-		object = new DbObject(path, new ByteArray(buf, s.st_size));
-		free(buf);
-		close(f);
-	}
-
-	//unlock it
-	this->remPathLock(path);
-	return object;
 }
 
-DbObject*
-FileDataSource::getByID(GSUuid* id)
+/* Get a single Attribute of an object */
+prop*
+FileDataSource::getAttr(std::string path, std::string attrKey)
 {
-	return NULL;
+
 }
 
-bool
-FileDataSource::putObject(DbObject* obj)
+/* Get a set of objects */
+std::list<DbObject*>*
+FileDataSource::getObjs(std::string path)
 {
-	char buf[BUFSIZ];
-	int fd;
 
-	std::string path = obj->getPath();
-
-	//See if there is a file lock on this path
-	bool hasLock = this->hasPathLock(path);
-
-	//TODO failsafe this loop!
-	while (hasLock) {
-		usleep(567000);
-		hasLock = this->hasPathLock(path);
-	}
-
-	//lock it
-	this->setPathLock(path);
-
-	snprintf(buf, BUFSIZ, "%s/%s", repoPath.c_str(), path.c_str());
-	fd = open(buf, O_CREAT|O_WRONLY);
-	write(fd, obj->getData()->data(), obj->getData()->size());
-	close(fd);
-
-	//unlock it
-	this->remPathLock(path);
-
-	return true;
 }
 
-bool
-FileDataSource::hasPathLock(std::string path)
+/* Get all Attributes from object */
+std::list<prop>*
+FileDataSource::getAttrs(std::string path)
 {
-	GSMutexLocker(&this->lockLock);
-	for(std::list<std::string>::iterator it = this->pathLocks.begin(); it!=this->pathLocks.end(); it++)
-		if( *it == path )
-			return true;
-	return false;
-}
 
-void
-FileDataSource::setPathLock(std::string path)
-{
-	GSMutexLocker(&this->lockLock);
-	if (!this->hasPathLock(path))
-		this->pathLocks.push_back(path);
-}
-
-void
-FileDataSource::remPathLock(std::string path) {
-	GSMutexLocker(&this->lockLock);
-	this->pathLocks.push_back(path);
 }
 
 /*

@@ -108,7 +108,7 @@ DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
 		if (this->datasources.size() > 0) {
 			IDataSource* ds = *this->datasources.begin();
 
-			DbObject* obj = ds->getByPath(data);
+			DbObject* obj = NULL; //ds->getByPath(data);
 
 			if (obj == NULL) {
 				TypeOnlyMsg* tom = new TypeOnlyMsg(COULD_NOT_FIND_GEOMETRY, msg);
