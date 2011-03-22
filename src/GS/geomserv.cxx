@@ -75,15 +75,23 @@ int main(int argc, char* argv[])
     log->logBANNER("geomserv", "Booting GeometryService: " + localNodeName);
 
     /* Get Listen Port */
-    uint16_t port = c->getConfigValueAsUShort("ListenPort");
+    uint16_t listenPort = c->getConfigValueAsUShort("ListenPort");
 
-    if (port <= 0){
+    if (listenPort <= 0){
     	log->logERROR("geomserv", "Config File does not contain a 'ListenPort' parameter, using default");
-    	port = DEFAULT_LISTEN_PORT;
+    	listenPort = DEFAULT_LISTEN_PORT;
+    }
+
+    /* Get Listen Addy */
+    std::string listenAddy = c->getConfigValue("ListenAddress");
+
+    if (listenAddy.length() <= 0){
+    	log->logERROR("geomserv", "Config File does not contain a 'ListenAddress' parameter, using default");
+    	listenAddy = DEFAULT_LISTEN_ADDY;
     }
 
 
-    GeometryService gs (localNodeName, port);
+    GeometryService gs (localNodeName, listenAddy, listenPort);
 
     /* DataManager elements. */
     std::string useFileRepo(c->getConfigValue("UseFileRepo"));
