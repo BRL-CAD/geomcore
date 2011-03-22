@@ -86,7 +86,7 @@ class GeometryServer
 	    this->_port = port;
 	    this->_addy = addy;
 
-	    this->gs = new GeometryService(localName, port, *addy);
+	    this->gs = new GeometryService(localName, *addy, port);
 
 	    this->gs->start();
 	}

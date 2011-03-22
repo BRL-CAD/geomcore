@@ -30,10 +30,11 @@
 #include "PongMsg.h"
 
 
-GeometryService::GeometryService(const std::string localNodeName, const uint16_t listenPort, const std::string listenAddy) : ControlledThread(localNodeName)
+GeometryService::GeometryService(const std::string localNodeName,
+								 const std::string listenAddy,
+								 const uint16_t listenPort)
+								 : ControlledThread(localNodeName)
 {
-    this->localNodeName.assign(localNodeName);
-
     this->log = Logger::getInstance();
     this->log->logINFO("GeometryService", localNodeName + " is starting up...");
 
@@ -176,6 +177,11 @@ GeometryService::handleNetMsg(NetMsg* msg)
 		}
 	}
 	return false;
+}
+
+std::string
+GeometryService::getLocalNodeName() {
+	return this->getThreadName();
 }
 
 /*

@@ -42,10 +42,13 @@ static const std::string DEFAULT_LISTEN_ADDY = "127.0.0.1";
 class GeometryService : public ControlledThread, public INetMsgHandler
 {
 public:
-	GeometryService(const std::string localNodeName, const uint16_t listenPort = DEFAULT_LISTEN_PORT, const std::string listenAddy = DEFAULT_LISTEN_ADDY);
+	GeometryService(const std::string localNodeName,
+					const std::string listenAddy = DEFAULT_LISTEN_ADDY,
+					const uint16_t listenPort = DEFAULT_LISTEN_PORT);
 	virtual ~GeometryService();
     bool handleNetMsg(NetMsg* msg);
     DataManager* getDataManager();
+    std::string getLocalNodeName();
 
 protected:
 	bool preRunHook();
@@ -54,7 +57,6 @@ protected:
 
 private:
 	Logger* log;
-	std::string localNodeName;
 
 	PortalManager* portalMan;
 	DataManager* dataMan;
