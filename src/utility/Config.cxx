@@ -116,8 +116,10 @@ Config::removeAllOccurances(std::string* data, std::string search, std::string r
 std::string
 Config::getConfigValue(std::string key)
 {
-    std::string ret = this->configMap->find(key)->second + "";
-    return ret;
+	std::map<std::string, std::string>::iterator it = this->configMap->find(key);
+	if (it == this->configMap->end())
+		return "";
+    return it->second;
 }
 
 void
