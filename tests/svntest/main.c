@@ -100,7 +100,7 @@ struct print_baton {
 /* This implements the svn_client_list_func_t API, printing a single
    directory entry in text format. */
 static svn_error_t *
-print_obj(void *baton,
+concat_obj(void *baton,
              const char *path,
              const svn_dirent_t *dirent,
              const svn_lock_t *lock,
@@ -109,17 +109,43 @@ print_obj(void *baton,
 {
   struct print_baton *pb = baton;
   const char *entryname, *modelpath, *modelname;
+  struct db_i *input_dbip;
+  struct db_i *collecting_dbip;
+  struct directory *dp, *new_dp;
+  struct rt_db_internal ip;
+  struct bu_vls model,entry;
 
   if (pb->ctx->cancel_func)
     SVN_ERR(pb->ctx->cancel_func(pb->ctx->cancel_baton));
 
   if (dirent->kind == svn_node_file) {
+	  bu_vls_init(&model);
+	  bu_vls_init(&entry);
 	  entryname = svn_path_basename(path, pool);
 	  modelpath = svn_path_dirname(path, pool);
 	  modelname = svn_path_dirname(modelpath, pool);
-          printf("Adding %s to %s\n", entryname, modelname);
+	  bu_vls_sprintf(&model, "staging/%s", modelname);
+	  if (!bu_file_exists(bu_vls_addr(&model))){
+		  collecting_dbip = db_create(bu_vls_addr(&model), 5);
+	  } else {
+		  collecting_dbip = db_open(bu_vls_addr(&model), "w");
+	  }
+	  bu_vls_sprintf(&entry, "test_checkout2/%s", path);
+	  printf("Adding %s to %s\n", bu_vls_addr(&entry), bu_vls_addr(&model));
+	  input_dbip = db_open(bu_vls_addr(&entry), "r");
+	  (void)db_dirbuild(input_dbip);
+	  db_update_nref(input_dbip, &rt_uniresource);
+	  dp = db_lookup(input_dbip, entryname, LOOKUP_QUIET);
+	  rt_db_get_internal( &ip, dp, input_dbip, NULL, &rt_uniresource);
+	  new_dp = db_diradd( collecting_dbip, dp->d_namep, RT_DIR_PHONY_ADDR, 0, dp->d_flags, (genptr_t)&dp->d_minor_type );
+	  rt_db_put_internal( new_dp, collecting_dbip, &ip, &rt_uniresource );
+
+	  db_close(collecting_dbip);
+	  db_close(input_dbip);
+	  bu_vls_free(&entry); 
+	  bu_vls_free(&model); 
   }
- 
+
   return SVN_NO_ERROR;
 }
 
@@ -566,13 +592,21 @@ main(int argc, const char *argv[])
   svn_client_update3(NULL, update_targets, &svnrev, svn_depth_unknown, 0, 0, 0, ctx, subpool);
 
   printf("updated second repository\n");
- 
+
+  /* make staging area */
+  char *staging_area= "./staging";
+  const char *full_staging_area= svn_path_canonicalize(staging_area, pool);
+  if(mkdir(full_staging_area, (S_IRWXU | S_IRWXG | S_IRWXO))) {
+     printf("mkdir failed: %s\n", root_file_path);
+     exit(EXIT_FAILURE);
+  }
+
   /* List files */
   svn_pool_clear(subpool);
   targets->nelts = 0;
   struct print_baton pb;
   pb.ctx = ctx;
-  svn_client_list2(full_checkout_path2, &peg_revision, &svnrev, svn_depth_infinity, SVN_DIRENT_KIND, FALSE, print_obj, &pb, ctx, subpool);
+  svn_client_list2(full_checkout_path2, &peg_revision, &svnrev, svn_depth_infinity, SVN_DIRENT_KIND, FALSE, concat_obj, &pb, ctx, subpool);
   printf("added the files\n");
 
  
