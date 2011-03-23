@@ -124,13 +124,13 @@ concat_obj(void *baton,
 	  entryname = svn_path_basename(path, pool);
 	  modelpath = svn_path_dirname(path, pool);
 	  modelname = svn_path_dirname(modelpath, pool);
-	  bu_vls_sprintf(&model, "staging/%s", modelname);
+	  bu_vls_sprintf(&model, "GS_staging/%s", modelname);
 	  if (!bu_file_exists(bu_vls_addr(&model))){
 		  collecting_dbip = db_create(bu_vls_addr(&model), 5);
 	  } else {
 		  collecting_dbip = db_open(bu_vls_addr(&model), "w");
 	  }
-	  bu_vls_sprintf(&entry, "test_checkout2/%s", path);
+	  bu_vls_sprintf(&entry, "GS_%s/%s", modelname, path);
 	  printf("Adding %s to %s\n", bu_vls_addr(&entry), bu_vls_addr(&model));
 	  input_dbip = db_open(bu_vls_addr(&entry), "r");
 	  (void)db_dirbuild(input_dbip);
@@ -428,7 +428,7 @@ main(int argc, const char *argv[])
   apr_signal(SIGXFSZ, SIG_IGN);
 #endif
 
-  char *repo_path = "./test_repository";
+  char *repo_path = "./GS_repository";
   const char *full_path = svn_path_canonicalize(repo_path, pool);
   opt_state.repository_path = full_path;
 
@@ -479,14 +479,19 @@ main(int argc, const char *argv[])
 
   const char *abs_path;
   char full_repository_url[1024];
+  struct bu_vls gs_user;
   svn_path_get_absolute(&abs_path, repo_path, pool);
   sprintf(full_repository_url,"file://localhost:%s", abs_path);
   printf("full_repository_url: %s\n", full_repository_url);
 
-  char *checkout_path1 = "./test_checkout1";
-  char *checkout_path2 = "./test_checkout2";
+  char *filename = "ktank.g";
+  bu_vls_init(&gs_user);
+  bu_vls_sprintf(&gs_user, "GS_%s", filename);
+  const char *userrepo_fullpath = svn_path_canonicalize(bu_vls_addr(&gs_user), pool);
+  bu_vls_free(&gs_user);
+  svn_path_get_absolute(&abs_path, repo_path, pool);
+  char *checkout_path1 = "./GS_working";
   const char *full_checkout_path1 = svn_path_canonicalize(checkout_path1, pool);
-  const char *full_checkout_path2 = svn_path_canonicalize(checkout_path2, pool);
   svn_opt_revision_t revision;
   svn_opt_revision_t peg_revision;
   revision.kind = svn_opt_revision_head;
@@ -499,8 +504,8 @@ main(int argc, const char *argv[])
   svn_client_checkout3(NULL, full_repository_url, full_checkout_path1, &peg_revision, &revision, svn_depth_infinity, 0, 0, ctx, subpool);
 
   svn_pool_clear(subpool);
-  printf("svn checkout:  repo: %s, target: %s\n", full_repository_url, full_checkout_path2);
-  svn_client_checkout3(NULL, full_repository_url, full_checkout_path2, &peg_revision, &revision, svn_depth_infinity, 0, 0, ctx, subpool);
+  printf("svn checkout:  repo: %s, target: %s\n", full_repository_url, userrepo_fullpath);
+  svn_client_checkout3(NULL, full_repository_url, userrepo_fullpath, &peg_revision, &revision, svn_depth_infinity, 0, 0, ctx, subpool);
  
   struct db_i *dbip = DBI_NULL;
   struct db_i *new_dbip = DBI_NULL;
@@ -586,7 +591,7 @@ main(int argc, const char *argv[])
   /* Perform an update operation on the second repository */
   svn_pool_clear(subpool);
   apr_array_header_t *update_targets = apr_array_make(pool, 5, sizeof(const char *));
-  APR_ARRAY_PUSH(update_targets, const char *) = full_checkout_path2;
+  APR_ARRAY_PUSH(update_targets, const char *) = userrepo_fullpath;
   svn_opt_revision_t svnrev;
   svnrev.kind = svn_opt_revision_unspecified;
   svn_client_update3(NULL, update_targets, &svnrev, svn_depth_unknown, 0, 0, 0, ctx, subpool);
@@ -594,7 +599,7 @@ main(int argc, const char *argv[])
   printf("updated second repository\n");
 
   /* make staging area */
-  char *staging_area= "./staging";
+  char *staging_area= "./GS_staging";
   const char *full_staging_area= svn_path_canonicalize(staging_area, pool);
   if(mkdir(full_staging_area, (S_IRWXU | S_IRWXG | S_IRWXO))) {
      printf("mkdir failed: %s\n", root_file_path);
@@ -606,7 +611,8 @@ main(int argc, const char *argv[])
   targets->nelts = 0;
   struct print_baton pb;
   pb.ctx = ctx;
-  svn_client_list2(full_checkout_path2, &peg_revision, &svnrev, svn_depth_infinity, SVN_DIRENT_KIND, FALSE, concat_obj, &pb, ctx, subpool);
+  printf("%s\n", userrepo_fullpath);
+  svn_client_list2(userrepo_fullpath, &peg_revision, &svnrev, svn_depth_infinity, SVN_DIRENT_KIND, FALSE, concat_obj, &pb, ctx, subpool);
   printf("added the files\n");
 
  
