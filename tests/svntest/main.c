@@ -321,7 +321,7 @@ main(int argc, const char *argv[])
   const svn_opt_subcommand_desc2_t *subcommand = NULL;
   struct svntest_opt_state opt_state;
   int opt_id;
-  int i;
+  int i, inc;
 
   /* Initialize the app. */
   if (svn_cmdline_init("svntest", stderr) != EXIT_SUCCESS)
@@ -460,18 +460,13 @@ main(int argc, const char *argv[])
   char parent_path[1024];
   char child_path[1024];
   sprintf(parent_path,"havoc.g", full_checkout_path1);
-  char file_path[1024];
-  sprintf(file_path,"%s/%s", full_checkout_path1, parent_path);
-  printf("file_path: %s\n", file_path);
-  if(mkdir(file_path, (S_IRWXU | S_IRWXG | S_IRWXO))) {
-     printf("mkdir failed: %s\n", file_path);
+  char root_file_path[1024];
+  sprintf(root_file_path,"%s/%s", full_checkout_path1, parent_path);
+  printf("root_file_path: %s\n", root_file_path);
+  if(mkdir(root_file_path, (S_IRWXU | S_IRWXG | S_IRWXO))) {
+     printf("mkdir failed: %s\n", root_file_path);
      exit(EXIT_FAILURE);
-  } else { 
-     svn_pool_clear(subpool);
-     svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
-     *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
   }
-
 #if 0
   FILE *fp;
   fp = fopen(file_path,"w");
@@ -484,10 +479,6 @@ main(int argc, const char *argv[])
 #endif
 
 
-  svn_pool_clear(subpool);
-  svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
-  *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
-
   (void)db_dirbuild(dbip);
   wdbp = wdb_dbopen(dbip, RT_WDB_TYPE_DB_DISK);
   GED_INIT(&gedp, wdbp);
@@ -495,125 +486,40 @@ main(int argc, const char *argv[])
   printf("tops: %s\n", bu_vls_addr(&gedp.ged_result_str));
   db_update_nref(dbip, &rt_uniresource);
 
-  /* Beginnings of code intended to use search results to identify
-   * regions and assemblies.
-   */
-  /* 1.  construct search argv for finding regions */
-  int inc = 0;
-  char **av,**reg_av;
-  void *dbplan;
-  struct bu_ptbl *assembly_objs, *region_objs;
-  struct db_full_path_list *path_list;
   struct directory *dp;
-  av = (char **)bu_malloc(sizeof(char *)*7, "assemblies argv");
-  av[0] = "-below";
-  av[1] = "-type";
-  av[2] = "region";
-  av[3] = "!";
-  av[4] = "-type";
-  av[5] = "region";
-  av[6] = '\0';
-
-  /* Regions should probably be done with the traditional loop
-   * over all db objects, but for now test search some more */
-  reg_av = (char **)bu_malloc(sizeof(char *)*3, "assemblies argv");
-  reg_av[0] = "-type";
-  reg_av[1] = "region";
-  reg_av[2] = '\0';
-
-
-  /* 2.  build search plan */
-  dbplan = db_search_formplan(&av[0], dbip, wdbp);
-  bu_free((void *)av, "free assemblies argv");
-  /* 3.  db_search_unique_objects with assembly plan */
-  if(!dbplan) {
-	  printf("auugh - no plan!\n");
-	  exit(EXIT_FAILURE);
-  }
-  BU_GETSTRUCT(path_list, db_full_path_list);
-  BU_LIST_INIT(&(path_list->l));
-  assembly_objs = db_search_unique_objects(dbplan, path_list, dbip, wdbp);
-  bu_free(dbplan, "free plan");
-  db_free_full_path_list(path_list);
-  /*
-  4.  do the same for regions - will need to decide how to handle nested regions */
-  dbplan = db_search_formplan(&reg_av[0], dbip, wdbp);
-  bu_free((void *)reg_av, "free assemblies argv");
-  if(!dbplan) {
-	  printf("auugh - no plan!\n");
-	  exit(EXIT_FAILURE);
-  }
-  BU_GETSTRUCT(path_list, db_full_path_list);
-  BU_LIST_INIT(&(path_list->l));
-  region_objs = db_search_unique_objects(dbplan, path_list, dbip, wdbp);
-  bu_free(dbplan, "free plan");
-  db_free_full_path_list(path_list);
-
-  /*
-  5.  iterate over the tables, doing shallow writes for assemblies and deep copy writes
-      for regions.  add everything to svn
-      */
-
   struct keep_node_data knd;
-  for (inc=0; inc < (int)BU_PTBL_LEN(assembly_objs); inc++) {
-	  dp = (struct directory *)BU_PTBL_GET(assembly_objs, inc);
-	  sprintf(file_path, "%s/%s/%s", full_checkout_path1, parent_path, dp->d_namep);
-	  printf("file_path: %s\n", file_path);
-	  if(mkdir(file_path, (S_IRWXU | S_IRWXG | S_IRWXO))) {
-		  printf("mkdir failed: %s\n", file_path);
-		  exit(EXIT_FAILURE);
-	  } else { 
-		  svn_pool_clear(subpool);
-		  svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
-		  *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
+  char file_path[1024];
+  for (inc=0; inc < RT_DBNHASH; inc++) {
+	  for (dp = dbip->dbi_Head[inc]; dp != RT_DIR_NULL; dp = dp->d_forw) {
+		  if(!BU_STR_EQUAL(dp->d_namep, "_GLOBAL")) {
+			  sprintf(file_path, "%s/%s/%s", full_checkout_path1, parent_path, dp->d_namep);
+			  /*printf("file_path: %s\n", file_path);*/
+			  if(mkdir(file_path, (S_IRWXU | S_IRWXG | S_IRWXO))) {
+				  printf("mkdir failed: %s\n", file_path);
+				  exit(EXIT_FAILURE);
+			  } else { 
+			  }
+			  sprintf(file_path, "%s/%s/%s/%s", full_checkout_path1, parent_path, dp->d_namep, dp->d_namep);
+			  keepfp = wdb_fopen_v(file_path, db_version(dbip));
+			  knd.wdbp = keepfp;
+			  knd.gedp = &gedp;
+			  db_update_ident(keepfp->dbip, "Part of havoc.g", dbip->dbi_local2base);
+			  node_write(dbip, dp, (genptr_t)&knd);
+			  wdb_close(keepfp);
+		  }
 	  }
-	  sprintf(file_path, "%s/%s/%s/%s", full_checkout_path1, parent_path, dp->d_namep, dp->d_namep);
-	  keepfp = wdb_fopen_v(file_path, db_version(dbip));
-	  knd.wdbp = keepfp;
-	  knd.gedp = &gedp;
-	  db_update_ident(keepfp->dbip, "assembly", dbip->dbi_local2base);
-	  node_write(dbip, dp, (genptr_t)&knd);
-	  wdb_close(keepfp);
-	  svn_pool_clear(subpool);
-	  svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
-	  *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
-  }
-  for (inc=0; inc < (int)BU_PTBL_LEN(region_objs); inc++) {
-	  dp = (struct directory *)BU_PTBL_GET(region_objs, inc);
-	  sprintf(file_path, "%s/%s/%s", full_checkout_path1, parent_path, dp->d_namep);
-	  if(mkdir(file_path, (S_IRWXU | S_IRWXG | S_IRWXO))) {
-		  printf("mkdir failed: %s\n", file_path);
-		  exit(EXIT_FAILURE);
-	  } else { 
-		  svn_pool_clear(subpool);
-		  svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
-		  *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
-	  }
-	  sprintf(file_path, "%s/%s/%s/%s", full_checkout_path1, parent_path, dp->d_namep, dp->d_namep);
-	  printf("region: %s\n", file_path);
-	  keepfp = wdb_fopen_v(file_path, db_version(dbip));
-	  knd.wdbp = keepfp;
-	  knd.gedp = &gedp;
-	  db_update_ident(keepfp->dbip, "region", dbip->dbi_local2base);
-	  db_functree(dbip, dp, node_write, node_write, &rt_uniresource, (void *)&knd);
-	  wdb_close(keepfp);
-	  svn_pool_clear(subpool);
-	  svn_client_add4(file_path, svn_depth_empty, FALSE, FALSE, FALSE, ctx, subpool);
-	  *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, file_path);
   }
 
-  bu_ptbl_free(region_objs);
-  bu_ptbl_free(assembly_objs);
-
-  for(i=0; i< targets->nelts;  i++){
-	  const char *s = ((const char**)targets->elts)[i];
-	  printf("%d: %s\n", i, s);
-  }
+  /* Add the new files */
+  svn_pool_clear(subpool);
+  svn_client_add4(root_file_path, svn_depth_infinity, FALSE, FALSE, FALSE, ctx, subpool);
+  *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, root_file_path);
+  printf("added the files\n");
 
   /* Commit the changes */
   svn_pool_clear(subpool);
   svn_commit_info_t *commit_info = NULL;
-  svn_client_commit4(&commit_info, targets, svn_depth_empty, FALSE, FALSE, NULL, NULL, ctx, subpool);
+  svn_client_commit4(&commit_info, targets, svn_depth_infinity, FALSE, FALSE, NULL, NULL, ctx, subpool);
 
   printf("committed the changes\n");
   
