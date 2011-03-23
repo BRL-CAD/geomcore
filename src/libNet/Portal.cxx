@@ -54,6 +54,8 @@ Portal::send(NetMsg* msg) {
 	ByteArray* ba = msg->serialize();
 	int retval = this->pkgClient->send(PKG_MAGIC2, ba->data(), ba->size());
 
+	//ba->printHexString("Sending: ");
+
 	delete ba;
 
 	/* Process any data moved by the underlying Socket buffer copy. */
@@ -176,12 +178,12 @@ Portal::callbackSpringboard(struct pkg_conn* conn, char* buf) {
 
 	int len = conn->pkc_inend - sizeof(pkg_header);
 
-	//printf("Recv'd Data.  inend: %d , length: %d\n", conn->pkc_inend, len);
-
 	if(len < 1)
 		return;
 
 	ByteArray ba(buf, len);
+
+	//ba.printHexString("Recv: ");
 
 	if (conn->pkc_user_data == 0) {
 		log->logERROR("Portal", "pkg callback returned a NULL user_data pointer!");
