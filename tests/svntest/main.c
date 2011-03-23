@@ -378,6 +378,11 @@ main(int argc, const char *argv[])
   apr_allocator_t *allocator;
   apr_pool_t *pool;
 
+  if (argc < 2) {
+	  printf("Please supply .g file for test\n");
+	  exit(0);
+  }
+
   const svn_opt_subcommand_desc2_t *subcommand = NULL;
   struct svntest_opt_state opt_state;
   int opt_id;
@@ -484,7 +489,7 @@ main(int argc, const char *argv[])
   sprintf(full_repository_url,"file://localhost:%s", abs_path);
   printf("full_repository_url: %s\n", full_repository_url);
 
-  char *filename = "ktank.g";
+  const char *filename = argv[1];
   bu_vls_init(&gs_user);
   bu_vls_sprintf(&gs_user, "GS_%s", filename);
   const char *userrepo_fullpath = svn_path_canonicalize(bu_vls_addr(&gs_user), pool);
@@ -512,9 +517,9 @@ main(int argc, const char *argv[])
   struct rt_wdb *wdbp = RT_WDB_NULL;
   struct rt_wdb *keepfp = RT_WDB_NULL;
   struct ged gedp;
-  dbip = db_open("./ktank.g", "r");
+  dbip = db_open(filename, "r");
   if(dbip == DBI_NULL) {
-     printf("need ./ktank.g\n");
+     printf("could not open %s\n", filename);
      exit(EXIT_FAILURE);
   }
 
@@ -524,7 +529,7 @@ main(int argc, const char *argv[])
   /* Add a new directory to the first working copy and svn add it to the repository */
   char parent_path[1024];
   char child_path[1024];
-  sprintf(parent_path,"ktank.g", full_checkout_path1);
+  sprintf(parent_path, filename, full_checkout_path1);
   char root_file_path[1024];
   sprintf(root_file_path,"%s/%s", full_checkout_path1, parent_path);
   printf("root_file_path: %s\n", root_file_path);
@@ -568,7 +573,7 @@ main(int argc, const char *argv[])
 			  keepfp = wdb_fopen_v(file_path, db_version(dbip));
 			  knd.wdbp = keepfp;
 			  knd.gedp = &gedp;
-			  db_update_ident(keepfp->dbip, "Part of ktank.g", dbip->dbi_local2base);
+			  db_update_ident(keepfp->dbip, "GS object", dbip->dbi_local2base);
 			  node_write(dbip, dp, (genptr_t)&knd);
 			  wdb_close(keepfp);
 		  }
