@@ -41,6 +41,8 @@ public:
 	int size();
 	void assign(const char *buf, int len);
 
+	void printHexString(std::string prefix = "");
+
 private:
 	bu_vlb vlb;
 };
