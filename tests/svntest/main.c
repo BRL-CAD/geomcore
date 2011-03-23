@@ -645,7 +645,8 @@ main(int argc, const char *argv[])
      exit(EXIT_FAILURE);
   }
 
-  /* Re-assemble .g files */
+  /* Re-assemble .g files - need to use ftw.h here and filter out svn files - svn_client_list2 isn't
+   * suited for what we're after.  If necessary, add a BSD version to libbu for windows later. */
   svn_pool_clear(subpool);
   targets->nelts = 0;
   struct print_baton pb;
