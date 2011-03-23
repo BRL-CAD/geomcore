@@ -2,6 +2,7 @@
 
 #include <apr_file_io.h>
 #include <apr_signal.h>
+#include <apr_tables.h>
 
 #include "svn_pools.h"
 #include "svn_cmdline.h"
@@ -89,6 +90,39 @@ node_write(struct db_i *dbip, struct directory *dp, genptr_t ptr)
 		return;
 	}
 }
+
+/* Baton used when printing directory entries. */
+struct print_baton {
+  svn_boolean_t verbose;
+  svn_client_ctx_t *ctx;
+};
+
+/* This implements the svn_client_list_func_t API, printing a single
+   directory entry in text format. */
+static svn_error_t *
+print_obj(void *baton,
+             const char *path,
+             const svn_dirent_t *dirent,
+             const svn_lock_t *lock,
+             const char *abs_path,
+             apr_pool_t *pool)
+{
+  struct print_baton *pb = baton;
+  const char *entryname, *modelpath, *modelname;
+
+  if (pb->ctx->cancel_func)
+    SVN_ERR(pb->ctx->cancel_func(pb->ctx->cancel_baton));
+
+  if (dirent->kind == svn_node_file) {
+	  entryname = svn_path_basename(path, pool);
+	  modelpath = svn_path_dirname(path, pool);
+	  modelname = svn_path_dirname(modelpath, pool);
+          printf("Adding %s to %s\n", entryname, modelname);
+  }
+ 
+  return SVN_NO_ERROR;
+}
+
 
 /*** Code. ***/
 
@@ -447,9 +481,9 @@ main(int argc, const char *argv[])
   struct rt_wdb *wdbp = RT_WDB_NULL;
   struct rt_wdb *keepfp = RT_WDB_NULL;
   struct ged gedp;
-  dbip = db_open("./havoc.g", "r");
+  dbip = db_open("./ktank.g", "r");
   if(dbip == DBI_NULL) {
-     printf("need ./havoc.g\n");
+     printf("need ./ktank.g\n");
      exit(EXIT_FAILURE);
   }
 
@@ -459,7 +493,7 @@ main(int argc, const char *argv[])
   /* Add a new directory to the first working copy and svn add it to the repository */
   char parent_path[1024];
   char child_path[1024];
-  sprintf(parent_path,"havoc.g", full_checkout_path1);
+  sprintf(parent_path,"ktank.g", full_checkout_path1);
   char root_file_path[1024];
   sprintf(root_file_path,"%s/%s", full_checkout_path1, parent_path);
   printf("root_file_path: %s\n", root_file_path);
@@ -503,7 +537,7 @@ main(int argc, const char *argv[])
 			  keepfp = wdb_fopen_v(file_path, db_version(dbip));
 			  knd.wdbp = keepfp;
 			  knd.gedp = &gedp;
-			  db_update_ident(keepfp->dbip, "Part of havoc.g", dbip->dbi_local2base);
+			  db_update_ident(keepfp->dbip, "Part of ktank.g", dbip->dbi_local2base);
 			  node_write(dbip, dp, (genptr_t)&knd);
 			  wdb_close(keepfp);
 		  }
@@ -532,7 +566,16 @@ main(int argc, const char *argv[])
   svn_client_update3(NULL, update_targets, &svnrev, svn_depth_unknown, 0, 0, 0, ctx, subpool);
 
   printf("updated second repository\n");
-  
+ 
+  /* List files */
+  svn_pool_clear(subpool);
+  targets->nelts = 0;
+  struct print_baton pb;
+  pb.ctx = ctx;
+  svn_client_list2(full_checkout_path2, &peg_revision, &svnrev, svn_depth_infinity, SVN_DIRENT_KIND, FALSE, print_obj, &pb, ctx, subpool);
+  printf("added the files\n");
+
+ 
   /* Done, now clean up */
   svn_pool_destroy(pool);
   /* Ensure that everything is written to stdout, so the user will
