@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include <time.h>
+
 #include <apr_file_io.h>
 #include <apr_signal.h>
 #include <apr_tables.h>
@@ -26,6 +28,7 @@
 #include "svn_private_config.h"
 
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include "bu.h"
 #include "vmath.h"
@@ -131,7 +134,7 @@ concat_obj(void *baton,
 		  collecting_dbip = db_open(bu_vls_addr(&model), "w");
 	  }
 	  bu_vls_sprintf(&entry, "GS_%s/%s", modelname, path);
-	  printf("Adding %s to %s\n", bu_vls_addr(&entry), bu_vls_addr(&model));
+	  /*printf("Adding %s to %s\n", bu_vls_addr(&entry), bu_vls_addr(&model));*/
 	  input_dbip = db_open(bu_vls_addr(&entry), "r");
 	  (void)db_dirbuild(input_dbip);
 	  db_update_nref(input_dbip, &rt_uniresource);
@@ -144,6 +147,8 @@ concat_obj(void *baton,
 	  db_close(input_dbip);
 	  bu_vls_free(&entry); 
 	  bu_vls_free(&model); 
+  } else {
+	  /*printf("Not adding: %s\n", path);*/
   }
 
   return SVN_NO_ERROR;
@@ -378,6 +383,12 @@ main(int argc, const char *argv[])
   apr_allocator_t *allocator;
   apr_pool_t *pool;
 
+  time_t tb, t0, t1;
+  int tdiff;
+  tb = time(NULL);
+  t0 = time(NULL);
+  t1 = time(NULL);
+
   if (argc < 2) {
 	  printf("Please supply .g file for test\n");
 	  exit(0);
@@ -487,13 +498,11 @@ main(int argc, const char *argv[])
   struct bu_vls gs_user;
   svn_path_get_absolute(&abs_path, repo_path, pool);
   sprintf(full_repository_url,"file://localhost:%s", abs_path);
-  printf("full_repository_url: %s\n", full_repository_url);
 
   const char *filename = argv[1];
   bu_vls_init(&gs_user);
   bu_vls_sprintf(&gs_user, "GS_%s", filename);
   const char *userrepo_fullpath = svn_path_canonicalize(bu_vls_addr(&gs_user), pool);
-  bu_vls_free(&gs_user);
   svn_path_get_absolute(&abs_path, repo_path, pool);
   char *checkout_path1 = "./GS_working";
   const char *full_checkout_path1 = svn_path_canonicalize(checkout_path1, pool);
@@ -505,11 +514,9 @@ main(int argc, const char *argv[])
   apr_pool_t *subpool;
   subpool = svn_pool_create(pool);
   svn_pool_clear(subpool);
-  printf("svn checkout:  repo: %s, target: %s\n", full_repository_url, full_checkout_path1);
   svn_client_checkout3(NULL, full_repository_url, full_checkout_path1, &peg_revision, &revision, svn_depth_infinity, 0, 0, ctx, subpool);
 
   svn_pool_clear(subpool);
-  printf("svn checkout:  repo: %s, target: %s\n", full_repository_url, userrepo_fullpath);
   svn_client_checkout3(NULL, full_repository_url, userrepo_fullpath, &peg_revision, &revision, svn_depth_infinity, 0, 0, ctx, subpool);
  
   struct db_i *dbip = DBI_NULL;
@@ -532,7 +539,6 @@ main(int argc, const char *argv[])
   sprintf(parent_path, filename, full_checkout_path1);
   char root_file_path[1024];
   sprintf(root_file_path,"%s/%s", full_checkout_path1, parent_path);
-  printf("root_file_path: %s\n", root_file_path);
   if(mkdir(root_file_path, (S_IRWXU | S_IRWXG | S_IRWXO))) {
      printf("mkdir failed: %s\n", root_file_path);
      exit(EXIT_FAILURE);
@@ -548,12 +554,19 @@ main(int argc, const char *argv[])
   }
 #endif
 
+  /* time for initial setup */
+  t1 = time(NULL);
+  tdiff = (int)difftime(t1,t0);
+  printf("initial setup: %d sec\n", tdiff);
+  t0 = time(NULL);
+
+
 
   (void)db_dirbuild(dbip);
   wdbp = wdb_dbopen(dbip, RT_WDB_TYPE_DB_DISK);
   GED_INIT(&gedp, wdbp);
   ged_tops(&gedp, 1, NULL);
-  printf("tops: %s\n", bu_vls_addr(&gedp.ged_result_str));
+  /*printf("tops: %s\n", bu_vls_addr(&gedp.ged_result_str));*/
   db_update_nref(dbip, &rt_uniresource);
 
   struct directory *dp;
@@ -580,19 +593,36 @@ main(int argc, const char *argv[])
 	  }
   }
 
+  /* time for .g breakout */
+  t1 = time(NULL);
+  tdiff = (int)difftime(t1,t0);
+  printf(".g breakout: %d sec\n", tdiff);
+  t0 = time(NULL);
+
+
   /* Add the new files */
   svn_pool_clear(subpool);
   svn_client_add4(root_file_path, svn_depth_infinity, FALSE, FALSE, FALSE, ctx, subpool);
   *(const char**)apr_array_push(targets) = apr_pstrdup(targets->pool, root_file_path);
-  printf("added the files\n");
+
+  /* time for adding files */
+  t1 = time(NULL);
+  tdiff = (int)difftime(t1,t0);
+  printf("adding files: %d sec\n", tdiff);
+  t0 = time(NULL);
+
 
   /* Commit the changes */
   svn_pool_clear(subpool);
   svn_commit_info_t *commit_info = NULL;
   svn_client_commit4(&commit_info, targets, svn_depth_infinity, FALSE, FALSE, NULL, NULL, ctx, subpool);
 
-  printf("committed the changes\n");
-  
+  /* time for committing files */
+  t1 = time(NULL);
+  tdiff = (int)difftime(t1,t0);
+  printf("committed files: %d sec\n", tdiff);
+  t0 = time(NULL);
+
   /* Perform an update operation on the second repository */
   svn_pool_clear(subpool);
   apr_array_header_t *update_targets = apr_array_make(pool, 5, sizeof(const char *));
@@ -601,7 +631,11 @@ main(int argc, const char *argv[])
   svnrev.kind = svn_opt_revision_unspecified;
   svn_client_update3(NULL, update_targets, &svnrev, svn_depth_unknown, 0, 0, 0, ctx, subpool);
 
-  printf("updated second repository\n");
+  /* time for updating second repository */
+  t1 = time(NULL);
+  tdiff = (int)difftime(t1,t0);
+  printf("updated second repository: %d sec\n", tdiff);
+  t0 = time(NULL);
 
   /* make staging area */
   char *staging_area= "./GS_staging";
@@ -611,17 +645,28 @@ main(int argc, const char *argv[])
      exit(EXIT_FAILURE);
   }
 
-  /* List files */
+  /* Re-assemble .g files */
   svn_pool_clear(subpool);
   targets->nelts = 0;
   struct print_baton pb;
   pb.ctx = ctx;
-  printf("%s\n", userrepo_fullpath);
   svn_client_list2(userrepo_fullpath, &peg_revision, &svnrev, svn_depth_infinity, SVN_DIRENT_KIND, FALSE, concat_obj, &pb, ctx, subpool);
-  printf("added the files\n");
+  /* time for reassembly */
+  t1 = time(NULL);
+  tdiff = (int)difftime(t1,t0);
+  printf("reassemble .g file: %d sec\n", tdiff);
+  t0 = time(NULL);
 
- 
+  /* time for reassembly */
+  tdiff = (int)difftime(t0,tb);
+  printf("total delta: %d sec\n", tdiff);
+
+  /* run g_diff */
+  bu_vls_sprintf(&gs_user, "./GS_staging/%s", filename);
+  (void)execlp("g_diff", "g_diff", filename, bu_vls_addr(&gs_user), NULL);
+
   /* Done, now clean up */
+  bu_vls_free(&gs_user);
   svn_pool_destroy(pool);
   /* Ensure that everything is written to stdout, so the user will
      see any print errors. */
