@@ -35,7 +35,6 @@ include_directories(
 )
 
 #Libs next
-ADD_SUBDIRECTORY(GE)
 ADD_SUBDIRECTORY(utility)
 ADD_SUBDIRECTORY(libJob)
 ADD_SUBDIRECTORY(libEvent)
