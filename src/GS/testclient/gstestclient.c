@@ -72,6 +72,8 @@ make_ping(char *buf) {
     char *bufp = buf;
     make_uuid(uuid);
 
+    printf("making ping with uuid: %s\n", uuid);
+
     /* pkg header */
     len += append_shrt(&bufp, PKG_MAGIC);
     len += append_shrt(&bufp, GS_MAGIC);
@@ -88,6 +90,39 @@ make_ping(char *buf) {
 }
 
 int
+print_packet(char *buf, int len)
+{
+    char sbuf[BUFSIZ];
+    int slen;
+    printf("\tMagic1: %x\n", ntohs(*(uint16_t*)buf)); buf+=2; len-=2;
+    printf("\tMagic2: %x\n", ntohs(*(uint16_t*)buf)); buf+=2; len-=2;
+    printf("\tlength: %x\n", ntohl(*(uint32_t*)buf)); buf+=4; len-=4;
+    printf("\ttype  : %x\n", ntohs(*(uint16_t*)buf)); buf+=2; len-=2;
+    slen = ntohl(*(uint32_t*)buf); buf+=4; len-=4;
+    memcpy(sbuf, buf, slen); buf[slen] = 0;
+    buf += slen; len -= slen;
+    printf("\tuuid(%d): %s\n", slen, sbuf);
+    if(*buf) {
+	printf("\thas reuuid: %d\t", *buf);
+	buf++; len--;
+	slen = ntohl(*(uint32_t*)buf); buf+=4; len-=4;
+	memcpy(sbuf, buf, slen); buf[slen] = 0;
+	buf+=slen; len-=slen;
+	printf("\t(%d): %s\n", slen, sbuf);
+    } else {
+	buf++;  len--;
+	printf("\tno reuuid\n");
+    }
+    slen = ntohl(*(uint32_t*)buf); buf+=4; len-=4;
+    memset(sbuf, 0, BUFSIZ);
+    memcpy(sbuf, buf, slen); buf[slen] = 0;
+    buf += slen; len -= slen;
+    printf("\tpayload(%d): %s\n", slen, sbuf);
+    printf("\tleft: %d\n", len);
+    return 0;
+}
+
+int
 main(int argc, char **argv)
 {
     char buf[BUFSIZ], *bufp, sbuf[BUFSIZ], *host = "localhost";
@@ -100,8 +135,6 @@ main(int argc, char **argv)
 
     memset(buf, 0, BUFSIZ);
     len = make_ping(buf);
-
-    printf("Host: %s\n", host);
 
     /* make the connection */
     {
@@ -122,7 +155,6 @@ main(int argc, char **argv)
 	s.sin_family = AF_INET;
 	s.sin_port = htons(port);
 	s.sin_addr = *((struct in_addr *)h->h_addr_list[0]);
-	printf("sock: %d, %X\n", sock, (unsigned int)(s.sin_addr.s_addr));
 	if(connect(sock, ss, sizeof(struct sockaddr)) == -1) {
 	    perror("connect");
 	    return -1;
@@ -132,14 +164,9 @@ main(int argc, char **argv)
     if(write(sock, buf, len) != len) 
 	perror("Writing to socket\n");
     len = read(sock, buf, BUFSIZ);
-    printf("response: %d bytes\n", len);
 
-    for(i=0;i<len;i++)
-	if(isprint(buf[i]))
-	    printf("%c", buf[i]);
-	else
-	    printf("[%x]", buf[i]&0xff);
-    printf("\n");
+    printf("Got a return packet:\n");
+    print_packet(buf, len);
 
     shutdown(sock, SHUT_RDWR);
     close(sock);
