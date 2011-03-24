@@ -3,14 +3,17 @@
 #include <time.h>
 #include <sys/stat.h>
 
+#include <apr.h>
 #include <apr_file_io.h>
 #include <apr_signal.h>
+#include <apr_hash.h>
 #include <apr_tables.h>
 
 #include "svn_pools.h"
 #include "svn_path.h"
 #include "svn_repos.h"
 #include "svn_fs.h"
+#include "svn_ra.h"
 
 #include "bu.h"
 #include "vmath.h"
@@ -22,93 +25,31 @@
 #include "raytrace.h"
 #include "ged.h"
 
-struct keep_node_data {
-	struct rt_wdb *wdbp;
+struct assemble_info {
+	struct bu_vls *svn_file;
+	char *model_file;
+	struct dbip *dbip;
+	char *model_name;
 };
 
-void
-node_write(struct db_i *dbip, struct directory *dp, genptr_t ptr)
+/* Function callback to assemble .g file - function type is
+ * apr_hash_do_callback_fn_t.  Need to make sure dbinfo is
+ * a struct that has everything we need to get the file
+ * contents (probably with svn_ra_get_file).  Take the stream
+ * and convert it to a svn_string_t with svn_string_from_stream.
+ * That stream should then be convertable to a bu_external 
+ * structure and converted to a form to insert into the db*/
+int concat_obj(void *dbinfo, const void *objname, apr_ssize_t klen, const void *objsvninfo)
 {
-	struct keep_node_data *kndp = (struct keep_node_data *)ptr;
-	struct rt_db_internal intern;
-
-	RT_CK_WDB(kndp->wdbp);
-/*
-	if (dp->d_nref++ > 0)
-		return;      
-*/
-	if (rt_db_get_internal(&intern, dp, dbip, NULL, &rt_uniresource) < 0) {
-		return;
-	}
-
-	/* if this is an extrusion, keep the referenced sketch */
-	if (dp->d_major_type == DB5_MAJORTYPE_BRLCAD && dp->d_minor_type == DB5_MINORTYPE_BRLCAD_EXTRUDE) {
-		struct rt_extrude_internal *extr;
-		struct directory *dp2;
-
-		extr = (struct rt_extrude_internal *)intern.idb_ptr;
-		RT_EXTRUDE_CK_MAGIC(extr);
-
-		if ((dp2 = db_lookup(dbip, extr->sketch_name, LOOKUP_QUIET)) != RT_DIR_NULL) {
-			node_write(dbip, dp2, ptr);
-		}
-	} else if (dp->d_major_type == DB5_MAJORTYPE_BRLCAD && dp->d_minor_type == DB5_MINORTYPE_BRLCAD_DSP) {
-		struct rt_dsp_internal *dsp;
-		struct directory *dp2;
-
-		/* this is a DSP, if it uses a binary object, keep it also */
-		dsp = (struct rt_dsp_internal *)intern.idb_ptr;
-		RT_DSP_CK_MAGIC(dsp);
-
-		if (dsp->dsp_datasrc == RT_DSP_SRC_OBJ) {
-			/* need to keep this object */
-			if ((dp2 = db_lookup(dbip, bu_vls_addr(&dsp->dsp_name),  LOOKUP_QUIET)) != RT_DIR_NULL) {
-				node_write(dbip, dp2, ptr);
-			}
-		}
-	}
-
-	if (wdb_put_internal(kndp->wdbp, dp->d_namep, &intern, 1.0) < 0) {
-		return;
-	}
-}
-
-/* This implements the svn_client_list_func_t API, printing a single
-   directory entry in text format. */
-int concat_obj(const char *path, const char *target, apr_pool_t *pool)
-{
-  const char *entryname, *modelpath;
-  struct db_i *input_dbip;
-  struct db_i *collecting_dbip;
+  struct assemble_info *ainfo = (struct assemble_info *)dbinfo;
   struct directory *dp, *new_dp;
   struct rt_db_internal ip;
-  struct bu_vls model,entry;
 
-  bu_vls_init(&model);
-  bu_vls_init(&entry);
-  entryname = svn_path_basename(path, pool);
-  modelpath = svn_path_dirname(path, pool);
-  target = svn_path_dirname(modelpath, pool);
-  bu_vls_sprintf(&model, "GS_staging/%s", target);
-  if (!bu_file_exists(bu_vls_addr(&model))){
-	  collecting_dbip = db_create(bu_vls_addr(&model), 5);
-  } else {
-	  collecting_dbip = db_open(bu_vls_addr(&model), "w");
-  }
-  bu_vls_sprintf(&entry, "GS_%s/%s", target, path);
-  /*printf("Adding %s to %s\n", bu_vls_addr(&entry), bu_vls_addr(&model));*/
-  input_dbip = db_open(bu_vls_addr(&entry), "r");
-  (void)db_dirbuild(input_dbip);
-  db_update_nref(input_dbip, &rt_uniresource);
-  dp = db_lookup(input_dbip, entryname, LOOKUP_QUIET);
-  rt_db_get_internal( &ip, dp, input_dbip, NULL, &rt_uniresource);
-  new_dp = db_diradd( collecting_dbip, dp->d_namep, RT_DIR_PHONY_ADDR, 0, dp->d_flags, (genptr_t)&dp->d_minor_type );
-  rt_db_put_internal( new_dp, collecting_dbip, &ip, &rt_uniresource );
-
-  db_close(collecting_dbip);
-  db_close(input_dbip);
-  bu_vls_free(&entry); 
-  bu_vls_free(&model); 
+  bu_vls_sprintf(ainfo->svn_file, "%s/%s", (const char *)objname, (const char *)objname);
+  /*printf("Adding %s to %s\n", (const char *)objname, ainfo->model_file);*/
+  /* get svn_file contents and convert them into the right form */
+ /*  new_dp = db_diradd(ainfo->dbip, dp->d_namep, RT_DIR_PHONY_ADDR, 0, dp->d_flags, (genptr_t)&dp->d_minor_type );
+  rt_db_put_internal(new_dp, ainfo->dbip, &ip, &rt_uniresource); */
 }
 
 /** Main. **/
@@ -122,7 +63,9 @@ main(int argc, const char *argv[])
   svn_revnum_t youngest_rev;
   svn_fs_txn_t *txn;
   svn_fs_root_t *txn_root;
-  const char **conflict_p;
+ 
+  svn_ra_session_t *ra_session; 
+  
   apr_status_t apr_err;
   apr_allocator_t *allocator;
   apr_pool_t *pool;
@@ -230,6 +173,8 @@ main(int argc, const char *argv[])
   /* Commit the changes */
   svn_repos_fs_commit_txn(NULL, repos, &youngest_rev, txn, pool);
 
+  /* Close the repository */
+
   /* time for committing files */
   t1 = time(NULL);
   tdiff = (int)difftime(t1,t0);
@@ -246,8 +191,23 @@ main(int argc, const char *argv[])
 	  }
   }
 
-  /* Re-assemble .g files */
-  /*look into svn_fs_dir_entries and svn_fs_file_contents here*/
+  /* Re-assemble .g files.  Make this a test of using svn_ra, although for
+   * lower level geometry service read-only operations we may actually want 
+   * svn_fs level to get the data.  I don't fully understand all the tradeoffs
+   * yet but svn_ra or some other higher level is likely to be necessary 
+   * for robustness */
+  apr_hash_t *objects = apr_hash_make(pool);
+  svn_ra_initialize (pool);
+  svn_ra_open3(&ra_session, full_path, NULL, NULL, NULL, NULL, pool);
+  svn_ra_get_dir2(ra_session, &objects, NULL, NULL, model_name, SVN_INVALID_REVNUM, SVN_DIRENT_ALL, pool);
+  /*
+  if (!bu_file_exists(ainfo->model_file)){
+	  dbip = db_create(ainfo->model_file, 5);
+  } else {
+	  dbip = db_open(ainfo->model_file, "w");
+  }*/
+  /*apr_hash_do(*/
+  
 
   
 
