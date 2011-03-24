@@ -27,6 +27,7 @@
 #ifndef __DATAMANAGER_H__
 #define __DATAMANAGER_H__
 
+#include "Config.h"
 #include "INetMsgHandler.h"
 #include "IDataSource.h"
 #include "GeometryReqMsg.h"
@@ -43,6 +44,9 @@ class DataManager :  public INetMsgHandler
 public:
 	static DataManager* getInstance();
 	virtual ~DataManager();
+
+	bool init(Config* c);
+
     bool handleNetMsg(NetMsg* msg);
 
 	std::string getDbObjectByURL(std::string url);

@@ -92,39 +92,9 @@ int main(int argc, char* argv[])
     }
 
 
-    /* Get DataSource type */
-    std::string repoType = c->getConfigValue("RepoType");
-    if (repoType.length() == 0)
-    {
-		log->logERROR("geomserv", "Config File does not contain a 'RepoType' parameter");
+    if (dm->init(c) == false) {
 		gsExit(1);
     }
-    //to lower
-	for(int i=0; i < repoType.length(); ++i)
-		repoType[i] = std::tolower(repoType[i]);
-
-
-	/* Attempt to instantiate a DataSource */
-	if (repoType == "file") {
-	    std::string fRepoPath(c->getConfigValue("FileRepoPath"));
-	    if (fRepoPath.length() == 0)
-	    {
-			log->logERROR("geomserv", "Config File does not contain a 'FileRepoPath' parameter");
-			gsExit(1);
-	    }
-
-    	log->logINFO("geomserv", "FileDataSouce being used.");
-        FileDataSource* fds = new FileDataSource(fRepoPath);
-        dm->setDataSource(fds);
-
-	} else if (repoType == "svn") {
-		log->logERROR("geomserv", "SVN repotype not implemented yet.");
-		gsExit(1);
-
-	} else {
-		log->logERROR("geomserv", "Invalid RepoType in config file.  Valid values are 'file' and 'svn'");
-		gsExit(1);
-	}
 
 
      GeometryService gs (localNodeName, listenAddy, listenPort);

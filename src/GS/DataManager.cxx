@@ -25,6 +25,7 @@
  */
 
 #include "DataManager.h"
+#include "FileDataSource.h"
 #include "NetMsgTypes.h"
 #include "TypeOnlyMsg.h"
 #include "GeometryManifestMsg.h"
@@ -90,7 +91,7 @@ void
 DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
 {
 	bool recurse = msg->getRecurse();
-	std::string data = msg->getPath();
+	std::string path = msg->getPath();
 	Portal* origin = msg->getOrigin();
 
 	//validate incoming data
@@ -100,51 +101,88 @@ DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
 		return;
 	}
 
-	if (data.length() == 0) {
+	if (path.length() == 0) {
 		TypeOnlyMsg* tom = new TypeOnlyMsg(BAD_REQUEST, msg);
 		origin->send(tom);
 		return;
 	}
 
 
-	//TODO remove hardcoded FileDataSource
-	if (this->datasource != NULL) {
-
-		DbObject* obj = NULL; //this->datasource->getByPath(data);
-
-		if (obj == NULL) {
-			TypeOnlyMsg* tom = new TypeOnlyMsg(COULD_NOT_FIND_GEOMETRY, msg);
-			origin->send(tom);
-			return;
-		}
-
-		std::list<std::string> items;
-		ByteArray* data = obj->getData();
-
-		GeometryChunkMsg* chunk = new GeometryChunkMsg(data->data(), data->size());
-		items.push_back(obj->getPath());
-
-		GeometryManifestMsg* manifest = new GeometryManifestMsg(items);
-		origin->send(manifest);
-
-		origin->send(chunk);
-		return;
-
-	} else {
+	if (this->datasource == NULL) {
 		TypeOnlyMsg* tom = new TypeOnlyMsg(OPERATION_NOT_AVAILABLE, msg);
 		origin->send(tom);
 		return;
 	}
 
+
+	DbObject* obj = NULL; //this->datasource->getByPath(data);
+
+	if (obj == NULL) {
+		TypeOnlyMsg* tom = new TypeOnlyMsg(COULD_NOT_FIND_GEOMETRY, msg);
+		origin->send(tom);
+		return;
+	}
+
+	std::list<std::string> items;
+	ByteArray* data = obj->getData();
+
+	GeometryChunkMsg* chunk = new GeometryChunkMsg(data->data(), data->size());
+	items.push_back(obj->getPath());
+
+	GeometryManifestMsg* manifest = new GeometryManifestMsg(items);
+	origin->send(manifest);
+
+	origin->send(chunk);
+	return;
 }
 
-DataManager* DataManager::getInstance()
+DataManager*
+DataManager::getInstance()
 {
 	if (!DataManager::pInstance)
 	{
 		DataManager::pInstance = new DataManager();
 	}
 	return DataManager::pInstance;
+}
+
+bool
+DataManager::init(Config* c)
+{
+	std::string repoType = c->getConfigValue("RepoType");
+	if (repoType.length() == 0) {
+		log->logERROR("DataManager",
+				"Config File does not contain a 'RepoType' parameter");
+		return false;
+	}
+	// to lower
+	for(int i=0; i < repoType.length(); ++i)
+		repoType[i] = std::tolower(repoType[i]);
+
+
+	/* Attempt to instantiate a DataSource */
+	if (repoType == "file") {
+		std::string fRepoPath(c->getConfigValue("FileRepoPath"));
+		if (fRepoPath.length() == 0)
+		{
+			log->logERROR("DataManager", "Config File does not contain a 'FileRepoPath' parameter");
+			return false;
+		}
+
+		log->logINFO("DataManager", "FileDataSouce being used.");
+		FileDataSource* fds = new FileDataSource(fRepoPath);
+		this->setDataSource(fds);
+		return true;
+
+	} else if (repoType == "svn") {
+		log->logERROR("DataManager", "SVN repoType not implemented yet.");
+		return false;
+
+	} else {
+		log->logERROR("DataManager", "Invalid RepoType in config file.  Valid values are 'file' and 'svn'");
+		return false;
+	}
+
 }
 
 /*
