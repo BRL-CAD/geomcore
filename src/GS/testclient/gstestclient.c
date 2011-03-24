@@ -96,7 +96,7 @@ main(int argc, char **argv)
     bufp = buf;
 
     if(argc == 2)
-	host = argv[2];
+	host = argv[1];
 
     memset(buf, 0, BUFSIZ);
     len = make_ping(buf);
@@ -139,8 +139,10 @@ main(int argc, char **argv)
 	    printf("%c", buf[i]);
 	else
 	    printf("[%x]", buf[i]&0xff);
-
     printf("\n");
+
+    shutdown(sock, SHUT_RDWR);
+    close(sock);
 
     return 0;
 }
