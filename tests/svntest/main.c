@@ -208,8 +208,8 @@ main(int argc, const char *argv[])
 			  bu_vls_sprintf(&filedir, "%s/%s", model_name, dp->d_namep);
 			  bu_vls_sprintf(&filepath, "%s/%s/%s", model_name, dp->d_namep, dp->d_namep);
 			  svn_fs_make_dir(txn_root, bu_vls_addr(&filedir), pool);
-/*			  svn_fs_make_file (txn_root, bu_vls_addr(&filepath), pool);
-			  rt_contents = svn_string_ncreate((const char *)data->ext_buf, (apr_size_t)data->ext_nbytes, pool);
+			  svn_fs_make_file (txn_root, bu_vls_addr(&filepath), pool);
+/*			  rt_contents = svn_string_ncreate((const char *)data->ext_buf, (apr_size_t)data->ext_nbytes, pool);
 			  rt_data_stream = svn_stream_from_string(rt_contents, pool);
 			  svn_fs_apply_text (&rt_data_stream, txn_root, bu_vls_addr(&filepath), NULL, pool);
 			  svn_stream_close(rt_data_stream);*/
