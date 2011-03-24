@@ -27,13 +27,13 @@
 #include "GeometryReqMsg.h"
 
 /* Normal Constructor */
-GeometryReqMsg::GeometryReqMsg(std::string data, bool recurse) :
-    GenericOneStringMsg(GEOMETRYREQ, data), recurse(recurse)
+GeometryReqMsg::GeometryReqMsg(std::string path, bool recurse) :
+    GenericOneStringMsg(GEOMETRYREQ, path), recurse(recurse)
 {}
 
 /* Reply Constructor */
-GeometryReqMsg::GeometryReqMsg(NetMsg* msg, std::string data, bool recurse) :
-	GenericOneStringMsg(GEOMETRYREQ, msg, data), recurse(recurse)
+GeometryReqMsg::GeometryReqMsg(NetMsg* msg, std::string path, bool recurse) :
+	GenericOneStringMsg(GEOMETRYREQ, msg, path), recurse(recurse)
 {}
 
 /* Deserializing Constructor */
@@ -85,7 +85,7 @@ bool GeometryReqMsg::getRecurse()
 }
 
 std::string
-GeometryReqMsg::getData()
+GeometryReqMsg::getPath()
 {
     return this->strData;
 }
