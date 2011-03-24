@@ -90,7 +90,7 @@ void
 DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
 {
 	bool recurse = msg->getRecurse();
-	std::string data = msg->getData();
+	std::string data = msg->getPath();
 	Portal* origin = msg->getOrigin();
 
 	//validate incoming data
