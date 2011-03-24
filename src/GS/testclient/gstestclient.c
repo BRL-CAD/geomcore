@@ -6,11 +6,17 @@
 #include <sys/types.h>
 #include <inttypes.h>
 
+# include <sys/socket.h>
+# include <sys/uio.h>
+# include <netinet/in.h>
+# include <netdb.h>
+
+
 #include "bu.h"
 #include "pkg.h"
 
-#define MAGIC1 0x41FE
-#define MAGIC2 0x5309
+#define PKG_MAGIC 0x41FE
+#define GS_MAGIC  0x5309
 
 /* Define Message Types for GS Protocol */
 
@@ -31,23 +37,6 @@
 #define GSGM      0x0405 /*Geometry Manifest*/
 #define GSGC      0x0410 /*Geometry Chunk*/
 
-/* DO THIS FIRST - ALL messages currently need to be full GSNet msgs with UUIDs and such,
- * so define the necssary struct and UUID code up front */
-
-struct gs_msg {
-	uint16_t msgtype;
-	char msguuid[40];
-	char msgreuuid[40];
-	void *data;
-};
-
-struct gsnet_msg {
-	uint16_t magic1;
-	uint16_t magic2;
-	uint32_t msglength;
-	struct gs_msg *msg;
-};
-
 size_t
 make_uuid(char *buf) {
     uuid_t *msguuid;
@@ -60,130 +49,98 @@ make_uuid(char *buf) {
     return len;
 }
 
-struct
-gsnet_msg *create_new_msg(uint16_t mtype, char *msgreuuid) {
-	struct gsnet_msg *new_msg;
-	struct gs_msg *core_msg;
-
-	new_msg = malloc(sizeof(struct gsnet_msg));
-	new_msg->magic1 = MAGIC1;
-	new_msg->magic2 = MAGIC2;
-	core_msg = malloc(sizeof(struct gs_msg));
-	new_msg->msg = core_msg;
-	core_msg->msgtype = mtype;
-	core_msg->data = NULL;
-
-	make_uuid(core_msg->msguuid);
-	if (msgreuuid)
-		strncpy(msgreuuid, core_msg->msgreuuid, 40);
-	return new_msg;
-}
-
-void
-gs_msg_free(struct gs_msg *msg) {
-	if (msg->data)
-		free(msg->data);
-	free(msg);
-}
-
-void
-gsnet_msg_free(struct gsnet_msg *netmsg) {
-	if (netmsg->msg)
-		gs_msg_free(netmsg->msg);
-	free(netmsg);
-}
-
-/* Debug print function */
-void print_gs_msg(struct gsnet_msg *new_msg) {
-	printf("MAGIC1: %X\n", new_msg->magic1);
-	printf("MAGIC2: %X\n", new_msg->magic2);
-	printf("msgtype: %X\n", new_msg->msg->msgtype);
-	printf("msguuid: %s\n", (char *)(new_msg->msg->msguuid));
-	if (new_msg->msg->msgreuuid)
-		printf("msgreuuid:\n\t%s\n", new_msg->msg->msgreuuid);
-	else
-		printf("No reuuid\n");
-}
-
-/* Need:
- *
- * 1.  Definitions of structures to be sending and receiving (probably structs)
- *
- * 2.  Serialize message structures for sending down sockets
- *
- * 3.  actual logic to send msgs, receive responses and unpack them
- *
- * 4.  once communications are established, enough logic to do something basic with
- *     received geometry to validate it, like list all objects.
- */
-
+#define APPEND(name, type, func) int append_##name(char **buf, type val) { *(type*)*buf = func(val); (*buf)+=sizeof(type); return sizeof(type); }
+APPEND(byte, uint8_t, );
+APPEND(shrt, uint16_t, htons);
+APPEND(long, uint32_t, htonl);
+#undef APPEND
 
 int
-main(int argc, char **argv) {
-	struct pkg_conn *connection;
-	const char *server;
-	int port = 5309;
-	unsigned short msgshort;
-	uint32_t strlength, nsl;
-	char *msg;
-	char *currpos;
-	char s_port[32] = {0};
-	int bytes_sent = 0;
-	int i;
-	/* 
-	 * Need the byte length for a GSNet header:
-	 *
-       	 * MsgType + MsgUUIDLength + MessageUUID            +  HasRegardingUUID + RegardingMsgUUIDLength + RegardingMessageUUID
-	 * 2 bytes + 4 bytes       + 2* strlen(uuid_string) +  1 byte           + 4 bytes                + 2 * strlen(uuid_string)
-	 */
-	int gsnetheaderlength = 2 + 4 + (37 * 2 + 4) + 1 + 4 + (37 * 2 + 4);
-	struct gsnet_msg *test_msg;
+append_str(char **buf, char *str) {
+    int len = strlen(str);
+    append_long(buf, strlen(str));
+    strcpy((char *)*buf, str);
+    (*buf)+=len;
+    return len+4;
+}
 
-	if (!argv[1]) bu_exit(1, "Please supply server address\n");
-	server = argv[1];
-	snprintf(s_port, 31, "%d", port);
-	connection = pkg_open(server, s_port, "tcp",  NULL, NULL, NULL, NULL);
-	if (connection == PKC_ERROR) {
-		bu_exit(1, "Connection to %s, port %d, failed.\n", server, port);
+/* generate a ping request in the provided (and allocated) buff. */
+int
+make_ping(char *buf) {
+    char uuid[40];
+    int len = 0;
+    char *bufp = buf;
+    make_uuid(uuid);
+
+    /* pkg header */
+    len += append_shrt(&bufp, PKG_MAGIC);
+    len += append_shrt(&bufp, GS_MAGIC);
+    bufp += 4; len += 4;
+
+    /* GS header */
+    len += append_shrt(&bufp, GSPING);
+    len += append_str(&bufp, uuid);
+    len += append_byte(&bufp, 0);	/* no response uuid */
+
+    bufp = buf + 4;
+    append_long(&bufp, len);
+    return len;
+}
+
+int
+main(int argc, char **argv)
+{
+    char buf[BUFSIZ], *bufp, sbuf[BUFSIZ], *host = "localhost";
+    int sock, i, len=0;
+    unsigned short port = 5309;
+    bufp = buf;
+
+    if(argc == 2)
+	host = argv[2];
+
+    memset(buf, 0, BUFSIZ);
+    len = make_ping(buf);
+
+    printf("Host: %s\n", host);
+
+    /* make the connection */
+    {
+	struct sockaddr_in s;
+	struct sockaddr *ss = (struct sockaddr *)&s;
+	struct hostent *h;
+
+	memset (&s, 0, sizeof (s));
+	if((sock = socket(PF_INET, SOCK_STREAM, 0)) == -1) {
+	    perror("socket");
+	    return -1;
 	}
 
-	test_msg = create_new_msg(GSPING, NULL);
-	print_gs_msg(test_msg);
-	msg = (char *)bu_malloc(gsnetheaderlength*sizeof(char), "msg");
-	msgshort = (unsigned short)test_msg->msg->msgtype;
-	msg[1] = msgshort;
-	msg[0] = msgshort >> 8;
-	currpos = msg + 2;
-	strlength = (unsigned long)strlen((char *)test_msg->msg->msguuid);
-	(*((uint32_t *)currpos)) = htonl(strlength);
-	currpos = currpos + 4;
-	memcpy(currpos, (char *)test_msg->msg->msguuid, 37 * 2 + 4);
-	currpos = currpos + 40 * 2 + 4;
-	strlength = (unsigned long)strlen((char *)test_msg->msg->msguuid);
-	(*((uint32_t *)currpos)) = htonl(strlength);
-	currpos = currpos + 4;
-	currpos[0] = 0;
-	currpos = currpos + 1;
-	memcpy(currpos, (char *)test_msg->msg->msgreuuid, 37 * 2 + 4);
-	bytes_sent = pkg_send(MAGIC2, msg, gsnetheaderlength , connection);
-	for(i = 0; i < gsnetheaderlength; i++) {
-		if(isprint(msg[i]))
-			printf("%c", msg[i]);
-		else
-			printf("(%02X)", msg[i]);
+	if((h = gethostbyname(host)) == NULL) {
+	    herror("gethostbyname");
+	    return -1;
 	}
-	printf("\n");
-	gsnet_msg_free(test_msg);
+	s.sin_family = AF_INET;
+	s.sin_port = htons(port);
+	s.sin_addr = *((struct in_addr *)h->h_addr_list[0]);
+	printf("sock: %d, %X\n", sock, (unsigned int)(s.sin_addr.s_addr));
+	if(connect(sock, ss, sizeof(struct sockaddr)) == -1) {
+	    perror("connect");
+	    return -1;
+	}
+    }
 
-	/* TODO */
+    if(write(sock, buf, len) != len) 
+	perror("Writing to socket\n");
+    len = read(sock, buf, BUFSIZ);
+    printf("response: %d bytes\n", len);
 
+    for(i=0;i<len;i++)
+	if(isprint(buf[i]))
+	    printf("%c", buf[i]);
+	else
+	    printf("[%x]", buf[i]&0xff);
 
-	/* Define a command table so we can do things like type "ping" on the 
-	 * server command prompt to send GSPING to the server */
+    printf("\n");
 
-	/* process either file or command line args (or both) for server info */
-
-        /* set up command line environment and report initial results of first attempt
-	 * to contact the server.  Accept user input, parse it through the command
-	 * table and do whatever the command is. */
+    return 0;
 }

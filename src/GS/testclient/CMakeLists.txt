@@ -84,13 +84,13 @@ find_package(BRLCAD REQUIRED)
 find_package(TCL REQUIRED)
 
 # If there's a UUID library, we want it
-INCLUDE(CheckLibraryExists)
-CHECK_LIBRARY_EXISTS(uuid uuid_generate "" HAVE_UUID)
-IF(HAVE_UUID)
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -luuid")
-	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -luuid")
-	SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -luuid")
-ENDIF(HAVE_UUID)
+#INCLUDE(CheckLibraryExists)
+#CHECK_LIBRARY_EXISTS(uuid uuid_generate "" HAVE_UUID)
+#IF(HAVE_UUID)
+#	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -luuid")
+#	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -luuid")
+#	SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -luuid")
+#ENDIF(HAVE_UUID)
 
 # Add debugging flag for now
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
@@ -101,8 +101,9 @@ include_directories(
 	${TCL_INCLUDE_DIRS}
 	${BRLCAD_INCLUDE_DIRS}
 	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_BINARY_DIR}/src/other/uuid
 )
 
 # And now, to business
 add_executable(gstestclient gstestclient.c)
-target_link_libraries(gstestclient ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})
+target_link_libraries(gstestclient ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY} uuid)
