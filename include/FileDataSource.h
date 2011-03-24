@@ -53,6 +53,8 @@ public:
 
 private:
 	std::string repoPath;
+
+	void init();
 };
 
 #endif /* __FILEDATASOURCE_H__ */

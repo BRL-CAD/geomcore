@@ -65,6 +65,18 @@ FileDataSource::getAttrs(std::string path)
 
 }
 
+void
+FileDataSource::init()
+{
+
+
+
+
+
+	/* 0 == exists */
+	//if (bu_file_readable(path) == 0)
+}
+
 /*
  * Local Variables:
  * tab-width: 8
