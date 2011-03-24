@@ -194,25 +194,25 @@ main(int argc, const char *argv[])
   struct bu_external *data;
   struct bu_vls filedir;
   struct bu_vls filepath;
-  struct svn_string_t *rt_contents;
-  struct svn_stream_t *rt_data_stream;
+  svn_stream_t *rt_data_stream;
   bu_vls_init(&filedir);
   bu_vls_init(&filepath);
 
   /* will need to use an iterpool in here: http://www.opensubscriber.com/message/users@subversion.tigris.org/8428443.html */
   data = bu_malloc(sizeof(struct bu_external), "alloc external data struct");
+  char *buf = apr_palloc(pool, SVN__STREAM_CHUNK_SIZE);
   for (inc=0; inc < RT_DBNHASH; inc++) {
 	  for (dp = dbip->dbi_Head[inc]; dp != RT_DIR_NULL; dp = dp->d_forw) {
 		  if(!BU_STR_EQUAL(dp->d_namep, "_GLOBAL")) {
+			  rt_data_stream = svn_stream_empty(pool);
 			  db_get_external(data, dp, dbip);
 			  bu_vls_sprintf(&filedir, "%s/%s", model_name, dp->d_namep);
 			  bu_vls_sprintf(&filepath, "%s/%s/%s", model_name, dp->d_namep, dp->d_namep);
 			  svn_fs_make_dir(txn_root, bu_vls_addr(&filedir), pool);
 			  svn_fs_make_file (txn_root, bu_vls_addr(&filepath), pool);
-/*			  rt_contents = svn_string_ncreate((const char *)data->ext_buf, (apr_size_t)data->ext_nbytes, pool);
-			  rt_data_stream = svn_stream_from_string(rt_contents, pool);
 			  svn_fs_apply_text (&rt_data_stream, txn_root, bu_vls_addr(&filepath), NULL, pool);
-			  svn_stream_close(rt_data_stream);*/
+			  svn_stream_write(rt_data_stream, (const char *)data->ext_buf, (apr_size_t *)&data->ext_nbytes);
+			  svn_stream_close(rt_data_stream);
 		  }
 	  }
   }
@@ -228,7 +228,7 @@ main(int argc, const char *argv[])
 
 
   /* Commit the changes */
-  svn_repos_fs_commit_txn(conflict_p, repos, &youngest_rev, txn, pool);
+  svn_repos_fs_commit_txn(NULL, repos, &youngest_rev, txn, pool);
 
   /* time for committing files */
   t1 = time(NULL);
