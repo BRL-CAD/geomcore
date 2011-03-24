@@ -1,10 +1,11 @@
+#include "uuid.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include <uuid/uuid.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <inttypes.h>
+
 #include "bu.h"
 #include "pkg.h"
 
@@ -33,15 +34,10 @@
 /* DO THIS FIRST - ALL messages currently need to be full GSNet msgs with UUIDs and such,
  * so define the necssary struct and UUID code up front */
 
-struct gs_string {
-	uint32_t length;
-	uint16_t *chararray;
-};
-
 struct gs_msg {
 	uint16_t msgtype;
-	struct gs_string msguuid;
-	struct gs_string msgreuuid;
+	char msguuid[40];
+	char msgreuuid[40];
 	void *data;
 };
 
@@ -52,48 +48,61 @@ struct gsnet_msg {
 	struct gs_msg *msg;
 };
 
-struct gsnet_msg *create_new_msg(uint16_t mtype, struct gs_string *msgreuuid) {
+size_t
+make_uuid(char *buf) {
+    uuid_t *msguuid;
+    size_t len = BUFSIZ;
+    uuid_create(&msguuid);
+    uuid_make(msguuid, UUID_MAKE_V4);
+    uuid_export(msguuid, UUID_FMT_STR, &buf, &len);
+    buf[len] = 0;
+    uuid_destroy(msguuid);
+    return len;
+}
+
+struct
+gsnet_msg *create_new_msg(uint16_t mtype, char *msgreuuid) {
 	struct gsnet_msg *new_msg;
 	struct gs_msg *core_msg;
-	uuid_t msguuid;
+
 	new_msg = malloc(sizeof(struct gsnet_msg));
 	new_msg->magic1 = MAGIC1;
 	new_msg->magic2 = MAGIC2;
 	core_msg = malloc(sizeof(struct gs_msg));
 	new_msg->msg = core_msg;
 	core_msg->msgtype = mtype;
-	uuid_generate(msguuid);
-	core_msg->msguuid.chararray = malloc(sizeof(uuid_t) * 2 + 4);
-	uuid_unparse(msguuid, (char *)core_msg->msguuid.chararray);
-	core_msg->msguuid.length = strlen((char *)core_msg->msguuid.chararray);
-	core_msg->msgreuuid.chararray = malloc(sizeof(uuid_t) * 2 + 4);
-	if (msgreuuid) {
-		memcpy(msgreuuid->chararray, core_msg->msgreuuid.chararray, sizeof(uuid_t) * 2 + 4);
-		core_msg->msgreuuid.length = strlen((char *)core_msg->msgreuuid.chararray);
-	}
+	core_msg->data = NULL;
+
+	make_uuid(core_msg->msguuid);
+	if (msgreuuid)
+		strncpy(msgreuuid, core_msg->msgreuuid, 40);
 	return new_msg;
 }
 
-void gs_msg_free(struct gs_msg *msg) {
-	if (msg->msguuid.chararray) free(msg->msguuid.chararray);
-	if (msg->msgreuuid.chararray) free(msg->msgreuuid.chararray);
-	if (msg->data) free(msg->data);
+void
+gs_msg_free(struct gs_msg *msg) {
+	if (msg->data)
+		free(msg->data);
 	free(msg);
 }
 
-void gsnet_msg_free(struct gsnet_msg *netmsg) {
-	if (netmsg->msg) gs_msg_free(netmsg->msg);
+void
+gsnet_msg_free(struct gsnet_msg *netmsg) {
+	if (netmsg->msg)
+		gs_msg_free(netmsg->msg);
 	free(netmsg);
 }
 
 /* Debug print function */
 void print_gs_msg(struct gsnet_msg *new_msg) {
-	printf("MAGIC1: %p\n", new_msg->magic1);
-	printf("MAGIC2: %p\n", new_msg->magic2);
-	printf("msgtype: %p\n", new_msg->msg->msgtype);
-	printf("msguuid: %s\n", (char *)new_msg->msg->msguuid.chararray);
-	if (new_msg->msg->msgreuuid.chararray)
-		printf("msgreuuid: %s\n", new_msg->msg->msgreuuid);
+	printf("MAGIC1: %X\n", new_msg->magic1);
+	printf("MAGIC2: %X\n", new_msg->magic2);
+	printf("msgtype: %X\n", new_msg->msg->msgtype);
+	printf("msguuid: %s\n", (char *)(new_msg->msg->msguuid));
+	if (new_msg->msg->msgreuuid)
+		printf("msgreuuid:\n\t%s\n", new_msg->msg->msgreuuid);
+	else
+		printf("No reuuid\n");
 }
 
 /* Need:
@@ -115,7 +124,7 @@ main(int argc, char **argv) {
 	const char *server;
 	int port = 5309;
 	unsigned short msgshort;
-	unsigned long strlength;
+	uint32_t strlength, nsl;
 	char *msg;
 	char *currpos;
 	char s_port[32] = {0};
@@ -127,7 +136,7 @@ main(int argc, char **argv) {
        	 * MsgType + MsgUUIDLength + MessageUUID            +  HasRegardingUUID + RegardingMsgUUIDLength + RegardingMessageUUID
 	 * 2 bytes + 4 bytes       + 2* strlen(uuid_string) +  1 byte           + 4 bytes                + 2 * strlen(uuid_string)
 	 */
-	int gsnetheaderlength = 2 + 4 + (sizeof(uuid_t) * 2 + 4) + 1 + 4 + (sizeof(uuid_t) * 2 + 4);
+	int gsnetheaderlength = 2 + 4 + (37 * 2 + 4) + 1 + 4 + (37 * 2 + 4);
 	struct gsnet_msg *test_msg;
 
 	if (!argv[1]) bu_exit(1, "Please supply server address\n");
@@ -145,26 +154,23 @@ main(int argc, char **argv) {
 	msg[1] = msgshort;
 	msg[0] = msgshort >> 8;
 	currpos = msg + 2;
-	strlength = (unsigned long)strlen((char *)test_msg->msg->msguuid.chararray);
-	currpos[3] = strlength;
-	currpos[2] = (strlength >>= 8);
-	currpos[1] = (strlength >>= 8);
-	currpos[0] = strlength >> 8;
+	strlength = (unsigned long)strlen((char *)test_msg->msg->msguuid);
+	(*((uint32_t *)currpos)) = htonl(strlength);
 	currpos = currpos + 4;
-	memcpy(currpos, (char *)test_msg->msg->msguuid.chararray, sizeof(uuid_t) * 2 + 4);
-	currpos = currpos + sizeof(uuid_t) * 2 + 4;
-	strlength = (unsigned long)strlen((char *)test_msg->msg->msguuid.chararray);
-	currpos[3] = strlength;
-	currpos[2] = (strlength >>= 8);
-	currpos[1] = (strlength >>= 8);
-	currpos[0] = strlength >> 8;
+	memcpy(currpos, (char *)test_msg->msg->msguuid, 37 * 2 + 4);
+	currpos = currpos + 40 * 2 + 4;
+	strlength = (unsigned long)strlen((char *)test_msg->msg->msguuid);
+	(*((uint32_t *)currpos)) = htonl(strlength);
 	currpos = currpos + 4;
 	currpos[0] = 0;
 	currpos = currpos + 1;
-	memcpy(currpos, (char *)test_msg->msg->msgreuuid.chararray, sizeof(uuid_t) * 2 + 4);
-	bytes_sent = pkg_send(5309, msg, gsnetheaderlength , connection);
+	memcpy(currpos, (char *)test_msg->msg->msgreuuid, 37 * 2 + 4);
+	bytes_sent = pkg_send(MAGIC2, msg, gsnetheaderlength , connection);
 	for(i = 0; i < gsnetheaderlength; i++) {
-		printf("%c", msg[i]);
+		if(isprint(msg[i]))
+			printf("%c", msg[i]);
+		else
+			printf("(%02X)", msg[i]);
 	}
 	printf("\n");
 	gsnet_msg_free(test_msg);
