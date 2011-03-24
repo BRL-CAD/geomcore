@@ -142,6 +142,8 @@ main(int argc, const char *argv[])
 	  exit(0);
   }
 
+  svn_cmdline_init("svntest", stderr);
+
   apr_allocator_create(&allocator);
   apr_allocator_max_free_set(allocator, SVN_ALLOCATOR_RECOMMENDED_MAX_FREE);
   pool = svn_pool_create_ex(NULL, allocator);
