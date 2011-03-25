@@ -26,7 +26,7 @@
 #ifndef __PORTAL_H__
 #define __PORTAL_H__
 
-#define PKG_MAGIC2      5309
+#define PKG_MAGIC2      0x5309
 
 #include "INetMsgHandler.h"
 #include "PkgTcpClient.h"
