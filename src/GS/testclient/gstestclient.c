@@ -15,8 +15,7 @@
 #include "bu.h"
 #include "pkg.h"
 
-#define PKG_MAGIC 0x41FE
-#define GS_MAGIC  0x5309
+#define GS_MAGIC  0x41FE5309
 
 /* Define Message Types for GS Protocol */
 
@@ -75,8 +74,7 @@ make_ping(char *buf) {
     printf("making ping with uuid: %s\n", uuid);
 
     /* pkg header */
-    len += append_shrt(&bufp, PKG_MAGIC);
-    len += append_shrt(&bufp, GS_MAGIC);
+    len += append_long(&bufp, GS_MAGIC);
     bufp += 4; len += 4;
 
     /* GS header */
@@ -97,8 +95,7 @@ make_disconnect(char *buf) {
     printf("making disconnect\n");
 
     /* pkg header */
-    len += append_shrt(&bufp, PKG_MAGIC);
-    len += append_shrt(&bufp, GS_MAGIC);
+    len += append_long(&bufp, GS_MAGIC);
     bufp += 4; len += 4;
 
     /* GS header */
@@ -114,10 +111,9 @@ print_packet(char *buf, int len)
 {
     char sbuf[BUFSIZ];
     int slen;
-    printf("\tMagic1: %x\n", ntohs(*(uint16_t*)buf)); buf+=2; len-=2;
-    printf("\tMagic2: %x\n", ntohs(*(uint16_t*)buf)); buf+=2; len-=2;
-    printf("\tlength: %x\n", ntohl(*(uint32_t*)buf)); buf+=4; len-=4;
-    printf("\ttype  : %x\n", ntohs(*(uint16_t*)buf)); buf+=2; len-=2;
+    printf("\tMagic: 0x%X\n", ntohl(*(uint32_t*)buf)); buf+=4; len-=4;
+    printf("\tlength: %d\n", ntohl(*(uint32_t*)buf)); buf+=4; len-=4;
+    printf("\ttype  : 0x%X\n", ntohs(*(uint16_t*)buf)); buf+=2; len-=2;
     slen = ntohl(*(uint32_t*)buf); buf+=4; len-=4;
     memcpy(sbuf, buf, slen); buf[slen] = 0;
     buf += slen; len -= slen;
