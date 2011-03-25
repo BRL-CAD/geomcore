@@ -27,9 +27,9 @@
 
 struct assemble_info {
 	struct bu_vls *svn_file;
-	char *model_file;
-	struct dbip *dbip;
-	char *model_name;
+	const char *model_file;
+	struct db_i *dbip;
+	const char *model_name;
 };
 
 /* Function callback to assemble .g file - function type is
@@ -46,7 +46,7 @@ int concat_obj(void *dbinfo, const void *objname, apr_ssize_t klen, const void *
   struct rt_db_internal ip;
 
   bu_vls_sprintf(ainfo->svn_file, "%s/%s", (const char *)objname, (const char *)objname);
-  /*printf("Adding %s to %s\n", (const char *)objname, ainfo->model_file);*/
+  printf("Adding %s to %s\n", (const char *)objname, ainfo->model_file);
   /* get svn_file contents and convert them into the right form */
  /*  new_dp = db_diradd(ainfo->dbip, dp->d_namep, RT_DIR_PHONY_ADDR, 0, dp->d_flags, (genptr_t)&dp->d_minor_type );
   rt_db_put_internal(new_dp, ainfo->dbip, &ip, &rt_uniresource); */
@@ -191,23 +191,40 @@ main(int argc, const char *argv[])
 	  }
   }
 
-  /* Re-assemble .g files.  Make this a test of using svn_ra, although for
-   * lower level geometry service read-only operations we may actually want 
-   * svn_fs level to get the data.  I don't fully understand all the tradeoffs
+/* Reassemble .g info */
+  struct assemble_info ainfo;
+  apr_hash_t *objects = apr_hash_make(pool);
+  apr_hash_index_t *obj;
+  svn_fs_root_t *repo_root;
+  const void *key;
+  svn_string_t *model_file = svn_string_createf(pool, "%s/%s", full_staging_area, model_name);
+  svn_revnum_t revnum = 1;
+  ainfo.model_name = model_name;
+  ainfo.model_file = model_file->data;
+  svn_fs_youngest_rev(&revnum, fs, pool);
+  svn_fs_revision_root(&repo_root, fs, revnum, pool);
+  if (!bu_file_exists(ainfo.model_file)){
+	  ainfo.dbip = db_create(ainfo.model_file, 5);
+  } else {
+	  ainfo.dbip = db_open(ainfo.model_file, "w");
+  }
+  svn_fs_dir_entries(&objects, repo_root, model_name, pool);
+  for (obj = apr_hash_first(pool, objects); obj; obj = apr_hash_next(obj)) {
+	 apr_hash_this(obj, &key, NULL, NULL);
+	 printf("found %s\n", (char *)key);
+  }
+
+
+#if 0
+  /* Re-assemble .g files using svn_ra.  I don't fully understand all the tradeoffs
    * yet but svn_ra or some other higher level is likely to be necessary 
    * for robustness */
-  apr_hash_t *objects = apr_hash_make(pool);
   svn_ra_initialize (pool);
   svn_ra_open3(&ra_session, full_path, NULL, NULL, NULL, NULL, pool);
   svn_ra_get_dir2(ra_session, &objects, NULL, NULL, model_name, SVN_INVALID_REVNUM, SVN_DIRENT_ALL, pool);
-  /*
-  if (!bu_file_exists(ainfo->model_file)){
-	  dbip = db_create(ainfo->model_file, 5);
-  } else {
-	  dbip = db_open(ainfo->model_file, "w");
-  }*/
-  /*apr_hash_do(*/
-  
+  /* note that apr_hash_do apparently requires a newer apr than that in OSX 10.5 */
+  apr_hash_do(concat_obj, &ainfo, objects);
+#endif 
 
   
 
