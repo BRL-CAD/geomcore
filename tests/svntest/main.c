@@ -30,6 +30,7 @@ struct assemble_info {
 	struct bu_vls svn_file;
 	const char *model_file;
 	struct db_i *dbip;
+	struct rt_wdb *wdbp;
 	const char *model_name;
 	svn_fs_root_t *root;
 };
@@ -60,18 +61,18 @@ int concat_obj(void *dbinfo, const void *objname, apr_ssize_t klen, const void *
   /* get svn_file contents and convert them into the right form */
   svn_fs_file_length(&buflen, ainfo->root, bu_vls_addr(&ainfo->svn_file), subpool);
   printf("length: %d\n", buflen);
-/*
+
   data.ext_nbytes = (size_t)buflen;
   data.ext_buf = bu_malloc(data.ext_nbytes, "memory for .g data");
   svn_fs_file_contents(&obj_contents, ainfo->root, bu_vls_addr(&ainfo->svn_file), subpool);
   svn_stream_read(obj_contents, (char *)data.ext_buf, (apr_size_t *)&buflen);
   svn_stream_close(obj_contents);
- */ 
-/*
-  rt_db_external5_to_internal5(
-  wdb_put_internal(dbip->, (const char *)objname, &ip, 1);
-  */
+  
+  rt_db_external5_to_internal5(&ip, &data, (const char *)objname, ainfo->dbip, NULL, &rt_uniresource);
+  wdb_put_internal(ainfo->wdbp, (const char *)objname, &ip, 1);
+  
   svn_pool_destroy(subpool);
+  bu_free(data.ext_buf, "free ext buf");
 }
 
 /** Main. **/
@@ -232,9 +233,11 @@ main(int argc, const char *argv[])
   svn_fs_revision_root(&repo_root, fs, revnum, pool);
   ainfo.root = repo_root;
   if (!bu_file_exists(ainfo.model_file)){
-	  ainfo.dbip = db_create(ainfo.model_file, 5);
+	  ainfo.wdbp = wdb_fopen(ainfo.model_file);
+	  ainfo.dbip = ainfo.wdbp->dbip;
   } else {
 	  ainfo.dbip = db_open(ainfo.model_file, "w");
+	  ainfo.wdbp = wdb_dbopen(dbip, RT_WDB_TYPE_DB_DISK_APPEND_ONLY);
   }
   svn_fs_dir_entries(&objects, repo_root, model_name, pool);
   for (obj = apr_hash_first(pool, objects); obj; obj = apr_hash_next(obj)) {
