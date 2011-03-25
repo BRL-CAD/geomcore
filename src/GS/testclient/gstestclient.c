@@ -90,6 +90,26 @@ make_ping(char *buf) {
 }
 
 int
+make_disconnect(char *buf) {
+    int len = 0;
+    char *bufp = buf;
+
+    printf("making disconnect\n");
+
+    /* pkg header */
+    len += append_shrt(&bufp, PKG_MAGIC);
+    len += append_shrt(&bufp, GS_MAGIC);
+    bufp += 4; len += 4;
+
+    /* GS header */
+    len += append_shrt(&bufp, GSDR);
+
+    bufp = buf + 4;
+    append_long(&bufp, len);
+    return len;
+}
+
+int
 print_packet(char *buf, int len)
 {
     char sbuf[BUFSIZ];
@@ -133,9 +153,6 @@ main(int argc, char **argv)
     if(argc == 2)
 	host = argv[1];
 
-    memset(buf, 0, BUFSIZ);
-    len = make_ping(buf);
-
     /* make the connection */
     {
 	struct sockaddr_in s;
@@ -161,12 +178,23 @@ main(int argc, char **argv)
 	}
     }
 
+    /* send ping */
+    len = make_ping(buf);
     if(write(sock, buf, len) != len) 
 	perror("Writing to socket\n");
-    len = read(sock, buf, BUFSIZ);
 
+    /* recv ping response, print results */
+    len = read(sock, buf, BUFSIZ);
     printf("Got a return packet:\n");
     print_packet(buf, len);
+
+    /* send disconnect */
+    len = make_disconnect(buf);
+    if(write(sock, buf, len) != len)
+	perror("Writting disconnect to socket\n");
+    /* no disc ack */
+
+    sleep(3);
 
     shutdown(sock, SHUT_RDWR);
     close(sock);
