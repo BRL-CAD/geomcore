@@ -26,10 +26,12 @@
 #include "ged.h"
 
 struct assemble_info {
-	struct bu_vls *svn_file;
+	apr_pool_t *pool;
+	struct bu_vls svn_file;
 	const char *model_file;
 	struct db_i *dbip;
 	const char *model_name;
+	svn_fs_root_t *root;
 };
 
 /* Function callback to assemble .g file - function type is
@@ -42,14 +44,32 @@ struct assemble_info {
 int concat_obj(void *dbinfo, const void *objname, apr_ssize_t klen, const void *objsvninfo)
 {
   struct assemble_info *ainfo = (struct assemble_info *)dbinfo;
-  struct directory *dp, *new_dp;
+  apr_pool_t *subpool = svn_pool_create(ainfo->pool);
+  struct directory *dp;
   struct rt_db_internal ip;
 
-  bu_vls_sprintf(ainfo->svn_file, "%s/%s", (const char *)objname, (const char *)objname);
-  printf("Adding %s to %s\n", (const char *)objname, ainfo->model_file);
+  svn_filesize_t buflen;
+  svn_stream_t *obj_contents = svn_stream_empty(subpool);
+  svn_stringbuf_t *stringbuf;
+  struct bu_external data;
+  BU_INIT_EXTERNAL(&data);
+  RT_INIT_DB_INTERNAL(&ip);
+
+  bu_vls_sprintf(&ainfo->svn_file, "%s/%s", (const char *)objname, (const char *)objname);
+  printf("Adding %s to %s\n", bu_vls_addr(&ainfo->svn_file), ainfo->model_file);
   /* get svn_file contents and convert them into the right form */
- /*  new_dp = db_diradd(ainfo->dbip, dp->d_namep, RT_DIR_PHONY_ADDR, 0, dp->d_flags, (genptr_t)&dp->d_minor_type );
-  rt_db_put_internal(new_dp, ainfo->dbip, &ip, &rt_uniresource); */
+  svn_fs_file_length(&buflen, ainfo->root, bu_vls_addr(&ainfo->svn_file), ainfo->pool);
+/*
+  data.ext_nbytes = (size_t)buflen;
+  data.ext_buf = bu_malloc(data.ext_nbytes, "memory for .g data");
+  svn_fs_file_contents(&obj_contents, ainfo->root, bu_vls_addr(&ainfo->svn_file), ainfo->pool);
+  svn_stream_read(obj_contents, (char *)data.ext_buf, (apr_size_t *)&buflen);
+  svn_stream_close(obj_contents);
+  */
+/*
+  rt_db_external5_to_internal5(
+  wdb_put_internal(dbip->, (const char *)objname, &ip, 1);
+  */
 }
 
 /** Main. **/
@@ -134,7 +154,6 @@ main(int argc, const char *argv[])
 
 
   struct directory *dp;
-  struct bu_external *data;
   struct bu_vls filedir;
   struct bu_vls filepath;
   svn_stream_t *rt_data_stream;
@@ -142,13 +161,15 @@ main(int argc, const char *argv[])
   bu_vls_init(&filepath);
 
   /* will need to use an iterpool in here: http://www.opensubscriber.com/message/users@subversion.tigris.org/8428443.html */
-  data = bu_malloc(sizeof(struct bu_external), "alloc external data struct");
+  struct bu_external *data = bu_malloc(sizeof(struct bu_external), "alloc external data struct");
+  struct rt_db_internal *ip = (struct rt_db_internal *) bu_malloc(sizeof(struct rt_db_internal), "allocate structure");
   char *buf = apr_palloc(pool, SVN__STREAM_CHUNK_SIZE);
   for (inc=0; inc < RT_DBNHASH; inc++) {
 	  for (dp = dbip->dbi_Head[inc]; dp != RT_DIR_NULL; dp = dp->d_forw) {
 		  if(!BU_STR_EQUAL(dp->d_namep, "_GLOBAL")) {
 			  rt_data_stream = svn_stream_empty(pool);
-			  db_get_external(data, dp, dbip);
+			  rt_db_get_internal5(ip, dp, dbip, NULL, &rt_uniresource);
+			  rt_db_cvt_to_external5(data, dp->d_namep, ip, dbip->dbi_local2base, dbip,  &rt_uniresource, ip->idb_major_type);
 			  bu_vls_sprintf(&filedir, "%s/%s", model_name, dp->d_namep);
 			  bu_vls_sprintf(&filepath, "%s/%s/%s", model_name, dp->d_namep, dp->d_namep);
 			  svn_fs_make_dir(txn_root, bu_vls_addr(&filedir), pool);
@@ -162,6 +183,7 @@ main(int argc, const char *argv[])
   bu_free(data, "free external data");
   bu_vls_free(&filedir);
   bu_vls_free(&filepath);
+  db_close(dbip);
 
   /* time for breakout and insertion*/
   t1 = time(NULL);
@@ -193,16 +215,20 @@ main(int argc, const char *argv[])
 
 /* Reassemble .g info */
   struct assemble_info ainfo;
+  bu_vls_init(&ainfo.svn_file);
   apr_hash_t *objects = apr_hash_make(pool);
   apr_hash_index_t *obj;
   svn_fs_root_t *repo_root;
   const void *key;
+  apr_ssize_t klen;
   svn_string_t *model_file = svn_string_createf(pool, "%s/%s", full_staging_area, model_name);
   svn_revnum_t revnum = 1;
   ainfo.model_name = model_name;
   ainfo.model_file = model_file->data;
+  ainfo.pool = pool;
   svn_fs_youngest_rev(&revnum, fs, pool);
   svn_fs_revision_root(&repo_root, fs, revnum, pool);
+  ainfo.root = repo_root;
   if (!bu_file_exists(ainfo.model_file)){
 	  ainfo.dbip = db_create(ainfo.model_file, 5);
   } else {
@@ -210,10 +236,11 @@ main(int argc, const char *argv[])
   }
   svn_fs_dir_entries(&objects, repo_root, model_name, pool);
   for (obj = apr_hash_first(pool, objects); obj; obj = apr_hash_next(obj)) {
-	 apr_hash_this(obj, &key, NULL, NULL);
-	 printf("found %s\n", (char *)key);
+	 apr_hash_this(obj, &key, &klen, NULL);
+	 (void)concat_obj((void *)&ainfo, (const void *)key, klen, NULL);
   }
-
+  bu_vls_free(&ainfo.svn_file);
+  db_close(ainfo.dbip);
 
 #if 0
   /* Re-assemble .g files using svn_ra.  I don't fully understand all the tradeoffs
