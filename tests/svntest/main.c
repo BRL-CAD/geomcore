@@ -55,21 +55,23 @@ int concat_obj(void *dbinfo, const void *objname, apr_ssize_t klen, const void *
   BU_INIT_EXTERNAL(&data);
   RT_INIT_DB_INTERNAL(&ip);
 
-  bu_vls_sprintf(&ainfo->svn_file, "%s/%s", (const char *)objname, (const char *)objname);
+  bu_vls_sprintf(&ainfo->svn_file, "%s/%s/%s", ainfo->model_name, (const char *)objname, (const char *)objname);
   printf("Adding %s to %s\n", bu_vls_addr(&ainfo->svn_file), ainfo->model_file);
   /* get svn_file contents and convert them into the right form */
-  svn_fs_file_length(&buflen, ainfo->root, bu_vls_addr(&ainfo->svn_file), ainfo->pool);
+  svn_fs_file_length(&buflen, ainfo->root, bu_vls_addr(&ainfo->svn_file), subpool);
+  printf("length: %d\n", buflen);
 /*
   data.ext_nbytes = (size_t)buflen;
   data.ext_buf = bu_malloc(data.ext_nbytes, "memory for .g data");
-  svn_fs_file_contents(&obj_contents, ainfo->root, bu_vls_addr(&ainfo->svn_file), ainfo->pool);
+  svn_fs_file_contents(&obj_contents, ainfo->root, bu_vls_addr(&ainfo->svn_file), subpool);
   svn_stream_read(obj_contents, (char *)data.ext_buf, (apr_size_t *)&buflen);
   svn_stream_close(obj_contents);
-  */
+ */ 
 /*
   rt_db_external5_to_internal5(
   wdb_put_internal(dbip->, (const char *)objname, &ip, 1);
   */
+  svn_pool_destroy(subpool);
 }
 
 /** Main. **/
