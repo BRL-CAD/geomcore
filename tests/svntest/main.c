@@ -57,17 +57,15 @@ int concat_obj(void *dbinfo, const void *objname, apr_ssize_t klen, const void *
   RT_INIT_DB_INTERNAL(&ip);
 
   bu_vls_sprintf(&ainfo->svn_file, "%s/%s/%s", ainfo->model_name, (const char *)objname, (const char *)objname);
-  printf("Adding %s to %s\n", bu_vls_addr(&ainfo->svn_file), ainfo->model_file);
   /* get svn_file contents and convert them into the right form */
   svn_fs_file_length(&buflen, ainfo->root, bu_vls_addr(&ainfo->svn_file), subpool);
-  printf("length: %d\n", buflen);
-
   data.ext_nbytes = (size_t)buflen;
   data.ext_buf = bu_malloc(data.ext_nbytes, "memory for .g data");
   svn_fs_file_contents(&obj_contents, ainfo->root, bu_vls_addr(&ainfo->svn_file), subpool);
   svn_stream_read(obj_contents, (char *)data.ext_buf, (apr_size_t *)&buflen);
   svn_stream_close(obj_contents);
-  
+ 
+  /* Put things into the new database */ 
   rt_db_external5_to_internal5(&ip, &data, (const char *)objname, ainfo->dbip, NULL, &rt_uniresource);
   wdb_put_internal(ainfo->wdbp, (const char *)objname, &ip, 1);
   
@@ -172,7 +170,7 @@ main(int argc, const char *argv[])
 		  if(!BU_STR_EQUAL(dp->d_namep, "_GLOBAL")) {
 			  rt_data_stream = svn_stream_empty(pool);
 			  rt_db_get_internal5(ip, dp, dbip, NULL, &rt_uniresource);
-			  rt_db_cvt_to_external5(data, dp->d_namep, ip, dbip->dbi_local2base, dbip,  &rt_uniresource, ip->idb_major_type);
+			  rt_db_cvt_to_external5(data, dp->d_namep, ip, 1, dbip,  &rt_uniresource, ip->idb_major_type);
 			  bu_vls_sprintf(&filedir, "%s/%s", model_name, dp->d_namep);
 			  bu_vls_sprintf(&filepath, "%s/%s/%s", model_name, dp->d_namep, dp->d_namep);
 			  svn_fs_make_dir(txn_root, bu_vls_addr(&filedir), pool);
