@@ -15,6 +15,8 @@
 #include "bu.h"
 #include "pkg.h"
 
+#define PKG_MAGIC 0x41FE
+#define GSMSG_MAGIC 0x5309
 #define GS_MAGIC  0x41FE5309
 
 /* Define Message Types for GS Protocol */
@@ -142,7 +144,7 @@ int
 main(int argc, char **argv)
 {
     char buf[BUFSIZ], *bufp, sbuf[BUFSIZ], *host = "localhost";
-    int sock, i, len=0;
+    int sock, i, len=0, rval = EXIT_SUCCESS;
     unsigned short port = 5309;
     bufp = buf;
 
@@ -174,14 +176,30 @@ main(int argc, char **argv)
 	}
     }
 
+    /* server says hello */
+    printf("reading node name:\n");
+    len = read(sock, buf, BUFSIZ);
+    print_packet(buf, len);
+    if((ntohs(*(uint16_t*)buf)) != PKG_MAGIC) {
+	    printf("PKG header is bunk: %x\n", (ntohs(*(uint16_t*)buf)));
+	    rval = EXIT_FAILURE;
+	    goto EXIT;
+    }
+    if((ntohs(*(uint16_t*)(buf+2))) != GSMSG_MAGIC) {
+	    printf("GSMsg header is bunk: %x\n", (ntohs(*(uint16_t*)(buf+2))));
+	    rval = EXIT_FAILURE;
+	    goto EXIT;
+    }
+
+
     /* send ping */
     len = make_ping(buf);
     if(write(sock, buf, len) != len) 
 	perror("Writing to socket\n");
 
     /* recv ping response, print results */
+    printf("Reading ping response\n");
     len = read(sock, buf, BUFSIZ);
-    printf("Got a return packet:\n");
     print_packet(buf, len);
 
     /* send disconnect */
@@ -192,7 +210,9 @@ main(int argc, char **argv)
 
     sleep(3);
 
+EXIT:
     shutdown(sock, SHUT_RDWR);
+    sleep(1);
     close(sock);
 
     return 0;
