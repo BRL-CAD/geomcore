@@ -37,6 +37,10 @@ typedef std::pair<std::string, std::string>* prop;
 
 class IDataSource {
 public:
+	/* Init the Datasource (If needed) */
+	virtual bool init() = 0;
+
+
 	/* Get a single DbObject */
 	virtual DbObject* getObj(std::string path) = 0;
 
