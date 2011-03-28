@@ -27,11 +27,8 @@
 #define __FILEDATASOURCE_H__
 
 #include "IDataSource.h"
-
 #include <string>
 #include <list>
-
-#include <GSThread.h>
 
 class FileDataSource : public IDataSource
 {
@@ -54,7 +51,9 @@ public:
 private:
 	std::string repoPath;
 
-	void init();
+	std::list<std::string> locks;
+
+	bool init();
 };
 
 #endif /* __FILEDATASOURCE_H__ */

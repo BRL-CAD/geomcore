@@ -25,11 +25,6 @@
 
 #include "FileDataSource.h"
 
-#include <fcntl.h>
-#include <sys/stat.h>
-
-#include <GSThread.h>
-
 FileDataSource::FileDataSource(std::string repoPath) :
 	repoPath(repoPath)
 {}
@@ -65,16 +60,19 @@ FileDataSource::getAttrs(std::string path)
 
 }
 
-void
+bool
 FileDataSource::init()
 {
-
-
-
-
+	//first check to see if there is a repo at the supplied path, and if we can R/W to it.
 
 	/* 0 == exists */
-	//if (bu_file_readable(path) == 0)
+	if (bu_file_readable(this->repoPath.c_str()) != 0)
+		return false;
+
+	if (bu_file_writable(this->repoPath.c_str()) != 0)
+		return false;
+
+	return true;
 }
 
 /*
