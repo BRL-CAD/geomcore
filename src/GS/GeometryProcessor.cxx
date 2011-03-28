@@ -36,10 +36,9 @@ GeometryProcessor::~GeometryProcessor() {}
 
 GeometryProcessor*
 GeometryProcessor::getInstance() {
-	if (!GeometryProcessor::pInstance) {
-		pInstance = new GeometryProcessor();
-	}
-	return GeometryProcessor::pInstance;
+    if (!GeometryProcessor::pInstance)
+	pInstance = new GeometryProcessor();
+    return GeometryProcessor::pInstance;
 }
 
 /*

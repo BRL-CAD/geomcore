@@ -34,28 +34,28 @@ PingCmd::~PingCmd() {}
 
 std::string
 PingCmd::getUsage(){
-	return "Usage: ping";
+    return "Usage: ping";
 }
 
 std::string
 PingCmd::getHelp(){
-	return "Pings the remote host.  Pong is expected in return.";
+    return "Pings the remote host.  Pong is expected in return.";
 }
 
 bool
 PingCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
-	Portal* p = client->getCurrentPortal();
+    Portal* p = client->getCurrentPortal();
 
-	if (p == NULL) 	{
-		this->log->logERROR("PingCmd", "Not connected to a Geometry Service.");
-		return false;
-	}
+    if (p == NULL)     {
+        this->log->logERROR("PingCmd", "Not connected to a Geometry Service.");
+        return false;
+    }
 
-	uint64_t now = Logger::getCurrentTime();
-	PingMsg msg(now);
+    uint64_t now = Logger::getCurrentTime();
+    PingMsg msg(now);
 
-	p->send(&msg);
-	return true;
+    p->send(&msg);
+    return true;
 }
 
 /*

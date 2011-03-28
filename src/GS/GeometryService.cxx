@@ -31,9 +31,9 @@
 
 
 GeometryService::GeometryService(const std::string localNodeName,
-								 const std::string listenAddy,
-								 const uint16_t listenPort)
-								 : ControlledThread(localNodeName)
+                                 const std::string listenAddy,
+                                 const uint16_t listenPort)
+                                 : ControlledThread(localNodeName)
 {
     this->log = Logger::getInstance();
     this->log->logINFO("GeometryService", localNodeName + " is starting up...");
@@ -46,142 +46,141 @@ GeometryService::GeometryService(const std::string localNodeName,
 
 GeometryService::~GeometryService()
 {
-	delete portalMan;
+    delete portalMan;
 }
 
 DataManager*
 GeometryService::getDataManager()
 {
-	return this->dataMan;
+    return this->dataMan;
 }
 
 void
 GeometryService::registerMsgRoutes()
 {
-	NetMsgRouter* router = NetMsgRouter::getInstance();
+    NetMsgRouter* router = NetMsgRouter::getInstance();
 
-	router->registerType(PING, this);
-	router->registerType(PONG, this);
+    router->registerType(PING, this);
+    router->registerType(PONG, this);
 
-	router->registerType(NEWSESSIONREQ, SessionManager::getInstance());
-	//router->registerType(SESSIONINFO, SessionManager::getInstance());
-	router->registerType(DISCONNECTREQ, SessionManager::getInstance());
+    router->registerType(NEWSESSIONREQ, SessionManager::getInstance());
+    //router->registerType(SESSIONINFO, SessionManager::getInstance());
+    router->registerType(DISCONNECTREQ, SessionManager::getInstance());
 
-	router->registerType(DISCONNECTREQ, this->portalMan);
+    router->registerType(DISCONNECTREQ, this->portalMan);
 
-	router->registerType(CMD_SHUTDOWN, this);
+    router->registerType(CMD_SHUTDOWN, this);
 
-	router->registerType(GEOMETRYREQ, this->dataMan);
-	router->registerType(GEOMETRYCHUNK, this->dataMan);
+    router->registerType(GEOMETRYREQ, this->dataMan);
+    router->registerType(GEOMETRYCHUNK, this->dataMan);
 }
 
 bool
 GeometryService::preRunHook() {
-	//Do init stuff here
-	this->log->logINFO("GeometryService", "Running");
+    //Do init stuff here
+    this->log->logINFO("GeometryService", "Running");
 
-	return true;
+    return true;
 }
 
 void
 GeometryService::_run() {
-	this->log->logINFO("GeometryService", "Starting PortalManager");
-	this->portalMan->start();
+    this->log->logINFO("GeometryService", "Starting PortalManager");
+    this->portalMan->start();
 
-	while (this->getRunCmd() == true) {
-		usleep(50000);
-	}
+    while (this->getRunCmd() == true)
+        usleep(50000);
 
-	this->portalMan->shutdown(true);
+    this->portalMan->shutdown(true);
 }
 
 bool
 GeometryService::postRunHook() {
-	//Do teardown stuff here
-	this->log->logINFO("GeometryService", "Shutdown");
+    //Do teardown stuff here
+    this->log->logINFO("GeometryService", "Shutdown");
 
-	return true;
+    return true;
 }
 
 bool
 GeometryService::handleNetMsg(NetMsg* msg)
 {
-	uint16_t type = msg->getMsgType();
-	char buf[BUFSIZ];
+    uint16_t type = msg->getMsgType();
+    char buf[BUFSIZ];
 
-	switch(type) {
+    switch(type) {
 	case CMD_SHUTDOWN:
-		log->logINFO("GeometryService", "Remote Shutdown Initiated.");
-		this->portalMan->shutdown();
-		this->shutdown();
-		return true;
+	    log->logINFO("GeometryService", "Remote Shutdown Initiated.");
+	    this->portalMan->shutdown();
+	    this->shutdown();
+	    return true;
 	case FAILURE:
-		{
-			FailureMsg* fMsg = (FailureMsg*)msg;
-			uint8_t fc = fMsg->getFailureCode();
+	    {
+		FailureMsg* fMsg = (FailureMsg*)msg;
+		uint8_t fc = fMsg->getFailureCode();
 
-			GSUuid re = fMsg->getReUUID();
+		GSUuid re = fMsg->getReUUID();
 
-			snprintf(buf, BUFSIZ, "Recv'ed A FailureMsg with code: %d (%x)", fc, fc);
-			log->logINFO("GeometryService", buf);
-			return true;
-		}
+		snprintf(buf, BUFSIZ, "Recv'ed A FailureMsg with code: %d (%x)", fc, fc);
+		log->logINFO("GeometryService", buf);
+		return true;
+	    }
 	case PING:
-		{
-			Portal* p = msg->getOrigin();
-			PingMsg* pingMsg = (PingMsg*)msg;
+	    {
+		Portal* p = msg->getOrigin();
+		PingMsg* pingMsg = (PingMsg*)msg;
 
-			std::stringstream ss;
+		std::stringstream ss;
 
-			std::string remNodeName("unknown");
-			if (p != NULL)
-				remNodeName = p->getRemoteNodeName();
+		std::string remNodeName("unknown");
+		if (p != NULL)
+		    remNodeName = p->getRemoteNodeName();
 
-			ss << "PING from: '" << remNodeName << "' ";
-			ss << "Start Time: " << pingMsg->getStartTime();
+		ss << "PING from: '" << remNodeName << "' ";
+		ss << "Start Time: " << pingMsg->getStartTime();
 
-			log->logINFO("GeometryService", ss.str());
+		log->logINFO("GeometryService", ss.str());
 
-			if (p != NULL) {
-				PongMsg pongMsg((PingMsg*)msg);
-				p->send(&pongMsg);
-			} else {
-				log->logINFO("GeometryService", "Can't return ping.  NULL Portal*");
-			}
-
-			return true;
+		if (p != NULL) {
+		    PongMsg pongMsg((PingMsg*)msg);
+		    p->send(&pongMsg);
+		} else {
+		    log->logINFO("GeometryService", "Can't return ping.  NULL Portal*");
 		}
+
+		return true;
+	    }
 	case PONG:
-		{
-			Portal* p = msg->getOrigin();
-			PongMsg* pongMsg = (PongMsg*)msg;
+	    {
+		Portal* p = msg->getOrigin();
+		PongMsg* pongMsg = (PongMsg*)msg;
 
-			/* calc current and differential times */
-			uint64_t start = pongMsg->getStartTime();
-			uint64_t now = Logger::getCurrentTime();
-			uint64_t diff = now - start;
+		/* calc current and differential times */
+		uint64_t start = pongMsg->getStartTime();
+		uint64_t now = Logger::getCurrentTime();
+		uint64_t diff = now - start;
 
-			std::string remNodeName("unknown");
+		std::string remNodeName("unknown");
 
-			if (p != NULL)
-				remNodeName = p->getRemoteNodeName();
+		if (p != NULL)
+		    remNodeName = p->getRemoteNodeName();
 
-			std::stringstream ss;
-			ss << "PONG from: '" << remNodeName << "' ";
-			ss << " Start: " << start;
-			ss << " Now: " << now;
-			ss << " Diff: " << diff;
+		std::stringstream ss;
+		ss << "PONG from: '" << remNodeName << "' ";
+		ss << " Start: " << start;
+		ss << " Now: " << now;
+		ss << " Diff: " << diff;
 
-			log->logINFO("GSClient", ss.str());
-			return true;
-		}
-	}
-	return false;
+		log->logINFO("GSClient", ss.str());
+		return true;
+	    }
+    }
+    return false;
 }
 
 std::string
 GeometryService::getLocalNodeName() {
-	return this->getThreadName();
+    return this->getThreadName();
 }
 
 /*

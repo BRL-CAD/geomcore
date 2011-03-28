@@ -30,114 +30,114 @@
 #include "PongMsg.h"
 
 GSClient::GSClient(std::string localNodeName) {
-	this->log = Logger::getInstance();
-	this->jobMan = JobManager::getInstance();
-	this->jobMan->startup();
+    this->log = Logger::getInstance();
+    this->jobMan = JobManager::getInstance();
+    this->jobMan->startup();
 
-	this->portMan = new PortalManager(localNodeName);
-	this->portMan->start();
-	usleep(100000);
+    this->portMan = new PortalManager(localNodeName);
+    this->portMan->start();
+    usleep(100000);
 
-	this->registerMsgRoutes();
+    this->registerMsgRoutes();
 }
 
 GSClient::~GSClient() {
-	delete this->portMan;
+    delete this->portMan;
 }
 
 void
 GSClient::registerMsgRoutes()
 {
-	NetMsgRouter* router = NetMsgRouter::getInstance();
+    NetMsgRouter* router = NetMsgRouter::getInstance();
 
-	router->registerType(DISCONNECTREQ, this->portMan);
-	router->registerType(SESSIONINFO, this);
-	router->registerType(FAILURE, this);
-	router->registerType(PING, this);
-	router->registerType(PONG, this);
+    router->registerType(DISCONNECTREQ, this->portMan);
+    router->registerType(SESSIONINFO, this);
+    router->registerType(FAILURE, this);
+    router->registerType(PING, this);
+    router->registerType(PONG, this);
 }
 
 bool
 GSClient::handleNetMsg(NetMsg* msg)
 {
-	uint16_t type = msg->getMsgType();
-	char buf[BUFSIZ];
+    uint16_t type = msg->getMsgType();
+    char buf[BUFSIZ];
 
-	switch(type) {
+    switch(type) {
 	case SESSIONINFO:
-		{
-			std::string data =((SessionInfoMsg*)msg)->toString();
-			log->logINFO("GSClient", "Recv'ed SessionInfo: " + data);
-			return true;
-		}
+	    {
+		std::string data =((SessionInfoMsg*)msg)->toString();
+		log->logINFO("GSClient", "Recv'ed SessionInfo: " + data);
+		return true;
+	    }
 	case FAILURE:
-		{
-			FailureMsg* fMsg = (FailureMsg*)msg;
-			uint8_t fc = fMsg->getFailureCode();
+	    {
+		FailureMsg* fMsg = (FailureMsg*)msg;
+		uint8_t fc = fMsg->getFailureCode();
 
-			GSUuid* re = fMsg->getReUUID();
+		GSUuid* re = fMsg->getReUUID();
 
-			snprintf(buf, BUFSIZ, "Recv'ed A FailureMsg with code: %d (%x)", fc, fc);
-			log->logINFO("GSClient", buf);
-			return true;
-		}
+		snprintf(buf, BUFSIZ, "Recv'ed A FailureMsg with code: %d (%x)", fc, fc);
+		log->logINFO("GSClient", buf);
+		return true;
+	    }
 	case PING:
-		{
-			Portal* p = msg->getOrigin();
-			PingMsg* pingMsg = (PingMsg*)msg;
+	    {
+		Portal* p = msg->getOrigin();
+		PingMsg* pingMsg = (PingMsg*)msg;
 
-			std::stringstream ss;
+		std::stringstream ss;
 
-			std::string remNodeName("unknown");
-			if (p != NULL)
-				remNodeName = p->getRemoteNodeName();
+		std::string remNodeName("unknown");
+		if (p != NULL)
+		    remNodeName = p->getRemoteNodeName();
 
-			ss << "PING from: '" << remNodeName << "' ";
-			ss << "Start Time: " << pingMsg->getStartTime();
+		ss << "PING from: '" << remNodeName << "' ";
+		ss << "Start Time: " << pingMsg->getStartTime();
 
-			log->logINFO("GeometryService", ss.str());
+		log->logINFO("GeometryService", ss.str());
 
-			if (p != NULL) {
-				PongMsg pongMsg((PingMsg*)msg);
-				p->send(&pongMsg);
-			} else {
-				log->logINFO("GeometryService", "Can't return ping.  NULL Portal*");
-			}
-
-			return true;
+		if (p != NULL) {
+		    PongMsg pongMsg((PingMsg*)msg);
+		    p->send(&pongMsg);
+		} else {
+		    log->logINFO("GeometryService", "Can't return ping.  NULL Portal*");
 		}
+
+		return true;
+	    }
 	case PONG:
-		{
-			Portal* p = msg->getOrigin();
-			PongMsg* pongMsg = (PongMsg*)msg;
+	    {
+		Portal* p = msg->getOrigin();
+		PongMsg* pongMsg = (PongMsg*)msg;
 
-			/* calc current and differential times */
-			uint64_t start = pongMsg->getStartTime();
-			uint64_t now = Logger::getCurrentTime();
-			uint64_t diff = now - start;
+		/* calc current and differential times */
+		uint64_t start = pongMsg->getStartTime();
+		uint64_t now = Logger::getCurrentTime();
+		uint64_t diff = now - start;
 
-			std::string remNodeName("unknown");
+		std::string remNodeName("unknown");
 
-			if (p != NULL)
-				remNodeName = p->getRemoteNodeName();
+		if (p != NULL)
+		    remNodeName = p->getRemoteNodeName();
 
-			std::stringstream ss;
-			ss << "PONG from: '" << remNodeName << "' ";
-			ss << " Start: " << start;
-			ss << " Now: " << now;
-			ss << " Diff: " << diff;
+		std::stringstream ss;
+		ss << "PONG from: '" << remNodeName << "' ";
+		ss << " Start: " << start;
+		ss << " Now: " << now;
+		ss << " Diff: " << diff;
 
-			log->logINFO("GSClient", ss.str());
-			return true;
-		}
-	}
-	return false;
+		log->logINFO("GSClient", ss.str());
+		return true;
+	    }
+    }
+    return false;
 }
 
 PortalManager*
 GSClient::getPortMan()
 {
-	return this->portMan;
+    return this->portMan;
 }
 
 /*

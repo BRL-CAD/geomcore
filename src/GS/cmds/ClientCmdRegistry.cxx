@@ -33,52 +33,52 @@ ClientCmdRegistry* ClientCmdRegistry::pInstance = NULL;
 
 ClientCmdRegistry*
 ClientCmdRegistry::getInstance() {
-	if (ClientCmdRegistry::pInstance == NULL) {
-		ClientCmdRegistry::pInstance = new ClientCmdRegistry();
-	}
-	return ClientCmdRegistry::pInstance;
+    if (ClientCmdRegistry::pInstance == NULL) {
+        ClientCmdRegistry::pInstance = new ClientCmdRegistry();
+    }
+    return ClientCmdRegistry::pInstance;
 }
 
 ClientCmdRegistry::ClientCmdRegistry() {
-	this->cmdMap = new std::map<std::string,AbstractClientCmd*> ();
-	this->log = Logger::getInstance();
+    this->cmdMap = new std::map<std::string,AbstractClientCmd*> ();
+    this->log = Logger::getInstance();
 }
 
 ClientCmdRegistry::~ClientCmdRegistry() {
-	/* TODO loop thru and del all the CMDs?? */
-	delete cmdMap;
+    /* TODO loop thru and del all the CMDs?? */
+    delete cmdMap;
 }
 
 bool ClientCmdRegistry::registerCmd(AbstractClientCmd* cmd) {
-	std::string cmdString = cmd->getCmd();
+    std::string cmdString = cmd->getCmd();
 
-	GSMutexLocker(&this->mapLock);
-	if(cmdMap->insert(std::pair<std::string,AbstractClientCmd*>(cmdString, cmd)).second != false)
-		return true;
-	this->log->logWARNING("ClientCmdRegistry","An AbstractClientCmd '" + cmdString + "' already exists in Registry.");
-	return false;
+    GSMutexLocker(&this->mapLock);
+    if(cmdMap->insert(std::pair<std::string,AbstractClientCmd*>(cmdString, cmd)).second != false)
+        return true;
+    this->log->logWARNING("ClientCmdRegistry","An AbstractClientCmd '" + cmdString + "' already exists in Registry.");
+    return false;
 }
 
 AbstractClientCmd*
 ClientCmdRegistry::getCmd(std::string cmd)
 {
-	GSMutexLocker(&this->mapLock);
+    GSMutexLocker(&this->mapLock);
 
-	if (this->cmdMap->find(cmd) == cmdMap->end())
-		return NULL;
+    if (this->cmdMap->find(cmd) == cmdMap->end())
+	return NULL;
 
-	return this->cmdMap->find(cmd)->second;
+    return this->cmdMap->find(cmd)->second;
 }
 
 std::list<std::string>*
 ClientCmdRegistry::getListOfCmds() {
-	GSMutexLocker(&this->mapLock);
+    GSMutexLocker(&this->mapLock);
 
-	std::list<std::string>* keys = new std::list<std::string>();
-	for(std::map<std::string,AbstractClientCmd*>::iterator it=cmdMap->begin(); it!=cmdMap->end(); it++)
-		keys->push_back(it->first);
+    std::list<std::string>* keys = new std::list<std::string>();
+    for(std::map<std::string,AbstractClientCmd*>::iterator it=cmdMap->begin(); it!=cmdMap->end(); it++)
+	keys->push_back(it->first);
 
-	return keys;
+    return keys;
 }
 
 /*

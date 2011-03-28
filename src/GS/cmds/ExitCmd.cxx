@@ -31,18 +31,18 @@ ExitCmd::~ExitCmd() {}
 
 std::string
 ExitCmd::getUsage(){
-	return "Usage: exit";
+    return "Usage: exit";
 }
 
 std::string
 ExitCmd::getHelp(){
-	return "Causes the application to exit.";
+    return "Causes the application to exit.";
 }
 
 bool
 ExitCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
-	/* set the run flag to false */
-	client->stopRun();
+    /* set the run flag to false */
+    client->stopRun();
 }
 
 /*

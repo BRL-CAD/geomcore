@@ -35,14 +35,14 @@
 
 int gsExit(int code)
 {
-	Logger* log = Logger::getInstance();
+    Logger* log = Logger::getInstance();
     log->logBANNER("geomserv", "GeometryService is Shutting Down...");
 
-	JobManager::getInstance()->shutdown(true);
+    JobManager::getInstance()->shutdown(true);
 
-	log->logINFO("geomserv", "Exiting.");
-	usleep(1000); /* Yeild main thread, let other threads finish unlocking */
-	exit(code);
+    log->logINFO("geomserv", "Exiting.");
+    usleep(1000); /* Yeild main thread, let other threads finish unlocking */
+    exit(code);
 }
 
 int main(int argc, char* argv[])
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 
     DataManager* dm = DataManager::getInstance();
     Logger::getInstance();
-	JobManager::getInstance()->startup();
+    JobManager::getInstance()->startup();
 
     Logger* log = Logger::getInstance();
     log->logBANNER("geomserv", "GeometryService Config Loader");
@@ -62,16 +62,16 @@ int main(int argc, char* argv[])
     bool goodLoad = c->loadFile("geomserv.config", true);
 
     if ( ! goodLoad) {
-    	log->logERROR("geomserv","Failed to properly Load config File.  Exiting.");
-    	gsExit(1);
+	log->logERROR("geomserv","Failed to properly Load config File.  Exiting.");
+	gsExit(1);
     }
 
     /* Check for a local node name.  This is imperative to be set. */
     std::string localNodeName(c->getConfigValue("LocalNodeName"));
     if (localNodeName.length() == 0) {
-		log->logERROR("geomserv", "Config File does not contain a 'LocalNodeName' parameter");
-		gsExit(1);
-	}
+	log->logERROR("geomserv", "Config File does not contain a 'LocalNodeName' parameter");
+	gsExit(1);
+    }
 
     log->logBANNER("geomserv", "Booting GeometryService: " + localNodeName);
 
@@ -79,28 +79,28 @@ int main(int argc, char* argv[])
     uint16_t listenPort = c->getConfigValueAsUShort("ListenPort");
 
     if (listenPort <= 0){
-    	log->logERROR("geomserv", "Config File does not contain a 'ListenPort' parameter, using default");
-    	listenPort = DEFAULT_LISTEN_PORT;
+	log->logERROR("geomserv", "Config File does not contain a 'ListenPort' parameter, using default");
+	listenPort = DEFAULT_LISTEN_PORT;
     }
 
     /* Get Listen Addy */
     std::string listenAddy = c->getConfigValue("ListenAddress");
 
     if (listenAddy.length() <= 0){
-    	log->logERROR("geomserv", "Config File does not contain a 'ListenAddress' parameter, using default");
-    	listenAddy = DEFAULT_LISTEN_ADDY;
+	log->logERROR("geomserv", "Config File does not contain a 'ListenAddress' parameter, using default");
+	listenAddy = DEFAULT_LISTEN_ADDY;
     }
 
 
     if (dm->init(c) == false) {
-		gsExit(1);
+	gsExit(1);
     }
 
 
-     GeometryService gs (localNodeName, listenAddy, listenPort);
-     gs.run(); /* blocks */
+    GeometryService gs (localNodeName, listenAddy, listenPort);
+    gs.run(); /* blocks */
 
-	log->logINFO("geomserv", "Exiting...");
+    log->logINFO("geomserv", "Exiting...");
     return 0;
 }
 

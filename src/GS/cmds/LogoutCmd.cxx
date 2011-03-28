@@ -35,31 +35,31 @@ LogoutCmd::~LogoutCmd() {}
 
 std::string
 LogoutCmd::getUsage() {
-	return "Usage: logout";
+    return "Usage: logout";
 }
 
 std::string
 LogoutCmd::getHelp() {
-	return "Severs the connection to the current GeometryService.";
+    return "Severs the connection to the current GeometryService.";
 }
 
 bool
 LogoutCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
-	Portal* p = client->getCurrentPortal();
+    Portal* p = client->getCurrentPortal();
 
-	/* Check to see if we are connected */
-	if (p == NULL) {
-		this->log->logWARNING("Logout","Not connected to a Geometry Service.");
-		return false;
-	}
+    /* Check to see if we are connected */
+    if (p == NULL) {
+	this->log->logWARNING("Logout","Not connected to a Geometry Service.");
+	return false;
+    }
 
-	TypeOnlyMsg msg(DISCONNECTREQ);
-	p->send(&msg);
+    TypeOnlyMsg msg(DISCONNECTREQ);
+    p->send(&msg);
 
-	/* This is an ugly way to do this, 'friend' is needed in GSClient.h */
-	client->currentPortal = NULL;
+    /* This is an ugly way to do this, 'friend' is needed in GSClient.h */
+    client->currentPortal = NULL;
 
-	return true;
+    return true;
 }
 
 

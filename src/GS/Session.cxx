@@ -29,7 +29,7 @@ Session::Session(Account* a)
 {
     this->sessionID = GSUuid::createUuid();
     this->a = a;
-	this->stampLastAccess();
+    this->stampLastAccess();
 }
 
 Session::~Session()
@@ -48,21 +48,21 @@ Account*  Session::getAccount()
 void
 Session::stampLastAccess()
 {
-	this->lastAccess = time (NULL);
+    this->lastAccess = time (NULL);
 }
 
 time_t
 Session::getInactivityTime()
 {
-	time_t now = time(NULL);
+    time_t now = time(NULL);
 
-	return now - this->lastAccess;
+    return now - this->lastAccess;
 }
 
 SessionInfoMsg*
 Session::generateSessionInfoMsg()
 {
-	return new SessionInfoMsg(this->sessionID);
+    return new SessionInfoMsg(this->sessionID);
 }
 
 /*

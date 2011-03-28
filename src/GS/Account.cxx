@@ -1,4 +1,4 @@
-/*                     A C C O U N T . C X X
+/*             A C C O U N T . C X X
  * BRL-CAD
  *
  * Copyright (c) 2011 United States Government as represented by
@@ -26,8 +26,8 @@
 #include "Account.h"
 
 Account::Account(std::string uname, Portal* portal, uint32_t id) :
-	uname(uname), portal(portal), id(id) {
-	this->stampLastAccess();
+    uname(uname), portal(portal), id(id) {
+    this->stampLastAccess();
 }
 
 Account::~Account()
@@ -36,33 +36,33 @@ Account::~Account()
 std::string
 Account::getUname()
 {
-	return this->uname;
+    return this->uname;
 }
 
 Portal*
 Account::getPortal()
 {
-	return this->portal;
+    return this->portal;
 }
 
 uint32_t
 Account::getID()
 {
-	return this->id;
+    return this->id;
 }
 
 void
 Account::stampLastAccess()
 {
-	this->lastAccess = time (NULL);
+    this->lastAccess = time (NULL);
 }
 
 time_t
 Account::getInactivityTime()
 {
-	time_t now = time(NULL);
+    time_t now = time(NULL);
 
-	return now - this->lastAccess;
+    return now - this->lastAccess;
 }
 
 /*

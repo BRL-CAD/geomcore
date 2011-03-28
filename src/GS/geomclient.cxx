@@ -27,47 +27,48 @@
 #include "GSCmdLineClient.h"
 #include "Config.h"
 
-int gsExit(int code)
+int
+gsExit(int code)
 {
-	Logger* log = Logger::getInstance();
+    Logger* log = Logger::getInstance();
     log->logBANNER("geomclient", "GSClient is Shutting Down...");
 
-	JobManager::getInstance()->shutdown(true);
+    JobManager::getInstance()->shutdown(true);
 
-	log->logINFO("geomclient", "Exiting.");
-	usleep(1000); /* Yeild main thread, let other threads finish unlocking */
-	exit(code);
+    log->logINFO("geomclient", "Exiting.");
+    usleep(1000); /* Yeild main thread, let other threads finish unlocking */
+    exit(code);
 }
 
 int
 main(int argc, char* argv[])
 {
-	std::cout << std::endl << std::endl;
+    std::cout << std::endl << std::endl;
 
-	Logger::getInstance();
-	JobManager::getInstance()->startup();
+    Logger::getInstance();
+    JobManager::getInstance()->startup();
 
-	Logger* log = Logger::getInstance();
-	log->logBANNER("geomclient", "GSClient Config Loader");
+    Logger* log = Logger::getInstance();
+    log->logBANNER("geomclient", "GSClient Config Loader");
 
-	Config* c = Config::getInstance();
+    Config* c = Config::getInstance();
 
-	/* Load configs from File */
-	bool goodLoad = c->loadFile("geomclient.config", true);
+    /* Load configs from File */
+    bool goodLoad = c->loadFile("geomclient.config", true);
 
-	if ( ! goodLoad) {
-		log->logERROR("geomclient","Failed to properly Load config File.  Exiting.");
-		gsExit(1);
-	}
+    if ( ! goodLoad) {
+	log->logERROR("geomclient","Failed to properly Load config File.  Exiting.");
+	gsExit(1);
+    }
 
-	/* Check for a local node name.  This is imperative to be set. */
-	std::string localNodeName = c->getConfigValue("LocalNodeName");
-	if (localNodeName.length() == 0) {
-		log->logERROR("geomclient", "Config File does not contain a 'LocalNodeName' parameter");
-		gsExit(1);
-	}
+    /* Check for a local node name.  This is imperative to be set. */
+    std::string localNodeName = c->getConfigValue("LocalNodeName");
+    if (localNodeName.length() == 0) {
+	log->logERROR("geomclient", "Config File does not contain a 'LocalNodeName' parameter");
+	gsExit(1);
+    }
 
-	GSCmdLineClient gsClient(localNodeName);
+    GSCmdLineClient gsClient(localNodeName);
     int retVal =  gsClient.run();
 
     JobManager::getInstance()->shutdown(true);

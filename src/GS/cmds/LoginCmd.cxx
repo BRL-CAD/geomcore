@@ -34,68 +34,68 @@ LoginCmd::~LoginCmd() {}
 
 std::string
 LoginCmd::getUsage() {
-	return "Usage: login ip port uname passwd";
+    return "Usage: login ip port uname passwd";
 }
 
 std::string
 LoginCmd::getHelp() {
-	return "Attempts to make a connection and login to a GeometryService.";
+    return "Attempts to make a connection and login to a GeometryService.";
 }
 
 bool
 LoginCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
-	int argn = args.size();
+    int argn = args.size();
 
-	if (argn != 4) {
-		this->printUsage();
-		return false;
-	}
+    if (argn != 4) {
+	this->printUsage();
+	return false;
+    }
 
-	/* Convert args to proper types */
-	std::list<std::string>::iterator it = args.begin();
- 	std::string host(*it);
-	it++;
- 	uint16_t port = atoi(it->c_str());
-	it++;
- 	std::string uname(*it);
-	it++;
- 	std::string passwd(*it);
+    /* Convert args to proper types */
+    std::list<std::string>::iterator it = args.begin();
+    std::string host(*it);
+    it++;
+    uint16_t port = atoi(it->c_str());
+    it++;
+    std::string uname(*it);
+    it++;
+    std::string passwd(*it);
 
 
-	if (port <=0 || host.length() == 0 || uname.length() == 0 || passwd.length() == 0){
-		this->printUsage();
-		return false;
-	}
+    if (port <=0 || host.length() == 0 || uname.length() == 0 || passwd.length() == 0){
+	this->printUsage();
+	return false;
+    }
 
-	PortalManager* pm = client->getPortMan();
+    PortalManager* pm = client->getPortMan();
 
-	if (pm == NULL)	{
-		this->log->logERROR("LoginCmd", "NULL PortalManager, cannot connect.");
-		return false;
-	}
+    if (pm == NULL)    {
+	this->log->logERROR("LoginCmd", "NULL PortalManager, cannot connect.");
+	return false;
+    }
 
-	Portal* p = pm->connectToHost(host, port);
+    Portal* p = pm->connectToHost(host, port);
 
-	if (p == NULL) 	{
-		this->log->logERROR("LoginCmd", "Failed to open new Portal, cannot connect.");
-		return false;
-	}
+    if (p == NULL)     {
+	this->log->logERROR("LoginCmd", "Failed to open new Portal, cannot connect.");
+	return false;
+    }
 
-	/* Give the Portal some time to handshake. */
-	usleep(100000);
+    /* Give the Portal some time to handshake. */
+    usleep(100000);
 
-	client->setCurrentPortal(p);
+    client->setCurrentPortal(p);
 
-	/* Authenticate */
-	NewSessionReqMsg nsrm(uname, passwd);
-	p->send(&nsrm);
+    /* Authenticate */
+    NewSessionReqMsg nsrm(uname, passwd);
+    p->send(&nsrm);
 
-	usleep(100000);
+    usleep(100000);
 
-	std::string remNodename = p->getRemoteNodeName();
-	this->log->logINFO("LoginCmd", "Connected to: '" + remNodename+ "'.");
+    std::string remNodename = p->getRemoteNodeName();
+    this->log->logINFO("LoginCmd", "Connected to: '" + remNodename+ "'.");
 
-	return true;
+    return true;
 }
 
 

@@ -32,85 +32,84 @@ HelpCmd::~HelpCmd() {}
 
 std::string
 HelpCmd::getUsage() {
-	return "Usage: help [cmdname]";
+    return "Usage: help [cmdname]";
 }
 
 std::string
 HelpCmd::getHelp() {
-	return "If evoked without any arguments, help diplays a list of available commands.  If a command name is provided as an argument, the help for that command is displayed.";
+    return "If evoked without any arguments, help diplays a list of available commands.  If a command name is provided as an argument, the help for that command is displayed.";
 }
 
 bool
 HelpCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
 
-	int argn = args.size();
+    int argn = args.size();
 
-	if (argn < 0 || argn > 1) {
-		this->printUsage();
-		return false;
+    if (argn < 0 || argn > 1) {
+	this->printUsage();
+	return false;
+    }
+
+    ClientCmdRegistry* ccReg = ClientCmdRegistry::getInstance();
+
+    if (argn == 0) {
+	/* display list of cmds */
+	/* TODO: fix this. */
+	/* something similar to (format nil "~{~a~^, ~}" cmds) */
+	std::list<std::string>* cmds = ccReg->getListOfCmds();
+
+	this->log->logINFO("HelpCmd", "Available commands:");
+
+	std::string out("\t");
+	std::list<std::string>::iterator it=cmds->begin();
+	for (int i = 0; i < cmds->size(); ++i) {
+	    /* Append the new cmd name */
+	    out.append(*it);
+	    it++;
+
+	    /* as long as we are not the last command, append a comma */
+	    if (i+1 < cmds->size())
+		out.append(", ");
+
+	    /* every 5th command, start a new line. */
+	    if ((i+1) % 5 == 0) {
+		this->log->logINFO("HelpCmd", out);
+		out = "\t"; /* reset for next loop pass */
+	    }
 	}
 
-	ClientCmdRegistry* ccReg = ClientCmdRegistry::getInstance();
-
-	if (argn == 0) {
-		/* display list of cmds */
-		/* TODO: fix this. */
-		/* something similar to (format nil "~{~a~^, ~}" cmds) */
-		std::list<std::string>* cmds = ccReg->getListOfCmds();
-
-		this->log->logINFO("HelpCmd", "Available commands:");
-
-		std::string out("\t");
-		std::list<std::string>::iterator it=cmds->begin();
-		for (int i = 0; i < cmds->size(); ++i) {
-			/* Append the new cmd name */
-			out.append(*it);
-			it++;
-
-			/* as long as we are not the last command, append a comma */
-			if (i+1 < cmds->size())
-				out.append(", ");
-
-			/* every 5th command, start a new line. */
-			if ((i+1) % 5 == 0) {
-				this->log->logINFO("HelpCmd", out);
-				out = "\t"; /* reset for next loop pass */
-			}
-		}
-
-		/* flush if anything is left. */
-		if (out.length() != 0)
-			this->log->logINFO("HelpCmd", out);
+	/* flush if anything is left. */
+	if (out.length() != 0)
+	    this->log->logINFO("HelpCmd", out);
 
 
-		delete cmds;
-		return true;
-	} else {
-		/* display specifics of a single cmd */
-		std::string cmd(*args.begin());
+	delete cmds;
+	return true;
+    } else {
+	/* display specifics of a single cmd */
+	std::string cmd(*args.begin());
 
-		if(cmd.length() == 0) {
-			this->log->logERROR("HelpCmd", "Zero Length Cmd provided to help.");
-			this->printUsage();
-			return false;
-		}
-
-		AbstractClientCmd* acc = ccReg->getCmd(cmd);
-
-		if(acc == NULL) {
-			this->log->logINFO("HelpCmd", "Unknown command: '" + cmd + "'.");
-			this->printUsage();
-			return false;
-		}
-
-		acc->printUsage();
-		acc->printHelp();
-
-		/* NOTE:  Do NOT delete acc, its used by other objects */
-
-		return true;
+	if(cmd.length() == 0) {
+	    this->log->logERROR("HelpCmd", "Zero Length Cmd provided to help.");
+	    this->printUsage();
+	    return false;
 	}
 
+	AbstractClientCmd* acc = ccReg->getCmd(cmd);
+
+	if(acc == NULL) {
+	    this->log->logINFO("HelpCmd", "Unknown command: '" + cmd + "'.");
+	    this->printUsage();
+	    return false;
+	}
+
+	acc->printUsage();
+	acc->printHelp();
+
+	/* NOTE:  Do NOT delete acc, its used by other objects */
+
+	return true;
+    }
 }
 
 /*

@@ -27,11 +27,11 @@
 #include "DbObject.h"
 
 DbObject::DbObject(std::string path, ByteArray* data) :
-	path(path), id(NULL), data(data)
+    path(path), id(NULL), data(data)
 {}
 
 DbObject::DbObject(GSUuid* id, ByteArray* data) :
-	path(""), id(id), data(data)
+    path(""), id(id), data(data)
 {}
 
 DbObject::~DbObject()
@@ -40,19 +40,19 @@ DbObject::~DbObject()
 std::string
 DbObject::getPath()
 {
-	return this->path;
+    return this->path;
 }
 
 GSUuid*
 DbObject::getID()
 {
-	return this->id;
+    return this->id;
 }
 
 ByteArray*
 DbObject::getData()
 {
-	return this->data;
+    return this->data;
 }
 
 /*

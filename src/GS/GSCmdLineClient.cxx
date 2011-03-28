@@ -43,11 +43,11 @@ const std::string GSCmdLineClient::defaultPrompt ="geoclient> ";
 
 GSCmdLineClient::GSCmdLineClient(std::string localNodeName):GSClient(localNodeName)
 {
-	this->ccReg = ClientCmdRegistry::getInstance();
-	this->registerClientCmds();
-	this->stayRun = true;
-	this->prompt = defaultPrompt;
-	this->currentPortal = NULL;
+    this->ccReg = ClientCmdRegistry::getInstance();
+    this->registerClientCmds();
+    this->stayRun = true;
+    this->prompt = defaultPrompt;
+    this->currentPortal = NULL;
 }
 
 GSCmdLineClient::~GSCmdLineClient() {
@@ -57,101 +57,101 @@ GSCmdLineClient::~GSCmdLineClient() {
 int
 GSCmdLineClient::run()
 {
-	this->log->logBANNER("geoclient","==================================");
-	this->log->logBANNER("geoclient","GeometryService Test/Stress Client");
-	this->log->logBANNER("geoclient","==================================");
+    this->log->logBANNER("geoclient","==================================");
+    this->log->logBANNER("geoclient","GeometryService Test/Stress Client");
+    this->log->logBANNER("geoclient","==================================");
 
-	std::string in;
-	while (this->stayRun) {
-		in == "";
-		std::cout << prompt;
-		getline (std::cin, in);
+    std::string in;
+    while (this->stayRun) {
+	in == "";
+	std::cout << prompt;
+	getline (std::cin, in);
 
-		/* Catch zero length strings here */
-		if (in.length() == 0)
-			continue;
+	/* Catch zero length strings here */
+	if (in.length() == 0)
+	    continue;
 
-	    /* split string */
-		std::istringstream iss(in.c_str());
-		std::list<std::string> list;
-		do { std::string tok; iss>>tok; list.push_back(tok);} while(iss);
-		list.pop_back(); /* remove the empty end */
+	/* split string */
+	std::istringstream iss(in.c_str());
+	std::list<std::string> list;
+	do { std::string tok; iss>>tok; list.push_back(tok);} while(iss);
+	list.pop_back(); /* remove the empty end */
 
 
-		/* check to see if there is at least one element */
-		if (list.size() <= 0) {
-			continue;
-		}
-
-		/* convert to lowercase */
-		std::string cmd(*(list.begin()));
-		std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
-
-		list.pop_front(); /* remove the cmd from the front */
-
-		this->execCmd(cmd, list);
+	/* check to see if there is at least one element */
+	if (list.size() <= 0) {
+	    continue;
 	}
 
-	if (this->currentPortal != NULL)
-		this->currentPortal->disconnect();
+	/* convert to lowercase */
+	std::string cmd(*(list.begin()));
+	std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
 
-	if (this->portMan != NULL)
-		this->portMan->shutdown();
+	list.pop_front(); /* remove the cmd from the front */
 
-	this->log->logINFO("geoclient","Exiting.");
-	return 0;
+	this->execCmd(cmd, list);
+    }
+
+    if (this->currentPortal != NULL)
+	this->currentPortal->disconnect();
+
+    if (this->portMan != NULL)
+	this->portMan->shutdown();
+
+    this->log->logINFO("geoclient","Exiting.");
+    return 0;
 }
 
 
 void
 GSCmdLineClient::stopRun()
 {
-	this->stayRun = false;
+    this->stayRun = false;
 }
 
 
 bool
 GSCmdLineClient::execCmd(std::string cmd, std::list<std::string> args)
 {
-	char buf[BUFSIZ];
+    char buf[BUFSIZ];
 
-	AbstractClientCmd* acc = this->ccReg->getCmd(cmd);
+    AbstractClientCmd* acc = this->ccReg->getCmd(cmd);
 
-	if (acc == NULL) {
-		snprintf(buf, BUFSIZ, "Unknown Command: '%s'", cmd.c_str());
-		this->log->logINFO("GSClient", buf);
-		return false;
-	}
+    if (acc == NULL) {
+	snprintf(buf, BUFSIZ, "Unknown Command: '%s'", cmd.c_str());
+	this->log->logINFO("GSClient", buf);
+	return false;
+    }
 
-	return acc->exec(this, args);
+    return acc->exec(this, args);
 }
 
 void
 GSCmdLineClient::registerClientCmds()
 {
-	/* Command Registrations */
-	this->ccReg->registerCmd(new HelpCmd());
-	this->ccReg->registerCmd(new ExitCmd());
-	this->ccReg->registerCmd(new LoginCmd());
-	this->ccReg->registerCmd(new LogoutCmd());
-	this->ccReg->registerCmd(new ShutdownCmd());
-	this->ccReg->registerCmd(new PingCmd());
+    /* Command Registrations */
+    this->ccReg->registerCmd(new HelpCmd());
+    this->ccReg->registerCmd(new ExitCmd());
+    this->ccReg->registerCmd(new LoginCmd());
+    this->ccReg->registerCmd(new LogoutCmd());
+    this->ccReg->registerCmd(new ShutdownCmd());
+    this->ccReg->registerCmd(new PingCmd());
 }
 
 bool
 GSCmdLineClient::setCurrentPortal(Portal* p)
 {
-	if (p != NULL) {
-		this->currentPortal = p;
-		return true;
-	}
-	return false;
+    if (p != NULL) {
+	this->currentPortal = p;
+	return true;
+    }
+    return false;
 }
 
 Portal*
 GSCmdLineClient::getCurrentPortal()
 {
-	return this->currentPortal;
+    return this->currentPortal;
 }
 
 /*

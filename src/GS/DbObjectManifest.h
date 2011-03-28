@@ -34,11 +34,11 @@
 
 class DbObjectManifest
 {
-public:
+    public:
 	DbObjectManifest();
 	virtual ~DbObjectManifest();
 
-private:
+    private:
 	std::list<GSUuid*> DbObjectList;
 	std::map<GSUuid*, std::string > DbObjectMap;
 };

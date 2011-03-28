@@ -70,18 +70,18 @@ FileDataSource::putObj(std::string path, DbObject* obj)
 bool
 FileDataSource::init()
 {
-	//first check to see if there is a repo at the supplied path, and if we can R/W to it.
+    //first check to see if there is a repo at the supplied path, and if we can R/W to it.
 
-	/* 0 == exists */
-	if (bu_file_readable(this->repoPath.c_str()) != 0)
-		return false;
-	Logger::getInstance()->logINFO("FileDataSource", this->repoPath + " is readable.");
+    /* 0 == exists */
+    if (bu_file_readable(this->repoPath.c_str()) != 0)
+	return false;
+    Logger::getInstance()->logINFO("FileDataSource", this->repoPath + " is readable.");
 
-	if (bu_file_writable(this->repoPath.c_str()) != 0)
-		return false;
-	Logger::getInstance()->logINFO("FileDataSource", this->repoPath + " is writable.");
+    if (bu_file_writable(this->repoPath.c_str()) != 0)
+	return false;
+    Logger::getInstance()->logINFO("FileDataSource", this->repoPath + " is writable.");
 
-	return true;
+    return true;
 }
 
 /*
