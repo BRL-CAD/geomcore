@@ -164,7 +164,7 @@ std::string NetMsg::toString()
     char buf[BUFSIZ];
     std::string out;
 
-    snprintf(buf, BUFSIZ, "msgType: %d'", this->msgType);
+    snprintf(buf, BUFSIZ, "msgType: 0x%X'", this->msgType);
     out.assign(buf);
 
     if (this->msgUUID != NULL) {
