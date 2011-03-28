@@ -48,12 +48,12 @@ public:
 	/* Get all Attributes from object */
 	std::list<prop>* getAttrs(std::string path);
 
+	bool init();
+
 private:
 	std::string repoPath;
 
 	std::list<std::string> locks;
-
-	bool init();
 };
 
 #endif /* __FILEDATASOURCE_H__ */
