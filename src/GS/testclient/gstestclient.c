@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <inttypes.h>
 
 # include <sys/socket.h>
@@ -54,6 +55,7 @@ make_uuid(char *buf) {
 APPEND(byte, uint8_t, );
 APPEND(shrt, uint16_t, htons);
 APPEND(long, uint32_t, htonl);
+APPEND(ll, uint64_t, htonll);
 #undef APPEND
 
 int
@@ -71,9 +73,14 @@ make_ping(char *buf) {
     char uuid[40];
     int len = 0;
     char *bufp = buf;
-    make_uuid(uuid);
+    struct timeval tv;
+    uint64_t t;	/* timestamp */
 
-    printf("making ping with uuid: %s\n", uuid);
+    make_uuid(uuid);
+    gettimeofday(&tv, NULL);
+    t = tv.tv_sec * 1e6 + tv.tv_usec;
+
+    printf("making ping with uuid: %s at %lld\n", uuid, t);
 
     /* pkg header */
     len += append_long(&bufp, GS_MAGIC);
@@ -83,6 +90,7 @@ make_ping(char *buf) {
     len += append_shrt(&bufp, GSPING);
     len += append_str(&bufp, uuid);
     len += append_byte(&bufp, 0);	/* no response uuid */
+    len += append_ll(&buf, t);
 
     bufp = buf + 4;
     append_long(&bufp, len);
