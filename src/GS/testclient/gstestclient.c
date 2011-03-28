@@ -224,14 +224,14 @@ main(int argc, char **argv)
     len = read(sock, buf, BUFSIZ);
     print_packet(buf, len);
     if((ntohs(*(uint16_t*)buf)) != PKG_MAGIC) {
-	    printf("PKG header is bunk: %x\n", (ntohs(*(uint16_t*)buf)));
-	    rval = EXIT_FAILURE;
-	    goto EXIT;
+	printf("PKG header is bunk: %x\n", (ntohs(*(uint16_t*)buf)));
+	rval = EXIT_FAILURE;
+	goto EXIT;
     }
     if((ntohs(*(uint16_t*)(buf+2))) != GSMSG_MAGIC) {
-	    printf("GSMsg header is bunk: %x\n", (ntohs(*(uint16_t*)(buf+2))));
-	    rval = EXIT_FAILURE;
-	    goto EXIT;
+	printf("GSMsg header is bunk: %x\n", (ntohs(*(uint16_t*)(buf+2))));
+	rval = EXIT_FAILURE;
+	goto EXIT;
     }
 
 
