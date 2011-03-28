@@ -77,7 +77,7 @@ GeometryService::registerMsgRoutes()
 
 bool
 GeometryService::preRunHook() {
-	//Do initi stuff here
+	//Do init stuff here
 	this->log->logINFO("GeometryService", "Running");
 
 	return true;
