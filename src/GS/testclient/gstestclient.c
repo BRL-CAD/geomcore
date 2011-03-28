@@ -27,7 +27,7 @@
 #define GSFAIL    0x0050 /*Failure*/
 #define GSOK      0x0051 /*Success*/
 #define GSPING	  0x0060 /*Ping*/
-#define GSPONG	  0x0061 /*Pong*/
+#define GSPONG	  0x0062 /*Pong*/
 #define GSRNNSET  0x0100 /*GS Remote Nodename Set*/
 #define GSDR      0x0150 /*Disconnect Request*/
 #define GSNNNET	  0x0200 /*New Node on Network*/
@@ -100,7 +100,6 @@ make_login(char *buf, char *username, char *password) {
     memset(buf, 0, BUFSIZ);
     make_uuid(uuid);
 
-
     /* pkg header */
     len += append_long(&bufp, GS_MAGIC);
     bufp += 4; len += 4;
@@ -113,7 +112,32 @@ make_login(char *buf, char *username, char *password) {
     len += append_str(&bufp, password);
 
     bufp = buf + 4;
-    append_long(&bufp, len);
+    append_long(&bufp, len-8);
+    return len;
+}
+
+/* generate a login request in the provided (and allocated) buff. */
+int
+make_hello(char *buf, char *nodename) {
+    char uuid[40];
+    int len = 0;
+    char *bufp = buf;
+
+    memset(buf, 0, BUFSIZ);
+    make_uuid(uuid);
+
+    /* pkg header */
+    len += append_long(&bufp, GS_MAGIC);
+    bufp += 4; len += 4;
+
+    /* GS header */
+    len += append_shrt(&bufp, GSRNNSET);
+    len += append_str(&bufp, uuid);
+    len += append_byte(&bufp, 0);	/* no response uuid */
+    len += append_str(&bufp, nodename);
+
+    bufp = buf + 4;
+    append_long(&bufp, len-8);
     return len;
 }
 
@@ -130,8 +154,6 @@ make_ping(char *buf) {
     gettimeofday(&tv, NULL);
     t = tv.tv_sec * 1e6 + tv.tv_usec;
 
-    printf("making ping with uuid: %s at %lld\n", uuid, t);
-
     /* pkg header */
     len += append_long(&bufp, GS_MAGIC);
     bufp += 4; len += 4;
@@ -143,7 +165,7 @@ make_ping(char *buf) {
     len += append_ll(&bufp, t);
 
     bufp = buf + 4;
-    append_long(&bufp, len);
+    append_long(&bufp, len-8);
     return len;
 }
 
@@ -151,8 +173,6 @@ int
 make_disconnect(char *buf) {
     int len = 0;
     char *bufp = buf;
-
-    printf("making disconnect\n");
 
     /* pkg header */
     len += append_long(&bufp, GS_MAGIC);
@@ -162,7 +182,7 @@ make_disconnect(char *buf) {
     len += append_shrt(&bufp, GSDR);
 
     bufp = buf + 4;
-    append_long(&bufp, len);
+    append_long(&bufp, len-8);
     return len;
 }
 
@@ -171,8 +191,10 @@ print_packet(char *buf, int len)
 {
     unsigned char sbuf[BUFSIZ];
     int slen, type, i;
-    printf("\tMagic: 0x%X\n", ntohl(*(uint32_t*)buf)); buf+=4; len-=4;
-    printf("\tlength: %d\n", ntohl(*(uint32_t*)buf)); buf+=4; len-=4;
+
+    printf("\tMagic: 0x%X\n", ntohl(*(uint32_t*)buf)); buf+=4; len-4;
+    printf("\tlength: %d\n", ntohl(*(uint32_t*)buf)); buf+=4; len-4;
+
     type = ntohs(*(uint16_t*)buf); buf+=2; len-=2;
     printf("\ttype  : 0x%X %s\n", type, typename(type));
     slen = ntohl(*(uint32_t*)buf); buf+=4; len-=4;
@@ -204,11 +226,12 @@ print_packet(char *buf, int len)
 	    printf("%s\n", sbuf);
 	    break;
 	case GSRNNSET:
+	case GSINFO:
 	    slen = ntohl(*(uint32_t*)buf); buf+=4; len-=4;
 	    memset(sbuf, 0, BUFSIZ);
 	    memcpy(sbuf, buf, slen); sbuf[slen] = 0;
 	    buf += slen; len -= slen;
-	    printf("payload(%d):\t", slen);
+	    printf("\tpayload(%d):\t", slen);
 	    printf("%s\n", sbuf);
 	    break;
 	default:
@@ -264,28 +287,23 @@ main(int argc, char **argv)
     printf("reading node name:\n");
     len = read(sock, buf, BUFSIZ);
     print_packet(buf, len);
-    if((ntohs(*(uint16_t*)buf)) != PKG_MAGIC) {
-	printf("PKG header is bunk: %x\n", (ntohs(*(uint16_t*)buf)));
-	rval = EXIT_FAILURE;
-	goto EXIT;
-    }
-    if((ntohs(*(uint16_t*)(buf+2))) != GSMSG_MAGIC) {
-	printf("GSMsg header is bunk: %x\n", (ntohs(*(uint16_t*)(buf+2))));
-	rval = EXIT_FAILURE;
-	goto EXIT;
-    }
 
+    printf("Making hello\n");
+    len = make_hello(buf, "Ghost");
+    print_packet(buf, len);
+    if(write(sock, buf, len) != len)
+	perror("Writing hello (GSRNNSET) to socket\n");
+
+    printf("Making login\n");
     len = make_login(buf, "Guest", "Guest");
     print_packet(buf, len);
     if(write(sock, buf, len) != len)
 	perror("Writing login to socket\n");
 
-    /* recv login response, print results */
-    /*
+    /* recv login response (new session info), print results */
     printf("Reading login response\n");
     len = read(sock, buf, BUFSIZ);
     print_packet(buf, len);
-    */
 
     /* send ping */
     len = make_ping(buf);
