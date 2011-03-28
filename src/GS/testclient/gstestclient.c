@@ -90,7 +90,7 @@ make_ping(char *buf) {
     len += append_shrt(&bufp, GSPING);
     len += append_str(&bufp, uuid);
     len += append_byte(&bufp, 0);	/* no response uuid */
-    len += append_ll(&buf, t);
+    len += append_ll(&bufp, t);
 
     bufp = buf + 4;
     append_long(&bufp, len);
