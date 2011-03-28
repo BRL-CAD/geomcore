@@ -41,14 +41,14 @@ public:
 	 * 'GET' ers
 	 */
 
-	/* Get a single DbObject */
-	DbObject* getObj(std::string path);
+	/* Get a single BRLCAD::Object */
+	BRLCAD::Object* getObj(std::string path);
 
 	/* Get a single Attribute of an object */
 	prop* getAttr(std::string path, std::string attrKey);
 
 	/* Get a set of objects */
-	std::list<DbObject*>* getObjs(std::string path);
+	std::list<BRLCAD::Object*>* getObjs(std::string path);
 
 	/* Get all Attributes from object */
 	std::list<prop>* getAttrs(std::string path);
@@ -57,8 +57,8 @@ public:
 	 * 'PUT' ers
 	 */
 
-	/* Put a single DbObject */
-	bool putObj(std::string path, DbObject* obj);
+	/* Put a single BRLCAD::Object */
+	bool putObj(std::string path, BRLCAD::Object* obj);
 
 private:
 	std::string repoPath;

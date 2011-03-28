@@ -27,7 +27,7 @@
 #ifndef __IDATASOURCE_H__
 #define __IDATASOURCE_H__
 
-#include "DbObject.h"
+#include <brlcad/Object.h>
 #include "Account.h"
 #include <map>
 #include <list>
@@ -45,13 +45,13 @@ public:
 	 */
 
 	/* Get a single DbObject */
-	virtual DbObject* getObj(std::string path) = 0;
+	virtual BRLCAD::Object* getObj(std::string path) = 0;
 
 	/* Get a single Attribute of an object */
 	virtual prop* getAttr(std::string path, std::string attrKey) = 0;
 
 	/* Get a set of objects */
-	virtual std::list<DbObject*>* getObjs(std::string path) = 0;
+	virtual std::list<BRLCAD::Object*>* getObjs(std::string path) = 0;
 
 	/* Get all Attributes from object */
 	virtual std::list<prop>* getAttrs(std::string path) = 0;
@@ -61,7 +61,7 @@ public:
 	 */
 
 	/* Put a single DbObject */
-	virtual bool putObj(std::string path, DbObject* obj) = 0;
+	virtual bool putObj(std::string path, BRLCAD::Object* obj) = 0;
 };
 
 

@@ -36,157 +36,158 @@ DataManager* DataManager::pInstance = NULL;
 
 DataManager::DataManager()
 {
-    this->log = Logger::getInstance();
+	this->log = Logger::getInstance();
 }
 
 DataManager::~DataManager()
 {}
 
-std::string DataManager::getDbObjectByURL(std::string url)
-{}
-
-std::string DataManager::getDbObjectByUUID(GSUuid* uuid)
+std::string
+DataManager::getObjectByPath(std::string url)
 {}
 
 bool
 DataManager::setDataSource(IDataSource* source)
 {
-    if (this->datasource != NULL)
-	return false;
+	if (this->datasource != NULL)
+		return false;
 
-    this->datasource = source;
+	this->datasource = source;
 }
 
 bool
 DataManager::handleNetMsg(NetMsg* msg)
 {
-    uint16_t type = msg->getMsgType();
-    switch(type) {
+	uint16_t type = msg->getMsgType();
+	switch(type) {
 	case GEOMETRYREQ:
-	    this->handleGeometryReqMsg((GeometryReqMsg*)msg);
-	    return true;
+		this->handleGeometryReqMsg((GeometryReqMsg*)msg);
+		return true;
 	case GEOMETRYMANIFEST:
-	    return true;
+		return true;
 	case GEOMETRYCHUNK:
-	    this->handleGeometryChunkMsg((GeometryChunkMsg*)msg);
-	    return true;
-    }
-    return false;
+		this->handleGeometryChunkMsg((GeometryChunkMsg*)msg);
+	return true;
+	}
+	return false;
 }
 
 void
 DataManager::handleGeometryChunkMsg(GeometryChunkMsg* msg)
 {
-    Portal* origin = msg->getOrigin();
+	Portal* origin = msg->getOrigin();
 
-    //validate incoming data
-    if (origin == 0) {
-	//TODO Figure out how to how to handle NULL Portal
-	log->logERROR("DataManager", "handleGeometryChunkMsg(): NULL Portal!");
-	return;
-    }
+	//validate incoming data
+	if (origin == 0) {
+		//TODO Figure out how to how to handle NULL Portal
+		log->logERROR("DataManager", "handleGeometryChunkMsg(): NULL Portal!");
+		return;
+	}
 }
 
 void
 DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
 {
-    bool recurse = msg->getRecurse();
-    std::string path = msg->getPath();
-    Portal* origin = msg->getOrigin();
+	bool recurse = msg->getRecurse();
+	std::string path = msg->getPath();
+	Portal* origin = msg->getOrigin();
 
-    //validate incoming data
-    if (origin == 0) {
-	//TODO Figure out how to how to handle NULL Portal
-	log->logERROR("DataManager", "handleGeometryReqMsg(): NULL Portal!");
+	//validate incoming data
+	if (origin == 0) {
+		//TODO Figure out how to how to handle NULL Portal
+		log->logERROR("DataManager", "handleGeometryReqMsg(): NULL Portal!");
+		return;
+	}
+
+	if (path.length() == 0) {
+		TypeOnlyMsg* tom = new TypeOnlyMsg(BAD_REQUEST, msg);
+		origin->send(tom);
+		return;
+	}
+
+
+	if (this->datasource == NULL) {
+		TypeOnlyMsg* tom = new TypeOnlyMsg(OPERATION_NOT_AVAILABLE, msg);
+		origin->send(tom);
+		return;
+	}
+
+
+	BRLCAD::Object* obj = NULL; //this->datasource->getByPath(data);
+
+	if (obj == NULL) {
+		TypeOnlyMsg* tom = new TypeOnlyMsg(COULD_NOT_FIND_GEOMETRY, msg);
+		origin->send(tom);
+		return;
+	}
+/*
+	std::list<std::string> items;
+	ByteArray* data = obj->getData();
+
+	GeometryChunkMsg* chunk = new GeometryChunkMsg(data->data(), data->size());
+	items.push_back(obj->getPath());
+
+	GeometryManifestMsg* manifest = new GeometryManifestMsg(items);
+	origin->send(manifest);
+
+	origin->send(chunk);
+*/
 	return;
-    }
-
-    if (path.length() == 0) {
-	TypeOnlyMsg* tom = new TypeOnlyMsg(BAD_REQUEST, msg);
-	origin->send(tom);
-	return;
-    }
-
-
-    if (this->datasource == NULL) {
-	TypeOnlyMsg* tom = new TypeOnlyMsg(OPERATION_NOT_AVAILABLE, msg);
-	origin->send(tom);
-	return;
-    }
-
-
-    DbObject* obj = NULL; //this->datasource->getByPath(data);
-
-    if (obj == NULL) {
-	TypeOnlyMsg* tom = new TypeOnlyMsg(COULD_NOT_FIND_GEOMETRY, msg);
-	origin->send(tom);
-	return;
-    }
-
-    std::list<std::string> items;
-    ByteArray* data = obj->getData();
-
-    GeometryChunkMsg* chunk = new GeometryChunkMsg(data->data(), data->size());
-    items.push_back(obj->getPath());
-
-    GeometryManifestMsg* manifest = new GeometryManifestMsg(items);
-    origin->send(manifest);
-
-    origin->send(chunk);
-    return;
 }
 
 DataManager*
 DataManager::getInstance()
 {
-    if (!DataManager::pInstance)
-	DataManager::pInstance = new DataManager();
-    return DataManager::pInstance;
+	if (!DataManager::pInstance)
+	{
+		DataManager::pInstance = new DataManager();
+	}
+	return DataManager::pInstance;
 }
 
 bool
 DataManager::init(Config* c)
 {
-    std::string repoType = c->getConfigValue("RepoType");
-    if (repoType.length() == 0) {
-	log->logERROR("DataManager",
-		"Config File does not contain a 'RepoType' parameter");
-	return false;
-    }
-    // to lower
-    for(int i=0; i < repoType.length(); ++i)
-	repoType[i] = std::tolower(repoType[i]);
-
-
-    /* Attempt to instantiate a DataSource */
-    if (repoType == "file") {
-	std::string fRepoPath(c->getConfigValue("FileRepoPath"));
-	if (fRepoPath.length() == 0)
-	{
-	    log->logERROR("DataManager", "Config File does not contain a 'FileRepoPath' parameter");
-	    return false;
+	std::string repoType = c->getConfigValue("RepoType");
+	if (repoType.length() == 0) {
+		log->logERROR("DataManager",
+				"Config File does not contain a 'RepoType' parameter");
+		return false;
 	}
+	// to lower
+	for(int i=0; i < repoType.length(); ++i)
+		repoType[i] = std::tolower(repoType[i]);
 
-	log->logINFO("DataManager", "FileDataSouce being used.");
-	FileDataSource* fds = new FileDataSource(fRepoPath);
 
-	if (fds->init() == false) {
-	    log->logERROR("DataManager", "FileDataSouce could not read/write to the path supplied by the 'FileRepoPath' config value.  Please check the existance and permissions of this path.");
-	    delete fds;
-	    return false;
+	/* Attempt to instantiate a DataSource */
+	if (repoType == "file") {
+		std::string fRepoPath(c->getConfigValue("FileRepoPath"));
+		if (fRepoPath.length() == 0)
+		{
+			log->logERROR("DataManager", "Config File does not contain a 'FileRepoPath' parameter");
+			return false;
+		}
+
+		log->logINFO("DataManager", "FileDataSouce being used.");
+		FileDataSource* fds = new FileDataSource(fRepoPath);
+
+		if (fds->init() == false) {
+			log->logERROR("DataManager", "FileDataSouce could not read/write to the path supplied by the 'FileRepoPath' config value.  Please check the existance and permissions of this path.");
+			delete fds;
+			return false;
+		}
+
+		this->setDataSource(fds);
+		return true;
+
+	} else if (repoType == "svn") {
+		log->logERROR("DataManager", "SVN repoType not implemented yet.");
+		return false;
+
+	} else {
+		log->logERROR("DataManager", "Invalid RepoType in config file.  Valid values are 'file' and 'svn'");
+		return false;
 	}
-
-	this->setDataSource(fds);
-	return true;
-
-    } else if (repoType == "svn") {
-	log->logERROR("DataManager", "SVN repoType not implemented yet.");
-	return false;
-
-    } else {
-	log->logERROR("DataManager", "Invalid RepoType in config file.  Valid values are 'file' and 'svn'");
-	return false;
-    }
 
 }
 

@@ -37,8 +37,8 @@ SvnDataSource::SvnDataSource(std::string repoPath) :
 SvnDataSource::~SvnDataSource()
 {}
 
-/* Get a single DbObject */
-DbObject*
+/* Get a single BRLCAD::Object */
+BRLCAD::Object*
 SvnDataSource::getObj(std::string path)
 {
 
@@ -52,7 +52,7 @@ SvnDataSource::getAttr(std::string path, std::string attrKey)
 }
 
 /* Get a set of objects */
-std::list<DbObject*>*
+std::list<BRLCAD::Object*>*
 SvnDataSource::getObjs(std::string path)
 {
 

@@ -39,14 +39,14 @@ public:
 	SvnDataSource(std::string repoPath);
 	virtual ~SvnDataSource();
 
-	/* Get a single DbObject */
-	DbObject* getObj(std::string path);
+	/* Get a single BRLCAD::Object */
+	BRLCAD::Object* getObj(std::string path);
 
 	/* Get a single Attribute of an object */
 	prop* getAttr(std::string path, std::string attrKey);
 
 	/* Get a set of objects */
-	std::list<DbObject*>* getObjs(std::string path);
+	std::list<BRLCAD::Object*>* getObjs(std::string path);
 
 	/* Get all Attributes from object */
 	std::list<prop>* getAttrs(std::string path);

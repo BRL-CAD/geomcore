@@ -49,8 +49,7 @@ public:
 
     bool handleNetMsg(NetMsg* msg);
 
-	std::string getDbObjectByURL(std::string url);
-	std::string getDbObjectByUUID(GSUuid* uuid);
+	std::string getObjectByPath(std::string url);
 
 	bool setDataSource(IDataSource* source);
 
