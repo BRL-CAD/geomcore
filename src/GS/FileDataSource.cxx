@@ -60,6 +60,13 @@ FileDataSource::getAttrs(std::string path)
 
 }
 
+/* Put a single DbObject */
+bool
+FileDataSource::putObj(std::string path, DbObject* obj)
+{
+
+}
+
 bool
 FileDataSource::init()
 {

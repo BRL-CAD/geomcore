@@ -35,6 +35,11 @@ class FileDataSource : public IDataSource
 public:
 	FileDataSource(std::string repoPath);
 	virtual ~FileDataSource();
+	bool init();
+
+	/*
+	 * 'GET' ers
+	 */
 
 	/* Get a single DbObject */
 	DbObject* getObj(std::string path);
@@ -48,7 +53,12 @@ public:
 	/* Get all Attributes from object */
 	std::list<prop>* getAttrs(std::string path);
 
-	bool init();
+	/*
+	 * 'PUT' ers
+	 */
+
+	/* Put a single DbObject */
+	bool putObj(std::string path, DbObject* obj);
 
 private:
 	std::string repoPath;

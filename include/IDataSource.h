@@ -40,6 +40,9 @@ public:
 	/* Init the Datasource (If needed) */
 	virtual bool init() = 0;
 
+	/*
+	 * 'GET' ers
+	 */
 
 	/* Get a single DbObject */
 	virtual DbObject* getObj(std::string path) = 0;
@@ -52,7 +55,15 @@ public:
 
 	/* Get all Attributes from object */
 	virtual std::list<prop>* getAttrs(std::string path) = 0;
+
+	/*
+	 * 'PUT' ers
+	 */
+
+	/* Put a single DbObject */
+	virtual bool putObj(std::string path, DbObject* obj) = 0;
 };
+
 
 #endif /* __IDATASOURCE_H__ */
 
