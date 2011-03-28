@@ -1,2 +1,0 @@
-This directory contains the header files of BRL-CAD's core C++ interface. They are intended to be installed in the /usr/include/brlcad directory.
-These files are intended as a replacement for the C interface header files around raytrace.h for external applications.
