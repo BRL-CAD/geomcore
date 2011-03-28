@@ -68,9 +68,11 @@ FileDataSource::init()
 	/* 0 == exists */
 	if (bu_file_readable(this->repoPath.c_str()) != 0)
 		return false;
+	Logger::getInstance()->logINFO("FileDataSource", this->repoPath + " is readable.");
 
 	if (bu_file_writable(this->repoPath.c_str()) != 0)
 		return false;
+	Logger::getInstance()->logINFO("FileDataSource", this->repoPath + " is writable.");
 
 	return true;
 }
