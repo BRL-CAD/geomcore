@@ -171,6 +171,13 @@ DataManager::init(Config* c)
 
 		log->logINFO("DataManager", "FileDataSouce being used.");
 		FileDataSource* fds = new FileDataSource(fRepoPath);
+
+		if (fds->init() == false) {
+			log->logERROR("DataManager", "FileDataSouce could not read/write to the path supplied by the 'FileRepoPath' config value.  Please check the existance and permissions of this path.");
+			delete fds;
+			return false;
+		}
+
 		this->setDataSource(fds);
 		return true;
 
