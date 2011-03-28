@@ -32,7 +32,7 @@
 #define GSDR      0x0150 /*Disconnect Request*/
 #define GSNNNET	  0x0200 /*New Node on Network*/
 #define GSFNLR    0x0250 /*Full Nodename List Request (Not implemented yet)*/
-#define GSFNL     0x0255 /*Full Nodename List (Not implemented yet)*/ 
+#define GSFNL     0x0255 /*Full Nodename List (Not implemented yet)*/
 #define GSNSR     0x0300 /*New Session Request*/
 #define GSINFO    0x0305 /*Session Information*/
 #define GSGR      0x0400 /*Geometry Request*/
@@ -192,6 +192,7 @@ print_packet(char *buf, int len)
     unsigned char sbuf[BUFSIZ];
     int slen, type, i;
 
+    printf("Read %d byte\n", len);
     printf("\tMagic: 0x%X\n", ntohl(*(uint32_t*)buf)); buf+=4; len-4;
     printf("\tlength: %d\n", ntohl(*(uint32_t*)buf)); buf+=4; len-4;
 
@@ -234,8 +235,16 @@ print_packet(char *buf, int len)
 	    printf("\tpayload(%d):\t", slen);
 	    printf("%s\n", sbuf);
 	    break;
+	case GSPING:
+	case GSPONG:
+	    {
+		uint64_t t;
+		t = ntohll(*(uint64_t*)buf); buf+=8; len-=8;
+		printf("\ttime:\t%llu\n", t);
+	    }
+	    break;
 	default:
-	    printf("payload:\t");
+	    printf("\tpayload:\t");
 	    for(i=0;i<len;i++)
 		printf("%02X ", buf[i]&0xff);
 	    buf+=len; len=0;
@@ -309,7 +318,7 @@ main(int argc, char **argv)
     len = make_ping(buf);
     printf("Sending a ping packet:\n");
     print_packet(buf, len);
-    if(write(sock, buf, len) != len) 
+    if(write(sock, buf, len) != len)
 	perror("Writing ping to socket\n");
 
     /* recv ping response, print results */
@@ -318,10 +327,11 @@ main(int argc, char **argv)
     print_packet(buf, len);
 
     /* send disconnect */
+    printf("Sending disconnect request\n");
     len = make_disconnect(buf);
+    print_packet(buf, len);
     if(write(sock, buf, len) != len)
-	perror("Writting disconnect to socket\n");
-    /* no disc ack */
+	perror("Writing disconnect to socket\n");
 
     sleep(3);
 
