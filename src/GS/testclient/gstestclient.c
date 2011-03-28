@@ -39,6 +39,29 @@
 #define GSGM      0x0405 /*Geometry Manifest*/
 #define GSGC      0x0410 /*Geometry Chunk*/
 
+char *
+typename(int type) {
+    switch(type) {
+	case GSRUALIVE: return "GSRUALIVE";
+	case GSIMALIVE: return "GSIMALIVE";
+	case GSFAIL: return "GSFAIL";
+	case GSOK: return "GSOK";
+	case GSPING: return "GSPING";
+	case GSPONG: return "GSPONG";
+	case GSRNNSET: return "GSRNNSET";
+	case GSDR: return "GSDR";
+	case GSNNNET: return "GSNNNET";
+	case GSFNLR: return "GSFNLR";
+	case GSFNL: return "GSFNL";
+	case GSNSR: return "GSNSR";
+	case GSINFO: return "GSINFO";
+	case GSGR: return "GSGR";
+	case GSGM: return "GSGM";
+	case GSGC: return "GSGC";
+	default: return "Unknown";
+    }
+}
+
 size_t
 make_uuid(char *buf) {
     uuid_t *msguuid;
@@ -119,11 +142,12 @@ make_disconnect(char *buf) {
 int
 print_packet(char *buf, int len)
 {
-    char sbuf[BUFSIZ];
-    int slen;
+    unsigned char sbuf[BUFSIZ];
+    int slen, type, i;
     printf("\tMagic: 0x%X\n", ntohl(*(uint32_t*)buf)); buf+=4; len-=4;
     printf("\tlength: %d\n", ntohl(*(uint32_t*)buf)); buf+=4; len-=4;
-    printf("\ttype  : 0x%X\n", ntohs(*(uint16_t*)buf)); buf+=2; len-=2;
+    type = ntohs(*(uint16_t*)buf); buf+=2; len-=2;
+    printf("\ttype  : 0x%X %s\n", type, typename(type));
     slen = ntohl(*(uint32_t*)buf); buf+=4; len-=4;
     memcpy(sbuf, buf, slen); buf[slen] = 0;
     buf += slen; len -= slen;
@@ -139,12 +163,23 @@ print_packet(char *buf, int len)
 	buf++;  len--;
 	printf("\tno reuuid\n");
     }
-    slen = ntohl(*(uint32_t*)buf); buf+=4; len-=4;
-    memset(sbuf, 0, BUFSIZ);
-    memcpy(sbuf, buf, slen); buf[slen] = 0;
-    buf += slen; len -= slen;
-    printf("\tpayload(%d): %s\n", slen, sbuf);
-    printf("\tleft: %d\n", len);
+    switch(type) {
+	case GSRNNSET:
+	    slen = ntohl(*(uint32_t*)buf); buf+=4; len-=4;
+	    memset(sbuf, 0, BUFSIZ);
+	    memcpy(sbuf, buf, slen); buf[slen] = 0;
+	    buf += slen; len -= slen;
+	    printf("payload(%d):\t", slen);
+	    printf("%s\n", sbuf);
+	    break;
+	default:
+	    printf("payload:\t");
+	    for(i=0;i<len;i++)
+		printf("%02X ", buf[i]&0xff);
+	    buf+=len; len=0;
+	    printf("\n");
+	    break;
+    }
     return 0;
 }
 
@@ -202,6 +237,8 @@ main(int argc, char **argv)
 
     /* send ping */
     len = make_ping(buf);
+    printf("Sending a ping packet:\n");
+    print_packet(buf, len);
     if(write(sock, buf, len) != len) 
 	perror("Writing to socket\n");
 
