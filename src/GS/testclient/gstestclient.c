@@ -84,10 +84,37 @@ APPEND(ll, uint64_t, htonll);
 int
 append_str(char **buf, char *str) {
     int len = strlen(str);
-    append_long(buf, strlen(str));
+    append_long(buf, len);
     strcpy((char *)*buf, str);
     (*buf)+=len;
     return len+4;
+}
+
+/* generate a login request in the provided (and allocated) buff. */
+int
+make_login(char *buf, char *username, char *password) {
+    char uuid[40];
+    int len = 0;
+    char *bufp = buf;
+
+    memset(buf, 0, BUFSIZ);
+    make_uuid(uuid);
+
+
+    /* pkg header */
+    len += append_long(&bufp, GS_MAGIC);
+    bufp += 4; len += 4;
+
+    /* GS header */
+    len += append_shrt(&bufp, GSNSR);
+    len += append_str(&bufp, uuid);
+    len += append_byte(&bufp, 0);	/* no response uuid */
+    len += append_str(&bufp, username);
+    len += append_str(&bufp, password);
+
+    bufp = buf + 4;
+    append_long(&bufp, len);
+    return len;
 }
 
 /* generate a ping request in the provided (and allocated) buff. */
@@ -149,7 +176,7 @@ print_packet(char *buf, int len)
     type = ntohs(*(uint16_t*)buf); buf+=2; len-=2;
     printf("\ttype  : 0x%X %s\n", type, typename(type));
     slen = ntohl(*(uint32_t*)buf); buf+=4; len-=4;
-    memcpy(sbuf, buf, slen); buf[slen] = 0;
+    memcpy(sbuf, buf, slen); sbuf[slen] = 0;
     buf += slen; len -= slen;
     printf("\tuuid(%d): %s\n", slen, sbuf);
     if(*buf) {
@@ -163,11 +190,23 @@ print_packet(char *buf, int len)
 	buf++;  len--;
 	printf("\tno reuuid\n");
     }
+
     switch(type) {
+	case GSNSR:
+	    slen = ntohl(*(uint32_t*)buf); buf+=4; len-=4;
+	    memcpy(sbuf, buf, slen); sbuf[slen] = 0;
+	    buf += slen; len -= slen;
+	    printf("\tusername(%d):\t%s\n", slen, sbuf);
+	    slen = ntohl(*(uint32_t*)buf); buf+=4; len-=4;
+	    memcpy(sbuf, buf, slen); sbuf[slen] = 0;
+	    buf += slen; len -= slen;
+	    printf("\tpassword(%d):\t%s\n", slen, sbuf);
+	    printf("%s\n", sbuf);
+	    break;
 	case GSRNNSET:
 	    slen = ntohl(*(uint32_t*)buf); buf+=4; len-=4;
 	    memset(sbuf, 0, BUFSIZ);
-	    memcpy(sbuf, buf, slen); buf[slen] = 0;
+	    memcpy(sbuf, buf, slen); sbuf[slen] = 0;
 	    buf += slen; len -= slen;
 	    printf("payload(%d):\t", slen);
 	    printf("%s\n", sbuf);
@@ -180,6 +219,8 @@ print_packet(char *buf, int len)
 	    printf("\n");
 	    break;
     }
+    if(len != 0)
+	printf("Remainding garbage: %d\n", len);
     return 0;
 }
 
@@ -234,13 +275,24 @@ main(int argc, char **argv)
 	goto EXIT;
     }
 
+    len = make_login(buf, "Guest", "Guest");
+    print_packet(buf, len);
+    if(write(sock, buf, len) != len)
+	perror("Writing login to socket\n");
+
+    /* recv login response, print results */
+    /*
+    printf("Reading login response\n");
+    len = read(sock, buf, BUFSIZ);
+    print_packet(buf, len);
+    */
 
     /* send ping */
     len = make_ping(buf);
     printf("Sending a ping packet:\n");
     print_packet(buf, len);
     if(write(sock, buf, len) != len) 
-	perror("Writing to socket\n");
+	perror("Writing ping to socket\n");
 
     /* recv ping response, print results */
     printf("Reading ping response\n");
