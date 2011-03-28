@@ -74,6 +74,14 @@ make_uuid(char *buf) {
     return len;
 }
 
+uint64_t
+getbigtime()
+{
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec * 1e6 + tv.tv_usec;
+}
+
 #define APPEND(name, type, func) int append_##name(char **buf, type val) { *(type*)*buf = func(val); (*buf)+=sizeof(type); return sizeof(type); }
 APPEND(byte, uint8_t, );
 APPEND(shrt, uint16_t, htons);
@@ -147,12 +155,8 @@ make_ping(char *buf) {
     char uuid[40];
     int len = 0;
     char *bufp = buf;
-    struct timeval tv;
-    uint64_t t;	/* timestamp */
 
     make_uuid(uuid);
-    gettimeofday(&tv, NULL);
-    t = tv.tv_sec * 1e6 + tv.tv_usec;
 
     /* pkg header */
     len += append_long(&bufp, GS_MAGIC);
@@ -162,7 +166,7 @@ make_ping(char *buf) {
     len += append_shrt(&bufp, GSPING);
     len += append_str(&bufp, uuid);
     len += append_byte(&bufp, 0);	/* no response uuid */
-    len += append_ll(&bufp, t);
+    len += append_ll(&bufp, getbigtime());
 
     bufp = buf + 4;
     append_long(&bufp, len-8);
@@ -236,12 +240,10 @@ print_packet(char *buf, int len)
 	    printf("%s\n", sbuf);
 	    break;
 	case GSPING:
+	    printf("\tsend time:\t%llu microseconds\n", ntohll(*(uint64_t*)buf)); buf+=8; len-=8;
+	    break;
 	case GSPONG:
-	    {
-		uint64_t t;
-		t = ntohll(*(uint64_t*)buf); buf+=8; len-=8;
-		printf("\ttime:\t%llu\n", t);
-	    }
+	    printf("\tdelta time:\t%llu microseconds\n", getbigtime()-ntohll(*(uint64_t*)buf)); buf+=8; len-=8;
 	    break;
 	default:
 	    printf("\tpayload:\t");
