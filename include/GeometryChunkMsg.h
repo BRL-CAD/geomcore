@@ -32,10 +32,10 @@ class GeometryChunkMsg : public GenericMultiByteMsg
 {
 public:
 	/* Normal Constructor */
-	GeometryChunkMsg(char* dataIn, uint32_t dataInLen);
+	GeometryChunkMsg(std::string path, char* dataIn, uint32_t dataInLen);
 
 	/* Reply Constructor */
-	GeometryChunkMsg(NetMsg* msg, char* dataIn, uint32_t dataInLen);
+	GeometryChunkMsg(NetMsg* msg, std::string path, char* dataIn, uint32_t dataInLen);
 
 	/* Deserializing Constructor */
 	GeometryChunkMsg(DataStream* ds, Portal* origin);
@@ -43,7 +43,15 @@ public:
 	/* Destructor */
 	virtual ~GeometryChunkMsg();
 
+	virtual bool _serialize(DataStream* ds);
+	virtual bool _equals(const NetMsg& msg);
+
+	std::string toString();
+	std::string getPath();
+
 private:
+	std::string path;
+
 	/* Disable copy cstr and =operator */
 	GeometryChunkMsg(GeometryChunkMsg const&):GenericMultiByteMsg(0,NULL){};
 	GeometryChunkMsg& operator=(GeometryChunkMsg const&){};

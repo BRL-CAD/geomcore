@@ -28,23 +28,78 @@
 #include <sstream>
 
 /* Normal Constructor */
-GeometryChunkMsg::GeometryChunkMsg(char* dataIn, uint32_t dataInLen) :
-    GenericMultiByteMsg(GEOMETRYCHUNK, dataIn, dataInLen)
+GeometryChunkMsg::GeometryChunkMsg(std::string path, char* dataIn, uint32_t dataInLen) :
+    GenericMultiByteMsg(GEOMETRYCHUNK, dataIn, dataInLen), path(path)
 {}
 
 /* Reply Constructor */
-GeometryChunkMsg::GeometryChunkMsg(NetMsg* msg, char* dataIn, uint32_t dataInLen) :
-	GenericMultiByteMsg(GEOMETRYCHUNK, msg, dataIn, dataInLen)
+GeometryChunkMsg::GeometryChunkMsg(NetMsg* msg, std::string path, char* dataIn, uint32_t dataInLen) :
+	GenericMultiByteMsg(GEOMETRYCHUNK, msg, dataIn, dataInLen), path(path)
 {}
 
 /* Deserializing Constructor */
 GeometryChunkMsg::GeometryChunkMsg(DataStream* ds, Portal* origin) :
     GenericMultiByteMsg(ds, origin)
-{}
+{
+	this->path = ds->getString()->c_str();
+}
 
 /* Destructor */
 GeometryChunkMsg::~GeometryChunkMsg()
 {}
+
+std::string
+GeometryChunkMsg::getPath()
+{
+	return this->path;
+}
+
+
+bool
+GeometryChunkMsg::_serialize(DataStream* ds)
+{
+	GenericMultiByteMsg::_serialize(ds);
+    ds->putString(this->path);
+    return true;
+}
+
+std::string
+GeometryChunkMsg::toString()
+{
+    char buf[BUFSIZ];
+    std::string out;
+
+    snprintf(buf, BUFSIZ, "%s\t dataLen: '%d'\t data: ", NetMsg::toString().c_str(), this->dataLen);
+    out.assign(buf);
+
+    for (uint32_t i = 0; i < this->dataLen; ++i) {
+        snprintf(buf, BUFSIZ, "%d, ", this->data[i]);
+	out.append(buf);
+    }
+
+    out.append(" Path: ");
+    out.append(this->path);
+
+    return out;
+}
+
+bool
+GeometryChunkMsg::_equals(const NetMsg& msg)
+{
+	GeometryChunkMsg& gmsg = (GeometryChunkMsg&) msg;
+
+    if (this->getDataLen() != gmsg.getDataLen())
+	    return false;
+
+    for (uint32_t i = 0; i < gmsg.getDataLen(); ++i)
+		if (this->getData()[i] != gmsg.getData()[i])
+			return false;
+
+    if (this->path != gmsg.path)
+    	return false;
+
+    return true;
+}
 
 /*
  * Local Variables:

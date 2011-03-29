@@ -175,10 +175,10 @@ int main(int argc, char* argv[]) {
 	char* data09 = (char*) s09.c_str();
 
 	/* Test Normal */
-	GeometryChunkMsg msg091(data09, s09.length());
+	GeometryChunkMsg msg091("path/to/file.g", data09, s09.length());
 	testMsg(&msg091, "GeometryChunkMsg-Normal");
 	/* Test Reply */
-	GeometryChunkMsg msg092(&msg091, data09, s09.length());
+	GeometryChunkMsg msg092(&msg091, "path/to/file.g", data09, s09.length());
 	testMsg(&msg092, "GeometryChunkMsg-Reply");
 
 	/* Test Normal */
