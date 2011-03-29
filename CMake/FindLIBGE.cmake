@@ -25,19 +25,19 @@
 # 	Once done, this will define:
 #
 #  	LIBGE_FOUND - system has LibGE
-#  	LIBGE_INCLUDE_DIRS - the BRL-CAD include directories
-#  	LIBGE_LIBRARIES - link these to use the BRL-CAD Libraries
+#  	LIBGE_INCLUDE_DIR - the LIBGE include directory
+#  	LIBGE_LIBRARIES - link these to use the LIBGE Libraries
 #
 #     LIBGE_GE_LIBRARY - The Geometry Engine library
 # 
 #########################################################################
 
-SET(LIBGE_HEADERS_DIR_CANDIDATES 
+SET(LIBGE_INCLUDE_DIR_CANDIDATES 
 	/usr/brlcad/include 
 	/usr/local/brlcad/include
 	${LIBGE_BASE_DIR}/include
 )
-FIND_PATH(LIBGE_HEADERS_DIR NAMES brlcad/GeometryEngine.h PATHS ${LIBGE_HEADERS_DIR_CANDIDATES})
+FIND_PATH(LIBGE_INCLUDE_DIR NAMES brlcad/GeometryEngine.h PATHS ${LIBGE_INCLUDE_DIR_CANDIDATES})
 
 SET(LIBGE_LIB_DIR_CANDIDATES 
 	/usr/brlcad/lib 
