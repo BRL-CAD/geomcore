@@ -95,12 +95,6 @@ FileDataSource::getAttrs(std::string path)
 bool
 FileDataSource::putObj(std::string path, BRLCAD::Object* obj)
 {
-	//Check for lock:
-	if (std::find(this->locks.begin(), this->locks.end(), path) != this->locks.end()) {
-		//locked, send failure
-		return false;
-	}
-
 	BRLCAD::MemoryDatabase md;
 
 	if (!md.Add(*obj))
