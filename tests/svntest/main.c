@@ -11,9 +11,8 @@
 
 #include "svn_pools.h"
 #include "svn_path.h"
-#include "svn_repos.h"
 #include "svn_fs.h"
-#include "svn_ra.h"
+#include "svn_repos.h"
 
 #include "bu.h"
 #include "vmath.h"
@@ -85,8 +84,6 @@ main(int argc, const char *argv[])
   svn_fs_txn_t *txn;
   svn_fs_root_t *txn_root;
  
-  svn_ra_session_t *ra_session; 
-  
   apr_status_t apr_err;
   apr_allocator_t *allocator;
   apr_pool_t *pool;
@@ -204,6 +201,7 @@ main(int argc, const char *argv[])
   printf("committed files: %d sec\n", tdiff);
   t0 = time(NULL);
 
+
    /* make staging area */
   char *staging_area= "./GS_staging";
   const char *full_staging_area= svn_path_canonicalize(staging_area, pool);
@@ -245,29 +243,47 @@ main(int argc, const char *argv[])
   bu_vls_free(&ainfo.svn_file);
   db_close(ainfo.dbip);
 
-#if 0
-  /* Re-assemble .g files using svn_ra.  I don't fully understand all the tradeoffs
-   * yet but svn_ra or some other higher level is likely to be necessary 
-   * for robustness */
-  svn_ra_initialize (pool);
-  svn_ra_open3(&ra_session, full_path, NULL, NULL, NULL, NULL, pool);
-  svn_ra_get_dir2(ra_session, &objects, NULL, NULL, model_name, SVN_INVALID_REVNUM, SVN_DIRENT_ALL, pool);
-  /* note that apr_hash_do apparently requires a newer apr than that in OSX 10.5 */
-  apr_hash_do(concat_obj, &ainfo, objects);
-#endif 
-
-  
-
   /* time for reassembly */
   t1 = time(NULL);
   tdiff = (int)difftime(t1,t0);
   printf("reassemble .g file: %d sec\n", tdiff);
   t0 = time(NULL);
 
-  /* time for reassembly */
+  /* total time */
   tdiff = (int)difftime(t0,tb);
   printf("total delta: %d sec\n", tdiff);
 
+  svn_fs_youngest_rev(&youngest_rev, fs, pool);
+  svn_repos_fs_begin_txn_for_commit2(&txn, repos, youngest_rev, apr_hash_make(pool), pool);
+  svn_fs_txn_root(&txn_root, txn, pool);
+  bu_vls_sprintf(&filepath, "%s/%s", model_name, "TESTFILE");
+  svn_fs_make_file (txn_root, bu_vls_addr(&filepath), pool);
+  char *testcontents = "test1";
+  apr_size_t length = strlen(testcontents);
+  svn_fs_apply_text (&rt_data_stream, txn_root, bu_vls_addr(&filepath), NULL, pool);
+  svn_stream_write(rt_data_stream, (const char *)testcontents, &length);
+  svn_stream_close(rt_data_stream);
+  svn_repos_fs_commit_txn(NULL, repos, &youngest_rev, txn, pool);
+
+  const svn_delta_editor_t *editor;
+  void *edit_baton;
+  char *user = "testuser";
+  char *logmsg = "testlogmsg";
+
+  svn_fs_youngest_rev(&youngest_rev, fs, pool);
+  svn_repos_fs_begin_txn_for_commit2(&txn, repos, youngest_rev, apr_hash_make(pool), pool);
+  svn_repos_get_commit_editor4(&editor, &edit_baton, repos, txn, full_path, NULL, user, logmsg, NULL, NULL, NULL, NULL, pool);
+  svn_fs_txn_root(&txn_root, txn, pool);
+  bu_vls_sprintf(&filepath, "%s/%s", model_name, "TESTFILE");
+  char *testcontents2 = "test2";
+  svn_fs_apply_text (&rt_data_stream, txn_root, bu_vls_addr(&filepath), NULL, pool);
+  svn_stream_write(rt_data_stream, (const char *)testcontents2, &length);
+  svn_stream_close(rt_data_stream);
+  editor->close_edit;
+
+
+
+ 
   /* run g_diff */
   bu_vls_init(&vstr);
   bu_vls_sprintf(&vstr, "./GS_staging/%s", model_name);
