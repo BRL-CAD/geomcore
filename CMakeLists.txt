@@ -151,6 +151,9 @@ find_package(BRLCAD REQUIRED)
 # If BRL-CAD doesn't provide TCL, we need to find it
 find_package(TCL REQUIRED)
 
+#Libge is required!
+find_package(LIBGE REQUIRED)
+
 # Always include the toplevel include dir
 include_directories(
 	${GEOMCORE_SOURCE_DIR}/include

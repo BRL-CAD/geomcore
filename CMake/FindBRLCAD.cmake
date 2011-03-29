@@ -194,7 +194,6 @@ SET(BRL-CAD_LIBS_SEARCH_LIST
 	termio
 	tie
 	wdb
-	ge
 )
 
 FOREACH(brl_lib ${BRL-CAD_LIBS_SEARCH_LIST})
