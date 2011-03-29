@@ -29,10 +29,11 @@
 include_directories( 
     ${TCL_INCLUDE_DIRS}
     ${BRLCAD_INCLUDE_DIRS}
+    ${LIBGE_INCLUDE_DIR}
 )
 
 add_executable(gsTest GeometryServiceTest.cxx)
-target_link_libraries(gsTest libgeomserv libNet ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY})
+target_link_libraries(gsTest libgeomserv libNet ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY} ${LIBGE_GE_LIBRARY})
 
 add_executable(fileDataSourceTest FileDataSourceTest)
 target_link_libraries(fileDataSourceTest libgeomserv ${BRLCAD_LIBRARIES})
