@@ -78,9 +78,10 @@ FileDataSource::getObjs(std::string path)
 
 	std::list<BRLCAD::Object*>* objs = new std::list<BRLCAD::Object*>();
 
-	while (it.Good())
+	while (it.Good()) {
 		objs->push_back(md.Get(it.Name()));
-
+		++it;
+	}
 	return objs;
 }
 
