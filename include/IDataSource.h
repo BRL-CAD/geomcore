@@ -61,7 +61,7 @@ public:
 	 */
 
 	/* Put a single DbObject */
-	virtual bool putObj(std::string path, BRLCAD::Object* obj) = 0;
+	virtual bool putObj(std::string path, BRLCAD::Object& obj) = 0;
 };
 
 

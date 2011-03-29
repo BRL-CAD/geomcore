@@ -58,7 +58,7 @@ public:
 	 */
 
 	/* Put a single BRLCAD::Object */
-	bool putObj(std::string path, BRLCAD::Object* obj);
+	bool putObj(std::string path, BRLCAD::Object& obj);
 
 private:
 	std::string repoPath;

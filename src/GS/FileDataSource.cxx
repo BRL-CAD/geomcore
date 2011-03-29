@@ -70,7 +70,6 @@ FileDataSource::getObjs(std::string path)
 	std::string fullPath(this->repoPath + "/" + path);
 
 	if (!md.Load(fullPath.c_str()))
-
 		return NULL;
 
 	BRLCAD::ConstDatabase::TopObjectIterator it = md.FirstTopObject();
@@ -94,15 +93,19 @@ FileDataSource::getAttrs(std::string path)
 
 /* Put a single BRLCAD::Object */
 bool
-FileDataSource::putObj(std::string path, BRLCAD::Object* obj)
+FileDataSource::putObj(std::string path, BRLCAD::Object& obj)
 {
+	std::string fullPath(this->repoPath + "/" + path);
+
 	BRLCAD::MemoryDatabase md;
 
-	if (!md.Add(*obj))
+	//Try to load
+	md.Load(fullPath.c_str());
+
+	if (!md.Add(obj))
 		return false;
 
-
-	if (!md.Save(path.c_str()))
+	if (!md.Save(fullPath.c_str()))
 		return false;
 
 	return true;
