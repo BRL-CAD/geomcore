@@ -25,24 +25,54 @@
 
 #include "FileDataSource.h"
 #include "brlcad/Object.h"
+#include "brlcad/Arb8.h"
 
+std::string testPathFile("/awesome/test.g");
+
+void testGetters(FileDataSource* fds);
 
 int main(int argc, char* argv[])
 {
-	FileDataSource fds("./testdir");
-	fds.init();
+	std::cout << "***Testing FDS at:" << testPathFile << "***\n" << std::endl;
 
-	BRLCAD::Object* obj = fds.getObj("/awesome/test.g");
+	FileDataSource* fds = new FileDataSource("./testdir");
+	fds->init();
 
-	if (obj == NULL) {
-		std::cout << "Object is NULL" << std::endl;
-	} else {
-		std::cout << "Object has a name of: "<< obj->Name() << std::endl;
-	}
+	testGetters(fds);
 
 
+
+
+	delete fds;
     return 0;
 }
+
+void testGetters(FileDataSource* fds)
+{
+	std::cout << "***Testing getObj()***" << std::endl;
+	BRLCAD::Object* obj = fds->getObj(testPathFile);
+
+	if (obj == NULL) {
+		std::cout << "getObj() returned NULL" << std::endl;
+	} else {
+		std::cout << "getObj() returned an object named: "<< obj->Name() << std::endl;
+	}
+
+	obj->Destroy();
+
+	std::cout << "***Testing getObjs()***" << std::endl;
+	std::list<BRLCAD::Object*>* objects = fds->getObjs(testPathFile);
+
+	for(std::list<BRLCAD::Object*>::iterator it = objects->begin();
+	    it != objects->end(); it++)
+	{
+		obj = *it;
+	    std::cout << "\t" << obj->Name() << std::endl;
+	}
+
+	std::cout << "***End Testing***" << std::endl;
+}
+
 
 // Local Variables: ***
 // mode: C++ ***
