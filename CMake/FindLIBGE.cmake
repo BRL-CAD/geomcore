@@ -35,11 +35,9 @@
 SET(LIBGE_HEADERS_DIR_CANDIDATES 
 	/usr/brlcad/include 
 	/usr/local/brlcad/include
-	/usr/brlcad/include/brlcad 
-	/usr/local/brlcad/include/brlcad
 	${LIBGE_BASE_DIR}/include
 )
-FIND_PATH(LIBGE_HEADERS_DIR NAMES GeometryEngine.h PATHS ${LIBGE_HEADERS_DIR_CANDIDATES})
+FIND_PATH(LIBGE_HEADERS_DIR NAMES brlcad/GeometryEngine.h PATHS ${LIBGE_HEADERS_DIR_CANDIDATES})
 
 SET(LIBGE_LIB_DIR_CANDIDATES 
 	/usr/brlcad/lib 
