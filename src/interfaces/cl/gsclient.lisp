@@ -84,6 +84,9 @@
 	  ((= type +gsok+) (make-instance 'okmsg))
 	  ((= type +gsrualive+) (writemsg s (make-instance 'imalivemsg))) ; automatically respond to rualive 
 	  ((= type +gsimalive+) (make-instance 'imalivemsg))
+	  ((= type +gsgr+) (make-instance 'geomreqmsg :uri (readgsstring (strm s))))
+	  ((= type +gsgm+) (make-instance 'geommanifestreq :manifest (loop for i from 0 to (readuint32 (strm s)) collect (readgsstring (strm s)))))
+	  ((= type +gsgc+) ())
 	  (t (format t "Unknown type! ~x~%" type))))
       '()))
 
@@ -132,6 +135,19 @@
 
 (defclass failmsg (message) ())
 (defmethod writemsg :before (s (m logoutmsg)) (setf (msgtype m) +gsfail+))
+
+(defclass geomreqmsg (message) ((uri :accessor uri :initarg :uri :initform "")))
+(defmethod writemsg :before (s (m geomreqmsg)) (setf (msgtype m) +gsgr+) (setf (len m) (+ (length (uri m)) 4)))
+(defmethod writemsg :after (s (m geomreqmsg)) (writegsstring (strm s) (uri m)))
+
+(defclass geommanifestmsg (message) ((manifest :accessor manifest :initarg :manifest)))
+(defmethod writemsg :before (s (m geommanifestmsg)) 
+  (setf (msgtype m) +gsgm+)
+  (setf (len m) (apply #'+ 4 (mapcar (lambda (x) (+ (length x) 4)) (manifest m)))))
+(defmethod writemsg :after (s (m geomreqmsg)) (writeuint32 (strm s) (length (manifest m))) 
+	   (loop for i in (manifest m) do (writegsstring (strm s) i)))
+
+(defclass geomchunkmsg (message) ((chunk :accessor chunk :initarg :chunk)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;  public interface  ;;;;;;;;;;;;;;;;;;;;;;;;
