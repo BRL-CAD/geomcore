@@ -38,37 +38,26 @@ SvnDataSource::~SvnDataSource()
 {}
 
 
-/* Get a single BRLCAD::Object */
-BRLCAD::Object*
+/* Get a single bu_external */
+bu_external*
 SvnDataSource::getObj(std::string path)
 {
 
 }
 
 
-/* Get a single Attribute of an object */
-prop*
-SvnDataSource::getAttr(std::string path, std::string attrKey)
-{
-
-}
-
-
-/* Get a set of objects */
-std::list<BRLCAD::Object*>*
+/* Get a set of bu_externals */
+std::list<bu_external*>*
 SvnDataSource::getObjs(std::string path)
 {
 
 }
 
-
-/* Get all Attributes from object */
-std::list<prop>*
-SvnDataSource::getAttrs(std::string path)
+bool
+SvnDataSource::putObj(std::string path, bu_external* ext)
 {
 
 }
-
 
 /*
  * Local Variables:
