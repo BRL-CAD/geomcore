@@ -266,8 +266,9 @@ main(int argc, const char *argv[])
   svn_repos_fs_commit_txn(NULL, repos, &youngest_rev, txn, pool);
 
   const svn_delta_editor_t **editor = bu_malloc(sizeof(svn_delta_editor_t), "delta editor");
-  struct file_baton **file_baton = bu_malloc(sizeof(file_baton), "file baton");
-  void *edit_baton, *root_baton;
+  void *edit_baton, *root_baton, *file_baton, *handler_baton;
+  svn_txdelta_window_handler_t handler;
+  svn_stream_t *contents;
   char *user = "testuser";
   char *logmsg = "testlogmsg";
 
@@ -277,17 +278,12 @@ main(int argc, const char *argv[])
   bu_vls_sprintf(&filepath, "%s", "TESTFILE");
   (*editor)->delete_entry(bu_vls_addr(&filepath), youngest_rev, root_baton, pool);
   bu_vls_sprintf(&filepath, "%s", "TESTFILE2");
-  (*editor)->add_file(bu_vls_addr(&filepath), root_baton, NULL, youngest_rev, pool, (void **)file_baton);
+  (*editor)->add_file(bu_vls_addr(&filepath), root_baton, NULL, youngest_rev, pool, &file_baton);
+  (*editor)->apply_textdelta(file_baton, NULL, pool, &handler, &handler_baton);
+  char *testcontents2 = "test contents 2";
+  svn_string_t *teststring = svn_string_createf(pool, "%s", testcontents2);
+  svn_txdelta_send_string(teststring,  handler, handler_baton, pool);
   (*editor)->close_edit(edit_baton, pool);
-
-  /*
-  char *testcontents2 = "test2";
-  svn_fs_apply_text (&rt_data_stream, txn_root, bu_vls_addr(&filepath), NULL, pool);
-  svn_stream_write(rt_data_stream, (const char *)testcontents2, &length);
-  svn_stream_close(rt_data_stream);
-  editor->close_edit;
-  */
-
 
  
   /* run g_diff */
