@@ -27,6 +27,8 @@
 #ifndef __DATAMANAGER_H__
 #define __DATAMANAGER_H__
 
+#include "brlcad/Object.h"
+
 #include "Config.h"
 #include "INetMsgHandler.h"
 #include "IDataSource.h"
@@ -52,6 +54,9 @@ public:
 	std::string getObjectByPath(std::string url);
 
 	bool setDataSource(IDataSource* source);
+
+	static GeometryChunkMsg* objToChunk(BRLCAD::Object* obj);
+	static BRLCAD::Object* chunkToObject(GeometryChunkMsg* msg);
 
 private:
 	static DataManager* pInstance;
