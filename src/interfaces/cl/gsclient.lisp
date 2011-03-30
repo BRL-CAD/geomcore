@@ -3,7 +3,7 @@
 
 (defpackage :gsclient
   (:use :cl :sb-unix)
-  (:export :login))
+  (:export :login :logout :ping :getgeom))
 
 (in-package :gsclient)
 
@@ -86,7 +86,7 @@
 	  ((= type +gsimalive+) (make-instance 'imalivemsg))
 	  ((= type +gsgr+) (make-instance 'geomreqmsg :uri (readgsstring (strm s))))
 	  ((= type +gsgm+) (make-instance 'geommanifestreq :manifest (loop for i from 0 to (readuint32 (strm s)) collect (readgsstring (strm s)))))
-	  ((= type +gsgc+) ())
+	  ((= type +gsgc+) (make-instance 'geomchunkmsg :chunk (let ((len (readuint32 (strm s)))) (loop with c = (make-array len :element-type '(unsigned-byte 8)) for i from 0 to len do (setf (aref c i) (read-byte (strm s)))))))
 	  (t (format t "Unknown type! ~x~%" type))))
       '()))
 
@@ -148,10 +148,19 @@
 	   (loop for i in (manifest m) do (writegsstring (strm s) i)))
 
 (defclass geomchunkmsg (message) ((chunk :accessor chunk :initarg :chunk)))
+(defmethod writemsg :before (s (m geomchunkmsg)) (setf (msgtype m) +gsgc+) (setf (len m) (length (chunk m))))
+(defmethod writemsg :after (s (m geomchunkmsg)) (writeuint32 (strm s) (length (chunk m))) (loop for i from 0 to (length (chunk m)) do (write-byte (aref (chunk m) i) (strm s))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;  public interface  ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun getgeom (s st uri)
+  (writemsg s (make-instance 'geomreqmsg :uri uri))
+  (let ((mfst (readmsg s)))
+    (loop for i from 0 to (length (manifest mfst)) do
+	 (let ((cm (chunk (readmsg (strm s)))))
+	   (loop for j from 0 to (length cm) do (write-byte (aref cm j) st))))))
 
 (defun ping (s)
   (writemsg s (make-instance 'pingmsg))
