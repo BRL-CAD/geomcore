@@ -19,8 +19,6 @@
  */
 /** @file geomserv.cxx
  *
- * Brief description
- *
  */
 
 #include "GeometryService.h"
@@ -33,6 +31,7 @@
 #include <stdlib.h>
 #include <algorithm>
 
+
 int gsExit(int code)
 {
     Logger* log = Logger::getInstance();
@@ -44,6 +43,7 @@ int gsExit(int code)
     usleep(1000); /* Yeild main thread, let other threads finish unlocking */
     exit(code);
 }
+
 
 int main(int argc, char* argv[])
 {
@@ -61,8 +61,8 @@ int main(int argc, char* argv[])
     /* Load configs from File */
     bool goodLoad = c->loadFile("geomserv.config", true);
 
-    if ( ! goodLoad) {
-	log->logERROR("geomserv","Failed to properly Load config File.  Exiting.");
+    if (! goodLoad) {
+	log->logERROR("geomserv", "Failed to properly Load config File.  Exiting.");
 	gsExit(1);
     }
 
@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
     /* Get Listen Port */
     uint16_t listenPort = c->getConfigValueAsUShort("ListenPort");
 
-    if (listenPort <= 0){
+    if (listenPort <= 0) {
 	log->logERROR("geomserv", "Config File does not contain a 'ListenPort' parameter, using default");
 	listenPort = DEFAULT_LISTEN_PORT;
     }
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
     /* Get Listen Addy */
     std::string listenAddy = c->getConfigValue("ListenAddress");
 
-    if (listenAddy.length() <= 0){
+    if (listenAddy.length() <= 0) {
 	log->logERROR("geomserv", "Config File does not contain a 'ListenAddress' parameter, using default");
 	listenAddy = DEFAULT_LISTEN_ADDY;
     }
@@ -103,6 +103,7 @@ int main(int argc, char* argv[])
     log->logINFO("geomserv", "Exiting...");
     return 0;
 }
+
 
 /*
  * Local Variables:

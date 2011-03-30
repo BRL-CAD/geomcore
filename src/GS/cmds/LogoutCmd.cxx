@@ -18,9 +18,6 @@
  * information.
  */
 /** @file LogoutCmd.cxx
- * LogoutCmd.cxx
- *
- *  Created on: Dec 16, 2010
  *      
  */
 
@@ -30,26 +27,35 @@
 #include "TypeOnlyMsg.h"
 #include "NetMsgTypes.h"
 
+
 LogoutCmd::LogoutCmd() : AbstractClientCmd("logout") {}
+
+
 LogoutCmd::~LogoutCmd() {}
 
+
 std::string
-LogoutCmd::getUsage() {
+LogoutCmd::getUsage()
+{
     return "Usage: logout";
 }
 
+
 std::string
-LogoutCmd::getHelp() {
+LogoutCmd::getHelp()
+{
     return "Severs the connection to the current GeometryService.";
 }
 
+
 bool
-LogoutCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
+LogoutCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
+{
     Portal* p = client->getCurrentPortal();
 
     /* Check to see if we are connected */
     if (p == NULL) {
-	this->log->logWARNING("Logout","Not connected to a Geometry Service.");
+	this->log->logWARNING("Logout", "Not connected to a Geometry Service.");
 	return false;
     }
 

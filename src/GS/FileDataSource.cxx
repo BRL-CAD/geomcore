@@ -19,98 +19,104 @@
  */
 /** @file FileDataSource.cxx
  *
- * Brief description
- *
  */
 
 #include "FileDataSource.h"
 #include "brlcad/MemoryDatabase.h"
 
-FileDataSource::FileDataSource(std::string repoPath) :
-	repoPath(repoPath)
+
+FileDataSource::FileDataSource(std::string repoPath)
+:   repoPath(repoPath)
 {}
+
 
 FileDataSource::~FileDataSource()
 {}
+
 
 /* Get a single BRLCAD::Object */
 BRLCAD::Object*
 FileDataSource::getObj(std::string path)
 {
-	BRLCAD::MemoryDatabase md;
+    BRLCAD::MemoryDatabase md;
 
-	std::string fullPath(this->repoPath + "/" + path);
+    std::string fullPath(this->repoPath + "/" + path);
 
-	if (!md.Load(fullPath.c_str()))
-		return NULL;
+    if (!md.Load(fullPath.c_str()))
+	return NULL;
 
-	BRLCAD::ConstDatabase::TopObjectIterator it = md.FirstTopObject();
-	BRLCAD::Object* obj = NULL;
+    BRLCAD::ConstDatabase::TopObjectIterator it = md.FirstTopObject();
+    BRLCAD::Object* obj = NULL;
 
-	if (it.Good()) {
-		obj = md.Get(it.Name());
-		++it;
-	}
+    if (it.Good()) {
+	obj = md.Get(it.Name());
+	++it;
+    }
 
-	return obj;
+    return obj;
 }
+
 
 /* Get a single Attribute of an object */
 prop*
 FileDataSource::getAttr(std::string path, std::string attrKey)
 {
-	return NULL;
+    return NULL;
 }
+
 
 /* Get a set of objects */
 std::list<BRLCAD::Object*>*
 FileDataSource::getObjs(std::string path)
 {
-	BRLCAD::MemoryDatabase md;
+    BRLCAD::MemoryDatabase md;
 
-	std::string fullPath(this->repoPath + "/" + path);
+    std::string fullPath(this->repoPath + "/" + path);
 
-	if (!md.Load(fullPath.c_str()))
-		return NULL;
+    if (!md.Load(fullPath.c_str()))
+	return NULL;
 
-	BRLCAD::ConstDatabase::TopObjectIterator it = md.FirstTopObject();
-	BRLCAD::Object* obj = NULL;
+    BRLCAD::ConstDatabase::TopObjectIterator it = md.FirstTopObject();
+    BRLCAD::Object* obj = NULL;
 
-	std::list<BRLCAD::Object*>* objs = new std::list<BRLCAD::Object*>();
+    std::list<BRLCAD::Object*>* objs = new std::list<BRLCAD::Object*>();
 
-	while (it.Good()) {
-		objs->push_back(md.Get(it.Name()));
-		++it;
-	}
-	return objs;
+    while (it.Good()) {
+	objs->push_back(md.Get(it.Name()));
+	++it;
+    }
+    return objs;
 }
+
 
 /* Get all Attributes from object */
 std::list<prop>*
 FileDataSource::getAttrs(std::string path)
 {
-	return NULL;
+    return NULL;
 }
+
 
 /* Put a single BRLCAD::Object */
 bool
 FileDataSource::putObj(std::string path, BRLCAD::Object& obj)
 {
-	std::string fullPath(this->repoPath + "/" + path);
+    std::string fullPath(this->repoPath + "/" + path);
 
-	BRLCAD::MemoryDatabase md;
+    BRLCAD::MemoryDatabase md;
 
-	//Try to load
-	md.Load(fullPath.c_str());
+    //Try to load
+    md.Load(fullPath.c_str());
 
-	if (!md.Add(obj))
-		return false;
+    if (!md.Add(obj))
+	return false;
 
-	if (!md.Save(fullPath.c_str()))
-		return false;
+    if (!md.Save(fullPath.c_str()))
+	return false;
 
-	return true;
+    return true;
 }
+
 
 bool
 FileDataSource::init()
@@ -128,6 +134,7 @@ FileDataSource::init()
 
     return true;
 }
+
 
 /*
  * Local Variables:

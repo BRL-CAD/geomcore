@@ -18,9 +18,6 @@
  * information.
  */
 /** @file LoginCmd.cxx
- * LoginCmd.cxx
- *
- *  Created on: Dec 16, 2010
  *      
  */
 
@@ -29,21 +26,30 @@
 #include "PortalManager.h"
 #include "NewSessionReqMsg.h"
 
-LoginCmd::LoginCmd() : AbstractClientCmd("login"){}
+
+LoginCmd::LoginCmd() : AbstractClientCmd("login") {}
+
+
 LoginCmd::~LoginCmd() {}
 
+
 std::string
-LoginCmd::getUsage() {
+LoginCmd::getUsage()
+{
     return "Usage: login ip port uname passwd";
 }
 
+
 std::string
-LoginCmd::getHelp() {
+LoginCmd::getHelp()
+{
     return "Attempts to make a connection and login to a GeometryService.";
 }
 
+
 bool
-LoginCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
+LoginCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
+{
     int argn = args.size();
 
     if (argn != 4) {
@@ -62,21 +68,21 @@ LoginCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
     std::string passwd(*it);
 
 
-    if (port <=0 || host.length() == 0 || uname.length() == 0 || passwd.length() == 0){
+    if (port <=0 || host.length() == 0 || uname.length() == 0 || passwd.length() == 0) {
 	this->printUsage();
 	return false;
     }
 
     PortalManager* pm = client->getPortMan();
 
-    if (pm == NULL)    {
+    if (pm == NULL) {
 	this->log->logERROR("LoginCmd", "NULL PortalManager, cannot connect.");
 	return false;
     }
 
     Portal* p = pm->connectToHost(host, port);
 
-    if (p == NULL)     {
+    if (p == NULL) {
 	this->log->logERROR("LoginCmd", "Failed to open new Portal, cannot connect.");
 	return false;
     }

@@ -26,35 +26,45 @@
 #include "ShutdownCmd.h"
 #include "NetMsgTypes.h"
 
-ShutdownCmd::ShutdownCmd() : AbstractClientCmd("shutdown"){}
+
+ShutdownCmd::ShutdownCmd() : AbstractClientCmd("shutdown") {}
+
+
 ShutdownCmd::~ShutdownCmd() {}
 
-std::string
-ShutdownCmd::getUsage(){
-	return "Usage: shutdown";
-}
 
 std::string
-ShutdownCmd::getHelp(){
-	return "Sends a remote shutdown command to the GS server currently attached.";
+ShutdownCmd::getUsage()
+{
+    return "Usage: shutdown";
 }
+
+
+std::string
+ShutdownCmd::getHelp()
+{
+    return "Sends a remote shutdown command to the GS server currently attached.";
+}
+
 
 bool
-ShutdownCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
-	Portal* p = client->getCurrentPortal();
+ShutdownCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
+{
+    Portal* p = client->getCurrentPortal();
 
-	/* Check to see if we are connected */
-	if (p == NULL) {
-		this->log->logERROR("ShutdownCmd","Not connected to a Geometry Service.  Cannot send Shutdown Msg.");
-		return false;
-	}
+    /* Check to see if we are connected */
+    if (p == NULL) {
+	this->log->logERROR("ShutdownCmd", "Not connected to a Geometry Service.  Cannot send Shutdown Msg.");
+	return false;
+    }
 
-	/* Send Shutdown Msg */
-	TypeOnlyMsg tom(CMD_SHUTDOWN);
-	p->send(&tom);
+    /* Send Shutdown Msg */
+    TypeOnlyMsg tom(CMD_SHUTDOWN);
+    p->send(&tom);
 
-	return true;
+    return true;
 }
+
 
 /*
  * Local Variables:

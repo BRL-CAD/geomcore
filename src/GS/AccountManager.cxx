@@ -28,7 +28,9 @@
 
 #include <cstdlib>
 
+
 AccountManager* AccountManager::pInstance = NULL;
+
 
 AccountManager::AccountManager()
 {
@@ -36,10 +38,12 @@ AccountManager::AccountManager()
     this->log = Logger::getInstance();
 }
 
+
 AccountManager::~AccountManager()
 {
     delete this->accounts;
 }
+
 
 AccountManager*
 AccountManager::getInstance()
@@ -49,6 +53,7 @@ AccountManager::getInstance()
     }
     return AccountManager::pInstance;
 }
+
 
 /**
  * returns 0 for bad login.  Positive number is the accountID
@@ -82,6 +87,7 @@ AccountManager::validateLoginCreds(std::string uname, std::string passwd)
     return -1;
 }
 
+
 Account*
 AccountManager::login(std::string uname, std::string passwd, Portal* p)
 {
@@ -103,10 +109,13 @@ AccountManager::login(std::string uname, std::string passwd, Portal* p)
     return acc;
 }
 
+
 void
-AccountManager::logout(Account* a) {
+AccountManager::logout(Account* a)
+{
     this->remAccount(a);
 }
+
 
 Account*
 AccountManager::newAccount(std::string uname, Portal* p, uint32_t id)
@@ -114,39 +123,26 @@ AccountManager::newAccount(std::string uname, Portal* p, uint32_t id)
     Account* a = NULL;
 
     //check to see if its already cached.
-#if 0    /* erm, find NULL, if NULL is not NULL, ... whu? */
+    //New
+    a = new Account(uname, p, id);
+    
+    //cache
     this->accountListLock.lock();
-
-    int index = this->accounts->indexOf(a);
-
-    if (index >= 0) {
-	a = this->accounts->at(index);
-    }
+    this->accounts->push_back(a);
     this->accountListLock.unlock();
 
-    if (a != NULL ) {
-	a->stampLastAccess();
-    } else {
-#endif
-	//New
-	a = new Account(uname, p, id);
-
-	//cache
-	this->accountListLock.lock();
-	this->accounts->push_back(a);
-	this->accountListLock.unlock();
-#if 0
-    }
-#endif
     return a;
 }
 
+
 void
-AccountManager::remAccount(Account* a) {
+AccountManager::remAccount(Account* a)
+{
     this->accountListLock.lock();
     this->accounts->remove(a); /* TODO Removes matches to mem address only, upgrade this logic. */
     this->accountListLock.unlock();
 }
+
 
 /*
  * Local Variables:

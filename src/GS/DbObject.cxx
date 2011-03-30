@@ -18,20 +18,21 @@
  * information.
  */
 /** @file DbObject.cxx
- * DbObject.cxx
- *
- *  Created on: Sep 29, 2010
  *      
  */
 
 #include "DbObject.h"
 
-DbObject::DbObject(std::string path, ByteArray* data) :
-    path(path), id(NULL), data(data)
+DbObject::DbObject(std::string path, ByteArray* data)
+:   path(path),
+    id(NULL),
+    data(data)
 {}
 
-DbObject::DbObject(GSUuid* id, ByteArray* data) :
-    path(""), id(id), data(data)
+DbObject::DbObject(GSUuid* id, ByteArray* data)
+:   path(""),
+    id(id),
+    data(data)
 {}
 
 DbObject::~DbObject()
@@ -43,17 +44,20 @@ DbObject::getPath()
     return this->path;
 }
 
+
 GSUuid*
 DbObject::getID()
 {
     return this->id;
 }
 
+
 ByteArray*
 DbObject::getData()
 {
     return this->data;
 }
+
 
 /*
  * Local Variables:

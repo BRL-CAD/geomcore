@@ -19,8 +19,6 @@
  */
 /** @file GeometryService.cxx
  *
- * Brief description
- *
  */
 
 #include "GeometryService.h"
@@ -33,7 +31,7 @@
 GeometryService::GeometryService(const std::string localNodeName,
                                  const std::string listenAddy,
                                  const uint16_t listenPort)
-                                 : ControlledThread(localNodeName)
+:   ControlledThread(localNodeName)
 {
     this->log = Logger::getInstance();
     this->log->logINFO("GeometryService", localNodeName + " is starting up...");
@@ -44,16 +42,19 @@ GeometryService::GeometryService(const std::string localNodeName,
     this->dataMan = DataManager::getInstance();
 }
 
+
 GeometryService::~GeometryService()
 {
     delete portalMan;
 }
+
 
 DataManager*
 GeometryService::getDataManager()
 {
     return this->dataMan;
 }
+
 
 void
 GeometryService::registerMsgRoutes()
@@ -75,16 +76,20 @@ GeometryService::registerMsgRoutes()
     router->registerType(GEOMETRYCHUNK, this->dataMan);
 }
 
+
 bool
-GeometryService::preRunHook() {
+GeometryService::preRunHook()
+{
     //Do init stuff here
     this->log->logINFO("GeometryService", "Running");
 
     return true;
 }
 
+
 void
-GeometryService::_run() {
+GeometryService::_run()
+{
     this->log->logINFO("GeometryService", "Starting PortalManager");
     this->portalMan->start();
 
@@ -94,13 +99,16 @@ GeometryService::_run() {
     this->portalMan->shutdown(true);
 }
 
+
 bool
-GeometryService::postRunHook() {
+GeometryService::postRunHook()
+{
     //Do teardown stuff here
     this->log->logINFO("GeometryService", "Shutdown");
 
     return true;
 }
+
 
 bool
 GeometryService::handleNetMsg(NetMsg* msg)
@@ -178,10 +186,13 @@ GeometryService::handleNetMsg(NetMsg* msg)
     return false;
 }
 
+
 std::string
-GeometryService::getLocalNodeName() {
+GeometryService::getLocalNodeName()
+{
     return this->getThreadName();
 }
+
 
 /*
  * Local Variables:

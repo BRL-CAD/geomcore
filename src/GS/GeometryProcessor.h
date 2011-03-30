@@ -30,14 +30,15 @@
 
 class GeometryProcessor {
 public:
-	static GeometryProcessor* getInstance();
-	virtual ~GeometryProcessor();
+    static GeometryProcessor* getInstance();
+    virtual ~GeometryProcessor();
 
 private:
-	static GeometryProcessor* pInstance;
+    static GeometryProcessor* pInstance;
 
-	GeometryProcessor();
+    GeometryProcessor();
 };
+
 
 #endif /* __GEOMETRYPROCESSOR_H__ */
 

@@ -28,18 +28,24 @@
 #include "GeometryProcessor.h"
 #include <GSThread.h>
 
+
 GeometryProcessor* GeometryProcessor::pInstance = NULL;
+
 
 GeometryProcessor::GeometryProcessor() {}
 
+
 GeometryProcessor::~GeometryProcessor() {}
 
+
 GeometryProcessor*
-GeometryProcessor::getInstance() {
+GeometryProcessor::getInstance()
+{
     if (!GeometryProcessor::pInstance)
 	pInstance = new GeometryProcessor();
     return GeometryProcessor::pInstance;
 }
+
 
 /*
  * Local Variables:

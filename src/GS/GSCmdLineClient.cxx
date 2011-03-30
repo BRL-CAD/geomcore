@@ -19,8 +19,6 @@
  */
 /** @file GSCmdLineClient.cxx
  *
- * Brief description
- *
  */
 
 #include "GSCmdLineClient.h"
@@ -39,7 +37,9 @@
 #include "PingCmd.h"
 #include "Portal.h"
 
+
 const std::string GSCmdLineClient::defaultPrompt ="geoclient> ";
+
 
 GSCmdLineClient::GSCmdLineClient(std::string localNodeName):GSClient(localNodeName)
 {
@@ -50,16 +50,18 @@ GSCmdLineClient::GSCmdLineClient(std::string localNodeName):GSClient(localNodeNa
     this->currentPortal = NULL;
 }
 
-GSCmdLineClient::~GSCmdLineClient() {
+
+GSCmdLineClient::~GSCmdLineClient()
+{
 }
 
 
 int
 GSCmdLineClient::run()
 {
-    this->log->logBANNER("geoclient","==================================");
-    this->log->logBANNER("geoclient","GeometryService Test/Stress Client");
-    this->log->logBANNER("geoclient","==================================");
+    this->log->logBANNER("geoclient", "==================================");
+    this->log->logBANNER("geoclient", "GeometryService Test/Stress Client");
+    this->log->logBANNER("geoclient", "==================================");
 
     std::string in;
     while (this->stayRun) {
@@ -74,7 +76,7 @@ GSCmdLineClient::run()
 	/* split string */
 	std::istringstream iss(in.c_str());
 	std::list<std::string> list;
-	do { std::string tok; iss>>tok; list.push_back(tok);} while(iss);
+	do { std::string tok; iss>>tok; list.push_back(tok);} while (iss);
 	list.pop_back(); /* remove the empty end */
 
 
@@ -98,7 +100,7 @@ GSCmdLineClient::run()
     if (this->portMan != NULL)
 	this->portMan->shutdown();
 
-    this->log->logINFO("geoclient","Exiting.");
+    this->log->logINFO("geoclient", "Exiting.");
     return 0;
 }
 
@@ -126,6 +128,7 @@ GSCmdLineClient::execCmd(std::string cmd, std::list<std::string> args)
     return acc->exec(this, args);
 }
 
+
 void
 GSCmdLineClient::registerClientCmds()
 {
@@ -138,6 +141,7 @@ GSCmdLineClient::registerClientCmds()
     this->ccReg->registerCmd(new PingCmd());
 }
 
+
 bool
 GSCmdLineClient::setCurrentPortal(Portal* p)
 {
@@ -148,11 +152,13 @@ GSCmdLineClient::setCurrentPortal(Portal* p)
     return false;
 }
 
+
 Portal*
 GSCmdLineClient::getCurrentPortal()
 {
     return this->currentPortal;
 }
+
 
 /*
  * Local Variables:

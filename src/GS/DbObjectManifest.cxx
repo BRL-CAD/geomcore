@@ -19,17 +19,18 @@
  */
 /** @file DbObjectManifest.cxx
  *
- * Brief description
- *
  */
 
 #include "DbObjectManifest.h"
 
+
 DbObjectManifest::DbObjectManifest()
 {}
 
+
 DbObjectManifest::~DbObjectManifest()
 {}
+
 
 /*
  * Local Variables:

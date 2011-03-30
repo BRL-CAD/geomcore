@@ -18,7 +18,6 @@
  * information.
  */
 /** @file GSClient.cxx
- * GSClient.cxx
  *
  */
 
@@ -29,7 +28,9 @@
 #include "FailureMsg.h"
 #include "PongMsg.h"
 
-GSClient::GSClient(std::string localNodeName) {
+
+GSClient::GSClient(std::string localNodeName)
+{
     this->log = Logger::getInstance();
     this->jobMan = JobManager::getInstance();
     this->jobMan->startup();
@@ -41,9 +42,12 @@ GSClient::GSClient(std::string localNodeName) {
     this->registerMsgRoutes();
 }
 
-GSClient::~GSClient() {
+
+GSClient::~GSClient()
+{
     delete this->portMan;
 }
+
 
 void
 GSClient::registerMsgRoutes()
@@ -56,6 +60,7 @@ GSClient::registerMsgRoutes()
     router->registerType(PING, this);
     router->registerType(PONG, this);
 }
+
 
 bool
 GSClient::handleNetMsg(NetMsg* msg)
@@ -134,11 +139,13 @@ GSClient::handleNetMsg(NetMsg* msg)
     return false;
 }
 
+
 PortalManager*
 GSClient::getPortMan()
 {
     return this->portMan;
 }
+
 
 /*
  * Local Variables:

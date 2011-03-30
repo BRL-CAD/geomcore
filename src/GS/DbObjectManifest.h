@@ -19,8 +19,6 @@
  */
 /** @file DbObjectManifest.h
  *
- * Brief description
- *
  */
 
 #ifndef __DBOBJECTMANIFEST_H__
@@ -32,16 +30,18 @@
 
 #include "GSUuid.h"
 
+
 class DbObjectManifest
 {
-    public:
-	DbObjectManifest();
-	virtual ~DbObjectManifest();
+public:
+    DbObjectManifest();
+    virtual ~DbObjectManifest();
 
-    private:
-	std::list<GSUuid*> DbObjectList;
-	std::map<GSUuid*, std::string > DbObjectMap;
+private:
+    std::list<GSUuid*> DbObjectList;
+    std::map<GSUuid*, std::string > DbObjectMap;
 };
+
 
 #endif /* __DBOBJECTMANIFEST_H__ */
 

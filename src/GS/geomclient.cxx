@@ -19,13 +19,12 @@
  */
 /** @file geomclient.cxx
  *
- * Brief description
- *
  */
 
 #include "GSClient.h"
 #include "GSCmdLineClient.h"
 #include "Config.h"
+
 
 int
 gsExit(int code)
@@ -39,6 +38,7 @@ gsExit(int code)
     usleep(1000); /* Yeild main thread, let other threads finish unlocking */
     exit(code);
 }
+
 
 int
 main(int argc, char* argv[])
@@ -56,8 +56,8 @@ main(int argc, char* argv[])
     /* Load configs from File */
     bool goodLoad = c->loadFile("geomclient.config", true);
 
-    if ( ! goodLoad) {
-	log->logERROR("geomclient","Failed to properly Load config File.  Exiting.");
+    if (! goodLoad) {
+	log->logERROR("geomclient", "Failed to properly Load config File.  Exiting.");
 	gsExit(1);
     }
 
@@ -75,6 +75,7 @@ main(int argc, char* argv[])
 
     return retVal;
 }
+
 
 /*
  * Local Variables:

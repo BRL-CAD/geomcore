@@ -19,8 +19,6 @@
  */
 /** @file Session.cxx
  *
- * Brief description
- *
  */
 
 #include "Session.h"
@@ -32,24 +30,29 @@ Session::Session(Account* a)
     this->stampLastAccess();
 }
 
+
 Session::~Session()
 {}
+
 
 GSUuid* Session::getSessionID()
 {
     return this->sessionID;
 }
 
+
 Account*  Session::getAccount()
 {
     return this->a;
 }
+
 
 void
 Session::stampLastAccess()
 {
     this->lastAccess = time (NULL);
 }
+
 
 time_t
 Session::getInactivityTime()
@@ -59,11 +62,13 @@ Session::getInactivityTime()
     return now - this->lastAccess;
 }
 
+
 SessionInfoMsg*
 Session::generateSessionInfoMsg()
 {
     return new SessionInfoMsg(this->sessionID);
 }
+
 
 /*
  * Local Variables:

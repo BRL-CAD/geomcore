@@ -18,32 +18,35 @@
  * information.
  */
 /** @file PingCmd.cxx
- * PingCmd.cxx
  *
- *  Created on: Dec 22, 2010
  */
 
 #include "Portal.h"
 #include "PingCmd.h"
 #include "PingMsg.h"
 
+
 PingCmd::PingCmd(): AbstractClientCmd("ping"){}
+
 
 PingCmd::~PingCmd() {}
 
 
 std::string
-PingCmd::getUsage(){
+PingCmd::getUsage()
+{
     return "Usage: ping";
 }
 
 std::string
-PingCmd::getHelp(){
+PingCmd::getHelp()
+{
     return "Pings the remote host.  Pong is expected in return.";
 }
 
 bool
-PingCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
+PingCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
+{
     Portal* p = client->getCurrentPortal();
 
     if (p == NULL)     {

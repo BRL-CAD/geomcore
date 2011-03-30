@@ -19,8 +19,6 @@
  */
 /** @file ClientCmdRegistry.cxx
  *
- * Brief description
- *
  */
 
 
@@ -32,32 +30,41 @@
 ClientCmdRegistry* ClientCmdRegistry::pInstance = NULL;
 
 ClientCmdRegistry*
-ClientCmdRegistry::getInstance() {
+ClientCmdRegistry::getInstance()
+{
     if (ClientCmdRegistry::pInstance == NULL) {
         ClientCmdRegistry::pInstance = new ClientCmdRegistry();
     }
     return ClientCmdRegistry::pInstance;
 }
 
-ClientCmdRegistry::ClientCmdRegistry() {
-    this->cmdMap = new std::map<std::string,AbstractClientCmd*> ();
+
+ClientCmdRegistry::ClientCmdRegistry()
+{
+    this->cmdMap = new std::map<std::string, AbstractClientCmd*> ();
     this->log = Logger::getInstance();
 }
 
-ClientCmdRegistry::~ClientCmdRegistry() {
+
+ClientCmdRegistry::~ClientCmdRegistry()
+{
     /* TODO loop thru and del all the CMDs?? */
     delete cmdMap;
 }
 
-bool ClientCmdRegistry::registerCmd(AbstractClientCmd* cmd) {
+
+bool
+ClientCmdRegistry::registerCmd(AbstractClientCmd* cmd)
+{
     std::string cmdString = cmd->getCmd();
 
     GSMutexLocker(&this->mapLock);
-    if(cmdMap->insert(std::pair<std::string,AbstractClientCmd*>(cmdString, cmd)).second != false)
+    if (cmdMap->insert(std::pair<std::string, AbstractClientCmd*>(cmdString, cmd)).second != false)
         return true;
-    this->log->logWARNING("ClientCmdRegistry","An AbstractClientCmd '" + cmdString + "' already exists in Registry.");
+    this->log->logWARNING("ClientCmdRegistry", "An AbstractClientCmd '" + cmdString + "' already exists in Registry.");
     return false;
 }
+
 
 AbstractClientCmd*
 ClientCmdRegistry::getCmd(std::string cmd)
@@ -70,16 +77,19 @@ ClientCmdRegistry::getCmd(std::string cmd)
     return this->cmdMap->find(cmd)->second;
 }
 
+
 std::list<std::string>*
-ClientCmdRegistry::getListOfCmds() {
+ClientCmdRegistry::getListOfCmds()
+{
     GSMutexLocker(&this->mapLock);
 
     std::list<std::string>* keys = new std::list<std::string>();
-    for(std::map<std::string,AbstractClientCmd*>::iterator it=cmdMap->begin(); it!=cmdMap->end(); it++)
+    for (std::map<std::string, AbstractClientCmd*>::iterator it=cmdMap->begin(); it!=cmdMap->end(); it++)
 	keys->push_back(it->first);
 
     return keys;
 }
+
 
 /*
  * Local Variables:

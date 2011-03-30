@@ -18,31 +18,36 @@
  * information.
  */
 /** @file HelpCmd.cxx
- * HelpCmd.cxx
  *
- *  Created on: Dec 16, 2010
  */
 
 #include "HelpCmd.h"
 #include "ClientCmdRegistry.h"
 
+
 HelpCmd::HelpCmd() : AbstractClientCmd("help") {}
+
 
 HelpCmd::~HelpCmd() {}
 
+
 std::string
-HelpCmd::getUsage() {
+HelpCmd::getUsage()
+{
     return "Usage: help [cmdname]";
 }
 
+
 std::string
-HelpCmd::getHelp() {
+HelpCmd::getHelp()
+{
     return "If evoked without any arguments, help diplays a list of available commands.  If a command name is provided as an argument, the help for that command is displayed.";
 }
 
-bool
-HelpCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
 
+bool
+HelpCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
+{
     int argn = args.size();
 
     if (argn < 0 || argn > 1) {
@@ -89,7 +94,7 @@ HelpCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
 	/* display specifics of a single cmd */
 	std::string cmd(*args.begin());
 
-	if(cmd.length() == 0) {
+	if (cmd.length() == 0) {
 	    this->log->logERROR("HelpCmd", "Zero Length Cmd provided to help.");
 	    this->printUsage();
 	    return false;
@@ -97,7 +102,7 @@ HelpCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
 
 	AbstractClientCmd* acc = ccReg->getCmd(cmd);
 
-	if(acc == NULL) {
+	if (acc == NULL) {
 	    this->log->logINFO("HelpCmd", "Unknown command: '" + cmd + "'.");
 	    this->printUsage();
 	    return false;
@@ -111,6 +116,7 @@ HelpCmd::_exec(GSCmdLineClient* client, std::list<std::string> args){
 	return true;
     }
 }
+
 
 /*
  * Local Variables:

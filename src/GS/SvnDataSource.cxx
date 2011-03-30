@@ -19,8 +19,6 @@
  */
 /** @file SvnDataSource.cxx
  *
- * Brief description
- *
  */
 
 #include "SvnDataSource.h"
@@ -30,12 +28,15 @@
 
 #include <GSThread.h>
 
-SvnDataSource::SvnDataSource(std::string repoPath) :
-	repoPath(repoPath)
+
+SvnDataSource::SvnDataSource(std::string repoPath)
+:   repoPath(repoPath)
 {}
+
 
 SvnDataSource::~SvnDataSource()
 {}
+
 
 /* Get a single BRLCAD::Object */
 BRLCAD::Object*
@@ -44,12 +45,14 @@ SvnDataSource::getObj(std::string path)
 
 }
 
+
 /* Get a single Attribute of an object */
 prop*
 SvnDataSource::getAttr(std::string path, std::string attrKey)
 {
 
 }
+
 
 /* Get a set of objects */
 std::list<BRLCAD::Object*>*
@@ -58,12 +61,14 @@ SvnDataSource::getObjs(std::string path)
 
 }
 
+
 /* Get all Attributes from object */
 std::list<prop>*
 SvnDataSource::getAttrs(std::string path)
 {
 
 }
+
 
 /*
  * Local Variables:
