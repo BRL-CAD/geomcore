@@ -41,24 +41,18 @@ public:
 	 * 'GET' ers
 	 */
 
-	/* Get a single BRLCAD::Object */
-	BRLCAD::Object* getObj(std::string path);
-
-	/* Get a single Attribute of an object */
-	prop* getAttr(std::string path, std::string attrKey);
+	/* Get a single bu_external */
+	bu_external* getObj(std::string path);
 
 	/* Get a set of objects */
-	std::list<BRLCAD::Object*>* getObjs(std::string path);
-
-	/* Get all Attributes from object */
-	std::list<prop>* getAttrs(std::string path);
+	std::list<bu_external*>* getObjs(std::string path);
 
 	/*
 	 * 'PUT' ers
 	 */
 
 	/* Put a single BRLCAD::Object */
-	bool putObj(std::string path, BRLCAD::Object& obj);
+	bool putObj(std::string path, bu_external* ext);
 
 private:
 	std::string repoPath;

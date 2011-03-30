@@ -34,8 +34,8 @@ FileDataSource::~FileDataSource()
 {}
 
 
-/* Get a single BRLCAD::Object */
-BRLCAD::Object*
+/* Get a single bu_external */
+bu_external*
 FileDataSource::getObj(std::string path)
 {
     BRLCAD::MemoryDatabase md;
@@ -46,26 +46,19 @@ FileDataSource::getObj(std::string path)
 	return NULL;
 
     BRLCAD::ConstDatabase::TopObjectIterator it = md.FirstTopObject();
-    BRLCAD::Object* obj = NULL;
+    bu_external* ext;
 
     if (it.Good()) {
-	obj = md.Get(it.Name());
+    	const char* name = it.Name();
+    	ext = md.GetBUExternal(name);
     }
 
-    return obj;
+    return ext;
 }
 
 
-/* Get a single Attribute of an object */
-prop*
-FileDataSource::getAttr(std::string path, std::string attrKey)
-{
-    return NULL;
-}
-
-
-/* Get a set of objects */
-std::list<BRLCAD::Object*>*
+/* Get a set of bu_externals */
+std::list<bu_external*>*
 FileDataSource::getObjs(std::string path)
 {
     BRLCAD::MemoryDatabase md;
@@ -78,40 +71,33 @@ FileDataSource::getObjs(std::string path)
     BRLCAD::ConstDatabase::TopObjectIterator it = md.FirstTopObject();
     BRLCAD::Object* obj = NULL;
 
-    std::list<BRLCAD::Object*>* objs = new std::list<BRLCAD::Object*>();
+    std::list<bu_external*>* objs = new std::list<bu_external*>();
+    bu_external* ext = NULL;
 
     while (it.Good()) {
-	objs->push_back(md.Get(it.Name()));
-	++it;
+    	const char* name = it.Name();
+    	objs->push_back(md.GetBUExternal(name));
+    	++it;
     }
     return objs;
 }
 
-
-/* Get all Attributes from object */
-std::list<prop>*
-FileDataSource::getAttrs(std::string path)
-{
-    return NULL;
-}
-
-
-/* Put a single BRLCAD::Object */
+/* Put a single bu_external */
 bool
-FileDataSource::putObj(std::string path, BRLCAD::Object& obj)
+FileDataSource::putObj(std::string path, bu_external* obj)
 {
     std::string fullPath(this->repoPath + "/" + path);
 
-    BRLCAD::MemoryDatabase md;
-
-    //Try to load
-    md.Load(fullPath.c_str());
-
-    if (!md.Add(obj))
-	return false;
-
-    if (!md.Save(fullPath.c_str()))
-	return false;
+//    BRLCAD::MemoryDatabase md;
+//
+//    //Try to load
+//    md.Load(fullPath.c_str());
+//
+//    if (!md.Add(obj))
+//	return false;
+//
+//    if (!md.Save(fullPath.c_str()))
+//	return false;
 
     return true;
 }

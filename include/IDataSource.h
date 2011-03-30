@@ -44,24 +44,18 @@ public:
 	 * 'GET' ers
 	 */
 
-	/* Get a single DbObject */
-	virtual BRLCAD::Object* getObj(std::string path) = 0;
+	/* Get a single bu_external */
+	virtual bu_external* getObj(std::string path) = 0;
 
-	/* Get a single Attribute of an object */
-	virtual prop* getAttr(std::string path, std::string attrKey) = 0;
-
-	/* Get a set of objects */
-	virtual std::list<BRLCAD::Object*>* getObjs(std::string path) = 0;
-
-	/* Get all Attributes from object */
-	virtual std::list<prop>* getAttrs(std::string path) = 0;
+	/* Get a set of bu_externals */
+	virtual std::list<bu_external*>* getObjs(std::string path) = 0;
 
 	/*
 	 * 'PUT' ers
 	 */
 
-	/* Put a single DbObject */
-	virtual bool putObj(std::string path, BRLCAD::Object& obj) = 0;
+	/* Put a single bu_external */
+	virtual bool putObj(std::string path, bu_external* ext) = 0;
 };
 
 
