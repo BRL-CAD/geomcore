@@ -46,6 +46,7 @@ public:
   virtual ~Portal();
   int send(NetMsg* msg);
   int sendThenDisconnect(NetMsg* msg);
+  void sendTypeOnlyMessage(uint32_t type, NetMsg* originalMsg = 0);
   void sendGSNodeName();
   void disconnect();
 

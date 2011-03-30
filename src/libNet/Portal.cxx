@@ -224,6 +224,21 @@ Portal::disconnect()
 	this->pm->disconnect(this);
 }
 
+void
+Portal::sendTypeOnlyMessage(uint32_t type, NetMsg* originalMsg)
+{
+	TypeOnlyMsg* tom = NULL;
+
+	if (originalMsg == NULL)
+		tom = new TypeOnlyMsg(type);
+	else
+		tom = new TypeOnlyMsg(type, originalMsg);
+
+	this->send(tom);
+	return;
+}
+
+
 /*
  * Local Variables:
  * mode: C
