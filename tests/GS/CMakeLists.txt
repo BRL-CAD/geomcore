@@ -32,12 +32,22 @@ include_directories(
     ${LIBGE_INCLUDE_DIR}
 )
 
+SET (link_libs
+ 	${BRLCAD_LIBRARIES} 
+	${BRLCAD_BU_LIBRARY} 
+	${BRLCAD_RT_LIBRARY} 
+	${BRLCAD_WDB_LIBRARY} 
+	${LIBGE_GE_LIBRARY}
+)
+
+MESSAGE(STATUS "link libs: ${link_libs}")
+
 add_executable(gsTest GeometryServiceTest.cxx)
-target_link_libraries(gsTest libgeomserv libNet ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY} ${LIBGE_GE_LIBRARY})
+target_link_libraries(gsTest libgeomserv libNet ${link_libs})
 
 add_executable(fileDataSourceTest FileDataSourceTest.cxx)
-target_link_libraries(fileDataSourceTest libgeomserv ${BRLCAD_LIBRARIES})
+target_link_libraries(fileDataSourceTest libgeomserv ${link_libs})
 
 add_executable(SimpleCoreInterfaceTest SimpleCoreInterfaceTest.cxx)
-target_link_libraries(SimpleCoreInterfaceTest libgeomserv ${BRLCAD_LIBRARIES})
+target_link_libraries(SimpleCoreInterfaceTest libgeomserv ${link_libs})
 

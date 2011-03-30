@@ -23,13 +23,18 @@
  *
  */
 
+#include "brlcad/FileDatabase.h"
 #include "FileDataSource.h"
+#include "DataManager.h"
 #include "brlcad/Object.h"
 #include "brlcad/Arb8.h"
 
 std::string testPathFile("/awesome/test.g");
 
 void testGetters(FileDataSource* fds);
+
+
+
 
 int main(int argc, char* argv[])
 {
@@ -38,52 +43,81 @@ int main(int argc, char* argv[])
 	FileDataSource* fds = new FileDataSource("./testdir");
 	fds->init();
 
-	testGetters(fds);
+//	testGetters(fds);
+//
+//
+//	std::cout << "Adding: ImAnArbEight" << std::endl;
+//	BRLCAD::Arb8 arb1(BRLCAD::Vector3D(1.0,1.0,1.0), BRLCAD::Vector3D(-1.0,-1.0,-1.0));
+//	arb1.SetName("ImAnArbEight");
+//
+//	std::cout << "Adding: ImAnArbEight2" << std::endl;
+//	BRLCAD::Arb8 arb2;
+//	arb2.SetName("ImAnArbEight2");
+//	fds->putObj(testPathFile, arb2);
+//	fds->putObj(testPathFile, arb1);
+//
+//	testGetters(fds);
 
+	BRLCAD::FileDatabase md;
+	md.Load("testing.g");
 
-	std::cout << "Adding: ImAnArbEight" << std::endl;
-	BRLCAD::Arb8 arb1(BRLCAD::Vector3D(1.0,1.0,1.0), BRLCAD::Vector3D(-1.0,-1.0,-1.0));
-	arb1.SetName("ImAnArbEight");
+	bu_external* ext = md.GetBUExternal("testArb8.s");
 
-	std::cout << "Adding: ImAnArbEight2" << std::endl;
-	BRLCAD::Arb8 arb2;
-	arb2.SetName("ImAnArbEight2");
-	fds->putObj(testPathFile, arb2);
-	fds->putObj(testPathFile, arb1);
+	GeometryChunkMsg* gc = DataManager::extToChunk("myPath", ext);
+	ByteArray* ba = gc->getByteArray();
+	ba->printHexString("Final Data load: ");
 
-	testGetters(fds);
+	std::list<bu_external*>* objs = fds->getObjs(testPathFile);
+    std::list<GeometryChunkMsg*> msgs;
+    GeometryChunkMsg* chunk = NULL;
+    int cnt = 0;
+    bu_external* obj;
+    std::string fullPath;
+
+    for(std::list<bu_external*>::iterator it = objs->begin();
+        it != objs->end(); it++)
+    {
+        obj = *it;
+        fullPath = testPathFile;
+//        std::cout << "\t" << testPathFile << std::endl;
+        chunk = DataManager::extToChunk(fullPath, obj);
+         chunk->getByteArray()->printHexString("");
+
+      //  msgs.push_back(new GeometryChunkMsg(fullPath, ));
+    }
+
 
 	delete fds;
     return 0;
 }
-
-void testGetters(FileDataSource* fds)
-{
-	std::cout << "\nTesting getObj()" << std::endl;
-	BRLCAD::Object* obj = fds->getObj(testPathFile);
-
-	if (obj == NULL) {
-		std::cout << "\treturned NULL" << std::endl;
-	} else {
-		std::cout << "\treturned a name: "<< obj->Name() << std::endl;
-		obj->Destroy();
-	}
-
-	std::cout << "Testing getObjs()" << std::endl;
-	std::list<BRLCAD::Object*>* objects = fds->getObjs(testPathFile);
-
-	if (objects == NULL) {
-		std::cout << "\treturned NULL" << std::endl;
-	} else {
-		for(std::list<BRLCAD::Object*>::iterator it = objects->begin();
-			it != objects->end(); it++)
-		{
-			obj = *it;
-			std::cout << "\t" << obj->Name() << std::endl;
-		}
-	}
-	std::cout  << std::endl;
-}
+//
+//void testGetters(FileDataSource* fds)
+//{
+//	std::cout << "\nTesting getObj()" << std::endl;
+//	BRLCAD::Object* obj = fds->getObj(testPathFile);
+//
+//	if (obj == NULL) {
+//		std::cout << "\treturned NULL" << std::endl;
+//	} else {
+//		std::cout << "\treturned a name: "<< obj->Name() << std::endl;
+//		obj->Destroy();
+//	}
+//
+//	std::cout << "Testing getObjs()" << std::endl;
+//	std::list<BRLCAD::Object*>* objects = fds->getObjs(testPathFile);
+//
+//	if (objects == NULL) {
+//		std::cout << "\treturned NULL" << std::endl;
+//	} else {
+//		for(std::list<BRLCAD::Object*>::iterator it = objects->begin();
+//			it != objects->end(); it++)
+//		{
+//			obj = *it;
+//			std::cout << "\t" << obj->Name() << std::endl;
+//		}
+//	}
+//	std::cout  << std::endl;
+//}
 
 
 // Local Variables:
