@@ -118,7 +118,7 @@ DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
     }
 
     /* pull all objects */
-    std::list<BRLCAD::Object*>* objs = this->datasource->getObjs(path);
+    std::list<bu_external*>* objs = this->datasource->getObjs(path);
     if (objs == NULL) {
        	origin->sendTypeOnlyMessage(COULD_NOT_FIND_GEOMETRY, msg);
         return;
@@ -126,15 +126,21 @@ DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
 
     /* Prep for send */
     std::list<GeometryChunkMsg*> msgs;
+    GeometryChunkMsg* chunk = NULL;
     int cnt = 0;
-    BRLCAD::Object* obj;
+    bu_external* obj = NULL;
 
-    for(std::list<BRLCAD::Object*>::iterator it = objs->begin();
+    for(std::list<bu_external*>::iterator it = objs->begin();
         it != objs->end(); it++)
     {
         obj = *it;
-        std::cout << "\t" << obj->Name() << std::endl;
+        chunk = DataManager::extToChunk(path, obj);
+        //chunk->getByteArray()->printHexString("");
+        msgs.push_back(chunk);
     }
+
+    //GeometryManifestMsg man(msgs);
+
 
     return;
 }
