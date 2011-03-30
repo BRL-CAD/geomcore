@@ -64,7 +64,7 @@ bool NetMsgRouter::routeMsg(NetMsg* msg) {
 
 	if (list->empty()) {
 		/* If no routing table, print an error */
-		snprintf(buf, BUFSIZ, "Msg type: %X has no forwarding information.", msg->getMsgType());
+		snprintf(buf, BUFSIZ, "Msg type: %X has no routing information.", msg->getMsgType());
 		Logger::getInstance()->logWARNING("NetMsgRouter",std::string(buf));
 		return false;
 	} else
