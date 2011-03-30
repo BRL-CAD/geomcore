@@ -49,6 +49,7 @@ FileDataSource::getObj(std::string path)
 
 	if (it.Good()) {
 		obj = md.Get(it.Name());
+		++it;
 	}
 
 	return obj;
