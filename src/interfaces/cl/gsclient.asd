@@ -10,5 +10,6 @@
  :long-description "Common Lisp client interface for the BRL-CAD Geometry Service protocol"
  :serial t
  :depends-on (:usocket :uuid)
- :components ((:file "gsclient")))
+ :components ((:file "gsnet")
+              (:file "gsclient")))
 
