@@ -278,6 +278,8 @@ main(int argc, const char *argv[])
   svn_fs_revision_root(&repo_root, fs, youngest_rev, pool);
   bu_vls_sprintf(&filepath, "%s/%s", model_name, "TESTFILE2");
   svn_fs_file_contents(&orig_contents, repo_root, bu_vls_addr(&filepath), pool);
+  svn_string_t *orig_string;
+  svn_string_from_stream(&orig_string, orig_contents, pool, pool);
   svn_checksum_t *local_checksum;
 
   char *logmsg2 = "testlog2";
@@ -287,8 +289,9 @@ main(int argc, const char *argv[])
   char *testcontents3 = "test contents 3";
   teststring = svn_string_createf(pool, "%s", testcontents3);
   svn_stream_t *teststream = svn_stream_from_string(teststring, pool);
+  svn_stream_t *teststream2 = svn_stream_from_string(orig_string, pool);
   (*editor)->apply_textdelta(file_baton, NULL, pool, &handler, &handler_baton);
-  svn_txdelta_run(orig_contents, teststream, handler, handler_baton, svn_checksum_md5, &local_checksum, NULL, NULL, pool, pool);
+  svn_txdelta_run(teststream2, teststream, handler, handler_baton, svn_checksum_md5, &local_checksum, NULL, NULL, pool, pool);
   (*editor)->close_file(file_baton, NULL, pool);
   (*editor)->close_edit(edit_baton, pool);
 
