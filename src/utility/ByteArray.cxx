@@ -32,12 +32,31 @@
 #include "ByteArray.h"
 
 ByteArray::ByteArray() { bu_vlb_init(&vlb); }
-ByteArray::ByteArray(char *buf, int len) { bu_vlb_initialize(&vlb, len); bu_vlb_write(&vlb, (unsigned char *)buf, len); }
-ByteArray::~ByteArray() { bu_vlb_free(&vlb); }
 
-char *ByteArray::data() { return (char *)bu_vlb_addr(&vlb); }
+/* Copy constructor */
+ByteArray::ByteArray(ByteArray& original)
+{
+	bu_vlb_initialize(&vlb, original.size());
+	bu_vlb_write(&vlb, (unsigned char*)original.data(), original.size());
+}
+
+ByteArray::ByteArray(const char *buf, int len)
+{
+	bu_vlb_initialize(&vlb, len);
+	bu_vlb_write(&vlb, (unsigned char*) buf, len);
+}
+
+ByteArray::~ByteArray() {
+	bu_vlb_free(&vlb);
+}
+
+char* ByteArray::data() { return (char*) bu_vlb_addr(&vlb); }
 int ByteArray::size() { return bu_vlb_buflen(&vlb); }
-void ByteArray::assign(const char *buf, int size) { bu_vlb_reset(&vlb); bu_vlb_write(&vlb, (unsigned char *)buf, size); }
+void ByteArray::assign(const char* buf, int size)
+{
+	bu_vlb_reset(&vlb);
+	bu_vlb_write(&vlb, (unsigned char*)buf, size);
+}
 
 void
 ByteArray::printHexString(std::string prefix)

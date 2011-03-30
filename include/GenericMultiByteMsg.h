@@ -33,10 +33,10 @@ class GenericMultiByteMsg : public NetMsg
 {
 public:
 	/* Normal Constructor */
-	GenericMultiByteMsg(uint32_t type, char* dataIn, uint32_t dataInLen);
+	GenericMultiByteMsg(uint32_t type, ByteArray* dataIn);
 
 	/* Reply Constructor */
-	GenericMultiByteMsg(uint32_t type, NetMsg* msg, char* dataIn, uint32_t dataInLen);
+	GenericMultiByteMsg(uint32_t type, NetMsg* msg, ByteArray* dataIn);
 
 	/* Deserializing Constructor */
 	GenericMultiByteMsg(DataStream* ds, Portal* origin);
@@ -54,8 +54,7 @@ protected:
 	uint32_t getDataLen();
 	char* getData();
 
-	uint32_t dataLen;
-	char* data;
+	ByteArray* data;
 
 	virtual bool _serialize(DataStream* ds);
 	virtual bool _equals(const NetMsg& msg);

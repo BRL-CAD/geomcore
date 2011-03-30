@@ -34,12 +34,13 @@ class ByteArray
 {
 public:
 	ByteArray();
-	ByteArray(char* buf, int len);
+	ByteArray(ByteArray& original);
+	ByteArray(const char* buf, int len);
 	~ByteArray();
 
 	char* data();
 	int size();
-	void assign(const char *buf, int len);
+	void assign(const char* buf, int len);
 
 	void printHexString(std::string prefix = "");
 

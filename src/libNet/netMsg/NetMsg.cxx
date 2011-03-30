@@ -93,7 +93,6 @@ NetMsg::serialize(ByteArray* ba)
 
     if (this->hasReUUID)
 	subDS.putString(this->reUUID->toString());
-
     /* Call subclass serialize */
     if (!this->_serialize(&subDS)) {
 	std::cerr << "A serialization Error in NetMsg::serialize() occurred.\n";

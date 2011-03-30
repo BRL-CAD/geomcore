@@ -57,6 +57,7 @@ void logBanner(std::string s) {
 void testMsg(NetMsg* msg01, std::string typeName) {
 	NetMsgFactory* factory = NetMsgFactory::getInstance();
 
+
 	ByteArray* networkSim = new ByteArray();
 	msg01->serialize(networkSim);
 
@@ -140,14 +141,15 @@ int main(int argc, char* argv[]) {
 
 	std::string s05 = strUUID01;
 	char* data05 = (char*) s05.c_str();
+	ByteArray ba05(data05, s05.length());
+
 
 	/* Test Normal */
 	GenericMultiByteMsg
-			msg051(TEST_GENERIC_MULTIBYTE_MSG, data05, s05.length());
+			msg051(TEST_GENERIC_MULTIBYTE_MSG, &ba05);
 	testMsg(&msg051, "GenericMultiByteMsg-Normal");
 	/* Test Reply */
-	GenericMultiByteMsg msg052(TEST_GENERIC_MULTIBYTE_MSG, &msg051, data05,
-			s05.length());
+	GenericMultiByteMsg msg052(TEST_GENERIC_MULTIBYTE_MSG, &msg051, &ba05);
 	testMsg(&msg052, "GenericMultiByteMsg-Reply");
 
 	/* Test Normal */
@@ -173,12 +175,13 @@ int main(int argc, char* argv[]) {
 
 	std::string s09 = strUUID02;
 	char* data09 = (char*) s09.c_str();
+	ByteArray ba09(data09, s09.length());
 
 	/* Test Normal */
-	GeometryChunkMsg msg091("path/to/file.g", data09, s09.length());
+	GeometryChunkMsg msg091("path/to/file.g", &ba09);
 	testMsg(&msg091, "GeometryChunkMsg-Normal");
 	/* Test Reply */
-	GeometryChunkMsg msg092(&msg091, "path/to/file.g", data09, s09.length());
+	GeometryChunkMsg msg092(&msg091, "path/to/file.g", &ba09);
 	testMsg(&msg092, "GeometryChunkMsg-Reply");
 
 	/* Test Normal */
