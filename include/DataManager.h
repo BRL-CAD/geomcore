@@ -28,6 +28,7 @@
 #define __DATAMANAGER_H__
 
 #include "brlcad/Object.h"
+#include "brlcad/ConstDatabase.h"
 
 #include "Config.h"
 #include "INetMsgHandler.h"
@@ -40,6 +41,7 @@
 #include <string>
 #include <list>
 #include <GSThread.h>
+
 
 class DataManager :  public INetMsgHandler
 {
@@ -55,8 +57,8 @@ public:
 
 	bool setDataSource(IDataSource* source);
 
-	static GeometryChunkMsg* objToChunk(BRLCAD::Object* obj);
-	static BRLCAD::Object* chunkToObject(GeometryChunkMsg* msg);
+	static bu_external* chunkToExt(GeometryChunkMsg* msg);
+	static GeometryChunkMsg* extToChunk(std::string path, bu_external* ext);
 
 private:
 	static DataManager* pInstance;

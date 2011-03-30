@@ -193,6 +193,47 @@ DataManager::init(Config* c)
     }
 }
 
+GeometryChunkMsg*
+DataManager::extToChunk(std::string path, bu_external* ext)
+{
+	size_t magicLen = sizeof(long);
+
+	size_t size = magicLen + ext->ext_nbytes;
+	char* buf = (char*)bu_malloc(size, "objToChunk buf malloc");
+
+	memcpy (buf, &ext->ext_magic, magicLen);
+	memcpy (buf + magicLen, ext->ext_buf, ext->ext_nbytes);
+
+	ByteArray ba(buf, size);
+	return new GeometryChunkMsg(path, &ba);
+
+//	std::cout << "ext->ext_magic: "<< ext->ext_magic << "\n";
+//
+//	std::cout << "ext->ext_buf: ";
+//	unsigned char* p = (unsigned char*)ext->ext_buf;
+//	for (int i = 0; i<ext->ext_nbytes;i++)
+//	{
+//		printf("%02x ", *p);
+//		p++;
+//	}
+//	std::cout << "\n";
+//
+//	std::cout << "buf: ";
+//	p = buf;
+//	for (int i = 0; i<size;i++)
+//	{
+//		printf("%02x ", *p);
+//		p++;
+//	}
+//	std::cout << "\n";
+
+}
+
+bu_external*
+DataManager::chunkToExt(GeometryChunkMsg* msg)
+{
+
+}
 
 /*
  * Local Variables:
