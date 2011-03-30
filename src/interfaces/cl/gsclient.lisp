@@ -52,6 +52,7 @@
 (defclass session ()
   ((localnode :accessor localnode :initform +nodename+)
    (remotenode :accessor remotenode)
+   (sessionuuid :accessor sessionuuid :initform '())
    (username  :accessor username :initarg :username)
    (password :accessor password :initarg :password)
    (host :accessor host :initarg :host)
@@ -77,6 +78,12 @@
 	(cond 
 	  ((= type +gsrnnset+) (setf (remotenode s) (readgsstring (strm s))) type)
 	  ((= type +gspong+) (make-instance 'pongmsg :tv (readuint64 (strm s))))
+	  ((= type +gsping+) (writemsg s (make-instance 'pongmsg :tv (readuint64 (strm s))))) ; automatically respond to ping requests
+	  ((= type +gsinfo+) (setf (sessionuuid s) (readgsstring (strm s))) type)
+	  ((= type +gsfail+) (make-instance 'failmsg))
+	  ((= type +gsok+) (make-instance 'okmsg))
+	  ((= type +gsrualive+) (writemsg s (make-instance 'imalivemsg))) ; automatically respond to rualive 
+	  ((= type +gsimalive+) (make-instance 'imalivemsg))
 	  (t (format t "Unknown type! ~x~%" type))))
       '()))
 
@@ -92,13 +99,16 @@
   (if (reuuid m)
       (progn (write-byte 1 (strm s)) (writegsstring (strm s) (reuuid m)))
       (write-byte 0 (strm s))))
+(defmethod writemsg :around (s (m message)) (call-next-method) (force-output (strm s)))
 
 ;;; type specific send handling
 (defclass pingmsg (message) ((tv :accessor tv :initform (usec))))
 (defmethod writemsg :before (s (m pingmsg)) (setf (msgtype m) +gsping+) (setf (len m) 8))
-(defmethod writemsg :after (s (m pingmsg)) (writeuint64 s (tv m)))
+(defmethod writemsg :after (s (m pingmsg)) (format t "Pinging with ~a~%" (tv m)) (writeuint64 (strm s) (tv m)))
 
-(defclass pongmsg (message) ((tv :accessor tv :initarg tv)))
+(defclass pongmsg (message) ((tv :accessor tv :initarg :tv)))
+(defmethod writemsg :before (s (m pongmsg)) (setf (msgtype m) +gspong+) (setf (len m) 8))
+(defmethod writemsg :after (s (m pongmsg)) (writeuint64 (strm s) (tv m)))
 
 (defclass nodenamemsg (message) ((name :accessor name :initarg :name)))
 (defmethod writemsg :before (s (m nodenamemsg)) (setf (msgtype m) +gsrnnset+) (setf (len m) (+ (length (localnode s)) 4)))
@@ -108,18 +118,44 @@
 (defmethod writemsg :before (s (m loginmsg)) (setf (msgtype m) +gsnsr+) (setf (len m) (+ (length (username s)) (length (password s)) 8)))
 (defmethod writemsg :after (s (m loginmsg)) (writegsstring (strm s) (username s)) (writegsstring (strm s) (password s)))
 
+(defclass logoutmsg (message) ())
+(defmethod writemsg :before (s (m logoutmsg)) (setf (msgtype m) +gsdr+))
+
+(defclass rualivemsg (message) ())
+(defmethod writemsg :before (s (m logoutmsg)) (setf (msgtype m) +gsrualive+))
+
+(defclass imalivemsg (message) ())
+(defmethod writemsg :before (s (m logoutmsg)) (setf (msgtype m) +gsimalive+))
+
+(defclass okmsg (message) ())
+(defmethod writemsg :before (s (m logoutmsg)) (setf (msgtype m) +gsok+))
+
+(defclass failmsg (message) ())
+(defmethod writemsg :before (s (m logoutmsg)) (setf (msgtype m) +gsfail+))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;  public interface  ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun ping (s)
+  (writemsg s (make-instance 'pingmsg))
+  (let ((m (readmsg s)))
+    (format t "response holds: ~a~%" (tv m))
+    (- (usec) (tv m))))
+
+; log in to a server, returning the session
 (defun login (&key (username "Guest") (password "Guest") (host #(127 0 0 1)) (port 5309))
   (let ((s (make-instance 'session :host host :port port :username username :password password)))
     (setf (socket s) (usocket:socket-connect host port :element-type '(unsigned-byte 8)))
     (setf (strm s) (usocket:socket-stream (socket s)))
-    (writemsg s (make-instance 'nodenamemsg :name (localnode s)))
     (readmsg s)
+    (writemsg s (make-instance 'nodenamemsg :name (localnode s)))
     (format t "Remote name: ~a~%" (remotenode s))
-    (writemsg s (make-instance 'loginmsg))))
+    (writemsg s (make-instance 'loginmsg))
+    (readmsg s)
+    (format t "Session UUID: ~a~%" (sessionuuid s))
+    s))
 
 (defun logout (s)
-  (usocket:socket-close s))
+  (writemsg s (make-instance 'logoutmsg))
+  (usocket:socket-close (socket s)))
