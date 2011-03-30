@@ -253,18 +253,6 @@ main(int argc, const char *argv[])
   tdiff = (int)difftime(t0,tb);
   printf("total delta: %d sec\n", tdiff);
 
-  svn_fs_youngest_rev(&youngest_rev, fs, pool);
-  svn_repos_fs_begin_txn_for_commit2(&txn, repos, youngest_rev, apr_hash_make(pool), pool);
-  svn_fs_txn_root(&txn_root, txn, pool);
-  bu_vls_sprintf(&filepath, "%s/%s", model_name, "TESTFILE");
-  svn_fs_make_file (txn_root, bu_vls_addr(&filepath), pool);
-  char *testcontents = "test1";
-  apr_size_t length = strlen(testcontents);
-  svn_fs_apply_text (&rt_data_stream, txn_root, bu_vls_addr(&filepath), NULL, pool);
-  svn_stream_write(rt_data_stream, (const char *)testcontents, &length);
-  svn_stream_close(rt_data_stream);
-  svn_repos_fs_commit_txn(NULL, repos, &youngest_rev, txn, pool);
-
   const svn_delta_editor_t **editor = bu_malloc(sizeof(svn_delta_editor_t), "delta editor");
   void *edit_baton, *root_baton, *file_baton, *handler_baton;
   svn_txdelta_window_handler_t handler;
@@ -275,15 +263,35 @@ main(int argc, const char *argv[])
   svn_fs_youngest_rev(&youngest_rev, fs, pool);
   svn_repos_get_commit_editor4(editor, &edit_baton, repos, NULL, full_path, model_name, user, logmsg, NULL, NULL, NULL, NULL, pool);
   (*editor)->open_root(edit_baton, youngest_rev, pool, &root_baton); 
-  bu_vls_sprintf(&filepath, "%s", "TESTFILE");
-  (*editor)->delete_entry(bu_vls_addr(&filepath), youngest_rev, root_baton, pool);
-  bu_vls_sprintf(&filepath, "%s", "TESTFILE2");
+ bu_vls_sprintf(&filepath, "%s", "TESTFILE2");
   (*editor)->add_file(bu_vls_addr(&filepath), root_baton, NULL, youngest_rev, pool, &file_baton);
   (*editor)->apply_textdelta(file_baton, NULL, pool, &handler, &handler_baton);
   char *testcontents2 = "test contents 2";
   svn_string_t *teststring = svn_string_createf(pool, "%s", testcontents2);
   svn_txdelta_send_string(teststring,  handler, handler_baton, pool);
+  /* may want svn_stringbuf_ncreate, svn_stream_from_stringbuf and svn_txdelta_send_stream for actual binary .g contents */
+  (*editor)->close_file(file_baton, NULL, pool);
   (*editor)->close_edit(edit_baton, pool);
+
+  svn_stream_t *orig_contents;
+  svn_fs_youngest_rev(&youngest_rev, fs, pool);
+  svn_fs_revision_root(&repo_root, fs, youngest_rev, pool);
+  bu_vls_sprintf(&filepath, "%s/%s", model_name, "TESTFILE2");
+  svn_fs_file_contents(&orig_contents, repo_root, bu_vls_addr(&filepath), pool);
+  svn_checksum_t *local_checksum;
+
+  char *logmsg2 = "testlog2";
+  svn_repos_get_commit_editor4(editor, &edit_baton, repos, NULL, full_path, model_name, user, logmsg2, NULL, NULL, NULL, NULL, pool);
+  (*editor)->open_root(edit_baton, youngest_rev, pool, &root_baton);
+  (*editor)->open_file(bu_vls_addr(&filepath), root_baton, youngest_rev, pool, &file_baton);
+  char *testcontents3 = "test contents 3";
+  teststring = svn_string_createf(pool, "%s", testcontents3);
+  svn_stream_t *teststream = svn_stream_from_string(teststring, pool);
+  (*editor)->apply_textdelta(file_baton, NULL, pool, &handler, &handler_baton);
+  svn_txdelta_run(orig_contents, teststream, handler, handler_baton, svn_checksum_md5, &local_checksum, NULL, NULL, pool, pool);
+  (*editor)->close_file(file_baton, NULL, pool);
+  (*editor)->close_edit(edit_baton, pool);
+
 
  
   /* run g_diff */
