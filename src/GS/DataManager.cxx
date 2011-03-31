@@ -119,13 +119,14 @@ DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
 
     /* pull all objects */
     std::list<BRLCAD::MinimalObject*>* objs = this->datasource->getObjs(path, recurse);
-    if (objs == NULL) {
+    if (objs == NULL || objs->size() < 1) {
        	origin->sendTypeOnlyMessage(COULD_NOT_FIND_GEOMETRY, msg);
         return;
     }
 
     /* Prep for send */
     std::list<GeometryChunkMsg*> msgs;
+    std::list<std::string> items;
     GeometryChunkMsg* chunk = NULL;
     int cnt = 0;
     BRLCAD::MinimalObject* obj = NULL;
@@ -134,12 +135,13 @@ DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
         it != objs->end(); it++)
     {
         obj = *it;
-        chunk = GeometryChunkMsg::extToChunk(obj);
+        chunk = GeometryChunkMsg::objToChunk(obj);
         //chunk->getByteArray()->printHexString("");
         msgs.push_back(chunk);
+//TODO        items.push_back(obj->)
     }
 
-    //GeometryManifestMsg man(msgs);
+   // GeometryManifestMsg man(msgs);
 
 
     return;
