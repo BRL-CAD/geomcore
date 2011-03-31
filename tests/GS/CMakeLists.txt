@@ -40,8 +40,6 @@ SET (link_libs
 	${LIBGE_GE_LIBRARY}
 )
 
-MESSAGE(STATUS "link libs: ${link_libs}")
-
 add_executable(gsTest GeometryServiceTest.cxx)
 target_link_libraries(gsTest libgeomserv libNet ${link_libs})
 
