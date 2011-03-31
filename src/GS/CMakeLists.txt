@@ -42,7 +42,6 @@ SET(geomserv_SRCS
 	SvnDataSource.cxx
 	DbObjectManifest.cxx
 	DbObject.cxx
-	GeometryProcessor.cxx
 	Session.cxx
 	SessionManager.cxx
 	Account.cxx
