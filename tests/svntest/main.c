@@ -12,6 +12,7 @@
 #include "svn_pools.h"
 #include "svn_path.h"
 #include "svn_fs.h"
+#include "svn_diff.h"
 #include "svn_repos.h"
 
 #include "bu.h"
@@ -72,6 +73,60 @@ int concat_obj(void *dbinfo, const void *objname, apr_ssize_t klen, const void *
   bu_free(data.ext_buf, "free ext buf");
 }
 
+/* Function to update contents of a .g object entry */
+int update_obj(apr_pool_t *pool, svn_repos_t *repos, svn_revnum_t rev, const char *repo_full_path, const char *model_name, const char *obj_name, const char *user, const char *logmsg, struct bu_external *newcontents) {
+	int altered_geom = 0;
+	svn_fs_t *fs = svn_repos_fs(repos);
+	svn_fs_root_t *repo_root;
+	svn_filesize_t buflen;
+	struct bu_external data;
+	apr_pool_t *subpool = svn_pool_create(pool);
+	svn_fs_revision_root(&repo_root, fs, rev, subpool);
+	svn_stream_t *obj_contents = svn_stream_empty(subpool);
+	svn_string_t *svn_file = svn_string_createf(subpool, "%s/%s/%s", model_name, obj_name, obj_name);
+	svn_string_t *target_file = svn_string_createf(subpool, "%s/%s", obj_name, obj_name);
+	svn_fs_file_length(&buflen, repo_root, svn_file->data, subpool);
+	const svn_delta_editor_t **editor;
+	void *edit_baton, *root_baton, *file_baton, *handler_baton;
+	svn_txdelta_window_handler_t handler;
+	svn_stringbuf_t *contents;
+	svn_stream_t *contents_stream;
+        if ((size_t)buflen != (size_t)newcontents->ext_nbytes) {
+		printf("found size difference\n");
+		altered_geom = 1;
+	} else {
+		/* sizes are the same, we need to check the contents */
+		data.ext_nbytes = (size_t)buflen;
+		data.ext_buf = bu_malloc(data.ext_nbytes, "memory for .g data");
+		svn_fs_file_contents(&obj_contents, repo_root, svn_file->data, subpool);
+		svn_stream_read(obj_contents, (char *)data.ext_buf, (apr_size_t *)&buflen);
+		svn_stream_close(obj_contents);
+		if (memcmp(data.ext_buf, newcontents->ext_buf, (size_t)buflen) != 0) {
+			printf("found content difference\n");
+			altered_geom = 1;
+		}
+	}
+	if (altered_geom) {
+		/* update contents of object with new contents */
+		editor = bu_malloc(sizeof(svn_delta_editor_t), "delta editor");
+		svn_repos_get_commit_editor4(editor, &edit_baton, repos, NULL, repo_full_path, model_name, user, logmsg, NULL, NULL, NULL, NULL, subpool);
+		(*editor)->open_root(edit_baton, rev, subpool, &root_baton); 
+		(*editor)->open_file(target_file->data, root_baton, rev, subpool, &file_baton);
+		(*editor)->apply_textdelta(file_baton, NULL, subpool, &handler, &handler_baton);
+		contents = svn_stringbuf_ncreate((const char *)newcontents->ext_buf, (apr_size_t)newcontents->ext_nbytes, subpool);
+		contents_stream = svn_stream_from_stringbuf(contents, subpool);
+		svn_txdelta_send_stream(contents_stream, handler, handler_baton, NULL, subpool);
+		svn_stream_close(contents_stream);
+		(*editor)->close_file(file_baton, NULL, subpool);
+		(*editor)->close_edit(edit_baton, subpool);
+		bu_free(editor, "free svn editor object");
+	}
+	svn_pool_destroy(subpool);
+	return altered_geom;
+}
+
+
+
 /** Main. **/
 
 int
@@ -114,17 +169,17 @@ main(int argc, const char *argv[])
   svn_fs_initialize(pool);
 
   char *repo_path = "./GS_repository";
-  const char *full_path = svn_path_canonicalize(repo_path, pool);
+  const char *repo_full_path = svn_path_canonicalize(repo_path, pool);
 
   /* Check if it's already created - if it is, don't try to re-create it */
-  if(svn_repos_find_root_path(full_path, pool)){
-    printf("Repository %s already exists, continuing with test.\n", full_path);
+  if(svn_repos_find_root_path(repo_full_path, pool)){
+    printf("Repository %s already exists, continuing with test.\n", repo_full_path);
   } else {
-      svn_repos_create(&repos, full_path, NULL, NULL, NULL, NULL, pool);
-      printf("Created repository: %s\n", full_path);
+      svn_repos_create(&repos, repo_full_path, NULL, NULL, NULL, NULL, pool);
+      printf("Created repository: %s\n", repo_full_path);
   }
 
-  svn_repos_open(&repos, full_path, pool);
+  svn_repos_open(&repos, repo_full_path, pool);
   fs = svn_repos_fs(repos);
   svn_fs_youngest_rev(&youngest_rev, fs, pool);
   svn_repos_fs_begin_txn_for_commit2(&txn, repos, youngest_rev, apr_hash_make(pool), pool);
@@ -261,7 +316,7 @@ main(int argc, const char *argv[])
   char *logmsg = "testlogmsg";
 
   svn_fs_youngest_rev(&youngest_rev, fs, pool);
-  svn_repos_get_commit_editor4(editor, &edit_baton, repos, NULL, full_path, model_name, user, logmsg, NULL, NULL, NULL, NULL, pool);
+  svn_repos_get_commit_editor4(editor, &edit_baton, repos, NULL, repo_full_path, model_name, user, logmsg, NULL, NULL, NULL, NULL, pool);
   (*editor)->open_root(edit_baton, youngest_rev, pool, &root_baton); 
  bu_vls_sprintf(&filepath, "%s", "TESTFILE2");
   (*editor)->add_file(bu_vls_addr(&filepath), root_baton, NULL, youngest_rev, pool, &file_baton);
@@ -272,29 +327,6 @@ main(int argc, const char *argv[])
   /* may want svn_stringbuf_ncreate, svn_stream_from_stringbuf and svn_txdelta_send_stream for actual binary .g contents */
   (*editor)->close_file(file_baton, NULL, pool);
   (*editor)->close_edit(edit_baton, pool);
-
-  svn_stream_t *orig_contents;
-  svn_fs_youngest_rev(&youngest_rev, fs, pool);
-  svn_fs_revision_root(&repo_root, fs, youngest_rev, pool);
-  bu_vls_sprintf(&filepath, "%s/%s", model_name, "TESTFILE2");
-  svn_fs_file_contents(&orig_contents, repo_root, bu_vls_addr(&filepath), pool);
-  svn_string_t *orig_string;
-  svn_string_from_stream(&orig_string, orig_contents, pool, pool);
-  svn_checksum_t *local_checksum;
-
-  char *logmsg2 = "testlog2";
-  svn_repos_get_commit_editor4(editor, &edit_baton, repos, NULL, full_path, model_name, user, logmsg2, NULL, NULL, NULL, NULL, pool);
-  (*editor)->open_root(edit_baton, youngest_rev, pool, &root_baton);
-  (*editor)->open_file(bu_vls_addr(&filepath), root_baton, youngest_rev, pool, &file_baton);
-  char *testcontents3 = "test contents 3";
-  teststring = svn_string_createf(pool, "%s", testcontents3);
-  svn_stream_t *teststream = svn_stream_from_string(teststring, pool);
-  svn_stream_t *teststream2 = svn_stream_from_string(orig_string, pool);
-  (*editor)->apply_textdelta(file_baton, NULL, pool, &handler, &handler_baton);
-  svn_txdelta_run(teststream2, teststream, handler, handler_baton, svn_checksum_md5, &local_checksum, NULL, NULL, pool, pool);
-  (*editor)->close_file(file_baton, NULL, pool);
-  (*editor)->close_edit(edit_baton, pool);
-
 
  
   /* run g_diff */
