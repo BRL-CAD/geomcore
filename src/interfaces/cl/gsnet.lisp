@@ -40,7 +40,7 @@
 (defun writegsstring (s str)  (writeuint32 s (length str)) (loop for x being the element of str do (if x (write-byte (char-code x) s))))
 
 ;;; utility functions to read in
-(defun readuint64 (s) (loop with i = 0 for a in '(56 48 40 32 24 16 8 0) do (dpb (read-byte s) (byte 8 a) i) finally (return i)))
+(defun readuint64 (s) (apply #'+ (loop with i = 0 for a in '(56 48 40 32 24 16 8 0) collect (dpb (read-byte s) (byte 8 a) 0))))
 (defun readuint32 (s) (+ (* (read-byte s) #x1000000) (* (read-byte s) #x10000) (* (read-byte s) #x100) (read-byte s)))
 (defun readuint16 (s) (+ (* #x100 (read-byte s)) (read-byte s)))
 (defun readgsstring (s) 
@@ -53,14 +53,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defclass session ()
-  ((localnode :accessor localnode :initform +nodename+)
+  ((localnode :accessor localnode :initform +nodename+ :initarg :localnode)
    (remotenode :accessor remotenode)
    (sessionuuid :accessor sessionuuid :initform '())
    (username  :accessor username :initarg :username)
    (password :accessor password :initarg :password)
    (host :accessor host :initarg :host)
    (port :accessor port :initarg :port)
-   (strm :accessor strm :initform 'nil)
+   (strm :accessor strm :initform 'nil :initarg :stream)
    (socket :accessor socket :initform 'nil)))
 
 (defclass message ()
@@ -78,17 +78,19 @@
 	    (reuuid (if (= (read-byte (strm s)) 1) (readuuid (strm s)) '())))
 	(setf length (- length (+ 2 4 (length uuid) (if reuuid (+ (length reuuid) 4) 0) 1)))
 	(cond 
-	  ((= type +gsrnnset+) (setf (remotenode s) (readgsstring (strm s))) type)
+	  ((= type +gsrnnset+) (setf (remotenode s) (readgsstring (strm s))) t)
+	  ((= type +gsdr+) (writemsg s (make-instance 'logoutmsg)) '())
 	  ((= type +gspong+) (make-instance 'pongmsg :tv (readuint64 (strm s))))
-	  ((= type +gsping+) (writemsg s (make-instance 'pongmsg :tv (readuint64 (strm s))))) ; automatically respond to ping requests
-	  ((= type +gsinfo+) (setf (sessionuuid s) (readgsstring (strm s))) type)
+	  ((= type +gsping+) (writemsg s (make-instance 'pongmsg :tv (readuint64 (strm s)))) t) ; automatically respond to ping requests
+	  ((= type +gsinfo+) (setf (sessionuuid s) (readgsstring (strm s))) t)
 	  ((= type +gsfail+) (make-instance 'failmsg))
 	  ((= type +gsok+) (make-instance 'okmsg))
-	  ((= type +gsrualive+) (writemsg s (make-instance 'imalivemsg))) ; automatically respond to rualive 
+	  ((= type +gsrualive+) (writemsg s (make-instance 'imalivemsg)) t) ; automatically respond to rualive 
 	  ((= type +gsimalive+) (make-instance 'imalivemsg))
 	  ((= type +gsgr+) (make-instance 'geomreqmsg :uri (readgsstring (strm s))))
 	  ((= type +gsgm+) (make-instance 'geommanifestreq :manifest (loop for i from 0 to (readuint32 (strm s)) collect (readgsstring (strm s)))))
 	  ((= type +gsgc+) (make-instance 'geomchunkmsg :chunk (let ((len (readuint32 (strm s)))) (loop with c = (make-array len :element-type '(unsigned-byte 8)) for i from 0 to len do (setf (aref c i) (read-byte (strm s)))))))
+	  ((= type +gsnsr+) (make-instance 'loginmsg :username (readgsstring (strm s)) :password (readgsstring (strm s))))
 	  (t (format t "Unknown type! ~x~%" type))))
       '()))
 
@@ -119,7 +121,7 @@
 (defmethod writemsg :before (s (m nodenamemsg)) (setf (msgtype m) +gsrnnset+) (setf (len m) (+ (length (localnode s)) 4)))
 (defmethod writemsg :after (s (m nodenamemsg)) (writegsstring (strm s) (localnode s)))
 
-(defclass loginmsg (message) ())
+(defclass loginmsg (message) ((username :accessor username :initarg :username) (password :accessor password :initarg :password)))
 (defmethod writemsg :before (s (m loginmsg)) (setf (msgtype m) +gsnsr+) (setf (len m) (+ (length (username s)) (length (password s)) 8)))
 (defmethod writemsg :after (s (m loginmsg)) (writegsstring (strm s) (username s)) (writegsstring (strm s) (password s)))
 
@@ -127,16 +129,16 @@
 (defmethod writemsg :before (s (m logoutmsg)) (setf (msgtype m) +gsdr+))
 
 (defclass rualivemsg (message) ())
-(defmethod writemsg :before (s (m logoutmsg)) (setf (msgtype m) +gsrualive+))
+(defmethod writemsg :before (s (m rualivemsg)) (setf (msgtype m) +gsrualive+))
 
 (defclass imalivemsg (message) ())
-(defmethod writemsg :before (s (m logoutmsg)) (setf (msgtype m) +gsimalive+))
+(defmethod writemsg :before (s (m imalivemsg)) (setf (msgtype m) +gsimalive+))
 
 (defclass okmsg (message) ())
-(defmethod writemsg :before (s (m logoutmsg)) (setf (msgtype m) +gsok+))
+(defmethod writemsg :before (s (m okmsg)) (setf (msgtype m) +gsok+))
 
 (defclass failmsg (message) ())
-(defmethod writemsg :before (s (m logoutmsg)) (setf (msgtype m) +gsfail+))
+(defmethod writemsg :before (s (m failmsg)) (setf (msgtype m) +gsfail+))
 
 (defclass geomreqmsg (message) ((uri :accessor uri :initarg :uri :initform "")))
 (defmethod writemsg :before (s (m geomreqmsg)) (setf (msgtype m) +gsgr+) (setf (len m) (+ (length (uri m)) 4)))
