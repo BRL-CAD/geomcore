@@ -109,23 +109,26 @@ GeometryChunkMsg::objToChunk(BRLCAD::MinimalObject* obj)
 BRLCAD::MinimalObject*
 GeometryChunkMsg::chunkToObj(GeometryChunkMsg* msg)
 {
-	if (msg == NULL)
+	if (msg == NULL) {
+	   	bu_log("NULL msg");
 		return NULL;
+	}
 
 	ByteArray* ba = msg->getByteArray();
 
-	if (ba == NULL)
+	if (ba == NULL){
+	   	bu_log("NULL ByteArray");
 		return NULL;
+	}
 
-	size_t extSize = sizeof(bu_external);
+
+	bu_external* ext = (bu_external*)bu_calloc(1,sizeof(bu_external),"chunkToExt bu_external calloc");;
+
 	size_t baSize = ba->size();
 
-	if (extSize != baSize)
-		return NULL;
-
 	/* Build bu_external */
-	bu_external* ext = (bu_external*)bu_calloc(sizeof(extSize),1,"chunkToExt bu_external calloc");
-	memcpy((char*)ext, ba->data(), extSize);
+	ext->ext_buf = (uint8_t*)bu_calloc(1,baSize,"chunkToExt bu_external calloc");
+	memcpy(ext->ext_buf, ba->data(), baSize);
 
 	/* Get object name  */
 	struct db5_raw_internal raw;
@@ -138,7 +141,6 @@ GeometryChunkMsg::chunkToObj(GeometryChunkMsg* msg)
     	bu_log("Failed to retireve object name.  Could not deserialize.\n");
     	return NULL;
     }
-
 
     std::string name((char*)raw.name.ext_buf);
 
