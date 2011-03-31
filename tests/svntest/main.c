@@ -83,8 +83,14 @@ int concat_obj(void *dbinfo, const void *objname, apr_ssize_t klen, const void *
   bu_free(data, "free ext buf");
 }
 
-/* Function to update contents of a .g object entry */
-int update_obj(apr_pool_t *pool, svn_repos_t *repos, svn_revnum_t rev, const char *repo_full_path, const char *model_name, const char *obj_name, const char *user, const char *logmsg, struct bu_external *newcontents) {
+struct commit_items {
+	struct bu_list l;
+	char *obj_name;
+	struct bu_external *contents;
+};
+
+/* Function to determine if a .g object has been changed */
+int check_obj(apr_pool_t *pool, struct commit_items *update_list, svn_repos_t *repos, svn_revnum_t rev, const char *model_name, const char *obj_name, struct bu_external *newcontents) {
 	int altered_geom = 0;
 	svn_fs_t *fs = svn_repos_fs(repos);
 	svn_fs_root_t *repo_root;
@@ -92,16 +98,10 @@ int update_obj(apr_pool_t *pool, svn_repos_t *repos, svn_revnum_t rev, const cha
 	struct bu_external *data;
 	apr_pool_t *subpool = svn_pool_create(pool);
 	svn_fs_revision_root(&repo_root, fs, rev, subpool);
-	svn_stream_t *obj_contents = svn_stream_empty(subpool);
-	svn_string_t *svn_file = svn_string_createf(subpool, "%s/%s/%s", model_name, obj_name, obj_name);
-	svn_string_t *target_file = svn_string_createf(subpool, "%s/%s", obj_name, obj_name);
+	struct commit_items *commit_item;
+  	svn_string_t *svn_file = svn_string_createf(subpool, "%s/%s/%s", model_name, obj_name, obj_name);
 	svn_fs_file_length(&buflen, repo_root, svn_file->data, subpool);
-	const svn_delta_editor_t **editor;
-	void *edit_baton, *root_baton, *file_baton, *handler_baton;
-	svn_txdelta_window_handler_t handler;
-	svn_stringbuf_t *contents;
-	svn_stream_t *contents_stream;
-        if ((size_t)buflen != (size_t)newcontents->ext_nbytes) {
+  	if ((size_t)buflen != (size_t)newcontents->ext_nbytes) {
 		printf("found size difference\n");
 		altered_geom = 1;
 	} else {
@@ -115,25 +115,46 @@ int update_obj(apr_pool_t *pool, svn_repos_t *repos, svn_revnum_t rev, const cha
 		bu_free(data, "free ext buf");
 	}
 	if (altered_geom) {
-		/* update contents of object with new contents */
-		editor = bu_malloc(sizeof(svn_delta_editor_t), "delta editor");
-		svn_repos_get_commit_editor4(editor, &edit_baton, repos, NULL, repo_full_path, model_name, user, logmsg, NULL, NULL, NULL, NULL, subpool);
-		(*editor)->open_root(edit_baton, rev, subpool, &root_baton); 
-		(*editor)->open_file(target_file->data, root_baton, rev, subpool, &file_baton);
-		(*editor)->apply_textdelta(file_baton, NULL, subpool, &handler, &handler_baton);
-		contents = svn_stringbuf_ncreate((const char *)newcontents->ext_buf, (apr_size_t)newcontents->ext_nbytes, subpool);
-		contents_stream = svn_stream_from_stringbuf(contents, subpool);
-		svn_txdelta_send_stream(contents_stream, handler, handler_baton, NULL, subpool);
-		svn_stream_close(contents_stream);
-		(*editor)->close_file(file_baton, NULL, subpool);
-		(*editor)->close_edit(edit_baton, subpool);
-		bu_free(editor, "free svn editor object");
+		/* add to updated_list */
+		printf("adding: %s\n", obj_name);
+		BU_GETSTRUCT(commit_item, commit_items);
+		commit_item->obj_name = apr_pstrdup(pool, obj_name);
+		commit_item->contents = newcontents;
+		BU_LIST_PUSH(&(update_list->l), &(commit_item->l));
 	}
 	svn_pool_destroy(subpool);
 	return altered_geom;
 }
 
-
+/* Function to commit a list of file changes as one commit */
+int commit_objs(apr_pool_t *pool, struct commit_items *update_list, svn_repos_t *repos, svn_revnum_t rev, const char *repo_full_path, const char *model_name, const char *user, const char *logmsg) {
+	int i = 0;
+	const svn_delta_editor_t **editor = bu_malloc(sizeof(svn_delta_editor_t), "delta editor");
+	void *edit_baton, *root_baton, *file_baton, *handler_baton;
+	svn_txdelta_window_handler_t handler;
+	struct commit_items *item;
+	svn_string_t *target_file;
+	svn_stringbuf_t *contents;
+	svn_stream_t *contents_stream;
+	apr_pool_t *subpool = svn_pool_create(pool);
+	svn_repos_get_commit_editor4(editor, &edit_baton, repos, NULL, repo_full_path, model_name, user, logmsg, NULL, NULL, NULL, NULL, subpool);
+	(*editor)->open_root(edit_baton, rev, subpool, &root_baton);
+	for(BU_LIST_FOR(item, commit_items, &(update_list->l))) {
+		printf("updating: %s\n", item->obj_name);
+		target_file = svn_string_createf(subpool, "%s/%s", item->obj_name, item->obj_name);
+		(*editor)->open_file(target_file->data, root_baton, rev, subpool, &file_baton);
+		(*editor)->apply_textdelta(file_baton, NULL, subpool, &handler, &handler_baton);
+		contents = svn_stringbuf_ncreate((const char *)item->contents->ext_buf, (apr_size_t)item->contents->ext_nbytes, subpool);
+		contents_stream = svn_stream_from_stringbuf(contents, subpool);
+		svn_txdelta_send_stream(contents_stream, handler, handler_baton, NULL, subpool);
+		svn_stream_close(contents_stream);
+		(*editor)->close_file(file_baton, NULL, subpool);
+		i++;
+	}
+	(*editor)->close_edit(edit_baton, subpool);
+	svn_pool_destroy(subpool);
+	bu_free(editor, "free svn editor object");
+}
 
 /** Main. **/
 
@@ -280,18 +301,24 @@ main(int argc, const char *argv[])
 	  db_update_nref(dbip, &rt_uniresource);
 
 	  /* will need to use an iterpool in here: http://www.opensubscriber.com/message/users@subversion.tigris.org/8428443.html */
-	  data = bu_malloc(sizeof(struct bu_external), "alloc external data struct");
-	  char *buf = apr_palloc(pool, SVN__STREAM_CHUNK_SIZE);
+	  struct commit_items *update_list;
+	  BU_GETSTRUCT(update_list, commit_items);
+	  BU_LIST_INIT(&(update_list->l));
 	  for (inc=0; inc < RT_DBNHASH; inc++) {
 		  for (dp = dbip->dbi_Head[inc]; dp != RT_DIR_NULL; dp = dp->d_forw) {
 			  if(!BU_STR_EQUAL(dp->d_namep, "_GLOBAL")) {
+				  data = bu_malloc(sizeof(struct bu_external), "alloc external data struct");
 				  rt_data_stream = svn_stream_empty(pool);
 				  rt_db_get_internal5(ip, dp, dbip, NULL, &rt_uniresource);
 				  rt_db_cvt_to_external5(data, dp->d_namep, ip, 1, dbip,  &rt_uniresource, ip->idb_major_type);
-				  update_obj(pool, repos, youngest_rev, repo_full_path, model_name, dp->d_namep, user, logmsg, data);
+				  if(check_obj(pool, update_list, repos, youngest_rev, model_name, dp->d_namep, data) != 1) {
+					  bu_free(data->ext_buf, "free buff");
+					  bu_free(data, "free data");
+				  }
 			  }
 		  }
 	  }
+	  if (!BU_LIST_IS_EMPTY(&(update_list->l))) commit_objs(pool, update_list, repos, youngest_rev, repo_full_path, model_name, user, logmsg);
 	  bu_free(data, "free external data");
 	  bu_vls_free(&filedir);
 	  bu_vls_free(&filepath);
