@@ -42,9 +42,16 @@ FileDataSource::getObj(std::string path)
 
 /* Get a set of BRLCAD::MinimalObjects */
 std::list<BRLCAD::MinimalObject*>*
-FileDataSource::getObjs(std::string path, bool recurse)
+FileDataSource::getObjs(std::string relPath, bool recurse)
 {
+	std::string absPath = this->repoPath + "/" + relPath;
 
+	BRLCAD::MinimalDatabase md(absPath);
+
+	if (recurse)
+		return md.getAllObjects();
+	else
+		return md.getAllTopObjects();
 }
 
 /* Put a single BRLCAD::MinimalObject */

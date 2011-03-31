@@ -28,6 +28,7 @@
 
 #include "IDataSource.h"
 #include <MinimalObject.h>
+#include <MinimalDatabase.h>
 #include <string>
 #include <list>
 
