@@ -308,13 +308,44 @@ main(int argc, const char *argv[])
   tdiff = (int)difftime(t0,tb);
   printf("total delta: %d sec\n", tdiff);
 
+
+  char *user = "testuser";
+  char *logmsg = "testlogmsg";
+
+  if (argc == 3) { 
+	  const char *model_path2 = svn_path_canonicalize(argv[2], pool);
+	  dbip = db_open(model_path2, "r");
+	  if(dbip == DBI_NULL) {
+		  printf("could not open %s\n", model_path);
+		  exit(EXIT_FAILURE);
+	  }
+	  (void)db_dirbuild(dbip);
+	  wdbp = wdb_dbopen(dbip, RT_WDB_TYPE_DB_DISK);
+	  db_update_nref(dbip, &rt_uniresource);
+
+	  /* will need to use an iterpool in here: http://www.opensubscriber.com/message/users@subversion.tigris.org/8428443.html */
+	  data = bu_malloc(sizeof(struct bu_external), "alloc external data struct");
+	  char *buf = apr_palloc(pool, SVN__STREAM_CHUNK_SIZE);
+	  for (inc=0; inc < RT_DBNHASH; inc++) {
+		  for (dp = dbip->dbi_Head[inc]; dp != RT_DIR_NULL; dp = dp->d_forw) {
+			  if(!BU_STR_EQUAL(dp->d_namep, "_GLOBAL")) {
+				  rt_data_stream = svn_stream_empty(pool);
+				  rt_db_get_internal5(ip, dp, dbip, NULL, &rt_uniresource);
+				  rt_db_cvt_to_external5(data, dp->d_namep, ip, 1, dbip,  &rt_uniresource, ip->idb_major_type);
+				  update_obj(pool, repos, youngest_rev, repo_full_path, model_name, dp->d_namep, user, logmsg, data);
+			  }
+		  }
+	  }
+	  bu_free(data, "free external data");
+	  bu_vls_free(&filedir);
+	  bu_vls_free(&filepath);
+	  db_close(dbip);
+  }
+
   const svn_delta_editor_t **editor = bu_malloc(sizeof(svn_delta_editor_t), "delta editor");
   void *edit_baton, *root_baton, *file_baton, *handler_baton;
   svn_txdelta_window_handler_t handler;
   svn_stream_t *contents;
-  char *user = "testuser";
-  char *logmsg = "testlogmsg";
-
   svn_fs_youngest_rev(&youngest_rev, fs, pool);
   svn_repos_get_commit_editor4(editor, &edit_baton, repos, NULL, repo_full_path, model_name, user, logmsg, NULL, NULL, NULL, NULL, pool);
   (*editor)->open_root(edit_baton, youngest_rev, pool, &root_baton); 
