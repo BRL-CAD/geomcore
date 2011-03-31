@@ -26,6 +26,7 @@
 #include "NetMsgTypes.h"
 #include "GeometryChunkMsg.h"
 #include <sstream>
+#include <raytrace.h>
 
 /* Normal Constructor */
 GeometryChunkMsg::GeometryChunkMsg(std::string path, ByteArray* dataIn) :
@@ -92,27 +93,56 @@ GeometryChunkMsg::_equals(const NetMsg& msg)
 
 
 GeometryChunkMsg*
-GeometryChunkMsg::extToChunk(BRLCAD::MinimalObject* obj)
+GeometryChunkMsg::objToChunk(BRLCAD::MinimalObject* obj)
 {
 	bu_external* ext = obj->getBuExternal();
+	size_t len = ext->ext_nbytes;
 
-	size_t magicLen = sizeof(long);
+	/* TODO investigate: We MIGHT be double copying here.  Depends on if ByteArray copies the data passed to its cstr */
+	char* buf = (char*)bu_malloc(len, "objToChunk buf malloc");
+	memcpy (buf, ext->ext_buf, len);
 
-	size_t size = magicLen + ext->ext_nbytes;
-	char* buf = (char*)bu_malloc(size, "objToChunk buf malloc");
-
-	memcpy (buf, &ext->ext_magic, magicLen);
-	memcpy (buf + magicLen, ext->ext_buf, ext->ext_nbytes);
-
-	ByteArray ba(buf, size);
-	return new GeometryChunkMsg(obj->getFullRepoPath(), &ba);
-
+	ByteArray ba(buf, len);
+	return new GeometryChunkMsg(obj->getFilePath(), &ba);
 }
 
 BRLCAD::MinimalObject*
-GeometryChunkMsg::chunkToExt(GeometryChunkMsg* msg)
+GeometryChunkMsg::chunkToObj(GeometryChunkMsg* msg)
 {
+	if (msg == NULL)
+		return NULL;
 
+	ByteArray* ba = msg->getByteArray();
+
+	if (ba == NULL)
+		return NULL;
+
+	size_t extSize = sizeof(bu_external);
+	size_t baSize = ba->size();
+
+	if (extSize != baSize)
+		return NULL;
+
+	/* Build bu_external */
+	bu_external* ext = (bu_external*)bu_calloc(sizeof(extSize),1,"chunkToExt bu_external calloc");
+	memcpy((char*)ext, ba->data(), extSize);
+
+	/* Get object name  */
+	struct db5_raw_internal raw;
+    if (db5_get_raw_internal_ptr(&raw, (const unsigned char *)ba->data()) == NULL) {
+    	bu_log("Corrupted serialized geometry?  Could not deserialize.\n");
+    	return NULL;
+    }
+
+    if (raw.name.ext_nbytes < 1) {
+    	bu_log("Failed to retireve object name.  Could not deserialize.\n");
+    	return NULL;
+    }
+
+
+    std::string name((char*)raw.name.ext_buf);
+
+	return new BRLCAD::MinimalObject(msg->getPath(), name, ext);
 }
 
 

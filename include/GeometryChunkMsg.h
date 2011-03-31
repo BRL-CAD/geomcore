@@ -50,8 +50,8 @@ public:
 	std::string toString();
 	std::string getPath();
 
-	static BRLCAD::MinimalObject* chunkToExt(GeometryChunkMsg* msg);
-	static GeometryChunkMsg* extToChunk(BRLCAD::MinimalObject* ext);
+	static BRLCAD::MinimalObject* chunkToObj(GeometryChunkMsg* msg);
+	static GeometryChunkMsg* objToChunk(BRLCAD::MinimalObject* Obj);
 
 private:
 	std::string path;
