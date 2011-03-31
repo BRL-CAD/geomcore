@@ -35,6 +35,26 @@ struct assemble_info {
 	svn_fs_root_t *root;
 };
 
+/* Convert a file from an svn repository into a bu_external structure.  Caller is responsible for
+ * freeing both the ext_buf memory and the bu_external struct itself */
+struct bu_external *svn_file_to_bu_extern(apr_pool_t *pool, svn_fs_root_t *repo_root, const char *model_name, const char *obj_name) {
+	apr_pool_t *subpool = svn_pool_create(pool);
+	svn_filesize_t buflen;
+	svn_stream_t *obj_contents;
+	struct bu_external *data = bu_malloc(sizeof(struct bu_external), "allocate bu_external");
+	BU_INIT_EXTERNAL(data);
+	svn_string_t *svn_file = svn_string_createf(subpool, "%s/%s/%s", model_name, obj_name, obj_name);
+	svn_string_t *target_file = svn_string_createf(subpool, "%s/%s", obj_name, obj_name);
+	svn_fs_file_length(&buflen, repo_root, svn_file->data, subpool);
+	data->ext_nbytes = (size_t)buflen;
+	data->ext_buf = bu_malloc(data->ext_nbytes, "memory for .g data");
+	svn_fs_file_contents(&obj_contents, repo_root, svn_file->data, subpool);
+	svn_stream_read(obj_contents, (char *)data->ext_buf, (apr_size_t *)&buflen);
+	svn_stream_close(obj_contents);
+	svn_pool_destroy(subpool);
+	return data;
+}
+
 /* Function callback to assemble .g file - function type is
  * apr_hash_do_callback_fn_t.  Need to make sure dbinfo is
  * a struct that has everything we need to get the file
@@ -48,29 +68,19 @@ int concat_obj(void *dbinfo, const void *objname, apr_ssize_t klen, const void *
   apr_pool_t *subpool = svn_pool_create(ainfo->pool);
   struct directory *dp;
   struct rt_db_internal ip;
-
-  svn_filesize_t buflen;
-  svn_stream_t *obj_contents = svn_stream_empty(subpool);
-  svn_stringbuf_t *stringbuf;
-  struct bu_external data;
-  BU_INIT_EXTERNAL(&data);
+  struct bu_external *data;
+  
   RT_INIT_DB_INTERNAL(&ip);
 
-  bu_vls_sprintf(&ainfo->svn_file, "%s/%s/%s", ainfo->model_name, (const char *)objname, (const char *)objname);
-  /* get svn_file contents and convert them into the right form */
-  svn_fs_file_length(&buflen, ainfo->root, bu_vls_addr(&ainfo->svn_file), subpool);
-  data.ext_nbytes = (size_t)buflen;
-  data.ext_buf = bu_malloc(data.ext_nbytes, "memory for .g data");
-  svn_fs_file_contents(&obj_contents, ainfo->root, bu_vls_addr(&ainfo->svn_file), subpool);
-  svn_stream_read(obj_contents, (char *)data.ext_buf, (apr_size_t *)&buflen);
-  svn_stream_close(obj_contents);
- 
+  data = svn_file_to_bu_extern(subpool, ainfo->root, ainfo->model_name, objname);
+
   /* Put things into the new database */ 
-  rt_db_external5_to_internal5(&ip, &data, (const char *)objname, ainfo->dbip, NULL, &rt_uniresource);
+  rt_db_external5_to_internal5(&ip, data, (const char *)objname, ainfo->dbip, NULL, &rt_uniresource);
   wdb_put_internal(ainfo->wdbp, (const char *)objname, &ip, 1);
   
   svn_pool_destroy(subpool);
-  bu_free(data.ext_buf, "free ext buf");
+  bu_free(data->ext_buf, "free ext buf data");
+  bu_free(data, "free ext buf");
 }
 
 /* Function to update contents of a .g object entry */
@@ -79,7 +89,7 @@ int update_obj(apr_pool_t *pool, svn_repos_t *repos, svn_revnum_t rev, const cha
 	svn_fs_t *fs = svn_repos_fs(repos);
 	svn_fs_root_t *repo_root;
 	svn_filesize_t buflen;
-	struct bu_external data;
+	struct bu_external *data;
 	apr_pool_t *subpool = svn_pool_create(pool);
 	svn_fs_revision_root(&repo_root, fs, rev, subpool);
 	svn_stream_t *obj_contents = svn_stream_empty(subpool);
@@ -96,15 +106,13 @@ int update_obj(apr_pool_t *pool, svn_repos_t *repos, svn_revnum_t rev, const cha
 		altered_geom = 1;
 	} else {
 		/* sizes are the same, we need to check the contents */
-		data.ext_nbytes = (size_t)buflen;
-		data.ext_buf = bu_malloc(data.ext_nbytes, "memory for .g data");
-		svn_fs_file_contents(&obj_contents, repo_root, svn_file->data, subpool);
-		svn_stream_read(obj_contents, (char *)data.ext_buf, (apr_size_t *)&buflen);
-		svn_stream_close(obj_contents);
-		if (memcmp(data.ext_buf, newcontents->ext_buf, (size_t)buflen) != 0) {
+		data = svn_file_to_bu_extern(subpool, repo_root, model_name, obj_name);
+		if (memcmp(data->ext_buf, newcontents->ext_buf, (size_t)buflen) != 0) {
 			printf("found content difference\n");
 			altered_geom = 1;
 		}
+		bu_free(data->ext_buf, "free ext buf data");
+		bu_free(data, "free ext buf");
 	}
 	if (altered_geom) {
 		/* update contents of object with new contents */
@@ -349,27 +357,6 @@ main(int argc, const char *argv[])
   tdiff = (int)difftime(t0,tb);
   printf("total delta: %d sec\n", tdiff);
 
-
-
-
-  const svn_delta_editor_t **editor = bu_malloc(sizeof(svn_delta_editor_t), "delta editor");
-  void *edit_baton, *root_baton, *file_baton, *handler_baton;
-  svn_txdelta_window_handler_t handler;
-  svn_stream_t *contents;
-  svn_fs_youngest_rev(&youngest_rev, fs, pool);
-  svn_repos_get_commit_editor4(editor, &edit_baton, repos, NULL, repo_full_path, model_name, user, logmsg, NULL, NULL, NULL, NULL, pool);
-  (*editor)->open_root(edit_baton, youngest_rev, pool, &root_baton); 
- bu_vls_sprintf(&filepath, "%s", "TESTFILE2");
-  (*editor)->add_file(bu_vls_addr(&filepath), root_baton, NULL, youngest_rev, pool, &file_baton);
-  (*editor)->apply_textdelta(file_baton, NULL, pool, &handler, &handler_baton);
-  char *testcontents2 = "test contents 2";
-  svn_string_t *teststring = svn_string_createf(pool, "%s", testcontents2);
-  svn_txdelta_send_string(teststring,  handler, handler_baton, pool);
-  /* may want svn_stringbuf_ncreate, svn_stream_from_stringbuf and svn_txdelta_send_stream for actual binary .g contents */
-  (*editor)->close_file(file_baton, NULL, pool);
-  (*editor)->close_edit(edit_baton, pool);
-
- 
   /* run g_diff */
   bu_vls_init(&vstr);
   bu_vls_sprintf(&vstr, "./GS_staging/%s", model_name);
