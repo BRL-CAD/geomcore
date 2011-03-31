@@ -27,7 +27,7 @@
 #define __SVNDATASOURCE_H__
 
 #include "IDataSource.h"
-
+#include <MinimalObject.h>
 #include <string>
 #include <list>
 
@@ -39,13 +39,13 @@ public:
 	SvnDataSource(std::string repoPath);
 	virtual ~SvnDataSource();
 
-	/* Get a single bu_external */
-	bu_external* getObj(std::string path);
+	/* Get a single BRLCAD::MinimalObject */
+	BRLCAD::MinimalObject* getObj(std::string path);
 
-	/* Get a set of bu_external */
-	std::list<bu_external*>* getObjs(std::string path);
+	/* Get a set of BRLCAD::MinimalObject */
+	std::list<BRLCAD::MinimalObject*>* getObjs(std::string path, bool recurse);
 
-	virtual bool putObj(std::string path, bu_external* ext) = 0;
+	virtual bool putObj(std::string path, BRLCAD::MinimalObject* ext) = 0;
 
 private:
 	std::string repoPath;

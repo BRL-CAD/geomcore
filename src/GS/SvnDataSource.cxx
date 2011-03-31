@@ -38,23 +38,23 @@ SvnDataSource::~SvnDataSource()
 {}
 
 
-/* Get a single bu_external */
-bu_external*
+/* Get a single BRLCAD::MinimalObject */
+BRLCAD::MinimalObject*
 SvnDataSource::getObj(std::string path)
 {
 
 }
 
 
-/* Get a set of bu_externals */
-std::list<bu_external*>*
-SvnDataSource::getObjs(std::string path)
+/* Get a set of BRLCAD::MinimalObjects */
+std::list<BRLCAD::MinimalObject*>*
+SvnDataSource::getObjs(std::string path, bool recurse)
 {
 
 }
 
 bool
-SvnDataSource::putObj(std::string path, bu_external* ext)
+SvnDataSource::putObj(std::string path, BRLCAD::MinimalObject* ext)
 {
 
 }

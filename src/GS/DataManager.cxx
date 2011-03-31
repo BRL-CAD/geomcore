@@ -118,7 +118,7 @@ DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
     }
 
     /* pull all objects */
-    std::list<bu_external*>* objs = this->datasource->getObjs(path);
+    std::list<BRLCAD::MinimalObject*>* objs = this->datasource->getObjs(path, recurse);
     if (objs == NULL) {
        	origin->sendTypeOnlyMessage(COULD_NOT_FIND_GEOMETRY, msg);
         return;
@@ -128,13 +128,13 @@ DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
     std::list<GeometryChunkMsg*> msgs;
     GeometryChunkMsg* chunk = NULL;
     int cnt = 0;
-    bu_external* obj = NULL;
+    BRLCAD::MinimalObject* obj = NULL;
 
-    for(std::list<bu_external*>::iterator it = objs->begin();
+    for(std::list<BRLCAD::MinimalObject*>::iterator it = objs->begin();
         it != objs->end(); it++)
     {
         obj = *it;
-        chunk = DataManager::extToChunk(path, obj);
+        chunk = GeometryChunkMsg::extToChunk(obj);
         //chunk->getByteArray()->printHexString("");
         msgs.push_back(chunk);
     }
@@ -197,48 +197,6 @@ DataManager::init(Config* c)
         log->logERROR("DataManager", "Invalid RepoType in config file.  Valid values are 'file' and 'svn'");
         return false;
     }
-}
-
-GeometryChunkMsg*
-DataManager::extToChunk(std::string path, bu_external* ext)
-{
-	size_t magicLen = sizeof(long);
-
-	size_t size = magicLen + ext->ext_nbytes;
-	char* buf = (char*)bu_malloc(size, "objToChunk buf malloc");
-
-	memcpy (buf, &ext->ext_magic, magicLen);
-	memcpy (buf + magicLen, ext->ext_buf, ext->ext_nbytes);
-
-	ByteArray ba(buf, size);
-	return new GeometryChunkMsg(path, &ba);
-
-//	std::cout << "ext->ext_magic: "<< ext->ext_magic << "\n";
-//
-//	std::cout << "ext->ext_buf: ";
-//	unsigned char* p = (unsigned char*)ext->ext_buf;
-//	for (int i = 0; i<ext->ext_nbytes;i++)
-//	{
-//		printf("%02x ", *p);
-//		p++;
-//	}
-//	std::cout << "\n";
-//
-//	std::cout << "buf: ";
-//	p = buf;
-//	for (int i = 0; i<size;i++)
-//	{
-//		printf("%02x ", *p);
-//		p++;
-//	}
-//	std::cout << "\n";
-
-}
-
-bu_external*
-DataManager::chunkToExt(GeometryChunkMsg* msg)
-{
-
 }
 
 /*

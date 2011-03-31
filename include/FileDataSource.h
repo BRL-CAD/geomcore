@@ -27,6 +27,7 @@
 #define __FILEDATASOURCE_H__
 
 #include "IDataSource.h"
+#include <MinimalObject.h>
 #include <string>
 #include <list>
 
@@ -41,18 +42,18 @@ public:
 	 * 'GET' ers
 	 */
 
-	/* Get a single bu_external */
-	bu_external* getObj(std::string path);
+	/* Get a single BRLCAD::MinimalObject */
+	BRLCAD::MinimalObject* getObj(std::string path);
 
 	/* Get a set of objects */
-	std::list<bu_external*>* getObjs(std::string path);
+	std::list<BRLCAD::MinimalObject*>* getObjs(std::string path, bool recurse);
 
 	/*
 	 * 'PUT' ers
 	 */
 
 	/* Put a single BRLCAD::Object */
-	bool putObj(std::string path, bu_external* ext);
+	bool putObj(std::string path, BRLCAD::MinimalObject* obj);
 
 private:
 	std::string repoPath;

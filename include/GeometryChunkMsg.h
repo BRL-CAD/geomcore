@@ -27,6 +27,7 @@
 #define __GEOMETRYCHUNKMSG_H__
 
 #include "GenericMultiByteMsg.h"
+#include <MinimalObject.h>
 
 class GeometryChunkMsg : public GenericMultiByteMsg
 {
@@ -48,6 +49,9 @@ public:
 
 	std::string toString();
 	std::string getPath();
+
+	static BRLCAD::MinimalObject* chunkToExt(GeometryChunkMsg* msg);
+	static GeometryChunkMsg* extToChunk(BRLCAD::MinimalObject* ext);
 
 private:
 	std::string path;

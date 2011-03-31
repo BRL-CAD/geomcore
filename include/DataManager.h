@@ -27,9 +27,6 @@
 #ifndef __DATAMANAGER_H__
 #define __DATAMANAGER_H__
 
-#include "brlcad/Object.h"
-#include "brlcad/ConstDatabase.h"
-
 #include "Config.h"
 #include "INetMsgHandler.h"
 #include "IDataSource.h"
@@ -56,9 +53,6 @@ public:
 	std::string getObjectByPath(std::string url);
 
 	bool setDataSource(IDataSource* source);
-
-	static bu_external* chunkToExt(GeometryChunkMsg* msg);
-	static GeometryChunkMsg* extToChunk(std::string path, bu_external* ext);
 
 private:
 	static DataManager* pInstance;

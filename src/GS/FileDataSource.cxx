@@ -22,7 +22,6 @@
  */
 
 #include "FileDataSource.h"
-#include "brlcad/MemoryDatabase.h"
 
 
 FileDataSource::FileDataSource(std::string repoPath)
@@ -34,70 +33,24 @@ FileDataSource::~FileDataSource()
 {}
 
 
-/* Get a single bu_external */
-bu_external*
+/* Get a single BRLCAD::MinimalObject */
+BRLCAD::MinimalObject*
 FileDataSource::getObj(std::string path)
 {
-    BRLCAD::MemoryDatabase md;
-
-    std::string fullPath(this->repoPath + "/" + path);
-
-    if (!md.Load(fullPath.c_str()))
-	return NULL;
-
-    BRLCAD::ConstDatabase::TopObjectIterator it = md.FirstTopObject();
-    bu_external* ext;
-
-    if (it.Good()) {
-    	const char* name = it.Name();
-    	ext = md.GetBUExternal(name);
-    }
-
-    return ext;
 }
 
 
-/* Get a set of bu_externals */
-std::list<bu_external*>*
-FileDataSource::getObjs(std::string path)
+/* Get a set of BRLCAD::MinimalObjects */
+std::list<BRLCAD::MinimalObject*>*
+FileDataSource::getObjs(std::string path, bool recurse)
 {
-    BRLCAD::MemoryDatabase md;
 
-    std::string fullPath(this->repoPath + "/" + path);
-
-    if (!md.Load(fullPath.c_str()))
-	return NULL;
-
-    BRLCAD::ConstDatabase::TopObjectIterator it = md.FirstTopObject();
-    BRLCAD::Object* obj = NULL;
-
-    std::list<bu_external*>* objs = new std::list<bu_external*>();
-    bu_external* ext = NULL;
-
-    while (it.Good()) {
-    	const char* name = it.Name();
-    	objs->push_back(md.GetBUExternal(name));
-    	++it;
-    }
-    return objs;
 }
 
-/* Put a single bu_external */
+/* Put a single BRLCAD::MinimalObject */
 bool
-FileDataSource::putObj(std::string path, bu_external* obj)
+FileDataSource::putObj(std::string path, BRLCAD::MinimalObject* obj)
 {
-    std::string fullPath(this->repoPath + "/" + path);
-
-//    BRLCAD::MemoryDatabase md;
-//
-//    //Try to load
-//    md.Load(fullPath.c_str());
-//
-//    if (!md.Add(obj))
-//	return false;
-//
-//    if (!md.Save(fullPath.c_str()))
-//	return false;
 
     return true;
 }

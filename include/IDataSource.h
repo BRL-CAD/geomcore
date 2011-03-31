@@ -27,7 +27,7 @@
 #ifndef __IDATASOURCE_H__
 #define __IDATASOURCE_H__
 
-#include <brlcad/Object.h>
+#include <MinimalObject.h>
 #include "Account.h"
 #include <map>
 #include <list>
@@ -44,18 +44,18 @@ public:
 	 * 'GET' ers
 	 */
 
-	/* Get a single bu_external */
-	virtual bu_external* getObj(std::string path) = 0;
+	/* Get a single BRLCAD::MinimalObject */
+	virtual BRLCAD::MinimalObject* getObj(std::string path) = 0;
 
-	/* Get a set of bu_externals */
-	virtual std::list<bu_external*>* getObjs(std::string path) = 0;
+	/* Get a set of BRLCAD::MinimalObjects */
+	virtual std::list<BRLCAD::MinimalObject*>* getObjs(std::string path, bool recurse) = 0;
 
 	/*
 	 * 'PUT' ers
 	 */
 
-	/* Put a single bu_external */
-	virtual bool putObj(std::string path, bu_external* ext) = 0;
+	/* Put a single BRLCAD::MinimalObject */
+	virtual bool putObj(std::string path, BRLCAD::MinimalObject* ext) = 0;
 };
 
 
