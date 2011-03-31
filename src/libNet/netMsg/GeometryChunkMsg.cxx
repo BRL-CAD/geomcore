@@ -90,6 +90,32 @@ GeometryChunkMsg::_equals(const NetMsg& msg)
     return true;
 }
 
+
+GeometryChunkMsg*
+GeometryChunkMsg::extToChunk(BRLCAD::MinimalObject* obj)
+{
+	bu_external* ext = obj->getBuExternal();
+
+	size_t magicLen = sizeof(long);
+
+	size_t size = magicLen + ext->ext_nbytes;
+	char* buf = (char*)bu_malloc(size, "objToChunk buf malloc");
+
+	memcpy (buf, &ext->ext_magic, magicLen);
+	memcpy (buf + magicLen, ext->ext_buf, ext->ext_nbytes);
+
+	ByteArray ba(buf, size);
+	return new GeometryChunkMsg(obj->getFullRepoPath(), &ba);
+
+}
+
+BRLCAD::MinimalObject*
+GeometryChunkMsg::chunkToExt(GeometryChunkMsg* msg)
+{
+
+}
+
+
 /*
  * Local Variables:
  * mode: C
