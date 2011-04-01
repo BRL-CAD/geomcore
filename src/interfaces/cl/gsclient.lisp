@@ -11,17 +11,18 @@
 ;;;;;;;;;;;;;;;;;  public interface  ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; this should probably check to make sure things are ok
 (defun getgeom (s st uri)
-  (gsnet:writemsg s (make-instance 'geomreqmsg :uri uri))
-  (let ((mfst (gsnet:readmsg s)))
-    (loop for i from 0 to (length (gsnet:manifest mfst)) do
-	 (let ((cm (chunk (gsnet:readmsg (strm s)))))
-	   (loop for j from 0 to (length cm) do (write-byte (aref cm j) st))))))
+  (gsnet:writemsg s (make-instance 'gsnet:geomreqmsg :uri uri))
+  (loop for i from 0 to (length (gsnet::manifest (gsnet:readmsg s))) do (write-sequence (gsnet::chunk (gsnet:readmsg s)) st)))
+
+(defun getgeomfile (s file uri)
+  (with-open-file (out file :element-type '(unsigned-byte 8) :direction :output)
+    (getgeom s out uri)))
 
 (defun ping (s)
   (gsnet:writemsg s (make-instance 'gsnet:pingmsg))
   (let ((m (gsnet:readmsg s)))
-    (format t "response holds: ~a~%" (gsnet::tv m))
     (- (gsnet:usec) (gsnet::tv m))))
 
 ; log in to a server, returning the session
@@ -29,12 +30,10 @@
   (let ((s (make-instance 'gsnet:session :host host :port port :username username :password password)))
     (setf (gsnet::socket s) (usocket:socket-connect host port :element-type '(unsigned-byte 8)))
     (setf (gsnet::strm s) (usocket:socket-stream (gsnet:socket s)))
-    (gsnet:readmsg s)
     (gsnet:writemsg s (make-instance 'gsnet:nodenamemsg :name (gsnet::localnode s)))
-    (format t "Remote name: ~a~%" (gsnet:remotenode s))
+    (gsnet:readmsg s)
     (gsnet:writemsg s (make-instance 'gsnet:loginmsg))
     (gsnet:readmsg s)
-    (format t "Session UUID: ~a~%" (gsnet:sessionuuid s))
     s))
 
 (defun logout (s)
