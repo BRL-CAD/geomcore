@@ -319,7 +319,6 @@ main(int argc, const char *argv[])
 		  }
 	  }
 	  if (!BU_LIST_IS_EMPTY(&(update_list->l))) commit_objs(pool, update_list, repos, youngest_rev, repo_full_path, model_name, user, logmsg);
-	  bu_free(data, "free external data");
 	  bu_vls_free(&filedir);
 	  bu_vls_free(&filepath);
 	  db_close(dbip);
