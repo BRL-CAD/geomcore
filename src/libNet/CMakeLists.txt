@@ -26,6 +26,7 @@
 include_directories(
     ${TCL_INCLUDE_DIRS}
     ${BRLCAD_INCLUDE_DIRS}
+    ${LIBGE_INCLUDE_DIR}
 )
 
 SET(libNet_SRCS
@@ -57,13 +58,13 @@ SET(libNet_SRCS
 
 IF(BUILD_SHARED_LIBS)
 	add_library(libNet SHARED ${libNet_SRCS})
-	target_link_libraries(libNet libJob libgcutil libEvent libPkgCpp)
+	target_link_libraries(libNet libJob libgcutil libEvent libPkgCpp ${BRLCAD_RT_LIBRARY} ${LIBGE_GE_LIBRARY})
 	set_target_properties(libNet PROPERTIES PREFIX "")
 	install(TARGETS libNet DESTINATION lib)
 ENDIF(BUILD_SHARED_LIBS)
 IF(BUILD_STATIC_LIBS)
 	add_library(libNet-static STATIC ${libNet_SRCS})
-	target_link_libraries(libNet-static libJob libgcutil libEvent libPkgCpp)
+	target_link_libraries(libNet-static libJob libgcutil libEvent libPkgCpp ${BRLCAD_RT_LIBRARY} ${LIBGE_GE_LIBRARY})
 	IF(NOT WIN32)
 		set_target_properties(libNet-static PROPERTIES PREFIX "")
 		set_target_properties(libNet-static PROPERTIES OUTPUT_NAME "libNet")

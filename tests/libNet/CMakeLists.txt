@@ -29,6 +29,7 @@
 include_directories(
     ${TCL_INCLUDE_DIRS}
     ${BRLCAD_INCLUDE_DIRS}
+    ${LIBGE_INCLUDE_DIR}
 )
 
 add_executable(gNetMsgSerialTest netMsgSerialTest.cxx)
