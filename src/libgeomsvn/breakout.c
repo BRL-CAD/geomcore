@@ -23,7 +23,7 @@
  *  to a repository.
  */
 
-/* TODO - need a vesion of SVN_INT_ERROR that does what we want in a library 
+/* TODO - need a version of SVN_INT_ERROR that does what we want in a library 
  * - probably should not be returning something like EXIT_FAILURE*/
 
 /* This function deals with the special case of a .g file that does not
@@ -31,6 +31,10 @@
  * any diff logic being applied. This function will not update an existing
  * .g model in the repository with new contents - for that use 
  * geomsvn_import_g_file */
+
+/* TODO - set SVN_PROP_REVISION_LOG via svn_fs_change_rev_prop to something like
+ * "Initial import of model_name" - maybe SVN_PROP_REVISION_AUTHOR should be set
+ * as well, if available.
 int geomsvn_init_g_file(apr_pool_t *pool, const char *g_file, const char *repo_path) {
 	/* We're going to need an apr pool - if one was passed in, make the subpool
 	 * using it - otherwise start from scratch */
