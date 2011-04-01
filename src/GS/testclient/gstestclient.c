@@ -14,7 +14,6 @@
 
 
 #include "bu.h"
-#include "pkg.h"
 
 #define PKG_MAGIC 0x41FE
 #define GSMSG_MAGIC 0x5309
