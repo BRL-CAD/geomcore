@@ -159,7 +159,7 @@ GVM_EXPORT GVM_EXTERN(int gvm_export_object,
  */
 
 /* Populate a repository_objects struct with the contents
- * of obj_name.  This is how to go from svn's internal
+ * of obj_name.  This is how to go from a repository's internal
  * stored copy of an object to the bu_external needed for
  * BRL-CAD .g level operations.*/
 GVM_EXPORT GVM_EXTERN(struct repository_objects * gvm_get_repo_obj,
