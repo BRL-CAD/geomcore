@@ -76,7 +76,9 @@
 	    (type (readuint16 (strm s)))
 	    (uuid (readgsstring (strm s)))
 	    (reuuid (if (= (read-byte (strm s)) 1) (readuuid (strm s)) '())))
-	(setf length (- length (+ 2 4 (length uuid) (if reuuid (+ (length reuuid) 4) 0) 1)))
+	(declare (ignore length))
+	(declare (ignore uuid))
+	(declare (ignore reuuid))
 	(cond 
 	  ((= type +gsrnnset+) (setf (remotenode s) (readgsstring (strm s))) t)
 	  ((= type +gsdr+) (writemsg s (make-instance 'logoutmsg)) '())
@@ -89,7 +91,10 @@
 	  ((= type +gsimalive+) (make-instance 'imalivemsg))
 	  ((= type +gsgr+) (make-instance 'geomreqmsg :uri (readgsstring (strm s))))
 	  ((= type +gsgm+) (make-instance 'geommanifestmsg :manifest (loop for i from 1 to (readuint32 (strm s)) collect (readgsstring (strm s)))))
-	  ((= type +gsgc+) (make-instance 'geomchunkmsg :chunk (let ((len (readuint32 (strm s)))) (loop with c = (make-array len :element-type '(unsigned-byte 8)) for i from 0 to len do (setf (aref c i) (read-byte (strm s)))))))
+	  ((= type +gsgc+) (make-instance 'geomchunkmsg :chunk 
+				  (let ((arr (make-array (+ (readuint32 (strm s)) 1) :element-type '(unsigned-byte 8))))
+					  (read-sequence arr (strm s)) 
+					  arr)))
 	  ((= type +gsnsr+) (make-instance 'loginmsg :username (readgsstring (strm s)) :password (readgsstring (strm s))))
 	  (t (format t "Unknown type! ~x~%" type))))
       '()))
@@ -154,4 +159,4 @@
 
 (defclass geomchunkmsg (message) ((chunk :accessor chunk :initarg :chunk)))
 (defmethod writemsg :before (s (m geomchunkmsg)) (setf (msgtype m) +gsgc+) (setf (len m) (length (chunk m))))
-(defmethod writemsg :after (s (m geomchunkmsg)) (writeuint32 (strm s) (length (chunk m))) (loop for i from 0 to (length (chunk m)) do (write-byte (aref (chunk m) i) (strm s))))
+(defmethod writemsg :after (s (m geomchunkmsg)) (writeuint32 (strm s) (length (chunk m))) (write-sequence (chunk m) (strm s)))
