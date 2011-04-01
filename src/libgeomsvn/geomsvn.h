@@ -55,14 +55,25 @@
 	} while (0)
 
 
+/* Convenient definitions */
+#define SVN_HEAD -1
+
+
 /**
- * List of items for committing to a repository
+ * Repository items
+ *
+ * A bu_list enabled structure to hold repository items in memory.
+ *
  */
-struct commit_items {
+struct repository_items {
    struct bu_list l;
+   char *model_name;
    char *obj_name;
+   int rev;
    struct bu_external *contents;
+   int action; /* 0 = update, 1 = add, 2 = delete  - used for commit operations*/
 }
+
 
 /**
  * Repository Structure
@@ -72,34 +83,109 @@ struct commit_items {
  */
 
 struct geomsvn_info {
-   void *pool;			/* Apache Portable Runtime memory pool */
-   void *commit_pool;		/* Subpool for commits */
-   char *repo_full_path;	/* Full filesystem path to svn repository */
-   char *svn_file_full_path;	/* Full svn_fs path from repository root to working file (ktank.g/object1.s/object1.s)*/
-   char *svn_file;		/* svn_fs path of working file from the toplevel model dir (object1.s/object1.s)*/
-   char *model_name;		/* Name of .g model (e.g. ktank.g) */
-   char *obj_name;		/* Name of individual file (e.g. object1.s) */
-   void *repos;			/* svn_repos_t pointer to repository */
-   size_t *curr_rev;		/* Current repository revision (cast to svn_revnum_t to use)*/
+   void *pool;			   /* Apache Portable Runtime memory pool */
+   void *commit_pool;		   /* Subpool for commits */
+   char *repo_full_path;	   /* Full filesystem path to svn repository */
+   void *repos;			   /* svn_repos_t pointer to repository */
+   struct repository_items *items; /* List of currently "active" items */
+   char *user;			   /* User ID */
+   int *curr_rev;		   /* Current repository revision (cast to svn_revnum_t to use)*/
 }
 
 /**
  * Utility routines for repository structures
  */
- 
+
+/* Initialize APR pool and repository_items list */
 GSVN_EXPORT GSVN_EXTERN(void geomsvn_info_init,
 		(struct geomsvn_info *repo_info));
   
+/* Free all items in the geomsvn_info structure */ 
+GSVN_EXPORT GSVN_EXTERN(void geomsvn_info_free,
+		(struct geomsvn_info *repo_info));
 
+/* Clear repository items list */
+GSVN_EXPORT GSVN_EXTERN(void geomsvn_info_clear_items,
+		(struct geomsvn_info *repo_info));
 
 
 /**
  * GSVN Repository Functions
  */
 
+/* Create a repository at the filesystem location repo_path */
 GSVN_EXPORT GSVN_EXTERN(int geomsvn_init_repo,
 		(struct geomsvn_info *repo_info, 
 		 const char *repo_path));
 
-GSVN_EXTERN(svn_repo
+/* Fill in the repo_full_path, repos pointer and the user name. */
+GSVN_EXPORT GSVN_EXTERN(int geomsvn_open_repo,
+		(struct geomsvn_info *repo_info, 
+		 const char *repo_path,
+		 const char *user));
 
+/**
+ * GSVN .g file helper routines
+ */ 
+
+/* Populate a new model repository using a .g file. */
+GSVN_EXPORT GSVN_EXTERN(int geomsvn_import_g_file,
+		(struct geomsvn_info *repo_info, 
+		 const char *g_file));
+
+/* List objects present in a .g file but not in the corresponding
+ * model repository. */
+GSVN_EXPORT GSVN_EXTERN(int geomsvn_g_file_get_add_list,
+		(struct geomsvn_info *repo_info, 
+		 const char *g_file));
+
+/* List objects present in a model repository but not in the 
+ * corresponding .g file. */
+GSVN_EXPORT GSVN_EXTERN(int geomsvn_g_file_get_delete_list,
+		(struct geomsvn_info *repo_info, 
+		 const char *g_file));
+
+/* List objects present in both a model repository and in the 
+ * corresponding .g file that differ. */
+GSVN_EXPORT GSVN_EXTERN(int geomsvn_g_file_get_diff_list,
+		(struct geomsvn_info *repo_info, 
+		 const char *g_file));
+
+/* Update an existing model repository using a .g file. */
+GSVN_EXPORT GSVN_EXTERN(int geomsvn_commit_g_file,
+		(struct geomsvn_info *repo_info, 
+		 const char *g_file));
+
+/* Export a complete model repository to a .g file. If revnum
+ * is SVN_HEAD use latest revision */
+GSVN_EXPORT GSVN_EXTERN(int geomsvn_export_g_file,
+		(struct geomsvn_info *repo_info,
+		 const char *model_name, 
+		 const char *g_file,
+		 int revnum));
+
+/* Export a subset of a model repository to a .g file. If revnum
+ * is SVN_HEAD use latest revision */
+GSVN_EXPORT GSVN_EXTERN(int geomsvn_export_object,
+		(struct geomsvn_info *repo_info,
+		 const char *model_name, 
+		 const char *obj_name, 
+		 const char *g_file,
+		 int revnum,
+		 int recursive));
+
+/**
+ * GSVN object level routines
+ */
+
+/* Check if an object exists in a given model as defined
+ * in revision revnum.  If revnum is SVN_HEAD use
+ * latest revision */
+GSVN_EXPORT GSVN_EXTERN(int geomsvn_object_exists,
+	       (struct geomsvn_info *repo_info,
+		const char *model_name,
+		const char *obj_name,
+		int revnum));
+
+
+	
