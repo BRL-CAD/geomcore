@@ -60,12 +60,12 @@
 
 
 /**
- * Repository items
+ * Repository object(s)
  *
  * A bu_list enabled structure to hold repository items in memory.
  *
  */
-struct repository_items {
+struct repository_objects {
    struct bu_list l;
    char *model_name;
    char *obj_name;
@@ -83,13 +83,13 @@ struct repository_items {
  */
 
 struct geomsvn_info {
-   void *pool;			   /* Apache Portable Runtime memory pool */
-   void *commit_pool;		   /* Subpool for commits */
-   char *repo_full_path;	   /* Full filesystem path to svn repository */
-   void *repos;			   /* svn_repos_t pointer to repository */
-   struct repository_items *items; /* List of currently "active" items */
-   char *user;			   /* User ID */
-   int *curr_rev;		   /* Current repository revision (cast to svn_revnum_t to use)*/
+   void *pool;				/* Apache Portable Runtime memory pool */
+   void *commit_pool;			/* Subpool for commits */
+   char *repo_full_path;		/* Full filesystem path to svn repository */
+   void *repos;				/* svn_repos_t pointer to repository */
+   struct repository_objects *objects;	/* List of currently "active" items */
+   char *user;				/* User ID */
+   int *curr_rev;			/* Current repository revision (cast to svn_revnum_t to use)*/
 }
 
 /**
@@ -178,14 +178,40 @@ GSVN_EXPORT GSVN_EXTERN(int geomsvn_export_object,
  * GSVN object level routines
  */
 
+/* Populate a repository_objects struct with the contents
+ * of obj_name.  This is how to go from svn's internal
+ * stored copy of an object to the bu_external needed for
+ * BRL-CAD .g level operations.*/
+GSVN_EXPORT GSVN_EXTERN(struct repository_objects * geomsvn_get_repo_obj,
+		(struct geomsvn_info *repo_info,
+		 const char *model_name,
+		 const char *obj_name,
+		 int revnum));
+
 /* Check if an object exists in a given model as defined
  * in revision revnum.  If revnum is SVN_HEAD use
  * latest revision */
-GSVN_EXPORT GSVN_EXTERN(int geomsvn_object_exists,
+GSVN_EXPORT GSVN_EXTERN(int geomsvn_object_in_model,
 	       (struct geomsvn_info *repo_info,
 		const char *model_name,
 		const char *obj_name,
 		int revnum));
+
+/* Very simple routine to determine if two objects
+ * are different - based on binary data, not geometry
+ * aware.  Returns 0 if they're the same and one if
+ * they differ */
+GSVN_EXPORT GSVN_EXTERN(int geomsvn_diff,
+	       (struct geomsvn_info *repo_info,
+		struct repository_objects *obj1,
+		struct repository_objects *obj2));
+
+
+/* Add a repository_objects struct to repo_info's
+ * objects list */
+GSVN_EXPORT GSVN_EXTERN(int geomsvn_add_to_list,
+	       (struct geomsvn_info *repo_info,
+		struct repository_objects *obj));
 
 
 	
