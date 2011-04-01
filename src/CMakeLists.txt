@@ -41,6 +41,19 @@ ADD_SUBDIRECTORY(libEvent)
 ADD_SUBDIRECTORY(libPkgCpp)
 ADD_SUBDIRECTORY(libNet)
 
+#IF(BUILD_SVN_TARGETS)
+#	GET_DIRECTORY_PROPERTY(APR_INCLUDE_DIR DIRECTORY ../src/other/subversion DEFINITION APR_INCLUDE_DIR)
+#	GET_DIRECTORY_PROPERTY(APU_INCLUDE_DIR DIRECTORY ../src/other/subversion DEFINITION APU_INCLUDE_DIR)
+#	include_directories(
+#		${APR_INCLUDE_DIR}
+#		${APU_INCLUDE_DIR}
+#		${CMAKE_SOURCE_DIR}/src/other/subversion/include
+#		${CMAKE_SOURCE_DIR}/src/other/subversion/include/private
+#		${CMAKE_BINARY_DIR}/src/other/subversion/include
+#		)
+#	ADD_SUBDIRECTORY(libgeomsvn)
+#ENDIF(BUILD_SVN_TARGETS)
+
 #Apps Last
 ADD_SUBDIRECTORY(GS)
 
