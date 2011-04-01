@@ -88,7 +88,7 @@
 	  ((= type +gsrualive+) (writemsg s (make-instance 'imalivemsg)) t) ; automatically respond to rualive 
 	  ((= type +gsimalive+) (make-instance 'imalivemsg))
 	  ((= type +gsgr+) (make-instance 'geomreqmsg :uri (readgsstring (strm s))))
-	  ((= type +gsgm+) (make-instance 'geommanifestreq :manifest (loop for i from 0 to (readuint32 (strm s)) collect (readgsstring (strm s)))))
+	  ((= type +gsgm+) (make-instance 'geommanifestmsg :manifest (loop for i from 1 to (readuint32 (strm s) collect (readgsstring (strm s))))))
 	  ((= type +gsgc+) (make-instance 'geomchunkmsg :chunk (let ((len (readuint32 (strm s)))) (loop with c = (make-array len :element-type '(unsigned-byte 8)) for i from 0 to len do (setf (aref c i) (read-byte (strm s)))))))
 	  ((= type +gsnsr+) (make-instance 'loginmsg :username (readgsstring (strm s)) :password (readgsstring (strm s))))
 	  (t (format t "Unknown type! ~x~%" type))))
@@ -111,7 +111,7 @@
 ;;; type specific send handling
 (defclass pingmsg (message) ((tv :accessor tv :initform (usec))))
 (defmethod writemsg :before (s (m pingmsg)) (setf (msgtype m) +gsping+) (setf (len m) 8))
-(defmethod writemsg :after (s (m pingmsg)) (format t "Pinging with ~a~%" (tv m)) (writeuint64 (strm s) (tv m)))
+(defmethod writemsg :after (s (m pingmsg)) (writeuint64 (strm s) (tv m)))
 
 (defclass pongmsg (message) ((tv :accessor tv :initarg :tv)))
 (defmethod writemsg :before (s (m pongmsg)) (setf (msgtype m) +gspong+) (setf (len m) 8))
@@ -127,6 +127,10 @@
 
 (defclass logoutmsg (message) ())
 (defmethod writemsg :before (s (m logoutmsg)) (setf (msgtype m) +gsdr+))
+
+(defclass infomsg (message) ((sessionuuid :accessor sessionuuid :initarg :sessionuuid)))
+(defmethod writemsg :before (s (m infomsg)) (setf (msgtype m) +gsinfo+) (setf (len m) (+ (length (sessionuuid m)) 4)))
+(defmethod writemsg :after (s (m infomsg)) (writegsstring (strm s) (sessionuuid m)))
 
 (defclass rualivemsg (message) ())
 (defmethod writemsg :before (s (m rualivemsg)) (setf (msgtype m) +gsrualive+))
@@ -145,13 +149,9 @@
 (defmethod writemsg :after (s (m geomreqmsg)) (writegsstring (strm s) (uri m)))
 
 (defclass geommanifestmsg (message) ((manifest :accessor manifest :initarg :manifest)))
-(defmethod writemsg :before (s (m geommanifestmsg)) 
-  (setf (msgtype m) +gsgm+)
-  (setf (len m) (apply #'+ 4 (mapcar (lambda (x) (+ (length x) 4)) (manifest m)))))
-(defmethod writemsg :after (s (m geomreqmsg)) (writeuint32 (strm s) (length (manifest m))) 
-	   (loop for i in (manifest m) do (writegsstring (strm s) i)))
+(defmethod writemsg :before (s (m geommanifestmsg)) (setf (msgtype m) +gsgm+) (setf (len m) (apply #'+ 4 (mapcar (lambda (x) (+ (length x) 4)) (manifest m)))))
+(defmethod writemsg :after (s (m geommanifestmsg)) (writeuint32 (strm s) (length (manifest m))) (loop for i in (manifest m) do (writegsstring (strm s) i)))
 
 (defclass geomchunkmsg (message) ((chunk :accessor chunk :initarg :chunk)))
 (defmethod writemsg :before (s (m geomchunkmsg)) (setf (msgtype m) +gsgc+) (setf (len m) (length (chunk m))))
 (defmethod writemsg :after (s (m geomchunkmsg)) (writeuint32 (strm s) (length (chunk m))) (loop for i from 0 to (length (chunk m)) do (write-byte (aref (chunk m) i) (strm s))))
-
