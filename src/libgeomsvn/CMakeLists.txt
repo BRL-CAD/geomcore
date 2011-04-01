@@ -4,6 +4,7 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(geomsvn_SRCS
+	repo.c
 	breakout.c
 	commit.c
 	diff.c
