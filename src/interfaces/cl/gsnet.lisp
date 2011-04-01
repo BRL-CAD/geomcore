@@ -40,7 +40,7 @@
 (defun writegsstring (s str)  (writeuint32 s (length str)) (loop for x being the element of str do (if x (write-byte (char-code x) s))))
 
 ;;; utility functions to read in
-(defun readuint64 (s) (apply #'+ (loop with i = 0 for a in '(56 48 40 32 24 16 8 0) collect (dpb (read-byte s) (byte 8 a) 0))))
+(defun readuint64 (s) (apply #'+ (loop for a in '(56 48 40 32 24 16 8 0) collect (dpb (read-byte s) (byte 8 a) 0))))
 (defun readuint32 (s) (+ (* (read-byte s) #x1000000) (* (read-byte s) #x10000) (* (read-byte s) #x100) (read-byte s)))
 (defun readuint16 (s) (+ (* #x100 (read-byte s)) (read-byte s)))
 (defun readgsstring (s) 
@@ -88,7 +88,7 @@
 	  ((= type +gsrualive+) (writemsg s (make-instance 'imalivemsg)) t) ; automatically respond to rualive 
 	  ((= type +gsimalive+) (make-instance 'imalivemsg))
 	  ((= type +gsgr+) (make-instance 'geomreqmsg :uri (readgsstring (strm s))))
-	  ((= type +gsgm+) (make-instance 'geommanifestmsg :manifest (loop for i from 1 to (readuint32 (strm s) collect (readgsstring (strm s))))))
+	  ((= type +gsgm+) (make-instance 'geommanifestmsg :manifest (loop for i from 1 to (readuint32 (strm s)) collect (readgsstring (strm s)))))
 	  ((= type +gsgc+) (make-instance 'geomchunkmsg :chunk (let ((len (readuint32 (strm s)))) (loop with c = (make-array len :element-type '(unsigned-byte 8)) for i from 0 to len do (setf (aref c i) (read-byte (strm s)))))))
 	  ((= type +gsnsr+) (make-instance 'loginmsg :username (readgsstring (strm s)) :password (readgsstring (strm s))))
 	  (t (format t "Unknown type! ~x~%" type))))
