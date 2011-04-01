@@ -15,10 +15,12 @@
   (and (string= user "Guest") (string= pass "Guest")))
 
 (defun send-geom (s reuuid filename)
-  ;; read file into buffer
-  ;; (writemsg s (make-instance 'gsnet:geommanifestmsg :manifest (list filename)))
-  ;; (writemsg s (make-instance 'gsnet:geomchunkmsg :chunk buffer))
-  t)
+  (with-open-file (stream filename :element-type '(unsigned-byte 8) :if-does-not-exist :error)
+    (loop with a = (make-array (file-length stream) :element-type '(unsigned-byte 8))
+	for i from 0 to (file-length stream)
+	;;; this'd be quicker with read-sequence
+	do (setf (aref a i) (read-byte stream))
+	finally (writemsg s (make-instance 'geomchunkmsg :chunk a)))))
 
 (defun handle-connection (st)
   (let ((s (make-instance 'gsnet:session :stream st)))
@@ -48,4 +50,4 @@
 
 
 (defun run (&key (listenhost #(127 0 0 1)) (port 5309))
-  (usocket:socket-server  listenhost port #'handle-connection  '() :element-type 'unsigned-byte))
+  (usocket:socket-server  listenhost port #'handle-connection  '() :element-type 'unsigned-byte)); :multi-threading t :in-new-thread t))
