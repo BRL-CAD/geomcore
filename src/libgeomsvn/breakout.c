@@ -34,7 +34,7 @@
 
 /* TODO - set SVN_PROP_REVISION_LOG via svn_fs_change_rev_prop to something like
  * "Initial import of model_name" - maybe SVN_PROP_REVISION_AUTHOR should be set
- * as well, if available.
+ * as well, if available. */
 int geomsvn_init_g_file(apr_pool_t *pool, const char *g_file, const char *repo_path) {
 	/* We're going to need an apr pool - if one was passed in, make the subpool
 	 * using it - otherwise start from scratch */
@@ -48,24 +48,36 @@ int geomsvn_init_g_file(apr_pool_t *pool, const char *g_file, const char *repo_p
 		subpool = svn_subpool_create_ex(NULL, allocator);
 		apr_allocator_owner_set(allocator, subpool);
 	}
-	/* Now that we have a pool, set up the repository */
-	{
+	{/* Now that we have a pool, set up the repository */
 	 svn_repos_t *repos;
 	 svn_fs_t *fs;
 	 svn_revnum_t youngest_rev;
 	 svn_fs_txn_t *txn;
-	 svn_fs_root_t *txn_root;
+	 svn_fs_root_t *root, *txn_root;
 	 const char *repo_full_path = svn_path_canonicalize(repo_path, pool);
 	 if(!svn_repos_find_root_path(repo_full_path, pool)){
-		 printf("Repository %s does not exist - use geomsvn_init_repo to create it.\n", repo_full_path);
+		 printf("Repository %s does not exist.\n", repo_full_path);
 		 svn_pool_destroy(subpool);
 		 return -1;
 	 } else {
 		 const char *model_path = svn_path_canonicalize(g_file, pool);
 		 const char *model_name = svn_path_basename(model_path, pool);
+		 const svn_fs_id_t *node_id;
 		 svn_repos_open(&repos, repo_full_path, pool);
 		 fs = svn_repos_fs(repos);
 		 svn_fs_youngest_rev(&youngest_rev, fs, pool);
+		 svn_fs_revision_root(&root, fs, youngest_rev, pool);
+		 /* check if model already exists */
+		 status = svn_fs_node_id(&node_id, root, model_name, pool);
+		 if (status && status->apr_err == SVN_ERR_FS_NOT_FOUND) {
+			 /* good, it's not there - proceed */
+		 } else {
+			 printf("Model %s already exists in repository.\n", repo_full_path);
+			 svn_pool_destroy(subpool);
+			 return -1;
+		 }
 
 	 }
+	}
+}
 
