@@ -45,7 +45,7 @@
 /**
  * Repository object(s)
  *
- * A bu_list enabled structure to hold repository items in memory.
+ * A bu_list enabled structure to hold repository objects in memory.
  *
  */
 struct repository_objects {
@@ -68,7 +68,7 @@ struct repository_objects {
 struct gvm_info {
    void *internal;			/* Internal information used by the backend */
    char *repo_full_path;		/* Full filesystem path to repository */
-   struct repository_objects *objects;	/* List of currently "active" items */
+   struct repository_objects *objects;	/* List of currently "active" objects */
 }
 
 /**
@@ -84,8 +84,8 @@ GVM_EXPORT GVM_EXTERN(void gvm_info_init,
 GVM_EXPORT GVM_EXTERN(void gvm_info_free,
 		(struct gvm_info *repo_info));
 
-/* Clear repository items list */
-GVM_EXPORT GVM_EXTERN(void gvm_info_clear_items,
+/* Clear repository objects list */
+GVM_EXPORT GVM_EXTERN(void gvm_info_clear_objects,
 		(struct gvm_info *repo_info));
 
 
@@ -145,7 +145,9 @@ GVM_EXPORT GVM_EXTERN(int gvm_export_g_file,
 		 size_t ver_num));
 
 /* Export a subset of a model repository to a .g file. If ver_num
- * is LATEST_VERSION use latest revision */
+ * is LATEST_VERSION use latest revision.  If recursive is 1 
+ * recursivly include any objects int the tree below the specified
+ * object. */
 GVM_EXPORT GVM_EXTERN(int gvm_export_object,
 		(struct gvm_info *repo_info,
 		 const char *model_name, 
@@ -193,5 +195,43 @@ GVM_EXPORT GVM_EXTERN(int gvm_add_to_list,
 	       (struct gvm_info *repo_info,
 		struct repository_objects *obj));
 
+/* Queue "Add object" action for commit */
+GVM_EXPORT GVM_EXTERN(int gvm_add_obj,
+	       (struct gvm_info *repo_info,
+		struct repository_objects *obj));
 
-	
+/* Queue "Delete object" action for commit */
+GVM_EXPORT GVM_EXTERN(int gvm_delete_obj,
+	       (struct gvm_info *repo_info,
+		struct repository_objects *obj));
+
+/* Queue "Update object" action for commit */
+GVM_EXPORT GVM_EXTERN(int gvm_update_obj,
+	       (struct gvm_info *repo_info,
+		struct repository_objects *obj));
+
+/* Commit objects in repo_info's objects list to
+ * repository. */
+GVM_EXPORT GVM_EXTERN(int gvm_commit_objs,
+	       (struct gvm_info *repo_info));
+
+/* Populate repo_info's objects list with the contents of
+ * a complete model repository. If ver_num
+ * is LATEST_VERSION use latest revision */
+GVM_EXPORT GVM_EXTERN(int gvm_get_model,
+		(struct gvm_info *repo_info,
+		 const char *model_name, 
+		 size_t ver_num));
+
+/* Populate repo_info's objects list with a  subset of a 
+ * model repository. If ver_num is LATEST_VERSION use 
+ * latest revision.  If recursive is 1 add all objects
+ * below the specified object in the tree. */
+GVM_EXPORT GVM_EXTERN(int gvm_get_objs,
+		(struct gvm_info *repo_info,
+		 const char *model_name, 
+		 const char *obj_name, 
+		 size_t ver_num,
+		 int recursive));
+
+
