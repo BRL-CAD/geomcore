@@ -24,9 +24,19 @@
 (defun send-bot-geom (s reuuid filename)
   (gsnet:writemsg s (make-instance 'gsnet:failmsg)))
 
+(defun connection-loop (s)
+  (loop do
+       (let ((m (gsnet:readmsg s)))
+	 (cond
+	   ((equalp (type-of m) 'gsnet:geomreqmsg) (send-geom s (gsnet::uuid m) (gsnet::uri m)))
+	   ((equalp (type-of m) 'gsnet:geombotreqmsg) (send-bot-geom s (gsnet::uuid m) (gsnet::uri m)))
+	   ((equalp m t) '())
+	   ((equalp m '()) (return-from connection-loop '()))
+	   (t (format t "Unhandled thing ~a~%" (type-of m)))))))
+
 (defun handle-connection (st)
   (let ((s (make-instance 'gsnet:session :stream st)))
-
+    
     ;;; initial handshane and authentication
     (setf (gsnet::sessionuuid s) (format '() "~a" (uuid:make-v4-uuid)))
     (setf (gsnet::localnode s) +nodename+)
@@ -39,14 +49,7 @@
     (gsnet:writemsg s (make-instance 'gsnet::infomsg :sessionuuid (gsnet::sessionuuid s)))
     
     ;;; main loop
-    (loop do
-	 (let ((m (gsnet:readmsg s)))
-	   (cond
-	     ((equalp (type-of m) 'gsnet:geomreqmsg) (send-geom s (gsnet::uuid m) (gsnet::uri m)))
-	     ((equalp (type-of m) 'gsnet:geombotreqmsg) (send-bot-geom s (gsnet::uuid m) (gsnet::uri m)))
-	     ((equalp m t) '())
-	     ((equalp m '()) (return-from handle-connection))
-	     (t (format t "Unhandled thing ~a~%" (type-of m))))))))
+    (connection-loop s)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;  public interface  ;;;;;;;;;;;;;;;;;;;;;;;;
