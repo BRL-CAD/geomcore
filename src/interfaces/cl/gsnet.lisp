@@ -94,9 +94,9 @@
 	  ((= type +gsgbr+) (make-instance 'geombotreqmsg :uri (readgsstring (strm s))))
 	  ((= type +gsgm+) (make-instance 'geommanifestmsg :manifest (loop for i from 1 to (readuint32 (strm s)) collect (readgsstring (strm s)))))
 	  ((= type +gsgc+) (make-instance 'geomchunkmsg :chunk 
-				  (let ((arr (make-array (+ (readuint32 (strm s)) 1) :element-type '(unsigned-byte 8))))
-					  (read-sequence arr (strm s)) 
-					  arr)))
+					  (let ((arr (make-array (+ (readuint32 (strm s) 1) :element-type '(unsigned-byte 8))))
+						(read-sequence arr (strm s))
+						arr))))
 	  ((= type +gsnsr+) (make-instance 'loginmsg :username (readgsstring (strm s)) :password (readgsstring (strm s))))
 	  (t (format t "Unknown type! ~x~%" type))))
       '()))
@@ -165,4 +165,4 @@
 
 (defclass geomchunkmsg (message) ((chunk :accessor chunk :initarg :chunk)))
 (defmethod writemsg :before (s (m geomchunkmsg)) (setf (msgtype m) +gsgc+) (setf (len m) (length (chunk m))))
-(defmethod writemsg :after (s (m geomchunkmsg)) (writeuint32 (strm s) (length (chunk m))) (write-sequence (chunk m) (strm s)))
+(defmethod writemsg :after (s (m geomchunkmsg)) (writeuint32 (strm s) (- (length (chunk m)) 1)) (write-sequence (chunk m) (strm s)))

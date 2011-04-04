@@ -17,8 +17,8 @@
 
 (defun send-geom (s reuuid filename)
   (gsnet:writemsg s (make-instance 'gsnet:geommanifestmsg :manifest (list filename)))
-  (with-open-file (stream (concatenate +dbdir+ filename) :element-type '(unsigned-byte 8) :if-does-not-exist :error)
-    (let ((arr (make-array (file-length stream) :element-type '(unsigned-byte 8))))
+  (with-open-file (stream (concatenate 'string +dbdir+ filename) :element-type '(unsigned-byte 8) :if-does-not-exist :error)
+    (let ((arr (make-array (+ (file-length stream) 1) :element-type '(unsigned-byte 8))))
       (read-sequence arr stream)
       (gsnet:writemsg s (make-instance 'gsnet:geomchunkmsg :chunk arr :reuuid reuuid)))))
 
