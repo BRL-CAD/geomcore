@@ -21,6 +21,9 @@
       (read-sequence arr stream)
       (gsnet:writemsg s (make-instance 'gsnet:geomchunkmsg :chunk arr :reuuid reuuid)))))
 
+(defun send-bot-geom (s reuuid filename)
+  (gsnet:writemsg s (make-instance 'gsnet:failmsg)))
+
 (defun handle-connection (st)
   (let ((s (make-instance 'gsnet:session :stream st)))
 
@@ -40,6 +43,7 @@
 	 (let ((m (gsnet:readmsg s)))
 	   (cond
 	     ((equalp (type-of m) 'gsnet:geomreqmsg) (send-geom s (gsnet::uuid m) (gsnet::uri m)))
+	     ((equalp (type-of m) 'gsnet:geombotreqmsg) (send-bot-geom s (gsnet::uuid m) (gsnet::uri m)))
 	     ((equalp m t) '())
 	     ((equalp m '()) (return-from handle-connection))
 	     (t (format t "Unhandled thing ~a~%" (type-of m))))))))

@@ -4,7 +4,7 @@
 (defpackage :gsnet
   (:use :cl :sb-unix)
   (:export :connect :writemsg :readmsg
-	   :session :message :pingmsg :pongmsg :nodenamemsg :loginmsg :logoutmsg :rualivemsg :imalivemsg :okmsg :failmsg :geomreqmsg :geommanifestmsg :geomchunkmsg
+	   :session :message :pingmsg :pongmsg :nodenamemsg :loginmsg :logoutmsg :rualivemsg :imalivemsg :okmsg :failmsg :geomreqmsg :geombotreqmsg :geommanifestmsg :geomchunkmsg
 	   :manifest :remotenode :sessionuuid :socket :strm
 	   :usec))
 
@@ -28,6 +28,7 @@
 (defconstant +gsnsr+     #x0300) ; New Session Request
 (defconstant +gsinfo+    #x0305) ; Session Information
 (defconstant +gsgr+      #x0400) ; Geometry Request
+(defconstant +gsgbr+     #x0401) ; Geometry BoT Request
 (defconstant +gsgm+      #x0405) ; Geometry Manifest
 (defconstant +gsgc+      #x0410) ; Geometry Chunk
 
@@ -90,6 +91,7 @@
 	  ((= type +gsrualive+) (writemsg s (make-instance 'imalivemsg)) t) ; automatically respond to rualive 
 	  ((= type +gsimalive+) (make-instance 'imalivemsg))
 	  ((= type +gsgr+) (make-instance 'geomreqmsg :uri (readgsstring (strm s))))
+	  ((= type +gsgbr+) (make-instance 'geombotreqmsg :uri (readgsstring (strm s))))
 	  ((= type +gsgm+) (make-instance 'geommanifestmsg :manifest (loop for i from 1 to (readuint32 (strm s)) collect (readgsstring (strm s)))))
 	  ((= type +gsgc+) (make-instance 'geomchunkmsg :chunk 
 				  (let ((arr (make-array (+ (readuint32 (strm s)) 1) :element-type '(unsigned-byte 8))))
@@ -152,6 +154,10 @@
 (defclass geomreqmsg (message) ((uri :accessor uri :initarg :uri :initform "")))
 (defmethod writemsg :before (s (m geomreqmsg)) (setf (msgtype m) +gsgr+) (setf (len m) (+ (length (uri m)) 4)))
 (defmethod writemsg :after (s (m geomreqmsg)) (writegsstring (strm s) (uri m)))
+
+(defclass geombotreqmsg (message) ((uri :accessor uri :initarg :uri :initform "")))
+(defmethod writemsg :before (s (m geombotreqmsg)) (setf (msgtype m) +gsgr+) (setf (len m) (+ (length (uri m)) 4)))
+(defmethod writemsg :after (s (m geombotreqmsg)) (writegsstring (strm s) (uri m)))
 
 (defclass geommanifestmsg (message) ((manifest :accessor manifest :initarg :manifest)))
 (defmethod writemsg :before (s (m geommanifestmsg)) (setf (msgtype m) +gsgm+) (setf (len m) (apply #'+ 4 (mapcar (lambda (x) (+ (length x) 4)) (manifest m)))))

@@ -12,13 +12,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; this should probably check to make sure things are ok
-(defun getgeom (s st uri)
-  (gsnet:writemsg s (make-instance 'gsnet:geomreqmsg :uri uri))
+(defun getgeom (s st uri &key (bot '()))
+  (gsnet:writemsg s (make-instance (if bot 'gsnet:geombotreqmsg 'gsnet:geomreqmsg) :uri uri))
   (loop for i from 0 to (length (gsnet::manifest (gsnet:readmsg s))) do (write-sequence (gsnet::chunk (gsnet:readmsg s)) st)))
 
-(defun getgeomfile (s file uri)
+(defun getgeomfile (s file uri &key (bot '()))
   (with-open-file (out file :element-type '(unsigned-byte 8) :direction :output)
-    (getgeom s out uri)))
+    (getgeom s out uri :bot bot)))
 
 (defun ping (s)
   (gsnet:writemsg s (make-instance 'gsnet:pingmsg))
