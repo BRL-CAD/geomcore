@@ -3,10 +3,11 @@
 
 (defpackage :gsserver
   (:use :cl :sb-unix)
-  (:export :run))
+  (:export :run :stop))
 
 (in-package :gsserver)
 
+(defparameter +dbdir+ "/usr/brlcad/share/db/")
 (defparameter +nodename+ "Spokelse")
 
 (defun authenticate (s user pass)
@@ -16,7 +17,7 @@
 
 (defun send-geom (s reuuid filename)
   (gsnet:writemsg s (make-instance 'gsnet:geommanifestmsg :manifest (list filename)))
-  (with-open-file (stream filename :element-type '(unsigned-byte 8) :if-does-not-exist :error)
+  (with-open-file (stream (concatenate +dbdir+ filename) :element-type '(unsigned-byte 8) :if-does-not-exist :error)
     (let ((arr (make-array (file-length stream) :element-type '(unsigned-byte 8))))
       (read-sequence arr stream)
       (gsnet:writemsg s (make-instance 'gsnet:geomchunkmsg :chunk arr :reuuid reuuid)))))
@@ -24,15 +25,14 @@
 (defun send-bot-geom (s reuuid filename)
   (gsnet:writemsg s (make-instance 'gsnet:failmsg)))
 
-(defun connection-loop (s)
-  (loop do
-       (let ((m (gsnet:readmsg s)))
-	 (cond
-	   ((equalp (type-of m) 'gsnet:geomreqmsg) (send-geom s (gsnet::uuid m) (gsnet::uri m)))
-	   ((equalp (type-of m) 'gsnet:geombotreqmsg) (send-bot-geom s (gsnet::uuid m) (gsnet::uri m)))
-	   ((equalp m t) '())
-	   ((equalp m '()) (return-from connection-loop '()))
-	   (t (format t "Unhandled thing ~a~%" (type-of m)))))))
+(defun handle-packet (s m)
+  (format t "~a~%" (type-of m))
+  (cond
+    ((equalp (type-of m) 'gsnet:geomreqmsg) (send-geom s (gsnet::uuid m) (gsnet::uri m)))
+    ((equalp (type-of m) 'gsnet:geombotreqmsg) (send-bot-geom s (gsnet::uuid m) (gsnet::uri m)))
+    ((equalp m t) m)
+    ((equalp m '()) m)
+    (t (format t "Unhandled thing ~a~%" (type-of m)))))
 
 (defun handle-connection (st)
   (let ((s (make-instance 'gsnet:session :stream st)))
@@ -49,12 +49,18 @@
     (gsnet:writemsg s (make-instance 'gsnet::infomsg :sessionuuid (gsnet::sessionuuid s)))
     
     ;;; main loop
-    (connection-loop s)))
+    (loop while (handle-packet s (gsnet:readmsg s)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;  public interface  ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 (defun run (&key (listenhost #(127 0 0 1)) (port 5309))
-  (usocket:socket-server listenhost port #'handle-connection  '() :element-type 'unsigned-byte))
+  (usocket:socket-server listenhost port #'handle-connection  '() :element-type 'unsigned-byte :multi-threading t :in-new-thread t))
+
+(defun stop ()
+  (map 'nil (lambda (th) 
+	 (cond 
+	   ((equalp (sb-thread:thread-name th) "USOCKET Client") (sb-thread:terminate-thread th))
+	   ((equalp (sb-thread:thread-name th) "USOCKET Server") (sb-thread:terminate-thread th))))
+       (sb-thread:list-all-threads)))
