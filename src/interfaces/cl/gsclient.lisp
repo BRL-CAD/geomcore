@@ -14,7 +14,7 @@
 ;; this should probably check to make sure things are ok
 (defun getgeom (s st uri &key (bot '()))
   (gsnet:writemsg s (make-instance (if bot 'gsnet:geombotreqmsg 'gsnet:geomreqmsg) :uri uri))
-  (loop for i from 1 to (length (gsnet::manifest (gsnet:readmsg s))) do (write-sequence (gsnet::chunk (gsnet:readmsg s)) st :end (- (length ch) 1))))
+  (loop for i from 1 to (length (gsnet::manifest (gsnet:readmsg s))) do (let ((ch (gsnet::chunk (gsnet:readmsg s)))) (write-sequence ch st :end (- (length ch) 1)))))
 
 (defun getgeomfile (s file uri &key (bot '()))
   (with-open-file (out file :element-type '(unsigned-byte 8) :direction :output)
