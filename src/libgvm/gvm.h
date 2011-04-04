@@ -157,6 +157,34 @@ GVM_EXPORT GVM_EXTERN(int gvm_export_object,
 		 int recursive));
 
 /**
+ * GVM model level routines
+ */
+
+/* Add a new, empty model to a repository */
+GVM_EXPORT GVM_EXTERN(int gvm_new_model,
+	       (struct gvm_info *repo_info,
+		const char *model_name));
+
+/* Populate repo_info's objects list with the contents of
+ * a complete model repository. If ver_num
+ * is LATEST_VERSION use latest revision */
+GVM_EXPORT GVM_EXTERN(int gvm_get_model,
+		(struct gvm_info *repo_info,
+		 const char *model_name, 
+		 size_t ver_num));
+
+/* Populate repo_info's objects list with a  subset of a 
+ * model repository. If ver_num is LATEST_VERSION use 
+ * latest revision.  If recursive is 1 add all objects
+ * below the specified object in the tree. */
+GVM_EXPORT GVM_EXTERN(int gvm_get_objs,
+		(struct gvm_info *repo_info,
+		 const char *model_name, 
+		 const char *obj_name, 
+		 size_t ver_num,
+		 int recursive));
+
+/**
  * GVM object level routines
  */
 
@@ -188,7 +216,6 @@ GVM_EXPORT GVM_EXTERN(int gvm_diff,
 		struct repository_objects *obj1,
 		struct repository_objects *obj2));
 
-
 /* Add a repository_objects struct to repo_info's
  * objects list */
 GVM_EXPORT GVM_EXTERN(int gvm_add_to_list,
@@ -214,24 +241,4 @@ GVM_EXPORT GVM_EXTERN(int gvm_update_obj,
  * repository. */
 GVM_EXPORT GVM_EXTERN(int gvm_commit_objs,
 	       (struct gvm_info *repo_info));
-
-/* Populate repo_info's objects list with the contents of
- * a complete model repository. If ver_num
- * is LATEST_VERSION use latest revision */
-GVM_EXPORT GVM_EXTERN(int gvm_get_model,
-		(struct gvm_info *repo_info,
-		 const char *model_name, 
-		 size_t ver_num));
-
-/* Populate repo_info's objects list with a  subset of a 
- * model repository. If ver_num is LATEST_VERSION use 
- * latest revision.  If recursive is 1 add all objects
- * below the specified object in the tree. */
-GVM_EXPORT GVM_EXTERN(int gvm_get_objs,
-		(struct gvm_info *repo_info,
-		 const char *model_name, 
-		 const char *obj_name, 
-		 size_t ver_num,
-		 int recursive));
-
 
