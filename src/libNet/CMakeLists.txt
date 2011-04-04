@@ -49,6 +49,7 @@ SET(libNet_SRCS
  	netMsg/SessionInfoMsg.cxx
 	netMsg/NewNodeOnNetMsg.cxx
 	netMsg/GeometryReqMsg.cxx
+	netMsg/GeometryBoTReqMsg.cxx
 	netMsg/GeometryManifestMsg.cxx
 	netMsg/GeometryChunkMsg.cxx
 	netMsg/PingMsg.cxx
@@ -97,6 +98,7 @@ SET(libNet_inst_HDRS
 	SessionInfoMsg.h
 	NewNodeOnNetMsg.h
 	GeometryReqMsg.h
+	GeometryBoTReqMsg.h
 	GeometryManifestMsg.h
 	GeometryChunkMsg.h
 	PingMsg.h
