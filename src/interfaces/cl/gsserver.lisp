@@ -26,7 +26,6 @@
   (gsnet:writemsg s (make-instance 'gsnet:failmsg)))
 
 (defun handle-packet (s m)
-  (format t "~a~%" (type-of m))
   (cond
     ((equalp (type-of m) 'gsnet:geomreqmsg) (send-geom s (gsnet::uuid m) (gsnet::uri m)))
     ((equalp (type-of m) 'gsnet:geombotreqmsg) (send-bot-geom s (gsnet::uuid m) (gsnet::uri m)))
