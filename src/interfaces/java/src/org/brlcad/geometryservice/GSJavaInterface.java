@@ -105,7 +105,15 @@ public class GSJavaInterface implements GeometryService {
 			return false;
 		}
 
+		this.conn.start();
+		
 		return true;
+	}
+	
+	public void disconnectFromHost() 
+	{
+		if (this.conn != null)
+			this.conn.stopReceiving();
 	}
 
 }
