@@ -20,7 +20,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defcstruct xray "Ray"
-  (magic :uint32)
+  (magic :unsigned-long)
   (index :int)
   (r_pt :double :count 3)
   (r_dir :double :count 3)
@@ -28,7 +28,7 @@
   (r_man :double))
 
 (defcstruct application "Application structure"
-  (a_magic :uint32)
+  (a_magic :unsigned-long)
   
   ;;; THESE ELEMENTS ARE MANDATORY
   (a_ray xray)		; Actual ray to be shot
@@ -106,7 +106,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun rt-open (filename regions)
-  (let ((a (foreign-alloc (foreign-type-size 'application))))
-    (setf (application-a_rt_i a) (rt-dirbuild filename "RT" 0))
-    (loop for region in regions do (rt-gettree (application-a_rt_i a) region))
+  (with-foreign-object (a 'application)
+    (setf (foreign-slot-value a 'application 'a_rt_i) (rt-dirbuild filename "RT" 0))
+    (loop for region in regions do (rt-gettree (foreign-slot-value a 'application 'a_rt_i) region))
     a))
