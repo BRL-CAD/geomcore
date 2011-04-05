@@ -65,9 +65,7 @@ bool GenericMultiByteMsg::_serialize(DataStream* ds)
 {
     uint32_t len = htonl(this->data->size());
     ds->append((const char *)&len, 4);
-	std::cout << "Ping\n";
     ds->append((const char *)this->data->data(), this->data->size());
-	std::cout << "Ping\n";
 	return true;
 }
 
