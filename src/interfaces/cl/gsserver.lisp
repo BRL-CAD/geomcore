@@ -40,10 +40,10 @@
     (setf (gsnet::sessionuuid s) (format '() "~a" (uuid:make-v4-uuid)))
     (setf (gsnet::localnode s) +nodename+)
     (gsnet:writemsg s (make-instance 'gsnet:nodenamemsg :name +nodename+))
-    (if (not (gsnet:readmsg s)) (return-from handle-connection '()))
+    (unless (gsnet:readmsg s) (return-from handle-connection '()))
     (let ((m (gsnet:readmsg s)))
       (if (equalp (type-of m) 'gsnet:loginmsg)
-	  (if (not (authenticate s (gsnet::username m) (gsnet::password m))) (return-from handle-connection '()))
+	  (unless (authenticate s (gsnet::username m) (gsnet::password m)) (return-from handle-connection '()))
 	  (return-from handle-connection '())))
     (gsnet:writemsg s (make-instance 'gsnet::infomsg :sessionuuid (gsnet::sessionuuid s)))
     

@@ -38,7 +38,7 @@
 (defun writeuint64 (s i) (loop for a in '(56 48 40 32 24 16 8 0) do (write-byte (ldb (byte 8 a) i) s)))
 (defun writeuint32 (s i) (loop for a in '(24 16 8 0) do (write-byte (ldb (byte 8 a) i) s)))
 (defun writeuint16 (s i) (loop for a in '(8 0) do (write-byte (ldb (byte 8 a) i) s)))
-(defun writegsstring (s str)  (writeuint32 s (length str)) (loop for x being the element of str do (if x (write-byte (char-code x) s))))
+(defun writegsstring (s str)  (writeuint32 s (length str)) (loop for x being the element of str do (when x (write-byte (char-code x) s))))
 
 ;;; utility functions to read in
 (defun readuint64 (s) (apply #'+ (loop for a in '(56 48 40 32 24 16 8 0) collect (dpb (read-byte s) (byte 8 a) 0))))
@@ -72,33 +72,33 @@
 
 ;;; snarf data off the line and return an instance of the right kind of class
 (defun readmsg (s)
-  (if (readmagic (strm s))
+  (when (readmagic (strm s))
       (let ((length (readuint32 (strm s)))
 	    (type (readuint16 (strm s)))
 	    (uuid (readgsstring (strm s)))
-	    (reuuid (if (= (read-byte (strm s)) 1) (readuuid (strm s)) '())))
+	    (reuuid (when (= (read-byte (strm s)) 1) (readuuid (strm s)) '())))
 	(declare (ignore length))
 	(declare (ignore uuid))
 	(declare (ignore reuuid))
-	(cond 
-	  ((= type +gsrnnset+) (setf (remotenode s) (readgsstring (strm s))) t)
-	  ((= type +gsdr+) (writemsg s (make-instance 'logoutmsg)) '())
-	  ((= type +gspong+) (make-instance 'pongmsg :tv (readuint64 (strm s))))
-	  ((= type +gsping+) (writemsg s (make-instance 'pongmsg :tv (readuint64 (strm s)))) t) ; automatically respond to ping requests
-	  ((= type +gsinfo+) (setf (sessionuuid s) (readgsstring (strm s))) t)
-	  ((= type +gsfail+) (make-instance 'failmsg))
-	  ((= type +gsok+) (make-instance 'okmsg))
-	  ((= type +gsrualive+) (writemsg s (make-instance 'imalivemsg)) t) ; automatically respond to rualive 
-	  ((= type +gsimalive+) (make-instance 'imalivemsg))
-	  ((= type +gsgr+) (make-instance 'geomreqmsg :uri (readgsstring (strm s))))
-	  ((= type +gsgbr+) (make-instance 'geombotreqmsg :uri (readgsstring (strm s))))
-	  ((= type +gsgm+) (make-instance 'geommanifestmsg :manifest (loop for i from 1 to (readuint32 (strm s)) collect (readgsstring (strm s)))))
-	  ((= type +gsgc+) (make-instance 'geomchunkmsg :chunk 
-					  (let ((arr (make-array (+ (readuint32 (strm s)) 1) :element-type '(unsigned-byte 8))))
+	(case type
+	  (+gsrnnset+	(setf (remotenode s) (readgsstring (strm s))) t)
+	  (+gsdr+	(writemsg s (make-instance 'logoutmsg)) '())
+	  (+gspong+	(make-instance 'pongmsg :tv (readuint64 (strm s))))
+	  (+gsping+	(writemsg s (make-instance 'pongmsg :tv (readuint64 (strm s)))) t) ; automatically respond to ping requests
+	  (+gsinfo+	(setf (sessionuuid s) (readgsstring (strm s))) t)
+	  (+gsfail+	(make-instance 'failmsg))
+	  (+gsok+	(make-instance 'okmsg))
+	  (+gsrualive+	(writemsg s (make-instance 'imalivemsg)) t) ; automatically respond to rualive 
+	  (+gsimalive+	(make-instance 'imalivemsg))
+	  (+gsgr+	(make-instance 'geomreqmsg :uri (readgsstring (strm s))))
+	  (+gsgbr+	(make-instance 'geombotreqmsg :uri (readgsstring (strm s))))
+	  (+gsgm+	(make-instance 'geommanifestmsg :manifest (loop for i from 1 to (readuint32 (strm s)) collect (readgsstring (strm s)))))
+	  (+gsgc+	(make-instance 'geomchunkmsg :chunk 
+					  (let ((arr (make-array (+	(readuint32 (strm s)) 1) :element-type '(unsigned-byte 8))))
 						(read-sequence arr (strm s))
 						arr)))
-	  ((= type +gsnsr+) (make-instance 'loginmsg :username (readgsstring (strm s)) :password (readgsstring (strm s))))
-	  (t (format t "Unknown type! ~x~%" type))))
+	  (+gsnsr+	(make-instance 'loginmsg :username (readgsstring (strm s)) :password (readgsstring (strm s))))
+	  (otherwise (format t "Unknown type! ~x~%" type))))
       '()))
 
 (defgeneric writemsg (session message) (:documentation "Send the message to the socket stream"))
