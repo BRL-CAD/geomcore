@@ -51,7 +51,7 @@ public:
 	std::string getPath();
 
 	static BRLCAD::MinimalObject* chunkToObj(GeometryChunkMsg* msg);
-	static GeometryChunkMsg* objToChunk(BRLCAD::MinimalObject* Obj);
+	static GeometryChunkMsg* objToChunk(BRLCAD::MinimalObject* Obj, NetMsg* replyMsg = 0);
 
 private:
 	std::string path;
