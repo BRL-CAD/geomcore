@@ -33,13 +33,12 @@ GeometryService::GeometryService(const std::string localNodeName,
                                  const uint16_t listenPort)
 :   ControlledThread(localNodeName)
 {
+    this->dataMan = DataManager::getInstance();
     this->log = Logger::getInstance();
     this->log->logINFO("GeometryService", localNodeName + " is starting up...");
 
     this->portalMan = new PortalManager(localNodeName, listenPort, listenAddy);
     this->registerMsgRoutes();
-
-    this->dataMan = DataManager::getInstance();
 }
 
 
@@ -72,9 +71,9 @@ GeometryService::registerMsgRoutes()
 
     router->registerType(CMD_SHUTDOWN, this);
 
-    router->registerType(GEOMETRYREQ, this->dataMan);
-    router->registerType(GEOMETRYCHUNK, this->dataMan);
-    router->registerType(GEOMETRYMANIFEST, this->dataMan);
+    router->registerType(GEOMETRYREQ, DataManager::getInstance());
+    router->registerType(GEOMETRYCHUNK, DataManager::getInstance());
+    router->registerType(GEOMETRYMANIFEST, DataManager::getInstance());
 }
 
 
