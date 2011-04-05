@@ -134,6 +134,11 @@ NetMsgFactory::deserializeNetMsg(ByteArray& data, Portal* origin)
 
 
   default:
+	  std::stringstream ss;
+	  ss << "Unknown Msgtype: ";
+	  ss << msgType;
+	Logger::getInstance()->logERROR("NetMsgFactory", ss.str());
+
     return NULL;
     }
 }
