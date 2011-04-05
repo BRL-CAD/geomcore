@@ -28,6 +28,7 @@
 #include "FileDataSource.h"
 #include "NetMsgTypes.h"
 #include "TypeOnlyMsg.h"
+#include "FailureMsg.h"
 #include "GeometryManifestMsg.h"
 
 #include <GSThread.h>
@@ -90,13 +91,15 @@ void DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg) {
 	}
 
 	if (path.length() == 0) {
-		origin->sendTypeOnlyMessage(BAD_REQUEST, originalMsg);
+		FailureMsg fm(originalMsg, BAD_REQUEST);
+		origin->send(&fm);
 		log->logERROR("DataManager", "handleGeometryReqMsg(): Zero length Path.");
 		return;
 	}
 
 	if (this->datasource == NULL) {
-		origin->sendTypeOnlyMessage(OPERATION_NOT_AVAILABLE, originalMsg);
+		FailureMsg fm(originalMsg, OPERATION_NOT_AVAILABLE);
+		origin->send(&fm);
 		log->logERROR("DataManager", "handleGeometryReqMsg(): NULL DataSource!");
 		return;
 	}
@@ -105,7 +108,8 @@ void DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg) {
 	std::list<BRLCAD::MinimalObject*>* objs = this->datasource->getObjs(path,
 			recurse);
 	if (objs == NULL || objs->size() < 1) {
-		origin->sendTypeOnlyMessage(COULD_NOT_FIND_GEOMETRY, originalMsg);
+		FailureMsg fm(originalMsg, COULD_NOT_FIND_GEOMETRY);
+		origin->send(&fm);
 		log->logERROR("DataManager", "handleGeometryReqMsg(): No objects returned on lookup.");
 		return;
 	}
