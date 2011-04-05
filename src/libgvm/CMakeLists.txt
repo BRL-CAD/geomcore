@@ -6,6 +6,7 @@ INCLUDE_DIRECTORIES(
 
 SET(gvm_SRCS
 	mem.c
+	objects.c
 	repo.c
 )
 

@@ -19,6 +19,7 @@ void gvm_info_init(struct gvm_info *repo_info) {
 	apr_allocator_max_free_set(internal->allocator, SVN_ALLOCATOR_RECOMMENDED_MAX_FREE);
 	internal->pool = svn_pool_create_ex(NULL, internal->allocator);
 	apr_allocator_owner_set(internal->allocator, internal->pool);
+	internal->objects_pool = svn_pool_create(internal->pool);
 
 	/* Initialize the FS library. */
 	svn_fs_initialize(internal->pool);
