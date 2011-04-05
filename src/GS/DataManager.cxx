@@ -32,173 +32,163 @@
 
 #include <GSThread.h>
 
-
 DataManager* DataManager::pInstance = NULL;
 
-
-DataManager::DataManager()
-{
-    this->log = Logger::getInstance();
+DataManager::DataManager() {
+	this->log = Logger::getInstance();
 }
 
-
-DataManager::~DataManager()
-{}
-
-
-std::string
-DataManager::getObjectByPath(std::string url)
-{}
-
-
-bool
-DataManager::setDataSource(IDataSource* source)
-{
-    if (this->datasource != NULL)
-    return false;
-
-    this->datasource = source;
+DataManager::~DataManager() {
 }
 
-
-bool
-DataManager::handleNetMsg(NetMsg* msg)
-{
-    uint16_t type = msg->getMsgType();
-    switch(type) {
-    case GEOMETRYREQ:
-        this->handleGeometryReqMsg((GeometryReqMsg*)msg);
-        return true;
-    case GEOMETRYMANIFEST:
-        return true;
-    case GEOMETRYCHUNK:
-        this->handleGeometryChunkMsg((GeometryChunkMsg*)msg);
-        return true;
-    }
-    return false;
+std::string DataManager::getObjectByPath(std::string url) {
 }
 
+bool DataManager::setDataSource(IDataSource* source) {
+	if (this->datasource != NULL)
+		return false;
 
-void
-DataManager::handleGeometryChunkMsg(GeometryChunkMsg* msg)
-{
-    Portal* origin = msg->getOrigin();
-
-    //validate incoming data
-    if (origin == 0) {
-    //TODO Figure out how to how to handle NULL Portal
-    log->logERROR("DataManager", "handleGeometryChunkMsg(): NULL Portal!");
-    return;
-    }
+	this->datasource = source;
 }
 
-
-void
-DataManager::handleGeometryReqMsg(GeometryReqMsg* msg)
-{
-    bool recurse = msg->getRecurse();
-    std::string path = msg->getPath();
-    Portal* origin = msg->getOrigin();
-
-    //validate incoming data
-    if (origin == 0) {
-        //TODO Figure out how to how to handle NULL Portal
-        log->logERROR("DataManager", "handleGeometryReqMsg(): NULL Portal!");
-        return;
-    }
-
-    if (path.length() == 0) {
-    	origin->sendTypeOnlyMessage(BAD_REQUEST, msg);
-        return;
-    }
-
-    if (this->datasource == NULL) {
-    	origin->sendTypeOnlyMessage(OPERATION_NOT_AVAILABLE, msg);
-        return;
-    }
-
-    /* pull all objects */
-    std::list<BRLCAD::MinimalObject*>* objs = this->datasource->getObjs(path, recurse);
-    if (objs == NULL || objs->size() < 1) {
-       	origin->sendTypeOnlyMessage(COULD_NOT_FIND_GEOMETRY, msg);
-        return;
-    }
-
-    /* Prep for send */
-    std::list<GeometryChunkMsg*> msgs;
-    std::list<std::string> items;
-    GeometryChunkMsg* chunk = NULL;
-    int cnt = 0;
-    BRLCAD::MinimalObject* obj = NULL;
-
-    for(std::list<BRLCAD::MinimalObject*>::iterator it = objs->begin();
-        it != objs->end(); it++)
-    {
-        obj = *it;
-        chunk = GeometryChunkMsg::objToChunk(obj);
-        //chunk->getByteArray()->printHexString("");
-        msgs.push_back(chunk);
-//TODO        items.push_back(obj->)
-    }
-
-   // GeometryManifestMsg man(msgs);
-
-
-    return;
+bool DataManager::handleNetMsg(NetMsg* msg) {
+	uint16_t type = msg->getMsgType();
+	switch (type) {
+	case GEOMETRYREQ:
+		this->handleGeometryReqMsg((GeometryReqMsg*) msg);
+		return true;
+	case GEOMETRYMANIFEST:
+		return true;
+	case GEOMETRYCHUNK:
+		this->handleGeometryChunkMsg((GeometryChunkMsg*) msg);
+		return true;
+	}
+	return false;
 }
 
+void DataManager::handleGeometryChunkMsg(GeometryChunkMsg* msg) {
+	Portal* origin = msg->getOrigin();
+
+	//validate incoming data
+	if (origin == 0) {
+		//TODO Figure out how to how to handle NULL Portal
+		log->logERROR("DataManager", "handleGeometryChunkMsg(): NULL Portal!");
+		return;
+	}
+}
+
+void DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg) {
+	bool recurse = originalMsg->getRecurse();
+	std::string path = originalMsg->getPath();
+	Portal* origin = originalMsg->getOrigin();
+
+	//validate incoming data
+	if (origin == 0) {
+		//TODO Figure out how to how to handle NULL Portal
+		log->logERROR("DataManager", "handleGeometryReqMsg(): NULL Portal!");
+		return;
+	}
+
+	if (path.length() == 0) {
+		origin->sendTypeOnlyMessage(BAD_REQUEST, originalMsg);
+		return;
+	}
+
+	if (this->datasource == NULL) {
+		origin->sendTypeOnlyMessage(OPERATION_NOT_AVAILABLE, originalMsg);
+		return;
+	}
+
+	/* pull all objects */
+	std::list<BRLCAD::MinimalObject*>* objs = this->datasource->getObjs(path,
+			recurse);
+	if (objs == NULL || objs->size() < 1) {
+		origin->sendTypeOnlyMessage(COULD_NOT_FIND_GEOMETRY, originalMsg);
+		return;
+	}
+
+	/* Prep for send */
+	std::list<GeometryChunkMsg*> msgs;
+	std::list<std::string> items;
+	GeometryChunkMsg* chunk = NULL;
+	int cnt = 0;
+	BRLCAD::MinimalObject* obj = NULL;
+
+	/* build manifest & Chunks to send*/
+	for (std::list<BRLCAD::MinimalObject*>::iterator it = objs->begin(); it
+			!= objs->end(); it++) {
+		obj = *it;
+		chunk = GeometryChunkMsg::objToChunk(obj, originalMsg);
+		//chunk->getByteArray()->printHexString("");
+
+		msgs.push_back(chunk);
+		items.push_back(obj->getFilePath());
+	}
+
+	/* Send manifest */
+	GeometryManifestMsg man(originalMsg, items);
+	origin->send(&man);
+
+	/* Send chunks */
+	for (std::list<GeometryChunkMsg*>::iterator chunkIter = msgs.begin(); chunkIter
+			!= msgs.end(); ++chunkIter) {
+		chunk = *chunkIter;
+		origin->send(chunk);
+	}
+
+	return;
+}
 
 DataManager*
-DataManager::getInstance()
-{
-    if (!DataManager::pInstance)
-        DataManager::pInstance = new DataManager();
-    return DataManager::pInstance;
+DataManager::getInstance() {
+	if (!DataManager::pInstance)
+		DataManager::pInstance = new DataManager();
+	return DataManager::pInstance;
 }
 
+bool DataManager::init(Config* c) {
+	std::string repoType = c->getConfigValue("RepoType");
+	if (repoType.length() == 0) {
+		log->logERROR("DataManager",
+				"Config File does not contain a 'RepoType' parameter");
+		return false;
+	}
+	// to lower
+	for (int i = 0; i < repoType.length(); ++i)
+		repoType[i] = std::tolower(repoType[i]);
 
-bool
-DataManager::init(Config* c)
-{
-    std::string repoType = c->getConfigValue("RepoType");
-    if (repoType.length() == 0) {
-        log->logERROR("DataManager",
-              "Config File does not contain a 'RepoType' parameter");
-        return false;
-    }
-    // to lower
-    for (int i=0; i < repoType.length(); ++i)
-        repoType[i] = std::tolower(repoType[i]);
+	/* Attempt to instantiate a DataSource */
+	if (repoType == "file") {
+		std::string fRepoPath(c->getConfigValue("FileRepoPath"));
+		if (fRepoPath.length() == 0) {
+			log->logERROR("DataManager",
+					"Config File does not contain a 'FileRepoPath' parameter");
+			return false;
+		}
 
-    /* Attempt to instantiate a DataSource */
-    if (repoType == "file") {
-        std::string fRepoPath(c->getConfigValue("FileRepoPath"));
-        if (fRepoPath.length() == 0)
-        {
-            log->logERROR("DataManager", "Config File does not contain a 'FileRepoPath' parameter");
-            return false;
-        }
+		log->logINFO("DataManager", "FileDataSouce being used.");
+		FileDataSource* fds = new FileDataSource(fRepoPath);
 
-        log->logINFO("DataManager", "FileDataSouce being used.");
-        FileDataSource* fds = new FileDataSource(fRepoPath);
+		if (fds->init() == false) {
+			log->logERROR(
+					"DataManager",
+					"FileDataSouce could not read/write to the path supplied by the 'FileRepoPath' config value.  Please check the existance and permissions of this path.");
+			delete fds;
+			return false;
+		}
 
-        if (fds->init() == false) {
-            log->logERROR("DataManager", "FileDataSouce could not read/write to the path supplied by the 'FileRepoPath' config value.  Please check the existance and permissions of this path.");
-            delete fds;
-            return false;
-        }
+		this->setDataSource(fds);
+		return true;
 
-        this->setDataSource(fds);
-        return true;
+	} else if (repoType == "svn") {
+		log->logERROR("DataManager", "SVN repoType not implemented yet.");
+		return false;
 
-    } else if (repoType == "svn") {
-        log->logERROR("DataManager", "SVN repoType not implemented yet.");
-        return false;
-
-    } else {
-        log->logERROR("DataManager", "Invalid RepoType in config file.  Valid values are 'file' and 'svn'");
-        return false;
-    }
+	} else {
+		log->logERROR("DataManager",
+				"Invalid RepoType in config file.  Valid values are 'file' and 'svn'");
+		return false;
+	}
 }
 
 /*
