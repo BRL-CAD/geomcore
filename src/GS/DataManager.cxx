@@ -114,6 +114,11 @@ void DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg) {
 		return;
 	}
 
+	std::string s("Request made for: '");
+	s += path;
+	s += "'";
+	log->logINFO("DataManager", s);
+
 	/* Prep for send */
 	std::list<GeometryChunkMsg*> msgs;
 	std::list<std::string> items;
@@ -129,7 +134,7 @@ void DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg) {
 		//chunk->getByteArray()->printHexString("");
 
 		msgs.push_back(chunk);
-		items.push_back(obj->getFilePath());
+		items.push_back(obj->getFilePath() + "/" + obj->getObjectName());
 	}
 
 	/* Send manifest */
@@ -142,7 +147,6 @@ void DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg) {
 		chunk = *chunkIter;
 		origin->send(chunk);
 	}
-
 	return;
 }
 
