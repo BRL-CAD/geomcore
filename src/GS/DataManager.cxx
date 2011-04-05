@@ -91,11 +91,13 @@ void DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg) {
 
 	if (path.length() == 0) {
 		origin->sendTypeOnlyMessage(BAD_REQUEST, originalMsg);
+		log->logERROR("DataManager", "handleGeometryReqMsg(): Zero length Path.");
 		return;
 	}
 
 	if (this->datasource == NULL) {
 		origin->sendTypeOnlyMessage(OPERATION_NOT_AVAILABLE, originalMsg);
+		log->logERROR("DataManager", "handleGeometryReqMsg(): NULL DataSource!");
 		return;
 	}
 
@@ -104,6 +106,7 @@ void DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg) {
 			recurse);
 	if (objs == NULL || objs->size() < 1) {
 		origin->sendTypeOnlyMessage(COULD_NOT_FIND_GEOMETRY, originalMsg);
+		log->logERROR("DataManager", "handleGeometryReqMsg(): No objects returned on lookup.");
 		return;
 	}
 
