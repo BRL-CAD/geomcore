@@ -18,7 +18,7 @@
  * information.
  */
 /** @file GetCmd.h
- * LoginCmd.h
+ * GetCmd.h
  *
  *  Created on: Dec 16, 2010
  *      

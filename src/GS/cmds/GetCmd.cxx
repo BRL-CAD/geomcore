@@ -26,7 +26,7 @@
 #include "PortalManager.h"
 #include "TypeOnlyMsg.h"
 #include "NetMsgTypes.h"
-
+#include "GeometryReqMsg.h"
 
 GetCmd::GetCmd() : AbstractClientCmd("get") {}
 
@@ -51,14 +51,27 @@ GetCmd::getHelp()
 bool
 GetCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
 {
-    Portal* p = client->getCurrentPortal();
+    int argn = args.size();
 
-    /* Check to see if we are connected */
-    if (p == NULL) {
-    	this->log->logWARNING("Get", "Not connected to a Geometry Service.");
-		return false;
+    if (argn != 1) {
+    	this->printUsage();
+    	return false;
     }
 
+    /* Check to see if we are connected */
+    Portal* p = client->getCurrentPortal();
+    if (p == NULL) {
+    	this->log->logWARNING("GetCmd", "Not connected to a Geometry Service.");
+		return false;
+    }
+    std::list<std::string>::iterator it = args.begin();
+    std::string path(*it);
+
+    this->log->logINFO("GetCmd", "Attempting to get: '" + path + "'.");
+
+    GeometryReqMsg req(path, true);
+
+    p->send(&req);
 
     return true;
 }
