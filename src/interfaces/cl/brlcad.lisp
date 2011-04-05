@@ -17,7 +17,16 @@
    (t (:default "librt")))
 (cffi:use-foreign-library librt)
 
+(cffi:define-foreign-library libgcv
+   (:darwin (:or "libgcv.19.dylib" "libgcv.dylib"))
+   (:unix (:or "libgcv.19.so" "libgcv.so"))
+   (:windows "libgcv.dll")
+   (t (:default "libgcv")))
+(cffi:use-foreign-library libgcv)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defconstant +rt-ap-magic+ #x4170706c) ; appl
 
 (defcstruct xray "Ray"
   (magic :unsigned-long)
@@ -100,13 +109,31 @@
 
 (defcfun "rt_dirbuild" :pointer (file :string) (descr :string) (i :int))
 (defcfun "rt_prep_parallel" :void (rti :pointer) (ncpu :int))
+(defcfun "rt_prep" :void (rti :pointer))
 (defcfun "rt_gettree" :int (rti :pointer) (reg :string))
+(defcfun "rt_clean" :void (rti :pointer))
 (defcfun "rt_free_rti" :void (rti :pointer))
+(defcfun "rt_shootray" :int (ap :pointer))
+
+(defcfun "gcv_region_end" :pointer (tsp :pointer) (pathp :pointer) (curtree :pointer) (client_data :pointer))
+(defcfun "gcv_region_end_mc" :pointer (tsp :pointer) (pathp :pointer) (curtree :pointer) (client_data :pointer))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun rt-open (filename regions)
+(defun rt-open (filename regions &key hitfunc missfunc multioverlapfunc logoverlapfunc prep)
   (with-foreign-object (a 'application)
+    ; RT_APPLICATION_INIT
+    (loop for i from 0 to (- (foreign-type-size 'application) 1) do (setf (mem-aref a :unsigned-char i) 0))
+    (setf (foreign-slot-value a 'application 'a_magic) +rt-ap-magic+)
+
+    ; set handler funcs
+    (when hitfunc (setf (foreign-slot-value a 'application 'a_hit) hitfunc))
+    (when missfunc (setf (foreign-slot-value a 'application 'a_miss) missfunc))
+    (when multioverlapfunc (setf (foreign-slot-value a 'application 'a_multioverlap) multioverlapfunc))
+    (when logoverlapfunc (setf (foreign-slot-value a 'application 'a_logoverlap) logoverlapfunc))
+
+    ; load/prep
     (setf (foreign-slot-value a 'application 'a_rt_i) (rt-dirbuild filename "RT" 0))
     (loop for region in regions do (rt-gettree (foreign-slot-value a 'application 'a_rt_i) region))
+    (when prep (rt-prep-parallel (foreign-slot-value a 'application 'a_rt_i) 8))
     a))
