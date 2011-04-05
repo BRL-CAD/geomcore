@@ -4,7 +4,8 @@
 (defpackage :gsnet
   (:use :cl :sb-unix)
   (:export :connect :writemsg :readmsg
-	   :session :message :pingmsg :pongmsg :nodenamemsg :loginmsg :logoutmsg :rualivemsg :imalivemsg :okmsg :failmsg :geomreqmsg :geombotreqmsg :geommanifestmsg :geomchunkmsg
+	   :session :message
+	   :pingmsg :pongmsg :rnnsetmsg :nsrmsg :drmsg :rualivemsg :imalivemsg :okmsg :failmsg :grmsg :gbrmsg :gmmsg :gcmsg
 	   :manifest :remotenode :sessionuuid :socket :strm
 	   :usec))
 
@@ -72,7 +73,7 @@
 
 ;;; snarf data off the line and return an instance of the right kind of class
 (defun readmsg (s)
-  (when (readmagic (strm s))
+  (if (readmagic (strm s))
       (let ((length (readuint32 (strm s)))
 	    (type (readuint16 (strm s)))
 	    (uuid (readgsstring (strm s)))
@@ -80,25 +81,25 @@
 	(declare (ignore length))
 	(declare (ignore uuid))
 	(declare (ignore reuuid))
-	(case type
-	  (+gsrnnset+	(setf (remotenode s) (readgsstring (strm s))) t)
-	  (+gsdr+	(writemsg s (make-instance 'logoutmsg)) '())
-	  (+gspong+	(make-instance 'pongmsg :tv (readuint64 (strm s))))
-	  (+gsping+	(writemsg s (make-instance 'pongmsg :tv (readuint64 (strm s)))) t) ; automatically respond to ping requests
-	  (+gsinfo+	(setf (sessionuuid s) (readgsstring (strm s))) t)
-	  (+gsfail+	(make-instance 'failmsg))
-	  (+gsok+	(make-instance 'okmsg))
-	  (+gsrualive+	(writemsg s (make-instance 'imalivemsg)) t) ; automatically respond to rualive 
-	  (+gsimalive+	(make-instance 'imalivemsg))
-	  (+gsgr+	(make-instance 'geomreqmsg :uri (readgsstring (strm s))))
-	  (+gsgbr+	(make-instance 'geombotreqmsg :uri (readgsstring (strm s))))
-	  (+gsgm+	(make-instance 'geommanifestmsg :manifest (loop for i from 1 to (readuint32 (strm s)) collect (readgsstring (strm s)))))
-	  (+gsgc+	(make-instance 'geomchunkmsg :chunk 
+	(cond
+	  ((= type +gsrnnset+)	(setf (remotenode s) (readgsstring (strm s))) t)
+	  ((= type +gsdr+)	(writemsg s (make-instance 'logoutmsg)) '())
+	  ((= type +gspong+)	(make-instance 'pongmsg :tv (readuint64 (strm s))))
+	  ((= type +gsping+)	(writemsg s (make-instance 'pongmsg :tv (readuint64 (strm s)))) t) ; automatically respond to ping requests
+	  ((= type +gsinfo+)	(setf (sessionuuid s) (readgsstring (strm s))) t)
+	  ((= type +gsfail+)	(make-instance 'failmsg))
+	  ((= type +gsok+)	(make-instance 'okmsg))
+	  ((= type +gsrualive+)	(writemsg s (make-instance 'imalivemsg)) t) ; automatically respond to rualive 
+	  ((= type +gsimalive+)	(make-instance 'imalivemsg))
+	  ((= type +gsgr+)	(make-instance 'grmsg :uri (readgsstring (strm s))))
+	  ((= type +gsgbr+)	(make-instance 'gbrmsg :uri (readgsstring (strm s))))
+	  ((= type +gsgm+)	(make-instance 'gmmsg :manifest (loop for i from 1 to (readuint32 (strm s)) collect (readgsstring (strm s)))))
+	  ((= type +gsgc+)	(make-instance 'gcmsg :chunk 
 					  (let ((arr (make-array (+	(readuint32 (strm s)) 1) :element-type '(unsigned-byte 8))))
 						(read-sequence arr (strm s))
 						arr)))
-	  (+gsnsr+	(make-instance 'loginmsg :username (readgsstring (strm s)) :password (readgsstring (strm s))))
-	  (otherwise (format t "Unknown type! ~x~%" type))))
+	  ((= type +gsnsr+)	(make-instance 'nsrmsg :username (readgsstring (strm s)) :password (readgsstring (strm s))))
+	  (t (format t "Unknown type! ~a ~x~%" (type-of type) type))))
       '()))
 
 (defgeneric writemsg (session message) (:documentation "Send the message to the socket stream"))
@@ -116,53 +117,27 @@
 (defmethod writemsg :around (s (m message)) (call-next-method) (force-output (strm s)))
 
 ;;; type specific send handling
-(defclass pingmsg (message) ((tv :accessor tv :initform (usec))))
-(defmethod writemsg :before (s (m pingmsg)) (setf (msgtype m) +gsping+) (setf (len m) 8))
-(defmethod writemsg :after (s (m pingmsg)) (writeuint64 (strm s) (tv m)))
 
-(defclass pongmsg (message) ((tv :accessor tv :initarg :tv)))
-(defmethod writemsg :before (s (m pongmsg)) (setf (msgtype m) +gspong+) (setf (len m) 8))
-(defmethod writemsg :after (s (m pongmsg)) (writeuint64 (strm s) (tv m)))
+(defmacro msg (name def size &optional send)
+  (let ((classname (intern (format nil "~:@(~amsg~)" name)))
+	(typename (intern (format nil "~:@(+gs~a+~)" name))))
+    `(progn 
+       (defclass ,classname (message) ,def)
+       (defmethod writemsg :before (s (m ,classname)) (setf (msgtype m) ,typename) (setf (len m) ,size))
+       (defmethod writemsg :after (s (m ,classname)) ,send))))
 
-(defclass nodenamemsg (message) ((name :accessor name :initarg :name)))
-(defmethod writemsg :before (s (m nodenamemsg)) (setf (msgtype m) +gsrnnset+) (setf (len m) (+ (length (localnode s)) 4)))
-(defmethod writemsg :after (s (m nodenamemsg)) (writegsstring (strm s) (localnode s)))
-
-(defclass loginmsg (message) ((username :accessor username :initarg :username) (password :accessor password :initarg :password)))
-(defmethod writemsg :before (s (m loginmsg)) (setf (msgtype m) +gsnsr+) (setf (len m) (+ (length (username s)) (length (password s)) 8)))
-(defmethod writemsg :after (s (m loginmsg)) (writegsstring (strm s) (username s)) (writegsstring (strm s) (password s)))
-
-(defclass logoutmsg (message) ())
-(defmethod writemsg :before (s (m logoutmsg)) (setf (msgtype m) +gsdr+))
-
-(defclass infomsg (message) ((sessionuuid :accessor sessionuuid :initarg :sessionuuid)))
-(defmethod writemsg :before (s (m infomsg)) (setf (msgtype m) +gsinfo+) (setf (len m) (+ (length (sessionuuid m)) 4)))
-(defmethod writemsg :after (s (m infomsg)) (writegsstring (strm s) (sessionuuid m)))
-
-(defclass rualivemsg (message) ())
-(defmethod writemsg :before (s (m rualivemsg)) (setf (msgtype m) +gsrualive+))
-
-(defclass imalivemsg (message) ())
-(defmethod writemsg :before (s (m imalivemsg)) (setf (msgtype m) +gsimalive+))
-
-(defclass okmsg (message) ())
-(defmethod writemsg :before (s (m okmsg)) (setf (msgtype m) +gsok+))
-
-(defclass failmsg (message) ())
-(defmethod writemsg :before (s (m failmsg)) (setf (msgtype m) +gsfail+))
-
-(defclass geomreqmsg (message) ((uri :accessor uri :initarg :uri :initform "")))
-(defmethod writemsg :before (s (m geomreqmsg)) (setf (msgtype m) +gsgr+) (setf (len m) (+ (length (uri m)) 4)))
-(defmethod writemsg :after (s (m geomreqmsg)) (writegsstring (strm s) (uri m)))
-
-(defclass geombotreqmsg (message) ((uri :accessor uri :initarg :uri :initform "")))
-(defmethod writemsg :before (s (m geombotreqmsg)) (setf (msgtype m) +gsgr+) (setf (len m) (+ (length (uri m)) 4)))
-(defmethod writemsg :after (s (m geombotreqmsg)) (writegsstring (strm s) (uri m)))
-
-(defclass geommanifestmsg (message) ((manifest :accessor manifest :initarg :manifest)))
-(defmethod writemsg :before (s (m geommanifestmsg)) (setf (msgtype m) +gsgm+) (setf (len m) (apply #'+ 4 (mapcar (lambda (x) (+ (length x) 4)) (manifest m)))))
-(defmethod writemsg :after (s (m geommanifestmsg)) (writeuint32 (strm s) (length (manifest m))) (loop for i in (manifest m) do (writegsstring (strm s) i)))
-
-(defclass geomchunkmsg (message) ((chunk :accessor chunk :initarg :chunk)))
-(defmethod writemsg :before (s (m geomchunkmsg)) (setf (msgtype m) +gsgc+) (setf (len m) (length (chunk m))))
-(defmethod writemsg :after (s (m geomchunkmsg)) (writeuint32 (strm s) (- (length (chunk m)) 1)) (write-sequence (chunk m) (strm s)))
+(msg ping ((tv :accessor tv :initform (usec))) 8 (writeuint64 (strm s) (tv m)))
+(msg pong ((tv :accessor tv :initarg :tv)) 8 (writeuint64 (strm s) (tv m)))
+(msg rnnset ((name :accessor name :initarg :name)) (+ (length (localnode s)) 4) (writegsstring (strm s) (localnode s)))
+(msg nsr ((username :accessor username :initarg :username) (password :accessor password :initarg :password))
+  (+ (length (username s)) (length (password s)) 8) (progn (writegsstring (strm s) (username s)) (writegsstring (strm s) (password s))))
+(msg dr () 0)
+(msg info ((sessionuuid :accessor sessionuuid :initarg :sessionuuid)) (+ (length (sessionuuid m)) 4) (writegsstring (strm s) (sessionuuid m)))
+(msg rualive () 0)
+(msg imalive () 0)
+(msg ok () 0)
+(msg fail () 0)
+(msg gr ((uri :accessor uri :initarg :uri :initform "")) (+ (length (uri m)) 4) (writegsstring (strm s) (uri m)))
+(msg gbr ((uri :accessor uri :initarg :uri :initform "")) (+ (length (uri m)) 4) (writegsstring (strm s) (uri m)))
+(msg gm ((manifest :accessor manifest :initarg :manifest)) (apply #'+ 4 (mapcar (lambda (x) (+ (length x) 4)) (manifest m))) (progn (writeuint32 (strm s) (length (manifest m))) (loop for i in (manifest m) do (writegsstring (strm s) i))))
+(msg gc ((chunk :accessor chunk :initarg :chunk)) (+ (length (chunk m)) 4) (progn (writeuint32 (strm s) (- (length (chunk m)) 1)) (write-sequence (chunk m) (strm s))))
