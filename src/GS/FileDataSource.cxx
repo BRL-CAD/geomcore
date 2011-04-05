@@ -55,7 +55,9 @@ FileDataSource::getObjs(std::string relPath, bool recurse)
 	if (this->existsFileOrDir(absPath.c_str()) == 1)
 		return NULL;
 
-	BRLCAD::MinimalDatabase md(absPath);
+	//FIXME something in here is killing the logger....
+	BRLCAD::MinimalDatabase md;
+	md.Load(absPath);
 
 	if (recurse)
 		return md.getAllObjects();
