@@ -74,6 +74,7 @@ GeometryService::registerMsgRoutes()
 
     router->registerType(GEOMETRYREQ, this->dataMan);
     router->registerType(GEOMETRYCHUNK, this->dataMan);
+    router->registerType(GEOMETRYMANIFEST, this->dataMan);
 }
 
 
