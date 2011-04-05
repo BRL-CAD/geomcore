@@ -44,7 +44,7 @@ GetCmd::getUsage()
 std::string
 GetCmd::getHelp()
 {
-    return "Severs the connection to the current GeometryService.";
+    return "Attempts to get geometry from the current GeometryService";
 }
 
 
