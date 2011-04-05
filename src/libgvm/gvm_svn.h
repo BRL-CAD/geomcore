@@ -23,6 +23,19 @@
  *  
  */
 
+#include <apr.h>
+#include <apr_file_io.h>
+#include <apr_signal.h>
+#include <apr_hash.h>
+#include <apr_tables.h>
+
+#include "svn_pools.h"
+#include "svn_path.h"
+#include "svn_fs.h"
+#include "svn_diff.h"
+#include "svn_repos.h"
+
+
 /**
  * GVMSVN_ERR(expr)
  *
@@ -49,8 +62,9 @@
 
 struct geomsvn_info {
    apr_pool_t *pool;			/* Apache Portable Runtime memory pool */
+   apr_allocator_t *allocator;		/* Apache Portable Runtime allocator */
    apr_pool_t *commit_pool;		/* Subpool for commits */
    svn_repos_t *repos;			/* svn_repos_t pointer to repository */
    svn_revnum_t *curr_rev;		/* Current repository revision (cast to svn_revnum_t to use)*/
-}
+};
 

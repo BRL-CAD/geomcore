@@ -23,6 +23,8 @@
  *  
  */
 
+#include "bu.h"
+
 #ifndef GVM_EXPORT
 #  if defined(_WIN32) && !defined(__CYGWIN__) && defined(BRLCAD_DLL)
 #    ifdef GVM_EXPORT_DLL
@@ -55,7 +57,7 @@ struct repository_objects {
    size_t version;
    struct bu_external *contents;
    int action; /* 0 = update, 1 = add, 2 = delete  - used for commit operations*/
-}
+};
 
 
 /**
@@ -67,9 +69,9 @@ struct repository_objects {
 
 struct gvm_info {
    void *internal;			/* Internal information used by the backend */
-   char *repo_full_path;		/* Full filesystem path to repository */
+   const char *repo_full_path;		/* Full filesystem path to repository */
    struct repository_objects *objects;	/* List of currently "active" objects */
-}
+};
 
 /**
  * Utility routines for repository structures
