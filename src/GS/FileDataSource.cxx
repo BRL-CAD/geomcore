@@ -44,6 +44,7 @@ FileDataSource::getObj(std::string path)
 std::list<BRLCAD::MinimalObject*>*
 FileDataSource::getObjs(std::string relPath, bool recurse)
 {
+	//TODO Clean up path parsing, remove double //'s
 	std::string absPath = this->repoPath + "/" + relPath;
 
 	BRLCAD::MinimalDatabase md(absPath);
