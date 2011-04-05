@@ -27,7 +27,7 @@
 #include "SessionInfoMsg.h"
 #include "FailureMsg.h"
 #include "PongMsg.h"
-
+#include "GeometryManifestMsg.h"
 
 GSClient::GSClient(std::string localNodeName)
 {
@@ -59,6 +59,8 @@ GSClient::registerMsgRoutes()
     router->registerType(FAILURE, this);
     router->registerType(PING, this);
     router->registerType(PONG, this);
+    router->registerType(GEOMETRYMANIFEST, this);
+    router->registerType(GEOMETRYCHUNK, this);
 }
 
 
@@ -135,6 +137,34 @@ GSClient::handleNetMsg(NetMsg* msg)
 		log->logINFO("GSClient", ss.str());
 		return true;
 	    }
+
+	case GEOMETRYMANIFEST:
+		{
+			GeometryManifestMsg* man = (GeometryManifestMsg*)msg;
+			std::list<std::string>* items = man->getItemData();
+			std::string str;
+			std::stringstream ss;
+
+
+			int count = man->getNumOfItems();
+			ss << "Items(" << count << "): ";
+
+			/* build manifest & Chunks to send*/
+			for (std::list<std::string>::iterator it = items->begin(); it
+					!= items->end(); it++) {
+				str = *it;
+				ss << "'" << str << ", ";
+			}
+
+			log->logINFO("GSClient", ss.str());
+
+			return false;
+		}
+	case GEOMETRYCHUNK:
+		{
+			log->logINFO("GSClient", "Gotta Chunk!!!");
+			return false;
+		}
     }
     return false;
 }

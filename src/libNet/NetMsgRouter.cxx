@@ -67,9 +67,18 @@ bool NetMsgRouter::routeMsg(NetMsg* msg) {
 		snprintf(buf, BUFSIZ, "Msg type: %X has no routing information.", msg->getMsgType());
 		Logger::getInstance()->logWARNING("NetMsgRouter",std::string(buf));
 		return false;
-	} else
-		for (std::list<INetMsgHandler*>::iterator it=list->begin(); it != list->end(); it++)
-			(*it)->handleNetMsg(msg);
+
+	} else {
+		INetMsgHandler* handler = NULL;
+		for (std::list<INetMsgHandler*>::iterator it=list->begin();
+				it != list->end();
+				it++)
+		{
+			handler = (INetMsgHandler*)(*it);
+//			Logger::getInstance()->logINFO("NetMsgRouter", "Got Msg");
+			handler->handleNetMsg(msg);
+		}
+	}
 	/* Now delete msg */
 	delete msg;
 	return true;
@@ -82,9 +91,9 @@ NetMsgRouter::getListOfHandlers(uint16_t type) {
     std::map<uint16_t,std::list<INetMsgHandler*>*>::iterator it = this->routingTable->find(type);
 
     if (it == this->routingTable->end()) {
-	std::list<INetMsgHandler*>* l = new std::list<INetMsgHandler*> ();
-	this->routingTable->insert(std::pair<int,std::list<INetMsgHandler*>*>(type, l));
-	return l;
+    	std::list<INetMsgHandler*>* l = new std::list<INetMsgHandler*> ();
+    	this->routingTable->insert(std::pair<int,std::list<INetMsgHandler*>*>(type, l));
+    	return l;
     }
     return it->second;
 }
