@@ -28,6 +28,8 @@
 #include "FailureMsg.h"
 #include "PongMsg.h"
 #include "GeometryManifestMsg.h"
+#include "GeometryChunkMsg.h"
+#include "raytrace.h"
 
 GSClient::GSClient(std::string localNodeName)
 {
@@ -162,7 +164,24 @@ GSClient::handleNetMsg(NetMsg* msg)
 		}
 	case GEOMETRYCHUNK:
 		{
-			log->logINFO("GSClient", "Gotta Chunk!!!");
+			GeometryChunkMsg* chunk = (GeometryChunkMsg*)msg;
+			ByteArray* ba = chunk->getByteArray();
+
+			/* Get object name  */
+			struct db5_raw_internal raw;
+		    if (db5_get_raw_internal_ptr(&raw, (const unsigned char *)ba->data()) == NULL) {
+		    	bu_log("Corrupted serialized geometry?  Could not deserialize.\n");
+		    	return false;
+		    }
+
+		    if (raw.name.ext_nbytes < 1) {
+		    	bu_log("Failed to retrieve object name.  Could not deserialize.\n");
+		    	return false;
+		    }
+
+		    std::string name((char*)raw.name.ext_buf);
+
+			log->logINFO("GSClient", "Got a Chunk named: " + name);
 			return false;
 		}
     }
