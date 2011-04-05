@@ -22,6 +22,7 @@
  */
 
 #include "FileDataSource.h"
+#include <sys/stat.h>
 
 
 FileDataSource::FileDataSource(std::string repoPath)
@@ -67,18 +68,40 @@ FileDataSource::putObj(std::string path, BRLCAD::MinimalObject* obj)
 bool
 FileDataSource::init()
 {
-    //first check to see if there is a repo at the supplied path, and if we can R/W to it.
+	const char* path = this->repoPath.c_str();
 
-    /* 0 == exists */
-    if (bu_file_readable(this->repoPath.c_str()) != 0)
-	return false;
+	/* check to see if there is a repo at the supplied path, and if we can R/W to it. */
+    if (bu_file_readable(path) <= 0)
+    	return false;
     Logger::getInstance()->logINFO("FileDataSource", this->repoPath + " is readable.");
 
-    if (bu_file_writable(this->repoPath.c_str()) != 0)
-	return false;
+    if (bu_file_writable(path) <= 0)
+    	return false;
     Logger::getInstance()->logINFO("FileDataSource", this->repoPath + " is writable.");
 
     return true;
+}
+
+
+int
+FileDataSource::existsFileOrDir(const char* path)
+{
+    struct stat st_buf;
+
+    /* Check existence */
+    if ((stat (path, &st_buf)) != 0)
+        return 0;
+
+    /* Check if dir */
+    if (S_ISDIR (st_buf.st_mode))
+    	return 1;
+
+    /* Check if file */
+    if (S_ISREG (st_buf.st_mode))
+    	return 2;
+
+    /* Shouldn't ever get here. */
+    return -1;
 }
 
 
