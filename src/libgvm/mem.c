@@ -26,12 +26,13 @@ void gvm_info_init(struct gvm_info *repo_info) {
 
 void gvm_info_clear_objects(struct gvm_info *repo_info) {
 	/* free repository objects list */
+	struct geomsvn_info *internal;
 	struct repository_objects *entry;
+	internal = (struct geomsvn_info *)repo_info->internal;
 	while (BU_LIST_WHILE(entry, repository_objects, &(repo_info->objects->l))) {
-		if (entry->contents) bu_free(entry->contents, "free repository object contents");
 		BU_LIST_DEQUEUE(&(entry->l));
-		bu_free(entry, "free repository object entry");
 	}
+	svn_pool_clear(internal->objects_pool);
 }
 
 void gvm_info_free(struct gvm_info *repo_info) {
@@ -44,7 +45,7 @@ void gvm_info_free(struct gvm_info *repo_info) {
 
 	/* free subversion memory pools and info */
 	internal = (struct geomsvn_info *)repo_info->internal;
-	svn_pool_destroy(internal->commit_pool);
+	svn_pool_destroy(internal->objects_pool);
 	svn_pool_destroy(internal->pool);
 	apr_allocator_destroy(internal->allocator);
 	bu_free(repo_info->internal, "free gvm_info internal structure");

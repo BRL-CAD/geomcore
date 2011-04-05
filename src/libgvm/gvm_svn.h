@@ -63,7 +63,7 @@
 struct geomsvn_info {
    apr_pool_t *pool;			/* Apache Portable Runtime memory pool */
    apr_allocator_t *allocator;		/* Apache Portable Runtime allocator */
-   apr_pool_t *commit_pool;		/* Subpool for commits */
+   apr_pool_t *objects_pool;		/* Subpool for current revision objects*/
    svn_repos_t *repos;			/* svn_repos_t pointer to repository */
    svn_revnum_t *curr_rev;		/* Current repository revision (cast to svn_revnum_t to use)*/
 };
