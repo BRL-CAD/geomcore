@@ -56,6 +56,14 @@ public:
 	/* Put a single BRLCAD::Object */
 	bool putObj(std::string path, BRLCAD::MinimalObject* obj);
 
+	/**
+	 * Checks the supplied path for existence and whether its a file or directory.
+	 * return values:
+	 * 0 == does not exist
+	 * 1 == exists and is a Directory
+	 * 2 == exists and is a File
+	 */
+	static int existsFileOrDir(const char* path);
 private:
 	std::string repoPath;
 
