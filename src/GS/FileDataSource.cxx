@@ -48,6 +48,13 @@ FileDataSource::getObjs(std::string relPath, bool recurse)
 	//TODO Clean up path parsing, remove double //'s
 	std::string absPath = this->repoPath + "/" + relPath;
 
+	//figure out what kind of path we are dealing with;
+	if (this->existsFileOrDir(absPath.c_str()) == 0)
+		return NULL;
+
+	if (this->existsFileOrDir(absPath.c_str()) == 1)
+		return NULL;
+
 	BRLCAD::MinimalDatabase md(absPath);
 
 	if (recurse)
