@@ -143,7 +143,7 @@ GeometryChunkMsg::chunkToObj(GeometryChunkMsg* msg)
     }
 
     if (raw.name.ext_nbytes < 1) {
-    	bu_log("Failed to retireve object name.  Could not deserialize.\n");
+    	bu_log("Failed to retrieve object name.  Could not deserialize.\n");
     	return NULL;
     }
 
