@@ -56,6 +56,7 @@ public:
 	/* Put a single BRLCAD::Object */
 	bool putObj(std::string path, BRLCAD::MinimalObject* obj);
 
+	//TODO swap out with bu_file_type()
 	/**
 	 * Checks the supplied path for existence and whether its a file or directory.
 	 * return values:
