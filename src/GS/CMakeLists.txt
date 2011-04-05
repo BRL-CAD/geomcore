@@ -51,6 +51,7 @@ SET(geomserv_SRCS
 	cmds/ClientCmdRegistry.cxx
 	cmds/AbstractClientCmd.cxx
 	cmds/HelpCmd.cxx
+	cmds/GetCmd.cxx
 	cmds/LoginCmd.cxx
 	cmds/LogoutCmd.cxx
 	cmds/ShutdownCmd.cxx
@@ -92,11 +93,12 @@ SET(geomserv_inst_HDRS
 	ClientCmdRegistry.h
 	AbstractClientCmd.h
 	HelpCmd.h
+	GetCmd.h
 	LoginCmd.h
 	LogoutCmd.h
 	ShutdownCmd.h
 	ExitCmd.h
-	)
+)
 	
 INSTALL(FILES ${geomserv_inst_HDRS} DESTINATION include)
 
