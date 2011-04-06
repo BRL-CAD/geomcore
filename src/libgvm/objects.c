@@ -60,3 +60,79 @@ struct repository_objects * gvm_get_repo_obj(struct gvm_info *repo_info, const c
 	new_obj->version = ver_num;
 	return new_obj;
 }
+
+int gvm_diff(struct gvm_info *repo_info, struct bu_external *obj1, struct bu_external *obj2) {
+	if (obj1->ext_nbytes != obj2->ext_nbytes) return 1;
+	if (memcmp(obj1->ext_buf, obj2->ext_buf, obj1->ext_nbytes) != 0) return 1;
+	return 0;
+}
+
+int gvm_add_to_list(struct gvm_info *repo_info, struct repository_objects *obj) {
+	BU_LIST_PUSH(&(repo_info->objects->l), &(obj->l));
+}
+
+int gvm_add_obj(struct gvm_info *repo_info, struct repository_objects *obj) {
+	obj->action = 2;
+	gvm_add_to_list(repo_info, obj);
+}
+
+int gvm_del_obj(struct gvm_info *repo_info, struct repository_objects *obj) {
+	obj->action = 3;
+	gvm_add_to_list(repo_info, obj);
+}
+
+int gvm_update_obj(struct gvm_info *repo_info, struct repository_objects *obj) {
+	obj->action = 1;
+	gvm_add_to_list(repo_info, obj);
+}
+
+int gvm_commit_objs(struct gvm_info *repo_info) {
+	apr_pool_t *subpool;
+	struct geomsvn_info *internal = NULL;
+	internal = (struct geomsvn_info *)repo_info->internal;
+	void *edit_baton, *root_baton, *file_baton, *handler_baton, *child_baton;
+	svn_txdelta_window_handler_t handler;
+	struct repository_objects *obj;
+	svn_string_t *target_dir;
+	svn_string_t *target_file;
+	svn_stringbuf_t *contents;
+	svn_stream_t *contents_stream;
+	svn_fs_t *fs;
+	svn_revnum_t rev;
+	const svn_delta_editor_t **editor = apr_palloc(subpool, sizeof(struct svn_delta_editor_t));
+	subpool = svn_pool_create(internal->pool);
+	fs = svn_repos_fs(internal->repos);
+	svn_fs_youngest_rev(&rev, fs, subpool);
+	svn_repos_get_commit_editor4(editor, &edit_baton, internal->repos, NULL, repo_info->repo_full_path, NULL, NULL, NULL, NULL, NULL, NULL, NULL, subpool);
+	(*editor)->open_root(edit_baton, rev, subpool, &root_baton);
+	for(BU_LIST_FOR(obj, repository_objects , &(repo_info->objects->l))) {
+		target_dir = svn_string_createf(subpool, "%s/%s", obj->model_name, obj->obj_name);
+		target_file = svn_string_createf(subpool, "%s/%s/%s", obj->model_name, obj->obj_name, obj->obj_name);
+		switch(obj->action) {
+			case 1: /* update */
+				(*editor)->open_file(target_file->data, root_baton, obj->version, subpool, &file_baton);
+				(*editor)->apply_textdelta(file_baton, NULL, subpool, &handler, &handler_baton);
+				contents = svn_stringbuf_ncreate((const char *)obj->contents->ext_buf, (apr_size_t)obj->contents->ext_nbytes, subpool);
+				contents_stream = svn_stream_from_stringbuf(contents, subpool);
+				svn_txdelta_send_stream(contents_stream, handler, handler_baton, NULL, subpool);
+				svn_stream_close(contents_stream);
+				(*editor)->close_file(file_baton, NULL, subpool);
+				break;
+			case 2: /* add */
+				(*editor)->add_directory(target_dir->data,  root_baton, NULL, rev, subpool, &child_baton);
+				(*editor)->add_file(target_file->data, root_baton, NULL, rev, subpool, &file_baton);
+				contents = svn_stringbuf_ncreate((const char *)obj->contents->ext_buf, (apr_size_t)obj->contents->ext_nbytes, subpool);
+				contents_stream = svn_stream_from_stringbuf(contents, subpool);
+				svn_txdelta_send_stream(contents_stream, handler, handler_baton, NULL, subpool);
+				svn_stream_close(contents_stream);
+				(*editor)->close_file(file_baton, NULL, subpool);
+				break;
+			case 3: /* delete */
+				(*editor)->delete_entry(target_dir->data, obj->version, root_baton, subpool);
+				break;
+		}
+	}
+	(*editor)->close_edit(edit_baton, subpool);
+	svn_pool_clear(internal->objects_pool);
+	svn_pool_destroy(subpool);
+}

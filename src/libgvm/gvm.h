@@ -111,6 +111,15 @@ GVM_EXPORT GVM_EXTERN(int gvm_open_repo,
  * GVM object level routines
  */
 
+/* Check if an object exists in a given model as defined
+ * in revision ver_num.  If ver_num is LATEST_VERSION use
+ * latest revision */
+GVM_EXPORT GVM_EXTERN(int gvm_object_in_model,
+	       (struct gvm_info *repo_info,
+		const char *model_name,
+		const char *obj_name,
+		size_t ver_num));
+
 /* Return a bu_external structure with the contents
  * of obj_name.  This is how to go from a repository's internal
  * stored copy of an object to the bu_external needed for
@@ -132,23 +141,14 @@ GVM_EXPORT GVM_EXTERN(struct repository_objects * gvm_get_repo_obj,
 		 const char *obj_name,
 		 size_t ver_num));
 
-/* Check if an object exists in a given model as defined
- * in revision ver_num.  If ver_num is LATEST_VERSION use
- * latest revision */
-GVM_EXPORT GVM_EXTERN(int gvm_object_in_model,
-	       (struct gvm_info *repo_info,
-		const char *model_name,
-		const char *obj_name,
-		size_t ver_num));
-
 /* Very simple routine to determine if two objects
  * are different - based on binary data, not geometry
  * aware.  Returns 0 if they're the same and one if
  * they differ */
 GVM_EXPORT GVM_EXTERN(int gvm_diff,
 	       (struct gvm_info *repo_info,
-		struct repository_objects *obj1,
-		struct repository_objects *obj2));
+		struct bu_external *obj1,
+		struct bu_external *obj2));
 
 /* Add a repository_objects struct to repo_info's
  * objects list */
