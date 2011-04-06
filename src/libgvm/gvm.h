@@ -111,11 +111,11 @@ GVM_EXPORT GVM_EXTERN(int gvm_open_repo,
  * GVM object level routines
  */
 
-/* Populate a repository_objects struct with the contents
+/* Return a bu_external structure with the contents
  * of obj_name.  This is how to go from a repository's internal
  * stored copy of an object to the bu_external needed for
  * BRL-CAD .g level operations.*/
-GVM_EXPORT GVM_EXTERN(struct repository_objects * gvm_get_repo_obj,
+GVM_EXPORT GVM_EXTERN(struct bu_external * gvm_get_repo_obj,
 		(struct gvm_info *repo_info,
 		 const char *model_name,
 		 const char *obj_name,
