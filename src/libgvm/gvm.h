@@ -56,7 +56,7 @@ struct repository_objects {
    char *obj_name;
    size_t version;
    struct bu_external *contents;
-   int action; /* 0 = update, 1 = add, 2 = delete  - used for commit operations*/
+   int action; /* 1 = update, 2 = add, 3 = delete  - used for commit operations*/
 };
 
 
@@ -115,7 +115,18 @@ GVM_EXPORT GVM_EXTERN(int gvm_open_repo,
  * of obj_name.  This is how to go from a repository's internal
  * stored copy of an object to the bu_external needed for
  * BRL-CAD .g level operations.*/
-GVM_EXPORT GVM_EXTERN(struct bu_external * gvm_get_repo_obj,
+GVM_EXPORT GVM_EXTERN(struct bu_external * gvm_get_extern_obj,
+		(struct gvm_info *repo_info,
+		 const char *model_name,
+		 const char *obj_name,
+		 size_t ver_num));
+
+
+/* Return a repository object structure for a particular
+ * object.  This function will set the model_name, object_name
+ * and version of a repository object. Does no validation against
+ * the repository */
+GVM_EXPORT GVM_EXTERN(struct repository_objects * gvm_get_repo_obj,
 		(struct gvm_info *repo_info,
 		 const char *model_name,
 		 const char *obj_name,
