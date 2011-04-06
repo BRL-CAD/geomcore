@@ -48,7 +48,7 @@ private:
 	bu_vlb vlb;
 };
 
-#endif /* __CONFIG_H__ */
+#endif /* __BYTEARRAY_H__ */
 
 /*
  * Local Variables: ***
