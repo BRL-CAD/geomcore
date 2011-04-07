@@ -119,6 +119,7 @@ int gvm_get_objs(struct gvm_info *repo_info, const char *model_name, const char 
 	apr_ssize_t klen;
 	svn_string_t *objname;
 	struct bu_external *contents;
+	struct repository_objects *new_obj;
 
 	struct db_i *dbip = db_create_inmem();
 	struct rt_db_internal ip;
@@ -156,5 +157,11 @@ int gvm_get_objs(struct gvm_info *repo_info, const char *model_name, const char 
 		todo = tmp;
 		tmp = tmp2;
 	}
-
+	for (obj = apr_hash_first(subpool, objects); obj; obj = apr_hash_next(obj)) {
+		apr_hash_this(obj, &key, &klen, NULL);
+		new_obj = gvm_get_repo_obj(repo_info, model_name, (const char *)key, ver_num);
+		new_obj->contents = gvm_get_extern_obj(repo_info, model_name, (const char *)key, ver_num);
+		gvm_add_to_list(repo_info, new_obj);
+	}
+	svn_pool_destroy(subpool);
 }
