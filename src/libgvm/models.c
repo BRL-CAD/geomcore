@@ -1,4 +1,5 @@
 #include "svn_props.h"
+#include "raytrace.h"
 #include "gvm.h"
 #include "gvm_svn.h"
 
@@ -56,6 +57,52 @@ int gvm_get_model(struct gvm_info *repo_info, const char *model_name, size_t ver
 	svn_pool_destroy(subpool);
 }
 
+int _add_comb_entries(apr_hash_t *objects, apr_hash_t *tmp, struct rt_comb_internal *comb, const union tree *treep) {
+	int count = 0;
+	const union tree *tp;
+	if (comb) {
+		tp = comb->tree;
+	} else {
+		tp = treep;
+	}
+	if (!tp) return 0;
+	RT_CK_TREE(tp);
+	switch(tp->tr_op) {
+		case OP_DB_LEAF:
+		     if(!apr_hash_get(objects, (const void *)tp->tr_l.tl_name, APR_HASH_KEY_STRING) && 
+			     !apr_hash_get(tmp, (const void *)tp->tr_l.tl_name, APR_HASH_KEY_STRING)) {
+			     apr_hash_set(tmp, (const void *)tp->tr_l.tl_name, APR_HASH_KEY_STRING, NULL);
+			     count++;
+		     }
+		     break;
+		case OP_UNION:
+		     goto bin;
+		case OP_INTERSECT:
+		     goto bin;
+		case OP_SUBTRACT:
+		     goto bin;
+		case OP_XOR:
+                bin:
+		     count += _add_comb_entries(objects, tmp, NULL, tp->tr_b.tb_left);
+		     count += _add_comb_entries(objects, tmp, NULL, tp->tr_b.tb_right);
+		     break;
+		/* This node is known to be a unary op */
+		case OP_NOT:
+		     goto unary;
+		case OP_GUARD:
+		     goto unary;
+		case OP_XNOP:
+		unary:
+		     count += _add_comb_entries(objects, tmp, NULL, tp->tr_b.tb_left);
+		     break;
+		case OP_NOP:
+		     break;
+		default:
+		     bu_log("_add_comb_entries: bad op %d\n", tp->tr_op);
+		     bu_bomb("_add_comb_entries\n");
+	}
+	return count;
+}
 
 
 int gvm_get_objs(struct gvm_info *repo_info, const char *model_name, const char *obj_name, size_t ver_num, int recursive) {
@@ -68,10 +115,16 @@ int gvm_get_objs(struct gvm_info *repo_info, const char *model_name, const char 
 	apr_hash_t *tmp2;
 	apr_hash_index_t *obj;
 	const void *key;
-	const void *val;
+	void *val;
 	apr_ssize_t klen;
 	svn_string_t *objname;
 	struct bu_external *contents;
+
+	struct db_i *dbip = db_create_inmem();
+	struct rt_db_internal ip;
+	struct rt_comb_internal *comb;
+	RT_INIT_DB_INTERNAL(&ip);
+
 	/* First, get the requested object */
 	if (recursive) {
 		apr_hash_set(todo, (const void *)obj_name, APR_HASH_KEY_STRING, (const void *)contents);
@@ -88,12 +141,16 @@ int gvm_get_objs(struct gvm_info *repo_info, const char *model_name, const char 
 	while (apr_hash_count(todo)) {
 		for (obj = apr_hash_first(subpool, todo); obj; obj = apr_hash_next(obj)) {
 			apr_hash_this(obj, &key, &klen, &val);
-			if (!apr_hash_get(objects, (const void *)key, APR_HASH_KEY_STRING)) {
+			if (!apr_hash_get(objects, key, APR_HASH_KEY_STRING)) {
 				contents = gvm_get_extern_obj(repo_info, model_name, (const char *)key, ver_num);
-				apr_hash_set(objects, (const void *)key, APR_HASH_KEY_STRING, (const void *)contents);
-				/* contents to internal, get comb list, add to tmp */
+				apr_hash_set(objects, key, APR_HASH_KEY_STRING, (const void *)contents);
+				/* contents to internal, if it's a comb get contents and add to tmp */
+				rt_db_external5_to_internal5(&ip, contents, (const char *)key, dbip, NULL, &rt_uniresource);
+				if (ip.idb_minor_type == DB5_MINORTYPE_BRLCAD_COMBINATION) {
+					_add_comb_entries(objects, tmp, (struct rt_comb_internal *)ip.idb_ptr, NULL);
+				}
 			}
-			apr_hash_set(todo, (const void *)key, APR_HASH_KEY_STRING, NULL);
+			apr_hash_set(todo, key, APR_HASH_KEY_STRING, NULL);
 		}
 		tmp2 = todo;
 		todo = tmp;
