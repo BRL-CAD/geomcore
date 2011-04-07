@@ -103,7 +103,7 @@ int gvm_commit_objs(struct gvm_info *repo_info) {
 	subpool = svn_pool_create(internal->pool);
 	fs = svn_repos_fs(internal->repos);
 	svn_fs_youngest_rev(&rev, fs, subpool);
-	svn_repos_get_commit_editor4(editor, &edit_baton, internal->repos, NULL, repo_info->repo_full_path, NULL, NULL, NULL, NULL, NULL, NULL, NULL, subpool);
+	svn_repos_get_commit_editor4(editor, &edit_baton, internal->repos, NULL, repo_info->repo_full_path, "/", NULL, NULL, NULL, NULL, NULL, NULL, subpool);
 	(*editor)->open_root(edit_baton, rev, subpool, &root_baton);
 	for(BU_LIST_FOR(obj, repository_objects , &(repo_info->objects->l))) {
 		target_dir = svn_string_createf(subpool, "%s/%s", obj->model_name, obj->obj_name);
