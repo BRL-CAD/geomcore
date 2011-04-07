@@ -128,7 +128,7 @@ int gvm_get_objs(struct gvm_info *repo_info, const char *model_name, const char 
 
 	/* First, get the requested object */
 	if (recursive) {
-		apr_hash_set(todo, (const void *)obj_name, APR_HASH_KEY_STRING, (const void *)contents);
+		apr_hash_set(todo, (const void *)obj_name, APR_HASH_KEY_STRING, NULL);
 	} else {
 		contents = gvm_get_extern_obj(repo_info, model_name, obj_name, ver_num);
 		apr_hash_set(objects, (const void *)obj_name, APR_HASH_KEY_STRING, (const void *)contents);
