@@ -137,11 +137,11 @@ int commit_objs(apr_pool_t *pool, struct commit_items *update_list, svn_repos_t 
 	svn_stringbuf_t *contents;
 	svn_stream_t *contents_stream;
 	apr_pool_t *subpool = svn_pool_create(pool);
-	svn_repos_get_commit_editor4(editor, &edit_baton, repos, NULL, repo_full_path, model_name, user, logmsg, NULL, NULL, NULL, NULL, subpool);
+	svn_repos_get_commit_editor4(editor, &edit_baton, repos, NULL, repo_full_path, "/", user, logmsg, NULL, NULL, NULL, NULL, subpool);
 	(*editor)->open_root(edit_baton, rev, subpool, &root_baton);
 	for(BU_LIST_FOR(item, commit_items, &(update_list->l))) {
 		printf("updating: %s\n", item->obj_name);
-		target_file = svn_string_createf(subpool, "%s/%s", item->obj_name, item->obj_name);
+		target_file = svn_string_createf(subpool, "%s/%s/%s", model_name, item->obj_name, item->obj_name);
 		(*editor)->open_file(target_file->data, root_baton, rev, subpool, &file_baton);
 		(*editor)->apply_textdelta(file_baton, NULL, subpool, &handler, &handler_baton);
 		contents = svn_stringbuf_ncreate((const char *)item->contents->ext_buf, (apr_size_t)item->contents->ext_nbytes, subpool);
