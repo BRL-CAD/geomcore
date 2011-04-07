@@ -247,6 +247,16 @@ GVM_EXPORT GVM_EXTERN(int gvm_export_g_file,
 		 const char *g_file,
 		 size_t ver_num));
 
+
+/* Export a pre-determined subset of a model repository to a .g file. 
+ * This function can be used when repo_info's objects list has been
+ * populated by custom functions. */
+GVM_EXPORT GVM_EXTERN(int gvm_export_list,
+		(struct gvm_info *repo_info,
+		 const char *model_name, 
+		 const char *g_file));
+
+
 /* Export a subset of a model repository to a .g file. If ver_num
  * is LATEST_VERSION use latest revision.  If recursive is 1 
  * recursivly include any objects int the tree below the specified

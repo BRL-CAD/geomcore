@@ -135,10 +135,6 @@ int gvm_get_objs(struct gvm_info *repo_info, const char *model_name, const char 
 	}
 	/* If we aren't recursive, we're done.  If we are, we need to pull the list of
 	 * children of that comb and follow the tree down */
-	/* TODO - in-mem dbi so we can go from external to internal, get the comb list (if any) and
-	 * act on it.  initially put entries found in the todo hash.  if they're present in the 
-	 * objects hash, set to null - otherwise, process them and set to null.  When apr_hash_count
-	 * is 0, we're done.*/
 	while (apr_hash_count(todo)) {
 		for (obj = apr_hash_first(subpool, todo); obj; obj = apr_hash_next(obj)) {
 			apr_hash_this(obj, &key, &klen, &val);
