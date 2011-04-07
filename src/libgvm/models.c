@@ -158,9 +158,9 @@ int gvm_get_objs(struct gvm_info *repo_info, const char *model_name, const char 
 		tmp = tmp2;
 	}
 	for (obj = apr_hash_first(subpool, objects); obj; obj = apr_hash_next(obj)) {
-		apr_hash_this(obj, &key, &klen, NULL);
+		apr_hash_this(obj, &key, &klen, &val);
 		new_obj = gvm_get_repo_obj(repo_info, model_name, (const char *)key, ver_num);
-		new_obj->contents = gvm_get_extern_obj(repo_info, model_name, (const char *)key, ver_num);
+		new_obj->contents = (struct bu_external *)val;
 		gvm_add_to_list(repo_info, new_obj);
 	}
 	svn_pool_destroy(subpool);
