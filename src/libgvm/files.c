@@ -129,3 +129,91 @@ int gvm_export_g_file(struct gvm_info *repo_info, const char *model_name, const 
 	return ret;
 }
 
+int gvm_commit_g_file(struct gvm_info *repo_info, const char *g_file) {
+	 int ret = 0;
+	 int inc;
+	 struct geomsvn_info *internal = NULL;
+	 apr_pool_t *subpool;
+	 internal = (struct geomsvn_info *)repo_info->internal;
+	 subpool = svn_pool_create(internal->pool);
+	 const char *model_path = svn_path_canonicalize(g_file, subpool);
+	 const char *model_name = svn_path_basename(model_path, subpool);
+	 svn_fs_t *fs;
+	 svn_fs_root_t *repo_root;
+	 svn_node_kind_t status;
+	 svn_revnum_t rev;
+	 apr_hash_t *repo_objects = apr_hash_make(subpool);
+	 apr_hash_t *file_objects = apr_hash_make(subpool);
+	 apr_hash_index_t *obj;
+	 const void *key;
+	 apr_ssize_t klen;
+	 struct repository_objects *new_obj;
+	 struct db_i *dbip;
+	 struct rt_wdb *wdbp;
+	 struct bu_external *repo_contents, *file_contents;
+	 struct directory *dp;
+	 struct rt_db_internal ip;
+	 RT_INIT_DB_INTERNAL(&ip);
+
+	 fs = svn_repos_fs(internal->repos);
+	 svn_fs_youngest_rev(&rev, fs, subpool);
+	 svn_fs_revision_root(&repo_root, fs, rev, subpool);
+	 svn_fs_check_path(&status, repo_root, model_name, subpool);
+	 if (status != svn_node_dir) {
+		 ret = 1;
+	 } else {
+		 if (bu_file_exists(model_path)){
+			 dbip = db_open(model_path, "r");
+			 if(dbip == DBI_NULL) {
+				 ret = 3;
+			 } else {
+				 /* list out repo contents */
+				 svn_fs_dir_entries(&repo_objects, repo_root, model_name, subpool);
+				 /* list out file contents */
+				 for (inc=0; inc < RT_DBNHASH; inc++) {
+					 for (dp = dbip->dbi_Head[inc]; dp != RT_DIR_NULL; dp = dp->d_forw) {
+						 if(!BU_STR_EQUAL(dp->d_namep, "_GLOBAL")) {
+							 apr_hash_set(file_objects, (const void *)dp->d_namep, APR_HASH_KEY_STRING, (const void *)dp->d_namep);
+						 }
+					 }
+				 }
+				 /* Start sorting out what changed. */
+				 for (obj = apr_hash_first(subpool, repo_objects); obj; obj = apr_hash_next(obj)) {
+					 apr_hash_this(obj, &key, &klen, NULL);
+					 /* If the repo object isn't in file, add a delete object */
+					 if (!apr_hash_get(file_objects, key, APR_HASH_KEY_STRING)) {
+						 new_obj = gvm_get_repo_obj(repo_info, model_name, (const char *)key, rev);
+						 new_obj->action = 3;
+						 gvm_add_to_list(repo_info, new_obj);
+					 } else {
+					 /* if it is in repo, check diff */
+						 repo_contents = gvm_get_extern_obj(repo_info, model_name, (const char *)key, rev);
+						 dp = db_lookup(dbip, (const char *)key, LOOKUP_QUIET);
+						 rt_db_get_internal5(&ip, dp, dbip, NULL, &rt_uniresource);
+						 rt_db_cvt_to_external5(file_contents, dp->d_namep, &ip, 1, dbip,  &rt_uniresource, ip.idb_major_type);
+						 if (gvm_diff(repo_info, file_contents, repo_contents)) {
+							 new_obj = gvm_get_repo_obj(repo_info, model_name, (const char *)key, rev);
+							 new_obj->contents = file_contents;
+							 new_obj->action = 1;
+						 }
+					 }
+					 apr_hash_set(file_objects, key, APR_HASH_KEY_STRING, NULL);
+				 }
+				 /* Anything not already dealt with is a new file */
+				 for (obj = apr_hash_first(subpool, file_objects); obj; obj = apr_hash_next(obj)) {
+					 dp = db_lookup(dbip, (const char *)key, LOOKUP_QUIET);
+					 rt_db_get_internal5(&ip, dp, dbip, NULL, &rt_uniresource);
+					 rt_db_cvt_to_external5(file_contents, dp->d_namep, &ip, 1, dbip,  &rt_uniresource, ip.idb_major_type);
+					 new_obj = gvm_get_repo_obj(repo_info, model_name, (const char *)key, rev);
+					 new_obj->contents = file_contents;
+					 new_obj->action = 2;
+				 }
+				 gvm_commit_objs(repo_info);
+			 }
+		 } else {
+			 ret = 2;
+		 }
+	 }
+}
+	
+
