@@ -53,7 +53,6 @@ int gvm_import_g_file(struct gvm_info *repo_info, const char *g_file) {
 			for (inc=0; inc < RT_DBNHASH; inc++) {
 				for (dp = dbip->dbi_Head[inc]; dp != RT_DIR_NULL; dp = dp->d_forw) {
 					if(!BU_STR_EQUAL(dp->d_namep, "_GLOBAL")) {
-						rt_data_stream = svn_stream_empty(iterpool);
 						rt_db_get_internal5(ip, dp, dbip, NULL, &rt_uniresource);
 						rt_db_cvt_to_external5(data, dp->d_namep, ip, 1, dbip,  &rt_uniresource, ip->idb_major_type);
 						filedir = svn_string_createf(iterpool, "%s/%s", model_name, dp->d_namep);
@@ -93,10 +92,9 @@ int gvm_export_g_file(struct gvm_info *repo_info, const char *model_name, const 
 	 apr_hash_index_t *obj;
 	 const void *key;
 	 apr_ssize_t klen;
-	 struct db_i *dbip;
-	 struct rt_wdb *wdbp;
+	 struct db_i *dbip = DBI_NULL;
+	 struct rt_wdb *wdbp = RT_WDB_NULL;
 	 struct bu_external *contents;
-	 struct directory *dp;
 	 struct rt_db_internal ip;
 	 RT_INIT_DB_INTERNAL(&ip);
 
@@ -118,12 +116,12 @@ int gvm_export_g_file(struct gvm_info *repo_info, const char *model_name, const 
 				 svn_fs_dir_entries(&objects, repo_root, model_name, subpool);
 				 for (obj = apr_hash_first(subpool, objects); obj; obj = apr_hash_next(obj)) {
 					 apr_hash_this(obj, &key, &klen, NULL);
-					 contents = gvm_get_extern_obj(repo_info, model_name, (const char *)key, ver_num);
+					 contents = gvm_get_extern_obj(repo_info, model_name, (const char *)key, (size_t)rev);
 					 rt_db_external5_to_internal5(&ip, contents, (const char *)key, dbip, NULL, &rt_uniresource);
 					 wdb_put_internal(wdbp, (const char *)key, &ip, 1);
 				 }
 				 svn_pool_clear(internal->objects_pool);
-				 db_close(dbip);
+				 wdb_close(wdbp);
 			 } else {
 				 ret = 3;
 			 }
