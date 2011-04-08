@@ -5,7 +5,10 @@ void gvm_info_init(struct gvm_info *repo_info) {
 
 	struct geomsvn_info *internal;
 
-	/* first, get repo_info memory */
+	/* initialize subversion */
+	svn_cmdline_init("libgvm", stderr);
+
+	/* get repo_info memory */
 	repo_info = bu_malloc(sizeof(struct gvm_info), "gvn_info structure");
 
 	/* init repository objects list */
