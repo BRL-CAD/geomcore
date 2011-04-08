@@ -78,3 +78,54 @@ int gvm_import_g_file(struct gvm_info *repo_info, const char *g_file) {
 	return ret;
 }
 
+int gvm_export_g_file(struct gvm_info *repo_info, const char *model_name, const char *g_file, size_t ver_num) {
+	 int ret = 0;
+	 struct geomsvn_info *internal = NULL;
+	 apr_pool_t *subpool;
+	 internal = (struct geomsvn_info *)repo_info->internal;
+	 subpool = svn_pool_create(internal->pool);
+	 const char *model_path = svn_path_canonicalize(g_file, subpool);
+	 svn_fs_t *fs;
+	 svn_fs_root_t *repo_root;
+	 svn_node_kind_t status;
+	 apr_hash_t *objects = apr_hash_make(subpool);
+	 apr_hash_index_t *obj;
+	 const void *key;
+	 apr_ssize_t klen;
+	 struct db_i *dbip;
+	 struct rt_wdb *wdbp;
+	 struct bu_external *contents;
+	 struct directory *dp;
+	 struct rt_db_internal ip;
+	 RT_INIT_DB_INTERNAL(&ip);
+
+	 fs = svn_repos_fs(internal->repos);
+	 svn_fs_revision_root(&repo_root, fs, (svn_revnum_t)ver_num, subpool);
+	 svn_fs_check_path(&status, repo_root, model_name, subpool);
+	 if (status != svn_node_dir) {
+		 ret = 1;
+	 } else {
+		 if (!bu_file_exists(model_path)){
+			 wdbp = wdb_fopen(model_path);
+			 dbip = wdbp->dbip;
+			 if (dbip) {
+				 svn_fs_dir_entries(&objects, repo_root, model_name, subpool);
+				 for (obj = apr_hash_first(subpool, objects); obj; obj = apr_hash_next(obj)) {
+					 apr_hash_this(obj, &key, &klen, NULL);
+					 contents = gvm_get_extern_obj(repo_info, model_name, (const char *)key, ver_num);
+					 rt_db_external5_to_internal5(&ip, contents, (const char *)key, dbip, NULL, &rt_uniresource);
+					 wdb_put_internal(wdbp, (const char *)key, &ip, 1);
+				 }
+				 svn_pool_clear(internal->objects_pool);
+				 db_close(dbip);
+			 } else {
+				 ret = 3;
+			 }
+		 } else {
+			 ret = 2;
+		 }
+	 }
+	svn_pool_destroy(subpool);
+	return ret;
+}
+
