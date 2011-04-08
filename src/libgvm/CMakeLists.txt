@@ -5,6 +5,7 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(gvm_SRCS
+	files.c
 	mem.c
 	models.c
 	objects.c
