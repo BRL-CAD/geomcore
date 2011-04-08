@@ -51,5 +51,6 @@ IF(BUILD_SVN_TARGETS)
 		${CMAKE_BINARY_DIR}/src/other/subversion/include
 		)
 	ADD_SUBDIRECTORY(svntest)
+	ADD_SUBDIRECTORY(gvmtest)
 ENDIF(BUILD_SVN_TARGETS)
 #ADD_SUBDIRECTORY(coreInterface)

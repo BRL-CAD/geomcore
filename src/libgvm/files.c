@@ -8,7 +8,7 @@ int gvm_import_g_file(struct gvm_info *repo_info, const char *g_file) {
 	int inc;
 	apr_pool_t *subpool, *iterpool;
 	svn_fs_root_t *repo_root;
-	svn_node_kind_t *status;
+	svn_node_kind_t status;
 	svn_fs_t *fs;
 	svn_revnum_t rev;
 	svn_fs_txn_t *txn;
@@ -33,7 +33,7 @@ int gvm_import_g_file(struct gvm_info *repo_info, const char *g_file) {
 	svn_fs_youngest_rev(&rev, fs, subpool);
 	svn_fs_revision_root(&repo_root, fs, rev, subpool);
 
-	svn_fs_check_path(status, repo_root, model_name, subpool);
+	svn_fs_check_path(&status, repo_root, model_name, subpool);
 	if (status == svn_node_none) {
 		logmsg = svn_string_createf(subpool, "Initial creation of model %s", model_name);
 		apr_hash_set(revprop_table, SVN_PROP_REVISION_LOG, APR_HASH_KEY_STRING, logmsg);

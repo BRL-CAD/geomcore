@@ -1,0 +1,13 @@
+INCLUDE_DIRECTORIES(
+	${CMAKE_CURRENT_SOURCE_DIR}/../../../src/libgvm
+	${TCL_INCLUDE_DIRS}
+	${BRLCAD_INCLUDE_DIRS}
+)
+
+SET(GVMTEST_SRCS
+	main.c
+)
+
+add_executable(gvmtest ${GVMTEST_SRCS})
+target_link_libraries(gvmtest libgvm ${BRLCAD_GED_LIBRARY} ${BRLCAD_WDB_LIBRARY} ${BRLCAD_RT_LIBRARY} ${BRLCAD_BU_LIBRARY})
+install(TARGETS gvmtest RUNTIME DESTINATION bin)

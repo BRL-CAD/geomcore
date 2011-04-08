@@ -8,9 +8,6 @@ void gvm_info_init(struct gvm_info *repo_info) {
 	/* initialize subversion */
 	svn_cmdline_init("libgvm", stderr);
 
-	/* get repo_info memory */
-	repo_info = bu_malloc(sizeof(struct gvm_info), "gvn_info structure");
-
 	/* init repository objects list */
 	BU_GETSTRUCT(repo_info->objects, repository_objects);
 	BU_LIST_INIT(&(repo_info->objects->l));
