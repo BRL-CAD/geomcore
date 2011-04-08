@@ -88,6 +88,7 @@ int gvm_export_g_file(struct gvm_info *repo_info, const char *model_name, const 
 	 svn_fs_t *fs;
 	 svn_fs_root_t *repo_root;
 	 svn_node_kind_t status;
+	 svn_revnum_t rev;
 	 apr_hash_t *objects = apr_hash_make(subpool);
 	 apr_hash_index_t *obj;
 	 const void *key;
@@ -100,7 +101,12 @@ int gvm_export_g_file(struct gvm_info *repo_info, const char *model_name, const 
 	 RT_INIT_DB_INTERNAL(&ip);
 
 	 fs = svn_repos_fs(internal->repos);
-	 svn_fs_revision_root(&repo_root, fs, (svn_revnum_t)ver_num, subpool);
+	 if(ver_num) {
+		 rev = (svn_revnum_t)ver_num;
+	 } else {
+		 svn_fs_youngest_rev(&rev, fs, subpool);
+	 }
+	 svn_fs_revision_root(&repo_root, fs, rev, subpool);
 	 svn_fs_check_path(&status, repo_root, model_name, subpool);
 	 if (status != svn_node_dir) {
 		 ret = 1;
