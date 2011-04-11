@@ -117,8 +117,10 @@ int gvm_export_g_file(struct gvm_info *repo_info, const char *model_name, const 
 				 for (obj = apr_hash_first(subpool, objects); obj; obj = apr_hash_next(obj)) {
 					 apr_hash_this(obj, &key, &klen, NULL);
 					 contents = gvm_get_extern_obj(repo_info, model_name, (const char *)key, (size_t)rev);
-					 rt_db_external5_to_internal5(&ip, contents, (const char *)key, dbip, NULL, &rt_uniresource);
-					 wdb_put_internal(wdbp, (const char *)key, &ip, 1);
+					 if (contents) {
+						 rt_db_external5_to_internal5(&ip, contents, (const char *)key, dbip, NULL, &rt_uniresource);
+						 wdb_put_internal(wdbp, (const char *)key, &ip, 1);
+					 }
 				 }
 				 svn_pool_clear(internal->objects_pool);
 				 wdb_close(wdbp);
