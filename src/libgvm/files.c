@@ -171,8 +171,9 @@ int gvm_export_object(struct gvm_info *repo_info, const char *model_name, const 
 					 if(BU_STR_EQUAL(obj->obj_name, "hull")) {
 						 printf("hull\n");
 					 }
-					 if (obj->contents) {
-						 rt_db_external5_to_internal5(&ip, obj->contents, obj->obj_name, dbip, NULL, &rt_uniresource);
+					 contents = gvm_get_extern_obj(repo_info, obj->model_name, obj->obj_name, obj->version);
+					 if (contents) {
+						 rt_db_external5_to_internal5(&ip, contents, obj->obj_name, dbip, NULL, &rt_uniresource);
 						 wdb_put_internal(wdbp, obj->obj_name, &ip, 1);
 					 }
 				 }
@@ -185,6 +186,7 @@ int gvm_export_object(struct gvm_info *repo_info, const char *model_name, const 
 			 ret = 2;
 		 }
 	 }
+	gvm_info_clear_objects(repo_info);
 	svn_pool_destroy(subpool);
 	return ret;
 }
