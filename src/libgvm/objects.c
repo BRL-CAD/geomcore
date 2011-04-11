@@ -117,9 +117,6 @@ int gvm_commit_objs(struct gvm_info *repo_info) {
 		}
 	}
 	(*editor)->close_edit(edit_baton, subpool);
-	while (BU_LIST_WHILE(obj, repository_objects, &(repo_info->objects->l))) {
-		BU_LIST_DEQUEUE(&(obj->l));
-	}
-	svn_pool_clear(internal->objects_pool);
+	gvm_info_clear_objects(repo_info);
 	svn_pool_destroy(subpool);
 }
