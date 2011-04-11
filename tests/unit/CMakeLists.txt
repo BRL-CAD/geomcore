@@ -19,12 +19,10 @@
 #	information.
 #	
 #########################################################################
-#	@file geomcore/tests/CMakeLists.txt
+#	@file geomcore/tests/unit/CMakeLists.txt
 #
 #	$Revision:  $
 #	$Author:  $
 #
 ##########################################################################
 
-ADD_SUBDIRECTORY(func)
-#ADD_SUBDIRECTORY(unit)
