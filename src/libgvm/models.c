@@ -71,7 +71,7 @@ int _add_comb_entries(apr_hash_t *objects, apr_hash_t *tmp, struct rt_comb_inter
 		case OP_DB_LEAF:
 		     if(!apr_hash_get(objects, (const void *)tp->tr_l.tl_name, APR_HASH_KEY_STRING) && 
 			     !apr_hash_get(tmp, (const void *)tp->tr_l.tl_name, APR_HASH_KEY_STRING)) {
-			     apr_hash_set(tmp, (const void *)tp->tr_l.tl_name, APR_HASH_KEY_STRING, NULL);
+			     apr_hash_set(tmp, (const void *)tp->tr_l.tl_name, APR_HASH_KEY_STRING, (const void *)tp->tr_l.tl_name);
 			     count++;
 		     }
 		     break;
@@ -114,6 +114,7 @@ int gvm_get_objs(struct gvm_info *repo_info, const char *model_name, const char 
 	apr_hash_t *tmp = apr_hash_make(subpool);
 	apr_hash_t *tmp2;
 	apr_hash_index_t *obj;
+	svn_revnum_t rev;
 	const void *key;
 	void *val;
 	apr_ssize_t klen;
@@ -126,11 +127,18 @@ int gvm_get_objs(struct gvm_info *repo_info, const char *model_name, const char 
 	struct rt_comb_internal *comb;
 	RT_INIT_DB_INTERNAL(&ip);
 
+	svn_fs_t *fs = svn_repos_fs(internal->repos);
+	if(ver_num) {
+		rev = (svn_revnum_t)ver_num;
+	} else {
+		svn_fs_youngest_rev(&rev, fs, subpool);
+	}
+
 	/* First, get the requested object */
 	if (recursive) {
-		apr_hash_set(todo, (const void *)obj_name, APR_HASH_KEY_STRING, NULL);
+		apr_hash_set(todo, (const void *)obj_name, APR_HASH_KEY_STRING, (const void *)obj_name);
 	} else {
-		contents = gvm_get_extern_obj(repo_info, model_name, obj_name, ver_num);
+		contents = gvm_get_extern_obj(repo_info, model_name, obj_name, (size_t)rev);
 		apr_hash_set(objects, (const void *)obj_name, APR_HASH_KEY_STRING, (const void *)contents);
 	}
 	/* If we aren't recursive, we're done.  If we are, we need to pull the list of
@@ -139,7 +147,7 @@ int gvm_get_objs(struct gvm_info *repo_info, const char *model_name, const char 
 		for (obj = apr_hash_first(subpool, todo); obj; obj = apr_hash_next(obj)) {
 			apr_hash_this(obj, &key, &klen, &val);
 			if (!apr_hash_get(objects, key, APR_HASH_KEY_STRING)) {
-				contents = gvm_get_extern_obj(repo_info, model_name, (const char *)key, ver_num);
+				contents = gvm_get_extern_obj(repo_info, model_name, (const char *)key, (size_t)rev);
 				apr_hash_set(objects, key, APR_HASH_KEY_STRING, (const void *)contents);
 				/* contents to internal, if it's a comb get contents and add to tmp */
 				rt_db_external5_to_internal5(&ip, contents, (const char *)key, dbip, NULL, &rt_uniresource);
@@ -155,7 +163,7 @@ int gvm_get_objs(struct gvm_info *repo_info, const char *model_name, const char 
 	}
 	for (obj = apr_hash_first(subpool, objects); obj; obj = apr_hash_next(obj)) {
 		apr_hash_this(obj, &key, &klen, &val);
-		new_obj = gvm_get_repo_obj(repo_info, model_name, (const char *)key, ver_num);
+		new_obj = gvm_get_repo_obj(repo_info, model_name, (const char *)key, (size_t)rev);
 		new_obj->contents = (struct bu_external *)val;
 		gvm_add_to_list(repo_info, new_obj);
 	}

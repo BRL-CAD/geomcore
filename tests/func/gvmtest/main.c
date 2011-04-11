@@ -59,6 +59,9 @@ main(int argc, const char *argv[])
 
   gvm_export_g_file(repo_info, argv[1], "test.g", LATEST_VERSION);
 
+  gvm_export_object(repo_info, argv[1], "hull", "tank_obj.g", LATEST_VERSION, 0);
+  gvm_export_object(repo_info, argv[1], "tank", "tank.g", LATEST_VERSION, 1);
+
   /* time for reassembly */
   t1 = time(NULL);
   tdiff = (int)difftime(t1,t0);

@@ -129,6 +129,66 @@ int gvm_export_g_file(struct gvm_info *repo_info, const char *model_name, const 
 	return ret;
 }
 
+int gvm_export_object(struct gvm_info *repo_info, const char *model_name, const char *obj_name, const char *g_file, size_t ver_num, int recursive) {
+	 int ret = 0;
+	 struct geomsvn_info *internal = NULL;
+	 apr_pool_t *subpool;
+	 internal = (struct geomsvn_info *)repo_info->internal;
+	 subpool = svn_pool_create(internal->pool);
+	 const char *model_path = svn_path_canonicalize(g_file, subpool);
+	 svn_fs_t *fs;
+	 svn_fs_root_t *repo_root;
+	 svn_node_kind_t status;
+	 svn_revnum_t rev;
+	 apr_hash_t *objects = apr_hash_make(subpool);
+	 struct repository_objects *obj;
+	 const void *key;
+	 apr_ssize_t klen;
+	 struct db_i *dbip = DBI_NULL;
+	 struct rt_wdb *wdbp = RT_WDB_NULL;
+	 struct bu_external *contents;
+	 struct rt_db_internal ip;
+	 RT_INIT_DB_INTERNAL(&ip);
+
+	 fs = svn_repos_fs(internal->repos);
+	 if(ver_num) {
+		 rev = (svn_revnum_t)ver_num;
+	 } else {
+		 svn_fs_youngest_rev(&rev, fs, subpool);
+	 }
+	 svn_fs_revision_root(&repo_root, fs, rev, subpool);
+	 svn_fs_check_path(&status, repo_root, model_name, subpool);
+	 if (status != svn_node_dir) {
+		 ret = 1;
+	 } else {
+		 if (!bu_file_exists(model_path)){
+			 wdbp = wdb_fopen(model_path);
+			 dbip = wdbp->dbip;
+			 if (dbip) {
+				 gvm_get_objs(repo_info, model_name, obj_name, ver_num, recursive);
+				 for(BU_LIST_FOR(obj, repository_objects , &(repo_info->objects->l))) {
+					 printf("object: %s\n", obj->obj_name);
+					 if(BU_STR_EQUAL(obj->obj_name, "hull")) {
+						 printf("hull\n");
+					 }
+					 if (obj->contents) {
+						 rt_db_external5_to_internal5(&ip, obj->contents, obj->obj_name, dbip, NULL, &rt_uniresource);
+						 wdb_put_internal(wdbp, obj->obj_name, &ip, 1);
+					 }
+				 }
+				 svn_pool_clear(internal->objects_pool);
+				 wdb_close(wdbp);
+			 } else {
+				 ret = 3;
+			 }
+		 } else {
+			 ret = 2;
+		 }
+	 }
+	svn_pool_destroy(subpool);
+	return ret;
+}
+
 int gvm_commit_g_file(struct gvm_info *repo_info, const char *model_name, const char *g_file) {
 	 int ret = 0;
 	 int inc;
