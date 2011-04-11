@@ -237,6 +237,7 @@ GVM_EXPORT GVM_EXTERN(int gvm_g_file_get_diff_list,
 /* Update an existing model repository using a .g file. */
 GVM_EXPORT GVM_EXTERN(int gvm_commit_g_file,
 		(struct gvm_info *repo_info, 
+		 const char *model_name,
 		 const char *g_file));
 
 /* Export a complete model repository to a .g file. If ver_num

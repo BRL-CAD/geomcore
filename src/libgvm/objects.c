@@ -6,12 +6,12 @@ int gvm_object_in_model(struct gvm_info *repo_info, const char *model_name, cons
 	struct geomsvn_info *internal = (struct geomsvn_info *)repo_info->internal;
 	apr_pool_t *subpool = svn_pool_create(internal->pool);
 	svn_fs_root_t *repo_root;
-	svn_node_kind_t *status;
+	svn_node_kind_t status;
 	svn_fs_t *fs = svn_repos_fs(internal->repos);;
 	svn_fs_revision_root(&repo_root, fs, (svn_revnum_t)ver_num, subpool);
 	svn_string_t *svn_file = svn_string_createf(subpool, "%s/%s/%s", model_name, obj_name, obj_name);
 
-	svn_fs_check_path(status, repo_root, svn_file->data, subpool);
+	svn_fs_check_path(&status, repo_root, svn_file->data, subpool);
 	if (status == svn_node_none) ret = 0;
 	svn_pool_destroy(subpool);
 	return ret;
@@ -59,6 +59,8 @@ struct repository_objects * gvm_get_repo_obj(struct gvm_info *repo_info, const c
 }
 
 int gvm_diff(struct gvm_info *repo_info, struct bu_external *obj1, struct bu_external *obj2) {
+	if (!obj1 && !obj2) return 0;
+	if (!obj1 || !obj2) return 1;
 	if (obj1->ext_nbytes != obj2->ext_nbytes) return 1;
 	if (memcmp(obj1->ext_buf, obj2->ext_buf, obj1->ext_nbytes) != 0) return 1;
 	return 0;
@@ -84,9 +86,8 @@ int gvm_update_obj(struct gvm_info *repo_info, struct repository_objects *obj) {
 }
 
 int gvm_commit_objs(struct gvm_info *repo_info) {
-	apr_pool_t *subpool;
-	struct geomsvn_info *internal = NULL;
-	internal = (struct geomsvn_info *)repo_info->internal;
+	struct geomsvn_info *internal = (struct geomsvn_info *)repo_info->internal;
+	apr_pool_t *subpool = svn_pool_create(internal->pool);
 	void *edit_baton, *root_baton, *file_baton, *handler_baton, *child_baton;
 	svn_txdelta_window_handler_t handler;
 	struct repository_objects *obj;

@@ -7,6 +7,7 @@ int
 main(int argc, const char *argv[])
 {
   struct gvm_info *repo_info;
+  struct stat file_status;
 
   time_t tb, t0, t1;
   int tdiff;
@@ -24,7 +25,9 @@ main(int argc, const char *argv[])
 
   char *repo_path = "./GS_repository";
 
-  gvm_init_repo(repo_info, repo_path);
+  if (stat(repo_path, &file_status) != 0)
+	  gvm_init_repo(repo_info, repo_path);
+  
   gvm_open_repo(repo_info, repo_path);
 
 
@@ -44,7 +47,7 @@ main(int argc, const char *argv[])
 
 
   if (argc == 3) {
-	  gvm_commit_g_file(repo_info, argv[2]);
+	  gvm_commit_g_file(repo_info, argv[1], argv[2]);
 
 	  /* time for change application */
 	  t1 = time(NULL);
