@@ -104,6 +104,7 @@ int gvm_commit_objs(struct gvm_info *repo_info) {
 			case 2: /* add */
 				(*editor)->add_directory(target_dir->data,  root_baton, NULL, rev, subpool, &child_baton);
 				(*editor)->add_file(target_file->data, root_baton, NULL, rev, subpool, &file_baton);
+				(*editor)->apply_textdelta(file_baton, NULL, subpool, &handler, &handler_baton);
 				contents = svn_stringbuf_ncreate((const char *)obj->contents->ext_buf, (apr_size_t)obj->contents->ext_nbytes, subpool);
 				contents_stream = svn_stream_from_stringbuf(contents, subpool);
 				svn_txdelta_send_stream(contents_stream, handler, handler_baton, NULL, subpool);
