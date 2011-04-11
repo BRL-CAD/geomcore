@@ -70,21 +70,6 @@ int gvm_add_to_list(struct gvm_info *repo_info, struct repository_objects *obj) 
 	BU_LIST_PUSH(&(repo_info->objects->l), &(obj->l));
 }
 
-int gvm_add_obj(struct gvm_info *repo_info, struct repository_objects *obj) {
-	obj->action = 2;
-	gvm_add_to_list(repo_info, obj);
-}
-
-int gvm_del_obj(struct gvm_info *repo_info, struct repository_objects *obj) {
-	obj->action = 3;
-	gvm_add_to_list(repo_info, obj);
-}
-
-int gvm_update_obj(struct gvm_info *repo_info, struct repository_objects *obj) {
-	obj->action = 1;
-	gvm_add_to_list(repo_info, obj);
-}
-
 int gvm_commit_objs(struct gvm_info *repo_info) {
 	struct geomsvn_info *internal = (struct geomsvn_info *)repo_info->internal;
 	apr_pool_t *subpool = svn_pool_create(internal->pool);

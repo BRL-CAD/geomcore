@@ -43,6 +43,9 @@
 /* Convenient definitions */
 #define LATEST_VERSION 0
 
+#define GVM_UPDATE_OBJ 1
+#define GVM_ADD_OBJ 2
+#define GVM_DEL_OBJ 3
 
 /**
  * Repository object(s)
@@ -153,21 +156,6 @@ GVM_EXPORT GVM_EXTERN(int gvm_diff,
 /* Add a repository_objects struct to repo_info's
  * objects list */
 GVM_EXPORT GVM_EXTERN(int gvm_add_to_list,
-	       (struct gvm_info *repo_info,
-		struct repository_objects *obj));
-
-/* Queue "Add object" action for commit */
-GVM_EXPORT GVM_EXTERN(int gvm_add_obj,
-	       (struct gvm_info *repo_info,
-		struct repository_objects *obj));
-
-/* Queue "Delete object" action for commit */
-GVM_EXPORT GVM_EXTERN(int gvm_delete_obj,
-	       (struct gvm_info *repo_info,
-		struct repository_objects *obj));
-
-/* Queue "Update object" action for commit */
-GVM_EXPORT GVM_EXTERN(int gvm_update_obj,
 	       (struct gvm_info *repo_info,
 		struct repository_objects *obj));
 
