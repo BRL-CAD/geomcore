@@ -216,24 +216,6 @@ GVM_EXPORT GVM_EXTERN(int gvm_import_g_file,
 		(struct gvm_info *repo_info, 
 		 const char *g_file));
 
-/* List objects present in a .g file but not in the corresponding
- * model repository. */
-GVM_EXPORT GVM_EXTERN(int gvm_g_file_get_add_list,
-		(struct gvm_info *repo_info, 
-		 const char *g_file));
-
-/* List objects present in a model repository but not in the 
- * corresponding .g file. */
-GVM_EXPORT GVM_EXTERN(int gvm_g_file_get_delete_list,
-		(struct gvm_info *repo_info, 
-		 const char *g_file));
-
-/* List objects present in both a model repository and in the 
- * corresponding .g file that differ. */
-GVM_EXPORT GVM_EXTERN(int gvm_g_file_get_diff_list,
-		(struct gvm_info *repo_info, 
-		 const char *g_file));
-
 /* Update an existing model repository using a .g file. */
 GVM_EXPORT GVM_EXTERN(int gvm_commit_g_file,
 		(struct gvm_info *repo_info, 
