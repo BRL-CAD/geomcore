@@ -30,6 +30,7 @@ main(int argc, const char *argv[])
   
   gvm_open_repo(repo_info, repo_path);
 
+  gvm_new_model(repo_info, "test.g");
 
     /* time for initial setup */
   t1 = time(NULL);
