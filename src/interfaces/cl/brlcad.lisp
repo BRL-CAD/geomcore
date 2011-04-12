@@ -115,25 +115,36 @@
 (defcfun "rt_free_rti" :void (rti :pointer))
 (defcfun "rt_shootray" :int (ap :pointer))
 
+(defcfun "nmg_booltree_leaf_tess" :pointer (tsp :pointer) (pathp :pointer) (ip :pointer) (client-data :pointer))
+(defcallback nmg-booltree-leaf-tess-trampoline :pointer ((tsp :pointer) (pathp :pointer) (ip :pointer) (client-data :pointer)) (nmg-booltree-leaf-tess tsp pathp ip client-data))
+
 (defcfun "gcv_region_end" :pointer (tsp :pointer) (pathp :pointer) (curtree :pointer) (client_data :pointer))
+(defcallback gcv-region-end-trampoline :pointer ((tsp :pointer) (pathp :pointer) (curtree :pointer) (client_data :pointer)) (gcv-region-end tsp pathp curtree client_data))
 (defcfun "gcv_region_end_mc" :pointer (tsp :pointer) (pathp :pointer) (curtree :pointer) (client_data :pointer))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun rt-open (filename regions &key hitfunc missfunc multioverlapfunc logoverlapfunc prep)
   (with-foreign-object (a 'application)
-    ; RT_APPLICATION_INIT
+					; RT_APPLICATION_INIT
     (loop for i from 0 to (- (foreign-type-size 'application) 1) do (setf (mem-aref a :unsigned-char i) 0))
     (setf (foreign-slot-value a 'application 'a_magic) +rt-ap-magic+)
-
-    ; set handler funcs
-    (when hitfunc (setf (foreign-slot-value a 'application 'a_hit) hitfunc))
-    (when missfunc (setf (foreign-slot-value a 'application 'a_miss) missfunc))
-    (when multioverlapfunc (setf (foreign-slot-value a 'application 'a_multioverlap) multioverlapfunc))
-    (when logoverlapfunc (setf (foreign-slot-value a 'application 'a_logoverlap) logoverlapfunc))
-
-    ; load/prep
+    
+					; set handler funcs
+    (when hitfunc (setf (foreign-slot-value a 'application 'a_hit) (cffi:get-callback hitfunc)))
+    (when missfunc (setf (foreign-slot-value a 'application 'a_miss) (cffi:get-callback missfunc)))
+    (when multioverlapfunc (setf (foreign-slot-value a 'application 'a_multioverlap) (cffi:get-callback multioverlapfunc)))
+    (when logoverlapfunc (setf (foreign-slot-value a 'application 'a_logoverlap) (cffi:get-callback logoverlapfunc)))
+    
+					; load/prep
     (setf (foreign-slot-value a 'application 'a_rt_i) (rt-dirbuild filename "RT" 0))
     (loop for region in regions do (rt-gettree (foreign-slot-value a 'application 'a_rt_i) region))
     (when prep (rt-prep-parallel (foreign-slot-value a 'application 'a_rt_i) 8))
     a))
+
+(defun facetize (dbip names)
+  (let ((ts '()))
+    (db-walk-tree dbip 1 names 1 ts 0 
+		  (get-callback 'gcv-region-end-trampoline)
+		  (get-callback 'nmg-booltree-leaf-tess-trampoline)
+		  (get-callback 'gcv-writer))))
