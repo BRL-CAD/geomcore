@@ -15,7 +15,7 @@ int gvm_import_g_file(struct gvm_info *repo_info, const char *g_file) {
 	svn_fs_youngest_rev(&rev, fs, subpool);
 	svn_fs_root_t *repo_root;
 	svn_fs_revision_root(&repo_root, fs, rev, subpool);
-	svn_string_t *filedir, *filepath;
+	svn_string_t *filedir, *filepath, *attrkey, *attrval;
 	svn_fs_txn_t *txn;
 	svn_fs_root_t *txn_root;
 
@@ -56,6 +56,18 @@ int gvm_import_g_file(struct gvm_info *repo_info, const char *g_file) {
 						svn_fs_apply_text (&rt_data_stream, txn_root, filepath->data, NULL, iterpool);
 						svn_stream_write(rt_data_stream, (const char *)data->ext_buf, (apr_size_t *)&data->ext_nbytes);
 						svn_stream_close(rt_data_stream);
+					} else {
+						struct bu_attribute_value_set avs;
+						struct bu_attribute_value_pair *avpp;
+						bu_avs_init_empty(&avs);
+						db5_get_attributes(dbip, &avs, dp);
+						for (BU_AVS_FOR(avpp, &avs)) {
+							printf("key=%s, value=%s\n", avpp->name, avpp->value);
+							attrkey = svn_string_createf(iterpool, "%s", avpp->name);
+							attrval = svn_string_createf(iterpool, "%s", avpp->value);
+							svn_repos_fs_change_node_prop(txn_root, model_name, attrkey->data, attrval, iterpool);
+						}
+						bu_avs_free(&avs);
 					}
 					svn_pool_clear(iterpool);
 				}
@@ -83,12 +95,15 @@ int gvm_export_g_file(struct gvm_info *repo_info, const char *model_name, const 
 	 svn_node_kind_t status;
 	 svn_revnum_t rev;
 	 apr_hash_t *objects = apr_hash_make(subpool);
+	 apr_hash_t *proplist;
 	 apr_hash_index_t *obj;
+	 svn_string_t *propval;
 	 const void *key;
 	 apr_ssize_t klen;
 	 struct db_i *dbip = DBI_NULL;
 	 struct rt_wdb *wdbp = RT_WDB_NULL;
 	 struct bu_external *contents;
+	 struct directory *dp;
 	 struct rt_db_internal ip;
 	 RT_INIT_DB_INTERNAL(&ip);
 
@@ -107,6 +122,9 @@ int gvm_export_g_file(struct gvm_info *repo_info, const char *model_name, const 
 			 wdbp = wdb_fopen(model_path);
 			 dbip = wdbp->dbip;
 			 if (dbip) {
+				 struct bu_attribute_value_set avs;
+				 struct bu_attribute_value_pair *avpp;
+				 bu_avs_init_empty(&avs);
 				 svn_fs_dir_entries(&objects, repo_root, model_name, subpool);
 				 for (obj = apr_hash_first(subpool, objects); obj; obj = apr_hash_next(obj)) {
 					 apr_hash_this(obj, &key, &klen, NULL);
@@ -116,6 +134,18 @@ int gvm_export_g_file(struct gvm_info *repo_info, const char *model_name, const 
 						 wdb_put_internal(wdbp, (const char *)key, &ip, 1);
 					 }
 				 }
+				 /* handle _GLOBAL */
+				 dp = db_lookup(dbip, "_GLOBAL", LOOKUP_QUIET);
+				 db5_get_attributes(dbip, &avs, dp);
+				 svn_fs_node_proplist(&proplist, repo_root, model_name, subpool);
+				 for (obj = apr_hash_first(subpool, proplist); obj; obj = apr_hash_next(obj)) {
+					 apr_hash_this(obj, &key, &klen, NULL);
+					 svn_fs_node_prop(&propval, repo_root, model_name, (const char *)key, subpool);
+					 printf("key: %s, val: %s\n", (const char *)key, propval->data);
+					 (void)bu_avs_add(&avs, (const char *)key, propval->data);
+				 }
+				 db5_update_attributes(dp, &avs, dbip);
+				 bu_avs_free(&avs);
 				 svn_pool_clear(internal->objects_pool);
 				 wdb_close(wdbp);
 			 } else {
@@ -167,10 +197,6 @@ int gvm_export_object(struct gvm_info *repo_info, const char *model_name, const 
 			 if (dbip) {
 				 gvm_get_objs(repo_info, model_name, obj_name, ver_num, recursive);
 				 for(BU_LIST_FOR(obj, repository_objects , &(repo_info->objects->l))) {
-					 printf("object: %s\n", obj->obj_name);
-					 if(BU_STR_EQUAL(obj->obj_name, "hull")) {
-						 printf("hull\n");
-					 }
 					 if (obj->contents) {
 						 rt_db_external5_to_internal5(&ip, obj->contents, obj->obj_name, dbip, NULL, &rt_uniresource);
 						 wdb_put_internal(wdbp, obj->obj_name, &ip, 1);
