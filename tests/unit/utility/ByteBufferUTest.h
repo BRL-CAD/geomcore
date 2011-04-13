@@ -26,25 +26,38 @@
 #ifndef __BYTEBUFFERUTEST_H__
 #define __BYTEBUFFERUTEST_H__
 
+#include "ByteBuffer.h"
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 class ByteBufferUTest : public CPPUNIT_NS::TestFixture
 {
-CPPUNIT_TEST_SUITE( ByteBufferUTest );
-    CPPUNIT_TEST( testEmpty );
+  CPPUNIT_TEST_SUITE( ByteBufferUTest );
+  CPPUNIT_TEST( testAllocate );
+  CPPUNIT_TEST( testCapacity );
+  CPPUNIT_TEST( testRemaining );
+  CPPUNIT_TEST( testGetMark );
+  CPPUNIT_TEST( testMark );
+  CPPUNIT_TEST( testDiscardMark );
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void
-  setUp(void);
+  void setUp(void);
 
-  void
-  tearDown(void);
+  void tearDown(void);
 
 protected:
-  void
-  testEmpty();
+  void testAllocate();
+  void testCapacity();
+  void testRemaining();
+  void testGetMark();
+  void testMark();
+  void testDiscardMark();
+
+private:
+  ByteBuffer* bb;
+
+  static const size_t defaultSize = 1024;
 };
 
 #endif // __BYTEBUFFERUTEST_H__

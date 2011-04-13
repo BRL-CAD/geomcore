@@ -28,21 +28,62 @@
 CPPUNIT_TEST_SUITE_REGISTRATION (ByteBufferUTest);
 
 void
-ByteBufferUTest::testEmpty()
+ByteBufferUTest::testAllocate()
 {
-  int i = 5;
-  CPPUNIT_ASSERT( i == 5 );
+  delete this->bb;
+  this->bb = ByteBuffer::allocate(defaultSize);
+  CPPUNIT_ASSERT( this->bb != NULL);
+}
+
+void
+ByteBufferUTest::testCapacity()
+{
+  CPPUNIT_ASSERT( this->bb->capacity() == ByteBufferUTest::defaultSize);
+}
+
+void
+ByteBufferUTest::testRemaining()
+{
+  CPPUNIT_ASSERT( this->bb->remaining() == ByteBufferUTest::defaultSize);
+}
+
+void
+ByteBufferUTest::testGetMark()
+{
+  /* Check default */
+  CPPUNIT_ASSERT(  this->bb->getMark() == -1 );
+}
+
+void
+ByteBufferUTest::testMark()
+{
+  this->bb->mark();
+
+  /* Check set to zero */
+  CPPUNIT_ASSERT(  this->bb->getMark() == 0 );
+}
+void
+ByteBufferUTest::testDiscardMark()
+{
+  this->bb->mark();
+  this->bb->discardMark();
+
+  /* Check back to default */
+  CPPUNIT_ASSERT(  this->bb->getMark() == -1 );
 }
 
 void
 ByteBufferUTest::setUp()
 {
-
+//  std::cout << "\nSetUp.\n";
+  this->bb = ByteBuffer::allocate(defaultSize);
 }
 
 void
 ByteBufferUTest::tearDown()
 {
+//  std::cout << "\nTearDown.\n";
+  delete this->bb;
 }
 
 // Local Variables:

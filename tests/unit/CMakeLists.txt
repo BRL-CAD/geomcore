@@ -38,6 +38,7 @@ SET( UnitTests_LIBS
 	${BRLCAD_BU_LIBRARY}
 	${TCL_LIBRARIES}
 	${CPPUNIT_LIBRARY}
+	libgcutil
 )
 
 #FILE(GLOB_RECURSE UnitTests_SRCS *UTest.cxx )
