@@ -339,7 +339,7 @@ public:
    *
    * @return  the position marked.
    */
-  int32_t
+  ssize_t
   mark();
 
   /**
@@ -347,7 +347,7 @@ public:
     *
     * @return  the current mark.
     */
-  int32_t
+  ssize_t
   getMark();
 
   /**
@@ -426,7 +426,7 @@ public:
 
 protected:
   bool
-  setMark(int32_t m);
+  setMark(ssize_t m);
 
 
 private:

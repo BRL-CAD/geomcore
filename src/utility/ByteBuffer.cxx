@@ -23,6 +23,7 @@
  */
 
 #include "ByteBuffer.h"
+#include <netinet/in.h>
 
 ByteBuffer::ByteBuffer(size_t size)
 {
@@ -176,13 +177,22 @@ ByteBuffer::toString()
 uint16_t
 ByteBuffer::get16bit()
 {
-  // TODO IMPLEMENT ME
+  char* ptr = (char*)bu_vlb_addr(&this->vlb) + this->position();
+
+  uint16_t net = *(uint16_t*)ptr;
+  uint16_t host = ntohs(net);
+  this->setPosition(this->position() + 2);
+
+  return host;
 }
 
 void
-ByteBuffer::put16bit(uint16_t v)
+ByteBuffer::put16bit(uint16_t host)
 {
-  // TODO IMPLEMENT ME
+  uint16_t net = htons(host);
+
+  /* this call also advances position */
+  bu_vlb_write(&this->vlb, (unsigned char *)&net, 2);
 }
 
 uint32_t
@@ -261,25 +271,25 @@ ByteBuffer::setLimit(size_t newLimit)
 }
 
 bool
-ByteBuffer::setMark(int32_t m)
+ByteBuffer::setMark(ssize_t m)
 {
   if (m < -1)
     return false;
 
-  if (m > (int32_t)this->limit())
+  if (m > (ssize_t)this->limit())
     return false;
 
   this->mar = m;
   return true;
 }
 
-int32_t
+ssize_t
 ByteBuffer::getMark()
 {
   return this->mar;
 }
 
-int32_t
+ssize_t
 ByteBuffer::mark()
 {
   this->setMark(this->position());
@@ -295,11 +305,11 @@ ByteBuffer::discardMark()
 bool
 ByteBuffer::reset()
 {
-  int32_t m = this->getMark();
+  ssize_t m = this->getMark();
   if (m < 0)
     return false;
 
-  if (m > (int32_t)this->limit())
+  if (m > (ssize_t)this->limit())
     return false;
 
   if (m > this->capacity())
