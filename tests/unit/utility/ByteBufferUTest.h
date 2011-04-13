@@ -34,11 +34,33 @@ class ByteBufferUTest : public CPPUNIT_NS::TestFixture
 {
   CPPUNIT_TEST_SUITE( ByteBufferUTest );
   CPPUNIT_TEST( testAllocate );
+  CPPUNIT_TEST( testWrap );
   CPPUNIT_TEST( testCapacity );
   CPPUNIT_TEST( testRemaining );
   CPPUNIT_TEST( testGetMark );
   CPPUNIT_TEST( testMark );
   CPPUNIT_TEST( testDiscardMark );
+  CPPUNIT_TEST( testPut8bit );
+  CPPUNIT_TEST( testPut16bit );
+  CPPUNIT_TEST( testPut32bit );
+  CPPUNIT_TEST( testPut64bit );
+
+  CPPUNIT_TEST( testGet8bit );
+  CPPUNIT_TEST( testGet16bit );
+  CPPUNIT_TEST( testGet32bit );
+  CPPUNIT_TEST( testGet64bit );
+
+  CPPUNIT_TEST( testClear );
+  CPPUNIT_TEST( testFlip );
+  CPPUNIT_TEST( testCompact );
+  CPPUNIT_TEST( testDuplicate );
+  CPPUNIT_TEST( testLimit );
+  CPPUNIT_TEST( testPosition );
+  CPPUNIT_TEST( testSetPosition );
+
+  CPPUNIT_TEST( testReset );
+  CPPUNIT_TEST( testRewind );
+
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -48,16 +70,46 @@ public:
 
 protected:
   void testAllocate();
+  void testWrap();
   void testCapacity();
   void testRemaining();
   void testGetMark();
   void testMark();
   void testDiscardMark();
 
+  void testPut8bit();
+  void testPut16bit();
+  void testPut32bit();
+  void testPut64bit();
+
+  void testGet8bit();
+  void testGet16bit();
+  void testGet32bit();
+  void testGet64bit();
+
+  void testClear();
+  void testFlip();
+  void testCompact();
+  void testDuplicate();
+
+  void testLimit();
+  void testPosition();
+  void testSetPosition();
+  void testReset();
+  void testRewind();
+
 private:
   ByteBuffer* bb;
 
-  static const size_t defaultSize = 1024;
+  static const size_t defaultSize;
+  static const uint8_t testVal_8bit;
+  static const uint16_t testVal_16bit_host;
+  static const uint16_t testVal_16bit_net;
+  static const uint32_t testVal_32bit_host;
+  static const uint32_t testVal_32bit_net;
+  static const uint64_t testVal_64bit_host;
+  static const uint64_t testVal_64bit_net;
+
 };
 
 #endif // __BYTEBUFFERUTEST_H__
