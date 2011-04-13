@@ -49,8 +49,9 @@ public:
    *
    * <p> The new buffer will be backed by a bu_vlb that is, modifications
    * to the buffer will cause the vlb to be modified and vice versa.
-   * The new buffer's capacity will be <tt>array.length</tt>, its position
-   * will be <tt>offset</tt>, its limit will be <tt>offset + length</tt>,
+   * The new buffer's capacity will be <tt>length</tt> + the VLB_BLOCK_SIZE
+   * setting from vlb.c (which is currently 512), its position
+   * will be zero its limit will be <tt>length</tt>,
    * and its mark will be undefined.</p>
    *
    * @param  data

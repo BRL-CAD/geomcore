@@ -24,6 +24,7 @@
 
 #include "ByteBuffer.h"
 #include <netinet/in.h>
+#include <iostream>
 
 ByteBuffer::ByteBuffer(size_t size)
 {
@@ -59,7 +60,9 @@ ByteBuffer::wrap(char* data, size_t size)
 
   ByteBuffer* bb = ByteBuffer::allocate(size);
 
-  memcpy(bb->vlb.buf, data, size);
+//  memcpy(bb->vlb.buf, data, size);
+  if (bb->put(data,size) == false)
+    std::cout << "put failed.\n";
   return bb;
 }
 
@@ -96,6 +99,8 @@ ByteBuffer::get(char* data, size_t length)
 
   if (data == NULL)
     data = (char*) bu_malloc(length, "BB.get()");
+
+  BU_ASSERT((this->position() + 1 <= this->limit()) && "Buffer Overrun.");
 
   char* old = this->array();
   old += this->position();
@@ -176,6 +181,8 @@ ByteBuffer::toString()
 uint16_t
 ByteBuffer::get16bit()
 {
+  BU_ASSERT((this->position() + 2 <= this->limit()) && "Buffer Overrun.");
+
   char* ptr = (char*)bu_vlb_addr(&this->vlb) + this->position();
 
   uint16_t net = *(uint16_t*)ptr;
@@ -197,25 +204,46 @@ ByteBuffer::put16bit(uint16_t host)
 uint32_t
 ByteBuffer::get32bit()
 {
-  // TODO IMPLEMENT ME
+  BU_ASSERT((this->position() + 4 <= this->limit()) && "Buffer Overrun.");
+
+  char* ptr = (char*)bu_vlb_addr(&this->vlb) + this->position();
+
+  uint32_t net = *(uint32_t*)ptr;
+  uint32_t host = ntohl(net);
+  this->setPosition(this->position() + 4);
+
+  return host;
 }
 
 void
-ByteBuffer::put32bit(uint32_t v)
+ByteBuffer::put32bit(uint32_t host)
 {
-  // TODO IMPLEMENT ME
+  uint32_t net = htonl(host);
+
+  /* this call also advances position */
+  bu_vlb_write(&this->vlb, (unsigned char *)&net, 4);
 }
 
 uint64_t
 ByteBuffer::get64bit()
 {
-  // TODO IMPLEMENT ME
+  BU_ASSERT((this->position() + 8 <= this->limit()) && "Buffer Overrun.");
+
+  char* ptr = (char*)bu_vlb_addr(&this->vlb) + this->position();
+
+  uint64_t net = *(uint64_t*)ptr;
+  uint64_t host = ntohll(net);
+  this->setPosition(this->position() + 8);
+  return host;
 }
 
 void
-ByteBuffer::put64bit(uint64_t v)
+ByteBuffer::put64bit(uint64_t host)
 {
-  // TODO IMPLEMENT ME
+  uint64_t net = htonll(host);
+
+  /* this call also advances position */
+  bu_vlb_write(&this->vlb, (unsigned char *)&net, 8);
 }
 
 size_t
