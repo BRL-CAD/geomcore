@@ -131,7 +131,6 @@ ByteBuffer::put(char* c, size_t length)
     return false;
 
   bu_vlb_write(&vlb, (unsigned char*) c, length);
-  this->setPosition(this->position() + length);
   return true;
 }
 
