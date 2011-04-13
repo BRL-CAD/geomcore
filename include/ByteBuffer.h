@@ -339,7 +339,7 @@ public:
    *
    * @return  the position marked.
    */
-  size_t
+  int32_t
   mark();
 
   /**
@@ -347,7 +347,7 @@ public:
     *
     * @return  the current mark.
     */
-  size_t
+  int32_t
   getMark();
 
   /**
@@ -426,7 +426,7 @@ public:
 
 protected:
   bool
-  setMark(size_t m);
+  setMark(int32_t m);
 
 
 private:
@@ -449,7 +449,7 @@ private:
    */
   bu_vlb vlb;
   size_t lim;
-  size_t mar;
+  int32_t mar;
 };
 
 #endif /* __BYTEBUFFER_H__ */

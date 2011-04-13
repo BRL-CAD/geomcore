@@ -43,7 +43,8 @@ ByteBuffer::allocate(size_t size)
   if (size < 1)
     return NULL;
 
-  return new ByteBuffer(size);
+  ByteBuffer* bb = new ByteBuffer(size);
+  return bb;
 }
 
 ByteBuffer*
@@ -260,25 +261,25 @@ ByteBuffer::setLimit(size_t newLimit)
 }
 
 bool
-ByteBuffer::setMark(size_t m)
+ByteBuffer::setMark(int32_t m)
 {
   if (m < -1)
     return false;
 
-  if (m > this->limit())
+  if (m > (int32_t)this->limit())
     return false;
 
   this->mar = m;
   return true;
 }
 
-size_t
+int32_t
 ByteBuffer::getMark()
 {
   return this->mar;
 }
 
-size_t
+int32_t
 ByteBuffer::mark()
 {
   this->setMark(this->position());
@@ -294,11 +295,11 @@ ByteBuffer::discardMark()
 bool
 ByteBuffer::reset()
 {
-  size_t m = this->getMark();
+  int32_t m = this->getMark();
   if (m < 0)
     return false;
 
-  if (m > this->limit())
+  if (m > (int32_t)this->limit())
     return false;
 
   if (m > this->capacity())
