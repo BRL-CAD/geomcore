@@ -181,5 +181,9 @@ IF (GEOMCORE_BUILD_UNIT_TESTS)
 	#CppUnit is required for unit tests.
 	find_package(CppUnit REQUIRED)
 
-	ADD_SUBDIRECTORY(tests/unit)
+	IF (CPPUNIT_FOUND)
+		ADD_SUBDIRECTORY(tests/unit)	
+	ELSE (CPPUNIT_FOUND)
+		MESSAGE(STATUS "CppUnit not found, cannot configure unit tests.")
+	ENDIF (CPPUNIT_FOUND)
 ENDIF (GEOMCORE_BUILD_UNIT_TESTS)
