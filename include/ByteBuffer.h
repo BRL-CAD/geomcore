@@ -343,6 +343,14 @@ public:
   mark();
 
   /**
+    * <p>Returns the curent mark.</p>
+    *
+    * @return  the current mark.
+    */
+  size_t
+  getMark();
+
+  /**
    * <p>Discards the current mark, if set.</p>
    */
   void
@@ -420,8 +428,6 @@ protected:
   bool
   setMark(size_t m);
 
-  size_t
-  getMark();
 
 private:
   ByteBuffer(size_t size);
