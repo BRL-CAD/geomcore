@@ -41,10 +41,10 @@ SET( UnitTests_LIBS
 	libgcutil
 )
 
-#FILE(GLOB_RECURSE UnitTests_SRCS *UTest.cxx )
-SET( UnitTests_SRCS
-	./utility/ByteBufferUTest.cxx
-)
+FILE(GLOB_RECURSE UnitTests_SRCS *UTest.cxx )
+#SET( UnitTests_SRCS
+#	./utility/ByteBufferUTest.cxx
+#)
 	
 ADD_EXECUTABLE(runUnitTests test_runner.cxx ${UnitTests_SRCS})
 TARGET_LINK_LIBRARIES(runUnitTests ${UnitTests_LIBS})

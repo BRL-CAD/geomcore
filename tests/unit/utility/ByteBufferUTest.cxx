@@ -354,7 +354,10 @@ ByteBufferUTest::testGetSetString()
   this->bb->flip();
   std::string result = this->bb->getString();
   CPPUNIT_ASSERT(result == testVal_StdString);
+
+  std::cout << this->bb->toHexString();
 }
+
 
 void
 ByteBufferUTest::setUp()
