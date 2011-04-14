@@ -178,6 +178,31 @@ ByteBuffer::toString()
   return out;
 }
 
+std::string
+ByteBuffer::toHexString(bool printToPosition)
+{
+  std::stringstream ss;
+  ss << prefix;
+
+  uint32_t len = 0;
+  if (printToPosition){
+      len = this->position();
+      ss << " (Position: " << len << " bytes) ";
+  } else {
+      len = this->capacity();
+      ss << " (Capacity: " << len << " bytes) ";
+  }
+
+  char* p = this->array();
+  for (int i = 0; i<len;i++)
+  {
+      ss << std::hex << *p ;
+      p++;
+  }
+
+  return ss.str();
+}
+
 uint16_t
 ByteBuffer::get16bit()
 {

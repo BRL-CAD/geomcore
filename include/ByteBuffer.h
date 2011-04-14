@@ -223,6 +223,17 @@ public:
   toString();
 
   /**
+   * <p>Returns a string with the hexadecimal contents of this buffer.
+   * If printToPosition is set to <i>true</i>, bytes index ZERO to the
+   * buffer's current position only are printed.  If set to <i>false</i>,
+   * all bytes in the buffer are printed.</p>
+   *
+   * @return  A HEX string
+   */
+  std::string
+  toHexString(bool printToPosition = true);
+
+  /**
    * Relative <i>get</i> method for reading a 16 bit value.
    *
    * <p> Reads the next two bytes at this buffer's current position,
