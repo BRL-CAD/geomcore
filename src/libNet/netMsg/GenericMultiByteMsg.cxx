@@ -23,8 +23,6 @@
  *
  */
 
-#include <arpa/inet.h>
-
 #include "GenericMultiByteMsg.h"
 #include <iostream>
 #include <sstream>
@@ -32,27 +30,29 @@
 #include <string.h>
 
 /* Normal Constructor */
-GenericMultiByteMsg::GenericMultiByteMsg(uint32_t type, ByteArray* dataIn) :
+GenericMultiByteMsg::GenericMultiByteMsg(uint32_t type, ByteBuffer* dataIn) :
     NetMsg(type)
 {
     /* Deep copy */
-	this->data = new ByteArray(*dataIn);
+	this->data = dataIn->duplicate();
 }
 
 /* Reply Constructor */
-GenericMultiByteMsg::GenericMultiByteMsg(uint32_t type, NetMsg* msg, ByteArray* dataIn) :
+GenericMultiByteMsg::GenericMultiByteMsg(uint32_t type, NetMsg* msg, ByteBuffer* dataIn) :
 	NetMsg(type, msg)
 {
     /* Deep copy */
-	this->data = new ByteArray(*dataIn);
+	this->data = dataIn->duplicate();
 }
 
 /* Deserializing Constructor */
-GenericMultiByteMsg::GenericMultiByteMsg(DataStream* ds, Portal* origin) :
-    NetMsg(ds, origin)
+GenericMultiByteMsg::GenericMultiByteMsg(ByteBuffer* bb, Portal* origin) :
+    NetMsg(bb, origin)
 {
-    int dataLen = htonl(*(uint32_t*)ds->get(sizeof(uint32_t)));
-	this->data = new ByteArray(ds->get(dataLen), dataLen);
+    int len = bb->get32bit();
+    this->data = ByteBuffer::allocate(len + 1);
+
+    bb->get(this->data->array(), len);
 }
 
 /* Destructor */
@@ -61,27 +61,25 @@ GenericMultiByteMsg::~GenericMultiByteMsg()
     free(this->data);
 }
 
-bool GenericMultiByteMsg::_serialize(DataStream* ds)
+bool GenericMultiByteMsg::_serialize(ByteBuffer* bb)
 {
-    uint32_t len = htonl(this->data->size());
-    ds->append((const char *)&len, 4);
-    ds->append((const char *)this->data->data(), this->data->size());
-	return true;
+  uint32_t len = 0;
+
+  if (this->data->position() != 0) {
+    this->data->flip();
+    len = this->data->limit();
+  } else {
+    len = this->data->position();
+  }
+
+  bb->put(this->data->array(), len);
+  return true;
 }
 
 std::string GenericMultiByteMsg::toString()
 {
-    char buf[BUFSIZ];
-    std::string out;
-
-    snprintf(buf, BUFSIZ, "%s\t dataLen: '%d'\t data: ", NetMsg::toString().c_str(), this->data->size());
-    out.assign(buf);
-
-    for (uint32_t i = 0; i < this->data->size(); ++i) {
-        snprintf(buf, BUFSIZ, "%d, ", this->data->data()[i]);
-	out.append(buf);
-    }
-
+    std::string out = NetMsg::toString();
+    out += "\t" + this->data->toString();
     return out;
 }
 
@@ -108,17 +106,17 @@ bool GenericMultiByteMsg::_equals(const NetMsg& msg)
  */
 char* GenericMultiByteMsg::getData()
 {
-    return this->data->data();
+    return this->data->array();
 }
 uint32_t GenericMultiByteMsg::getDataLen()
 {
-    return this->data->size();
+    return this->data->position();
 }
 
-ByteArray*
-GenericMultiByteMsg::getByteArray()
+ByteBuffer*
+GenericMultiByteMsg::getByteBuffer()
 {
-	return new ByteArray(*this->data);
+	return new ByteBuffer(*this->data);
 }
 
 /*

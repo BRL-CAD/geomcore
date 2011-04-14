@@ -38,8 +38,8 @@ RemoteNodenameSetMsg::RemoteNodenameSetMsg(NetMsg* msg, std::string localNodenam
 {}
 
 /* Deserializing Constructor */
-RemoteNodenameSetMsg::RemoteNodenameSetMsg(DataStream* ds, Portal* origin) :
-    GenericOneStringMsg(ds, origin)
+RemoteNodenameSetMsg::RemoteNodenameSetMsg(ByteBuffer* bb, Portal* origin) :
+    GenericOneStringMsg(bb, origin)
 {}
 
 /* Destructor */

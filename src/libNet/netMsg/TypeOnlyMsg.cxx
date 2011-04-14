@@ -38,18 +38,19 @@ TypeOnlyMsg::TypeOnlyMsg(uint32_t msgType, NetMsg* msg) :
 {}
 
 /* Deserializing Constructor */
-TypeOnlyMsg::TypeOnlyMsg(DataStream* ds, Portal* origin) :
-     NetMsg(ds, origin)
+TypeOnlyMsg::TypeOnlyMsg(ByteBuffer* bb, Portal* origin) :
+     NetMsg(bb, origin)
 {}
 
 /* Destructor */
 TypeOnlyMsg::~TypeOnlyMsg()
 {}
 
-bool TypeOnlyMsg::_serialize(DataStream* ds)
+bool TypeOnlyMsg::_serialize(ByteBuffer* bb)
 {
     return true;
 }
+
 bool TypeOnlyMsg::_equals(const NetMsg& msg)
 {
     return true;

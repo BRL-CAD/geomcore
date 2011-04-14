@@ -37,22 +37,22 @@ GeometryReqMsg::GeometryReqMsg(NetMsg* msg, std::string path, bool recurse) :
 {}
 
 /* Deserializing Constructor */
-GeometryReqMsg::GeometryReqMsg(DataStream* ds, Portal* origin) :
-    GenericOneStringMsg(ds, origin)
+GeometryReqMsg::GeometryReqMsg(ByteBuffer* bb, Portal* origin) :
+    GenericOneStringMsg(bb, origin)
 {
-    recurse = *ds->get(1);
+    this->recurse = bb->get();
 }
 
 /* Destructor */
 GeometryReqMsg::~GeometryReqMsg()
 {}
 
-bool GeometryReqMsg::_serialize(DataStream* ds)
+bool GeometryReqMsg::_serialize(ByteBuffer* bb)
 {
     /* Call the super */
-    GenericOneStringMsg::_serialize(ds);
+    GenericOneStringMsg::_serialize(bb);
+    bb->put(this->recurse);
 
-    ds->append((const char *)&recurse, 1);
     return true;
 }
 

@@ -131,22 +131,32 @@ void DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg) {
 			!= objs->end(); it++) {
 		obj = *it;
 		chunk = GeometryChunkMsg::objToChunk(obj, originalMsg);
-		//chunk->getByteArray()->printHexString("");
+
+//		/std::cout << cnt << ")" << obj->getFilePath() + "/" + obj->getObjectName() << std::endl;
 
 		msgs.push_back(chunk);
 		items.push_back(obj->getFilePath() + "/" + obj->getObjectName());
+
+		++cnt;
 	}
+	std::cout << "\ntotal: " << cnt << std::endl;
 
 	/* Send manifest */
 	GeometryManifestMsg man(originalMsg, items);
 	origin->send(&man);
 
 	/* Send chunks */
+	int cnt2 = 0;
 	for (std::list<GeometryChunkMsg*>::iterator chunkIter = msgs.begin(); chunkIter
 			!= msgs.end(); ++chunkIter) {
 		chunk = *chunkIter;
+		std::cout << "Sending: " << cnt2 << std::endl;
+		usleep(1000 * 1000);
 		origin->send(chunk);
+		cnt2++;
 	}
+	std::cout << "\ntotal2: " << cnt2 << std::endl;
+
 	return;
 }
 

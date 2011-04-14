@@ -38,8 +38,8 @@ SuccessMsg::SuccessMsg(NetMsg* msg, uint8_t successCode) :
 {}
 
 /* Deserializing Constructor */
-SuccessMsg::SuccessMsg(DataStream* ds, Portal* origin) :
-    GenericOneByteMsg(ds, origin)
+SuccessMsg::SuccessMsg(ByteBuffer* bb, Portal* origin) :
+    GenericOneByteMsg(bb, origin)
 {}
 
 /* Destructor */

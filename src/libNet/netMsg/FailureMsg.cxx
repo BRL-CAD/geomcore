@@ -23,8 +23,8 @@
  *
  */
 
-#include "NetMsgTypes.h"
 #include "FailureMsg.h"
+#include "NetMsgTypes.h"
 #include <sstream>
 
 /* Normal Constructor */
@@ -38,8 +38,8 @@ FailureMsg::FailureMsg(NetMsg* msg, uint8_t failureCode) :
 {}
 
 /* Deserializing Constructor */
-FailureMsg::FailureMsg(DataStream* ds, Portal* origin):
-  GenericOneByteMsg(ds, origin)
+FailureMsg::FailureMsg(ByteBuffer* bb, Portal* origin):
+  GenericOneByteMsg(bb, origin)
 {}
 
 /* Destructor */

@@ -38,7 +38,7 @@ public:
 	RemoteNodenameSetMsg(NetMsg* msg, std::string gsNodename);
 
 	/* Deserializing Constructor */
-	RemoteNodenameSetMsg(DataStream* ds, Portal* origin);
+	RemoteNodenameSetMsg(ByteBuffer* bb, Portal* origin);
 
 	/* Destructor */
 	virtual ~RemoteNodenameSetMsg();

@@ -38,7 +38,7 @@ public:
 	SessionInfoMsg(NetMsg* msg, GSUuid* sessionID);
 
 	/* Deserializing Constructor */
-	SessionInfoMsg(DataStream* ds, Portal* origin);
+	SessionInfoMsg(ByteBuffer* bb, Portal* origin);
 
 	/* Destructor */
 	virtual ~SessionInfoMsg();
@@ -52,7 +52,7 @@ public:
 protected:
 	GSUuid* sessionID;
 
-	bool _serialize(DataStream* ds);
+	bool _serialize(ByteBuffer* bb);
 	bool _equals(const NetMsg& msg);
 
 private:

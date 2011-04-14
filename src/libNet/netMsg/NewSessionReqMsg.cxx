@@ -25,8 +25,6 @@
 
 #include "NetMsgTypes.h"
 #include "NewSessionReqMsg.h"
-#include "DataStream.h"
-#include <sstream>
 
 /* Normal Constructor */
 NewSessionReqMsg::NewSessionReqMsg(std::string uname, std::string passwd) :
@@ -39,21 +37,21 @@ NewSessionReqMsg::NewSessionReqMsg(NetMsg* msg, std::string uname, std::string p
 {}
 
 /* Deserializing Constructor */
-NewSessionReqMsg::NewSessionReqMsg(DataStream* ds, Portal* origin) :
-    NetMsg(ds, origin)
+NewSessionReqMsg::NewSessionReqMsg(ByteBuffer* bb, Portal* origin) :
+    NetMsg(bb, origin)
 {
-    this->uname = ds->getString()->c_str();
-    this->passwd = ds->getString()->c_str();
+    this->uname = bb->getString();
+    this->passwd = bb->getString();
 }
 
 /* Destructor */
 NewSessionReqMsg::~NewSessionReqMsg()
 {}
 
-bool NewSessionReqMsg::_serialize(DataStream* ds)
+bool NewSessionReqMsg::_serialize(ByteBuffer* bb)
 {
-    ds->putString(this->uname);
-    ds->putString(this->passwd);
+    bb->putString(this->uname);
+    bb->putString(this->passwd);
     return true;
 }
 

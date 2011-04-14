@@ -61,83 +61,90 @@ NetMsgFactory::~NetMsgFactory()
 {}
 
 NetMsg*
-NetMsgFactory::deserializeNetMsg(ByteArray& data, Portal* origin)
+NetMsgFactory::deserializeNetMsg(ByteBuffer* bb, Portal* origin)
 {
-  if(data.size() == 0) {
-	  printf("Empty data buffer??\n");
-	  return NULL;
+  /* Check if bb ready for read */
+  if(bb->position() != 0) {
+      bb->flip();
   }
-  uint16_t msgType = ntohs(*(uint16_t*)data.data());
-  DataStream qds(data.data(), data.size());
+
+  /* Check if at least header data is here. */
+  if(bb->limit() >= 39) {
+      return NULL;
+  }
+
+  /* Peek at type */
+  uint16_t msgType = bb->get16bit();
+  bb->setPosition(0);
 
   /* TODO Replace this with a map for registration scheme */
   switch (msgType)
     {
   case TEST_GENERIC_4BYTE_MSG:
-    return new GenericFourBytesMsg(&qds, origin);
+    return new GenericFourBytesMsg(bb, origin);
 
   case TEST_GENERIC_2BYTE_MSG:
-    return new GenericTwoBytesMsg(&qds, origin);
+    return new GenericTwoBytesMsg(bb, origin);
 
   case TEST_GENERIC_1BYTE_MSG:
-    return new GenericOneByteMsg(&qds, origin);
+    return new GenericOneByteMsg(bb, origin);
 
   case TEST_GENERIC_MULTIBYTE_MSG:
-    return new GenericMultiByteMsg(&qds, origin);
+    return new GenericMultiByteMsg(bb, origin);
 
   case TEST_GENERIC_1STRING_MSG:
-    return new GenericOneStringMsg(&qds, origin);
+    return new GenericOneStringMsg(bb, origin);
 
   case RUALIVE:
-    return new TypeOnlyMsg(&qds, origin);
+    return new TypeOnlyMsg(bb, origin);
   case IMALIVE:
-    return new TypeOnlyMsg(&qds, origin);
+    return new TypeOnlyMsg(bb, origin);
 
   case FAILURE:
-    return new GenericOneByteMsg(&qds, origin);
+    return new GenericOneByteMsg(bb, origin);
   case SUCCESS:
-    return new GenericOneByteMsg(&qds, origin);
+    return new GenericOneByteMsg(bb, origin);
   case GS_REMOTE_NODENAME_SET:
-    return new GenericOneStringMsg(&qds, origin);
+    return new GenericOneStringMsg(bb, origin);
 
   case DISCONNECTREQ:
-    return new TypeOnlyMsg(&qds, origin);
+    return new TypeOnlyMsg(bb, origin);
 
   case NEWNODEONNET:
-    return new GenericOneStringMsg(&qds, origin);
+    return new GenericOneStringMsg(bb, origin);
     /*     case FULL_NODE_LISTREQ: */
-    /* 	return new NetMsg(&qds, origin); */
+    /* 	return new NetMsg(bb, origin); */
     /*     case FULL_NODE_LIST: */
-    /* 	return new NetMsg(&qds, origin); */
+    /* 	return new NetMsg(bb, origin); */
 
   case NEWSESSIONREQ:
-    return new NewSessionReqMsg(&qds, origin);
+    return new NewSessionReqMsg(bb, origin);
   case SESSIONINFO:
-    return new SessionInfoMsg(&qds, origin);
+    return new SessionInfoMsg(bb, origin);
 
   case GEOMETRYREQ:
-    return new GeometryReqMsg(&qds, origin);
+    return new GeometryReqMsg(bb, origin);
   case GEOMETRYMANIFEST:
-    return new GeometryManifestMsg(&qds, origin);
+    return new GeometryManifestMsg(bb, origin);
   case GEOMETRYCHUNK:
-    return new GeometryChunkMsg(&qds, origin);
+    return new GeometryChunkMsg(bb, origin);
 
   case PING:
-    return new PingMsg(&qds, origin);
+    return new PingMsg(bb, origin);
   case PONG:
-    return new PongMsg(&qds, origin);
+    return new PongMsg(bb, origin);
 
 
     /* Admin commands */
   case CMD_SHUTDOWN:
-    return new TypeOnlyMsg(&qds, origin);
+    return new TypeOnlyMsg(bb, origin);
 
 
   default:
-	  std::stringstream ss;
-	  ss << "Unknown Msgtype: ";
-	  ss << msgType;
-	Logger::getInstance()->logERROR("NetMsgFactory", ss.str());
+    std::stringstream ss;
+    ss << "Unknown Msgtype: ";
+    ss << msgType;
+    Logger::getInstance()->logERROR("NetMsgFactory", ss.str());
 
     return NULL;
     }

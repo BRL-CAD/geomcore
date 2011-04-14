@@ -27,7 +27,7 @@
 #include "PongMsg.h"
 
 PongMsg::PongMsg(PingMsg* ping): GenericEightBytesMsg(PONG, ping->getStartTime()){}
-PongMsg::PongMsg(DataStream* ds, Portal* origin): GenericEightBytesMsg(ds, origin) {}
+PongMsg::PongMsg(ByteBuffer* bb, Portal* origin): GenericEightBytesMsg(bb, origin) {}
 
 PongMsg::~PongMsg(){}
 

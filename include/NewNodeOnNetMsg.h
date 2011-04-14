@@ -38,7 +38,7 @@ public:
 	NewNodeOnNetMsg(NetMsg* msg, std::string gsNodename);
 
 	/* Deserializing Constructor */
-	NewNodeOnNetMsg(DataStream* ds, Portal* origin);
+	NewNodeOnNetMsg(ByteBuffer* bb, Portal* origin);
 
 	/* Destructor */
 	virtual ~NewNodeOnNetMsg();

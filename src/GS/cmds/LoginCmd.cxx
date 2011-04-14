@@ -52,6 +52,15 @@ LoginCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
 {
     int argn = args.size();
 
+    /* TEMP Short circuit */
+    if (argn == 0) {
+    	args.push_back("localhost");
+    	args.push_back("5309");
+    	args.push_back("Guest");
+    	args.push_back("Guest");
+    	argn = args.size();
+    }
+
     if (argn != 4) {
 	this->printUsage();
 	return false;

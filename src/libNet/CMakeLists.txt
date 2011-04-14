@@ -49,7 +49,6 @@ SET(libNet_SRCS
  	netMsg/SessionInfoMsg.cxx
 	netMsg/NewNodeOnNetMsg.cxx
 	netMsg/GeometryReqMsg.cxx
-	netMsg/GeometryBoTReqMsg.cxx
 	netMsg/GeometryManifestMsg.cxx
 	netMsg/GeometryChunkMsg.cxx
 	netMsg/PingMsg.cxx

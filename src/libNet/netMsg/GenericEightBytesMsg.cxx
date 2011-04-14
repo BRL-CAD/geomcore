@@ -28,10 +28,8 @@
 
 #include "GenericEightBytesMsg.h"
 #include <sstream>
-#include <cstdio>
 #include <iostream>
 
-#include <arpa/inet.h>
 
 #include <bu.h>
 
@@ -46,27 +44,20 @@ GenericEightBytesMsg::GenericEightBytesMsg(uint32_t type, NetMsg* msg, uint64_t 
 {}
 
 /* Deserializing Constructor */
-GenericEightBytesMsg::GenericEightBytesMsg(DataStream* ds, Portal* origin) :
-    NetMsg(ds, origin)
+GenericEightBytesMsg::GenericEightBytesMsg(ByteBuffer* bb, Portal* origin) :
+    NetMsg(bb, origin)
 {
-	uint64_t t = *(uint64_t*)ds->get(8);
-    data = ntohll(t);
+    data = bb->get64bit();
 }
 
 /* Destructor */
 GenericEightBytesMsg::~GenericEightBytesMsg()
 {}
 
-bool GenericEightBytesMsg::_serialize(DataStream* ds)
+bool GenericEightBytesMsg::_serialize(ByteBuffer* bb)
 {
-    uint64_t t = this->data;
-
-#if _BYTE_ORDER == _LITTLE_ENDIAN
-    t = htonll(this->data);
-#endif
-
-    ds->append((const char *)&t, 8);
-    return true;
+  bb->put64bit(this->data);
+  return true;
 }
 
 std::string GenericEightBytesMsg::toString()

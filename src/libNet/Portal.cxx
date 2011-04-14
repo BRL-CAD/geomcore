@@ -51,22 +51,20 @@ Portal::~Portal() {
 
 int
 Portal::send(NetMsg* msg) {
-	ByteArray* ba = msg->serialize();
-	int retval = this->pkgClient->send(PKG_MAGIC2, ba->data(), ba->size());
+  ByteBuffer* bb = msg->serialize();
+  int retval = this->pkgClient->send(PKG_MAGIC2, bb->array(), bb->position());
 
-	//ba->printHexString("Sending: ");
+  delete bb;
 
-	delete ba;
+  /* Process any data moved by the underlying Socket buffer copy. */
+  retval = this->pkgClient->processData();
+  if (retval < 0) {
+          this->log->logERROR("Portal",
+                          "Unable to process packets? Weird. (1) ");
+          return retval;
+  }/* TODO do we need to check for ==0 ? */
 
-	/* Process any data moved by the underlying Socket buffer copy. */
-	retval = this->pkgClient->processData();
-	if (retval < 0) {
-		this->log->logERROR("Portal",
-				"Unable to process packets? Weird. (1) ");
-		return retval;
-	}/* TODO do we need to check for ==0 ? */
-
-	return retval;
+  return retval;
 }
 int
 Portal::sendThenDisconnect(NetMsg* msg) {
@@ -167,55 +165,53 @@ Portal::handleNetMsg(NetMsg* msg) {
 
 void
 Portal::callbackSpringboard(struct pkg_conn* conn, char* buf) {
-	Logger* log = 		Logger::getInstance();
+  Logger* log = Logger::getInstance();
 
-	/* Check to see if we got a good Buffer and Portal Object */
-	if (buf == 0) {
-		log->logERROR("Portal", "pkg callback returned a NULL buffer!");
-		/*	bu_bomb("pkg callback returned a NULL buffer!\n"); */
-		return;
-	}
+  /* Check to see if we got a good Buffer and Portal Object */
+  if (buf == 0) {
+          log->logERROR("Portal", "pkg callback returned a NULL buffer!");
+          /*	bu_bomb("pkg callback returned a NULL buffer!\n"); */
+          return;
+  }
 
-	int len = conn->pkc_inend - sizeof(pkg_header);
+  int len = conn->pkc_inend - sizeof(pkg_header);
 
-	if(len < 1)
-		return;
+  if(len < 1)
+    return;
 
-	ByteArray ba(buf, len);
+  ByteBuffer* bb = ByteBuffer::allocate(len);
+  bb->put(buf, len);
 
-	//ba.printHexString("Recv: ");
+  if (conn->pkc_user_data == 0) {
+    log->logERROR("Portal", "pkg callback returned a NULL user_data pointer!");
+    return;
+  }
 
-	if (conn->pkc_user_data == 0) {
-		log->logERROR("Portal", "pkg callback returned a NULL user_data pointer!");
-		return;
-	}
+  Portal* p = (Portal*) conn->pkc_user_data;
+  if (p == 0) {
+      log->logERROR("Portal", "WARNING!  NULL Portal.");
+  }
 
-	Portal* p = (Portal*) conn->pkc_user_data;
+  /* Build a NetMsg */
+  NetMsg* msg = NetMsgFactory::getInstance()->deserializeNetMsg(bb, p);
+  if (msg == NULL) {
+    log->logERROR("Portal", "WARNING!  NetMsg failed to deserialize properly.\n");
+    return;
+  }
 
-	if (p == 0) {
-		log->logERROR("Portal", "WARNING!  NULL Portal.");
-	}
+  delete bb;
 
-	/* Build a NetMsg */
-	NetMsg* msg = NetMsgFactory::getInstance()->deserializeNetMsg(ba, p);
+  /* Route */
 
-	/* check to see if we deserialized the msg properly */
-	if (msg == 0) {
-		log->logERROR("Portal", "WARNING!  NetMsg failed to deserialize properly.\n");
-		return;
-	}
+  /* give the Portal first dibs on the netmsg */
+  if (p->handleNetMsg(msg)) {
+    return;
+  }
 
-	/* Route */
-
-	/* give the Portal first dibs on the netmsg */
-	if (p->handleNetMsg(msg)) {
-		return;
-	}
-
-	/* Fire off a Job.  This keeps the selector loop from */
-	/* delivering all the Msg copies personally.*/
-	RouteMsgJob* job = new RouteMsgJob(msg);
-	job->submit();
+  /* Fire off a Job.  This keeps the selector loop from */
+  /* delivering all the Msg copies personally.*/
+  RouteMsgJob* job = new RouteMsgJob(msg);
+  job->submit();
 }
 
 void

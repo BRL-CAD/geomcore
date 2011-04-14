@@ -38,7 +38,7 @@ public:
 	NewSessionReqMsg(NetMsg* msg, std::string uname, std::string passwd);
 
 	/* Deserializing Constructor */
-	NewSessionReqMsg(DataStream* ds, Portal* origin);
+	NewSessionReqMsg(ByteBuffer* bb, Portal* origin);
 
 	/* Destructor */
 	virtual ~NewSessionReqMsg();
@@ -54,7 +54,7 @@ protected:
 	std::string uname;
 	std::string passwd;
 
-	virtual bool _serialize(DataStream* ds);
+	virtual bool _serialize(ByteBuffer* bb);
 	virtual bool _equals(const NetMsg& msg);
 
 

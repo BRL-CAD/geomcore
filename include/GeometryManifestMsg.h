@@ -42,7 +42,7 @@ public:
 	GeometryManifestMsg(NetMsg* msg, std::list<std::string>& items);
 
 	/* Deserializing Constructor */
-	GeometryManifestMsg(DataStream* ds, Portal* origin);
+	GeometryManifestMsg(ByteBuffer* bb, Portal* origin);
 
 	/* Destructor */
 	virtual ~GeometryManifestMsg();
@@ -58,7 +58,7 @@ public:
 private:
 	std::list<std::string>* itemData;
 
-	bool _serialize(DataStream* ds);
+	bool _serialize(ByteBuffer* bb);
 	bool _equals(const NetMsg& msg);
 
 	/* Disable copy cstr and =operator */

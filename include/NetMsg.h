@@ -31,10 +31,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "DataStream.h"
 #include "GSUuid.h"
 
-#include "ByteArray.h"
+#include "ByteBuffer.h"
 
 class Portal;
 
@@ -48,29 +47,29 @@ public:
 	NetMsg(uint16_t mType, NetMsg* msg);
 
 	/* Deserializing Constructor */
-	NetMsg(DataStream* ds, Portal* origin);
+	NetMsg(ByteBuffer* bb, Portal* origin);
 
 	/* Destructor */
 	virtual ~NetMsg();
 
 	/* Serializers */
-	ByteArray* serialize();
-	void serialize(ByteArray* ba);
+	ByteBuffer* serialize();
+	void serialize(ByteBuffer* bb);
 
 	/*
 	 *Getters n Setters
 	 */
 	uint16_t getMsgType() const;
-	GSUuid *getMsgUUID() const;
+	GSUuid* getMsgUUID() const;
 	bool msgHasReUUID() const;
-	GSUuid *getReUUID() const;
+	GSUuid* getReUUID() const;
 	Portal* getOrigin() const;
 
 	/*
 	 * Utilities
 	 */
 	virtual std::string toString();
-	virtual std::string toStdString();
+	virtual std::string toStdString(); //TODO remove this extra fn
 	virtual bool equals(const NetMsg& other);
 	void printMe();
 
@@ -78,12 +77,12 @@ public:
 
 protected:
 	uint16_t msgType;
-	GSUuid *msgUUID;
-	bool hasReUUID;
-	GSUuid *reUUID;
+	GSUuid* msgUUID;
+	bool hasReUUID; //TODO replace this with a bit pack
+	GSUuid* reUUID;
 	Portal* origin;
 
-	virtual bool _serialize(DataStream* ds) = 0;
+	virtual bool _serialize(ByteBuffer* bb) = 0;
 	virtual bool _equals(const NetMsg& msg) = 0;
 
 private:

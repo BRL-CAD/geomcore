@@ -39,7 +39,7 @@ public:
 	GeometryReqMsg(NetMsg* msg, std::string path, bool recurse);
 
 	/* Deserializing Constructor */
-	GeometryReqMsg(DataStream* ds, Portal* origin);
+	GeometryReqMsg(ByteBuffer* bb, Portal* origin);
 
 	/* Destructor */
 	virtual ~GeometryReqMsg();
@@ -56,7 +56,7 @@ public:
 private:
 	bool recurse;
 
-	bool _serialize(DataStream* ds);
+	bool _serialize(ByteBuffer* bb);
 	bool _equals(const NetMsg& msg);
 
 	/* Disable copy cstr and =operator */

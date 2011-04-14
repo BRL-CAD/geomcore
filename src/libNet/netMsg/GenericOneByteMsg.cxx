@@ -37,20 +37,20 @@ GenericOneByteMsg::GenericOneByteMsg(uint32_t type, NetMsg* msg, uint8_t b) :
 {}
 
 /* Deserializing Constructor */
-GenericOneByteMsg::GenericOneByteMsg(DataStream* ds, Portal* origin) :
-    NetMsg(ds, origin)
+GenericOneByteMsg::GenericOneByteMsg(ByteBuffer* bb, Portal* origin) :
+    NetMsg(bb, origin)
 {
-    this->data = *(uint8_t*)ds->get(1);
+  this->data = bb->get();
 }
 
 /* Destructor */
 GenericOneByteMsg::~GenericOneByteMsg()
 {}
 
-bool GenericOneByteMsg::_serialize(DataStream* ds)
+bool GenericOneByteMsg::_serialize(ByteBuffer* bb)
 {
-    ds->append((const char *)&this->data, 1);
-    return true;
+  bb->put(this->data);
+  return true;
 }
 
 std::string GenericOneByteMsg::toString()

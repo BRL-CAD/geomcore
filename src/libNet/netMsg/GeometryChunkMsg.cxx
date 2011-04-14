@@ -29,20 +29,20 @@
 #include <raytrace.h>
 
 /* Normal Constructor */
-GeometryChunkMsg::GeometryChunkMsg(std::string path, ByteArray* dataIn) :
+GeometryChunkMsg::GeometryChunkMsg(std::string path, ByteBuffer* dataIn) :
     GenericMultiByteMsg(GEOMETRYCHUNK, dataIn), path(path)
 {}
 
 /* Reply Constructor */
-GeometryChunkMsg::GeometryChunkMsg(NetMsg* msg, std::string path, ByteArray* dataIn) :
+GeometryChunkMsg::GeometryChunkMsg(NetMsg* msg, std::string path, ByteBuffer* dataIn) :
 	GenericMultiByteMsg(GEOMETRYCHUNK, msg, dataIn), path(path)
 {}
 
 /* Deserializing Constructor */
-GeometryChunkMsg::GeometryChunkMsg(DataStream* ds, Portal* origin) :
-    GenericMultiByteMsg(ds, origin)
+GeometryChunkMsg::GeometryChunkMsg(ByteBuffer* bb, Portal* origin) :
+    GenericMultiByteMsg(bb, origin)
 {
-	this->path = ds->getString()->c_str();
+  this->path = bb->getString();
 }
 
 /* Destructor */
@@ -52,31 +52,30 @@ GeometryChunkMsg::~GeometryChunkMsg()
 std::string
 GeometryChunkMsg::getPath()
 {
-	return this->path;
+  return this->path;
 }
 
-
 bool
-GeometryChunkMsg::_serialize(DataStream* ds)
+GeometryChunkMsg::_serialize(ByteBuffer* bb)
 {
-	GenericMultiByteMsg::_serialize(ds);
-    ds->putString(this->path);
-    return true;
+  GenericMultiByteMsg::_serialize(bb); /* FIXME this is confusing.  Clean up the NetMsg heirarchy */
+  bb->putString(this->path);
+  return true;
 }
 
 std::string
 GeometryChunkMsg::toString()
 {
-    std::string out = GenericMultiByteMsg::toString();
-    out.append(" Path: ");
-    out.append(this->path);
-    return out;
+  std::string out = GenericMultiByteMsg::toString();
+  out.append(" Path: ");
+  out.append(this->path);
+  return out;
 }
 
 bool
 GeometryChunkMsg::_equals(const NetMsg& msg)
 {
-	GeometryChunkMsg& gmsg = (GeometryChunkMsg&) msg;
+  GeometryChunkMsg& gmsg = (GeometryChunkMsg&) msg;
 
     if (this->getDataLen() != gmsg.getDataLen())
 	    return false;
@@ -95,20 +94,24 @@ GeometryChunkMsg::_equals(const NetMsg& msg)
 GeometryChunkMsg*
 GeometryChunkMsg::objToChunk(BRLCAD::MinimalObject* obj, NetMsg* replyMsg)
 {
-	bu_external* ext = obj->getBuExternal();
-	size_t len = ext->ext_nbytes;
+  bu_external* ext = obj->getBuExternal();
+  size_t len = ext->ext_nbytes;
 
-	/* TODO investigate: We MIGHT be double copying here.  Depends on if ByteArray copies the data passed to its cstr */
-	char* buf = (char*)bu_malloc(len, "objToChunk buf malloc");
-	memcpy (buf, ext->ext_buf, len);
+  /* TODO investigate: We MIGHT be double copying here.  Depends on if ByteBuffer copies the data passed to its cstr */
+  char* buf = (char*)bu_malloc(len, "objToChunk buf malloc");
+  memcpy (buf, ext->ext_buf, len);
 
-	ByteArray ba(buf, len);
+  ByteBuffer* bb = ByteBuffer::wrap(buf, len);
+  GeometryChunkMsg* out = NULL;
 
-	if (replyMsg == NULL)
-		return new GeometryChunkMsg(obj->getFilePath(), &ba);
-	else
-		return new GeometryChunkMsg(replyMsg, obj->getFilePath(), &ba);
+  if (replyMsg == NULL)
+    out =  new GeometryChunkMsg(obj->getFilePath(), bb);
+  else
+    out =  new GeometryChunkMsg(replyMsg, obj->getFilePath(), bb);
 
+  delete bb;
+
+  return out;
 }
 
 BRLCAD::MinimalObject*
@@ -119,25 +122,25 @@ GeometryChunkMsg::chunkToObj(GeometryChunkMsg* msg)
 		return NULL;
 	}
 
-	ByteArray* ba = msg->getByteArray();
+	ByteBuffer* bb = msg->getByteBuffer();
 
-	if (ba == NULL){
-	   	bu_log("NULL ByteArray");
+	if (bb == NULL){
+	   	bu_log("NULL ByteBuffer");
 		return NULL;
 	}
 
 
 	bu_external* ext = (bu_external*)bu_calloc(1,sizeof(bu_external),"chunkToExt bu_external calloc");;
 
-	size_t baSize = ba->size();
+	size_t len = bb->position();
 
 	/* Build bu_external */
-	ext->ext_buf = (uint8_t*)bu_calloc(1,baSize,"chunkToExt bu_external calloc");
-	memcpy(ext->ext_buf, ba->data(), baSize);
+	ext->ext_buf = (uint8_t*)bu_calloc(1,len,"chunkToExt bu_external calloc");
+	memcpy(ext->ext_buf, bb->array(), len);
 
 	/* Get object name  */
 	struct db5_raw_internal raw;
-    if (db5_get_raw_internal_ptr(&raw, (const unsigned char *)ba->data()) == NULL) {
+    if (db5_get_raw_internal_ptr(&raw, (const unsigned char *)bb->array()) == NULL) {
     	bu_log("Corrupted serialized geometry?  Could not deserialize.\n");
     	return NULL;
     }

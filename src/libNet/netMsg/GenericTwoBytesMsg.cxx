@@ -39,21 +39,20 @@ GenericTwoBytesMsg::GenericTwoBytesMsg(uint32_t type, NetMsg* msg, uint16_t b) :
 {}
 
 /* Deserializing Constructor */
-GenericTwoBytesMsg::GenericTwoBytesMsg(DataStream* ds, Portal* origin) :
-    NetMsg(ds, origin)
+GenericTwoBytesMsg::GenericTwoBytesMsg(ByteBuffer* bb, Portal* origin) :
+    NetMsg(bb, origin)
 {
-    this->data = ntohs(*(short *)ds->get(2));
+    this->data = bb->get16bit();
 }
 
 /* Destructor */
 GenericTwoBytesMsg::~GenericTwoBytesMsg()
 {}
 
-bool GenericTwoBytesMsg::_serialize(DataStream* ds)
+bool GenericTwoBytesMsg::_serialize(ByteBuffer* bb)
 {
-    uint16_t mt = htons(data);
-    ds->append((const char *)&mt, sizeof(uint16_t));
-    return true;
+  bb->put16bit(this->data);
+  return true;
 }
 
 std::string GenericTwoBytesMsg::toString()

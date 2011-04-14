@@ -26,10 +26,10 @@
 #include <arpa/inet.h>
 
 #include <string>
-
+#include <iostream>
 #include "NetMsgTypes.h"
 #include "GeometryManifestMsg.h"
-#include "DataStream.h"
+
 
 /* Normal Constructor */
 GeometryManifestMsg::GeometryManifestMsg(std::list<std::string>& items) :
@@ -46,19 +46,28 @@ GeometryManifestMsg::GeometryManifestMsg(NetMsg* msg, std::list<std::string>& it
 }
 
 /* Deserializing Constructor */
-GeometryManifestMsg::GeometryManifestMsg(DataStream* ds, Portal* origin) :
-    NetMsg(ds, origin)
+GeometryManifestMsg::GeometryManifestMsg(ByteBuffer* bb, Portal* origin) :
+    NetMsg(bb, origin)
 {
     this->itemData = new std::list<std::string> ();
 
-    uint32_t numOfItems;
-    numOfItems = ntohl(*(uint32_t*)ds->get(4));
+    uint32_t numOfItems = bb->get32bit();
+
+    std::cout << "Attempting to deserialize " << numOfItems << " items.\n";
+
+    std::string tstr;
 
     for (uint32_t i = 0; i < numOfItems; ++i) {
-	std::string* tString = ds->getString();
-	std::string newStr;
-	newStr.append(*tString);
-	this->itemData->push_back(newStr);
+        std::cout << i << ")";
+
+        tstr = bb->getString();
+        if (tstr.size() == 0) {
+          std::cout << "Skipping zero Len String.";
+          continue;
+        }
+
+        this->itemData->push_back(tstr);
+        std::cout << std::endl;
     }
 }
 
@@ -68,13 +77,30 @@ GeometryManifestMsg::~GeometryManifestMsg()
     delete this->itemData;
 }
 
-bool GeometryManifestMsg::_serialize(DataStream* ds)
+bool GeometryManifestMsg::_serialize(ByteBuffer* bb)
 {
-    uint32_t mt = htonl(itemData->size());
-    ds->append((const char *)&mt, 4);
+  /* put in placeholder for count */
+  int start = bb->position();
+  bb->put32bit(0);
 
-    for (std::list<std::string>::iterator it = this->itemData->begin(); it != this->itemData->end(); it++)
-	ds->putString(*it);
+  int cnt = 0;
+  std::string tstr;
+  for (std::list<std::string>::iterator it = this->itemData->begin(); it != this->itemData->end(); it++)
+    {
+       tstr = *it;
+       if (tstr.size() == 0) {
+         std::cout << "Skipping zero Len String.";
+         continue;
+       }
+       bb->putString(tstr);
+       ++cnt;
+    }
+
+    int stop = bb->position();
+    /* Go back and insert actual count */
+    bb->setPosition(start);
+    bb->put32bit(cnt);
+    bb->setPosition(stop);
 
     return true;
 }

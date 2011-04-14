@@ -23,8 +23,6 @@
  *
  */
 
-#include <arpa/inet.h>
-
 #include "GenericFourBytesMsg.h"
 #include <sstream>
 
@@ -39,21 +37,20 @@ GenericFourBytesMsg::GenericFourBytesMsg(uint32_t type, NetMsg* msg, uint32_t b)
 {}
 
 /* Deserializing Constructor */
-GenericFourBytesMsg::GenericFourBytesMsg(DataStream* ds, Portal* origin) :
-    NetMsg(ds, origin)
+GenericFourBytesMsg::GenericFourBytesMsg(ByteBuffer* bb, Portal* origin) :
+    NetMsg(bb, origin)
 {
-    data = ntohl(*(uint32_t*)ds->get(sizeof(uint32_t)));
+    data = bb->get32bit();
 }
 
 /* Destructor */
 GenericFourBytesMsg::~GenericFourBytesMsg()
 {}
 
-bool GenericFourBytesMsg::_serialize(DataStream* ds)
+bool GenericFourBytesMsg::_serialize(ByteBuffer* bb)
 {
-    uint32_t mt = htonl(data);
-    ds->append((const char *)&mt, sizeof(uint32_t));
-    return true;
+  bb->put32bit(this->data);
+  return true;
 }
 
 std::string GenericFourBytesMsg::toString()

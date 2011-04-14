@@ -23,13 +23,13 @@
 
 #include "DbObject.h"
 
-DbObject::DbObject(std::string path, ByteArray* data)
+DbObject::DbObject(std::string path, ByteBuffer* data)
 :   path(path),
     id(NULL),
     data(data)
 {}
 
-DbObject::DbObject(GSUuid* id, ByteArray* data)
+DbObject::DbObject(GSUuid* id, ByteBuffer* data)
 :   path(""),
     id(id),
     data(data)
@@ -52,7 +52,7 @@ DbObject::getID()
 }
 
 
-ByteArray*
+ByteBuffer*
 DbObject::getData()
 {
     return this->data;

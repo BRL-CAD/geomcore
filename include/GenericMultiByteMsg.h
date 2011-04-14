@@ -27,19 +27,18 @@
 #define __GENERICMULTIBYTEMSG_H__
 
 #include "NetMsg.h"
-#include "ByteArray.h"
 
 class GenericMultiByteMsg : public NetMsg
 {
 public:
 	/* Normal Constructor */
-	GenericMultiByteMsg(uint32_t type, ByteArray* dataIn);
+	GenericMultiByteMsg(uint32_t type, ByteBuffer* dataIn);
 
 	/* Reply Constructor */
-	GenericMultiByteMsg(uint32_t type, NetMsg* msg, ByteArray* dataIn);
+	GenericMultiByteMsg(uint32_t type, NetMsg* msg, ByteBuffer* dataIn);
 
 	/* Deserializing Constructor */
-	GenericMultiByteMsg(DataStream* ds, Portal* origin);
+	GenericMultiByteMsg(ByteBuffer* bb, Portal* origin);
 
 	/* Destructor */
 	virtual ~GenericMultiByteMsg();
@@ -48,15 +47,15 @@ public:
 	 * Utilities
 	 */
 	virtual std::string toString();
-	ByteArray* getByteArray();
+	ByteBuffer* getByteBuffer();
 
 protected:
 	uint32_t getDataLen();
 	char* getData();
 
-	ByteArray* data;
+	ByteBuffer* data;
 
-	virtual bool _serialize(DataStream* ds);
+	virtual bool _serialize(ByteBuffer* bb);
 	virtual bool _equals(const NetMsg& msg);
 
 private:

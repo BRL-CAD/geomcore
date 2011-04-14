@@ -77,9 +77,9 @@ private:
 
   static void callbackSpringboard(struct pkg_conn* conn, char* buf);
 
-	/* Disable copy cstr and =operator */
-	Portal(Portal const&){};
-	Portal& operator=(Portal const&){};
+  /* Disable copy cstr and =operator */
+  Portal(Portal const&){};
+  Portal& operator=(Portal const&){};
 };
 
 #endif /* __PORTAL_H__ */

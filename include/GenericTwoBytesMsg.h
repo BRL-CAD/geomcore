@@ -38,7 +38,7 @@ public:
 	GenericTwoBytesMsg(uint32_t type, NetMsg* msg, uint16_t b);
 
 	/* Deserializing Constructor */
-	GenericTwoBytesMsg(DataStream* ds, Portal* origin);
+	GenericTwoBytesMsg(ByteBuffer* bb, Portal* origin);
 
 	/* Destructor */
 	virtual ~GenericTwoBytesMsg();
@@ -52,7 +52,7 @@ protected:
 	uint16_t getData();
 	uint16_t data;
 
-	virtual bool _serialize(DataStream* ds);
+	virtual bool _serialize(ByteBuffer* bb);
 	virtual bool _equals(const NetMsg& msg);
 
 private:

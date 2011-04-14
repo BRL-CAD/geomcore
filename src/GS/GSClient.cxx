@@ -165,11 +165,11 @@ GSClient::handleNetMsg(NetMsg* msg)
 	case GEOMETRYCHUNK:
 		{
 			GeometryChunkMsg* chunk = (GeometryChunkMsg*)msg;
-			ByteArray* ba = chunk->getByteArray();
+			ByteBuffer* bb = chunk->getByteBuffer();
 
 			/* Get object name  */
 			struct db5_raw_internal raw;
-		    if (db5_get_raw_internal_ptr(&raw, (const unsigned char *)ba->data()) == NULL) {
+		    if (db5_get_raw_internal_ptr(&raw, (const unsigned char *)bb->array()) == NULL) {
 		    	bu_log("Corrupted serialized geometry?  Could not deserialize.\n");
 		    	return false;
 		    }

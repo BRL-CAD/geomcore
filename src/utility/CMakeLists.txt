@@ -33,10 +33,8 @@ include_directories(
 
 SET(gcutil_SRCS
 	ByteBuffer.cxx
-	ByteArray.cxx
 	Config.cxx
 	ControlledThread.cxx
-	DataStream.cxx
 	GSException.cxx
 	GSThread.cxx
 	GSUuid.cxx
@@ -64,7 +62,6 @@ ENDIF(BUILD_STATIC_LIBS)
 SET(util_inst_HDRS
 	Config.h
 	ControlledThread.h
-	DataStreamUtils.h
 	GSException.h
 	GSThread.h
 	GSUuid.h

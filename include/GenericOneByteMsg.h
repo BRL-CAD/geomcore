@@ -38,7 +38,7 @@ public:
 	GenericOneByteMsg(uint32_t type, NetMsg* msg, uint8_t b);
 
 	/* Deserializing Constructor */
-	GenericOneByteMsg(DataStream* ds, Portal* origin);
+	GenericOneByteMsg(ByteBuffer* bb, Portal* origin);
 
 	/* Destructor */
 	virtual ~GenericOneByteMsg();
@@ -52,7 +52,7 @@ protected:
 	uint8_t getData();
 	uint8_t data;
 
-	virtual bool _serialize(DataStream* ds);
+	virtual bool _serialize(ByteBuffer* bb);
 	virtual bool _equals(const NetMsg& msg);
 
 private:

@@ -23,13 +23,9 @@
  *
  */
 
-#include <arpa/inet.h> /* ntohs */
 
 #include "NetMsg.h"
 #include "Portal.h"
-#include "GSUuid.h"
-
-#include <sstream>
 
 /* Normal Constructor */
 NetMsg::NetMsg(uint16_t mType) :
@@ -53,52 +49,48 @@ NetMsg::NetMsg(uint16_t mType, NetMsg* msg) :
 }
 
 /* Deserializing Constructor */
-NetMsg::NetMsg(DataStream* ds, Portal* origin)
+NetMsg::NetMsg(ByteBuffer* bb, Portal* origin)
 {
     this->origin = origin;
-    this->msgType = ntohs(*(uint16_t*)ds->get(2));
-    this->msgUUID = new GSUuid(ds->getString());
-    this->hasReUUID = *(unsigned char*)ds->get(1);
+    this->msgType = bb->get16bit(); //this isn't right...
+    this->msgUUID = new GSUuid(&(bb->getString()));
+    this->hasReUUID = (bool)bb->get();
     if (this->hasReUUID)
-	this->reUUID = new GSUuid(ds->getString());
+	this->reUUID = new GSUuid(&(bb->getString()));
     else
 	this->reUUID = NULL;
 }
 
 /* Destructor */
 NetMsg::~NetMsg()
-{}
-
-/* Serializers */
-    ByteArray*
-NetMsg::serialize()
 {
-    ByteArray* ba = new ByteArray();
-    this->serialize(ba);
-    return ba;
 }
 
-    void
-NetMsg::serialize(ByteArray* ba)
+/* Serializers */
+ByteBuffer*
+NetMsg::serialize()
 {
-    uint16_t mt;
-    /* Make a DS for the subclass */
-    DataStream subDS(ba->data(), ba->size());
+    ByteBuffer* bb = ByteBuffer::allocate(ByteBuffer::defaultBufferSize);
+    this->serialize(bb);
+    return bb;
+}
 
+void
+NetMsg::serialize(ByteBuffer* bb)
+{
     /* Serialize Header */
-    mt = htons(this->msgType);
-    subDS.append((const char *)&mt, 2);
-    subDS.putString(this->msgUUID->toString());
-    subDS.append((const char *)&this->hasReUUID, 1);
+      bb->put16bit(this->msgType);
+      bb->putString(*this->msgUUID->toString());
+      bb->put(this->hasReUUID);
 
     if (this->hasReUUID)
-	subDS.putString(this->reUUID->toString());
+      bb->putString(*this->reUUID->toString());
+
     /* Call subclass serialize */
-    if (!this->_serialize(&subDS)) {
+    if (!this->_serialize(bb)) {
 	std::cerr << "A serialization Error in NetMsg::serialize() occurred.\n";
 	return;
     }
-    ba->assign(subDS.getptr(), subDS.size());
 }
 
 /*
@@ -109,16 +101,19 @@ NetMsg::getMsgType() const
 {
     return this->msgType;
 }
+
 GSUuid*
 NetMsg::getMsgUUID() const
 {
     return this->msgUUID;
 }
+
 bool
 NetMsg::msgHasReUUID() const
 {
     return this->hasReUUID;
 }
+
 GSUuid*
 NetMsg::getReUUID() const
 {
@@ -135,30 +130,32 @@ NetMsg::getOrigin() const
  * Utilities
  */
 
-    bool
+bool
 NetMsg::operator==(const NetMsg& other)
 {
     return this->equals(other);
 }
 
-    bool NetMsg::equals(const NetMsg& other) {
-	if (this->getMsgType() != other.getMsgType())
-	    return false;
+bool
+NetMsg::equals(const NetMsg& other) {
+    if (this->getMsgType() != other.getMsgType())
+        return false;
 
-	if (!this->getMsgUUID()->equals(other.getMsgUUID()))
-	    return false;
+    if (!this->getMsgUUID()->equals(other.getMsgUUID()))
+        return false;
 
-	if (this->msgHasReUUID() != other.msgHasReUUID())
-	    return false;
+    if (this->msgHasReUUID() != other.msgHasReUUID())
+        return false;
 
-	if (this->msgHasReUUID())
-	    if (!this->getReUUID()->equals(other.getReUUID()))
-		return false;
+    if (this->msgHasReUUID())
+        if (!this->getReUUID()->equals(other.getReUUID()))
+            return false;
 
-	return this->_equals(other);
-    }
+    return this->_equals(other);
+}
 
-std::string NetMsg::toString()
+std::string
+NetMsg::toString()
 {
     char buf[BUFSIZ];
     std::string out;
@@ -184,13 +181,13 @@ std::string NetMsg::toString()
     return out;
 }
 
-    std::string
+std::string
 NetMsg::toStdString()
 {
     return this->toString();
 }
 
-    void
+void
 NetMsg::printMe()
 {
     std::cout << this->toStdString();

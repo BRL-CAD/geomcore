@@ -38,7 +38,7 @@ public:
 	SuccessMsg(NetMsg* msg, uint8_t successCode);
 
 	/* Deserializing Constructor */
-	SuccessMsg(DataStream* ds, Portal* origin);
+	SuccessMsg(ByteBuffer* bb, Portal* origin);
 
 	/* Destructor */
 	virtual ~SuccessMsg();

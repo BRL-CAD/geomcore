@@ -25,11 +25,10 @@
 
 #include "NetMsgTypes.h"
 #include "PingMsg.h"
-#include <sys/time.h>
 
 PingMsg::PingMsg(uint64_t startT):GenericEightBytesMsg(PING, startT) {}
 PingMsg::PingMsg(NetMsg* msg, uint64_t startT):GenericEightBytesMsg(PING, msg, startT) {}
-PingMsg::PingMsg(DataStream* ds, Portal* origin):GenericEightBytesMsg(ds, origin) {}
+PingMsg::PingMsg(ByteBuffer* bb, Portal* origin):GenericEightBytesMsg(bb, origin) {}
 
 PingMsg::~PingMsg() {}
 

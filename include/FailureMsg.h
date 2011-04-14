@@ -38,7 +38,7 @@ public:
     FailureMsg(NetMsg* msg, uint8_t failureCode);
 
     /* Deserializing Constructor */
-    FailureMsg(DataStream* ds, Portal* origin);
+    FailureMsg(ByteBuffer* bb, Portal* origin);
 
     /* Destructor */
     virtual ~FailureMsg();

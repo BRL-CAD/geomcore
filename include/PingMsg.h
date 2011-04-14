@@ -38,7 +38,7 @@ public:
 	PingMsg(NetMsg* msg, uint64_t startT);
 
 	/* Deserializing Constructor */
-	PingMsg(DataStream* ds, Portal* origin);
+	PingMsg(ByteBuffer* bb, Portal* origin);
 
 	/* Destructor */
 	virtual ~PingMsg();

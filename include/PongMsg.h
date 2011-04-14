@@ -37,7 +37,7 @@ public:
 	PongMsg(PingMsg* ping);
 
 	/* Deserializing Constructor */
-	PongMsg(DataStream* ds, Portal* origin);
+	PongMsg(ByteBuffer* bb, Portal* origin);
 
 	/* Destructor */
 	virtual ~PongMsg();

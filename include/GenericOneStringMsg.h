@@ -38,7 +38,7 @@ public:
 	GenericOneStringMsg(uint32_t type, NetMsg* msg, std::string s);
 
 	/* Deserializing Constructor */
-	GenericOneStringMsg(DataStream* ds, Portal* origin);
+	GenericOneStringMsg(ByteBuffer* bb, Portal* origin);
 
 	/* Destructor */
 	virtual ~GenericOneStringMsg();
@@ -52,7 +52,7 @@ protected:
 	std::string getStrData();
 	std::string strData;
 
-	virtual bool _serialize(DataStream* ds);
+	virtual bool _serialize(ByteBuffer* bb);
 	virtual bool _equals(const NetMsg& msg);
 
 	/* Disable copy cstr and =operator */

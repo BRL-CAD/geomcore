@@ -28,24 +28,24 @@
 #define __DBOBJECT_H__
 
 #include <string>
-#include <ByteArray.h>
+#include <ByteBuffer.h>
 #include "GSUuid.h"
 
 class DbObject
 {
 public:
-	DbObject(std::string path, ByteArray* data);
-	DbObject(GSUuid* id, ByteArray* data);
+	DbObject(std::string path, ByteBuffer* data);
+	DbObject(GSUuid* id, ByteBuffer* data);
 	virtual ~DbObject();
 
 	std::string getPath();
 	GSUuid* getID();
-	ByteArray* getData();
+	ByteBuffer* getData();
 
 private:
 	std::string path;
 	GSUuid* id;
-	ByteArray* data;
+	ByteBuffer* data;
 
 	/* Disable copy cstr and =operator */
 	DbObject(DbObject const&){};

@@ -30,7 +30,7 @@
 
 #include "pkg.h"
 
-#include "ByteArray.h"
+#include "ByteBuffer.h"
 #include <string>
 
 class NetMsgFactory
@@ -38,7 +38,7 @@ class NetMsgFactory
 public:
   static NetMsgFactory* getInstance();
   virtual  ~NetMsgFactory();
-  NetMsg* deserializeNetMsg(ByteArray& data, Portal* origin);
+  NetMsg* deserializeNetMsg(ByteBuffer* data, Portal* origin);
 
 private:
   NetMsgFactory();

@@ -25,7 +25,6 @@
 
 #include "NetMsgTypes.h"
 #include "NewNodeOnNetMsg.h"
-#include <sstream>
 
 /* Normal Constructor */
 NewNodeOnNetMsg::NewNodeOnNetMsg(std::string nodename) :
@@ -38,8 +37,8 @@ NewNodeOnNetMsg::NewNodeOnNetMsg(NetMsg* msg, std::string nodename) :
 {}
 
 /* Deserializing Constructor */
-NewNodeOnNetMsg::NewNodeOnNetMsg(DataStream* ds, Portal* origin) :
-    GenericOneStringMsg(ds, origin)
+NewNodeOnNetMsg::NewNodeOnNetMsg(ByteBuffer* bb, Portal* origin) :
+    GenericOneStringMsg(bb, origin)
 {}
 
 /* Destructor */

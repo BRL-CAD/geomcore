@@ -38,13 +38,13 @@ public:
     TypeOnlyMsg(uint32_t msgType, NetMsg* msg);
 
     /* Deserializing Constructors */
-    TypeOnlyMsg(DataStream* ds, Portal* origin);
+    TypeOnlyMsg(ByteBuffer* bb, Portal* origin);
 
     /* Destructor */
     virtual ~TypeOnlyMsg();
 
 protected:
-    bool _serialize(DataStream* ds);
+    bool _serialize(ByteBuffer* bb);
     bool _equals(const NetMsg& msg);
 
 private:
