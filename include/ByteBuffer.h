@@ -31,6 +31,9 @@
 class ByteBuffer
 {
 public:
+
+  static const uint32_t defaultBufferSize;
+
   /**
    * Allocates a new byte buffer.
    *

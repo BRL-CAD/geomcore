@@ -25,6 +25,10 @@
 #include "ByteBuffer.h"
 #include <netinet/in.h>
 #include <iostream>
+#include <sstream>
+
+const uint32_t ByteBuffer::defaultBufferSize = 1024 * 4;
+
 
 ByteBuffer::ByteBuffer(size_t size)
 {
@@ -182,7 +186,6 @@ std::string
 ByteBuffer::toHexString(bool printToPosition)
 {
   std::stringstream ss;
-  ss << prefix;
 
   uint32_t len = 0;
   if (printToPosition){
