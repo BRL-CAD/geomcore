@@ -23,9 +23,7 @@
  *
  */
 
-
 #include "GenericOneStringMsg.h"
-#include <sstream>
 
 /* Normal Constructor */
 GenericOneStringMsg::GenericOneStringMsg(uint32_t type, std::string s) :
@@ -41,47 +39,49 @@ GenericOneStringMsg::GenericOneStringMsg(uint32_t type, NetMsg* msg, std::string
 GenericOneStringMsg::GenericOneStringMsg(ByteBuffer* bb, Portal* origin) :
     NetMsg(bb, origin)
 {
-    this->strData = bb->getString();
+  this->strData = bb->getString();
 }
 
 /* Destructor */
 GenericOneStringMsg::~GenericOneStringMsg()
 {}
 
-bool GenericOneStringMsg::_serialize(ByteBuffer* bb)
+bool
+GenericOneStringMsg::_serialize(ByteBuffer* bb)
 {
-    bb->putString(this->strData);
-    return true;
+  bb->putString(this->strData);
+  return true;
 }
 
-std::string GenericOneStringMsg::toString()
+std::string
+GenericOneStringMsg::toString()
 {
-    std::string out;
+  std::string out;
 
-    out.append(NetMsg::toString());
-    out.append("\t  strData: '");
-    out.append(this->strData + "'");
+  out.append(NetMsg::toString());
+  out.append("\t  strData: '");
+  out.append(this->strData + "'");
 
-    return out;
+  return out;
 }
 
-bool GenericOneStringMsg::_equals(const NetMsg& msg)
+bool
+GenericOneStringMsg::_equals(const NetMsg& msg)
 {
-    GenericOneStringMsg& gmsg = (GenericOneStringMsg&) msg;
+  GenericOneStringMsg& gmsg = (GenericOneStringMsg&) msg;
 
-    if (this->getStrData() != gmsg.getStrData()) {
-	return false;
-    }
-
-    return true;
+  if (this->getStrData() != gmsg.getStrData())
+    return false;
+  return true;
 }
 
 /*
  *Getters n Setters
  */
-std::string GenericOneStringMsg::getStrData()
+std::string
+GenericOneStringMsg::getStrData()
 {
-    return this->strData;
+  return this->strData;
 }
 
 /*

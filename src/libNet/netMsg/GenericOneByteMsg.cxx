@@ -24,16 +24,15 @@
  */
 
 #include "GenericOneByteMsg.h"
-#include <sstream>
 
 /* Normal Constructor */
 GenericOneByteMsg::GenericOneByteMsg(uint32_t type, uint8_t b) :
-    NetMsg(type), data(b)
+  NetMsg(type), data(b)
 {}
 
 /* Reply Constructor */
 GenericOneByteMsg::GenericOneByteMsg(uint32_t type, NetMsg* msg, uint8_t b) :
-     NetMsg(type, msg), data(b)
+    NetMsg(type, msg), data(b)
 {}
 
 /* Deserializing Constructor */
@@ -47,33 +46,36 @@ GenericOneByteMsg::GenericOneByteMsg(ByteBuffer* bb, Portal* origin) :
 GenericOneByteMsg::~GenericOneByteMsg()
 {}
 
-bool GenericOneByteMsg::_serialize(ByteBuffer* bb)
+bool
+GenericOneByteMsg::_serialize(ByteBuffer* bb)
 {
   bb->put(this->data);
   return true;
 }
 
-std::string GenericOneByteMsg::toString()
+std::string
+GenericOneByteMsg::toString()
 {
-    char buf[BUFSIZ];
-
-    snprintf(buf, BUFSIZ, "%s\t data: '%d'", NetMsg::toString().c_str(), this->data);
-
-    return std::string(buf);
+  char buf[BUFSIZ];
+  snprintf(buf, BUFSIZ, "%s\t data: '%d'", NetMsg::toString().c_str(),
+      this->data);
+  return std::string(buf);
 }
 
-bool GenericOneByteMsg::_equals(const NetMsg& msg)
+bool
+GenericOneByteMsg::_equals(const NetMsg& msg)
 {
-    GenericOneByteMsg& gmsg = (GenericOneByteMsg&) msg;
-    return (this->getData() == gmsg.getData());
+  GenericOneByteMsg& gmsg = (GenericOneByteMsg&) msg;
+  return (this->getData() == gmsg.getData());
 }
 
 /*
  *Getters n Setters
  */
-uint8_t GenericOneByteMsg::getData()
+uint8_t
+GenericOneByteMsg::getData()
 {
-    return this->data;
+  return this->data;
 }
 
 /*

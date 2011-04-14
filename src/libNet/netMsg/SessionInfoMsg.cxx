@@ -23,10 +23,7 @@
  *
  */
 
-#include "NetMsgTypes.h"
 #include "SessionInfoMsg.h"
-
-#include <sstream>
 
 /* Normal Constructor */
 SessionInfoMsg::SessionInfoMsg(GSUuid* sessionID) :
@@ -49,40 +46,42 @@ SessionInfoMsg::SessionInfoMsg(ByteBuffer* bb, Portal* origin) :
 SessionInfoMsg::~SessionInfoMsg()
 {}
 
-bool SessionInfoMsg::_serialize(ByteBuffer* bb)
+bool
+SessionInfoMsg::_serialize(ByteBuffer* bb)
 {
-    bb->putString(*this->sessionID->toString());
-    return true;
+  bb->putString(*this->sessionID->toString());
+  return true;
 }
 
-std::string SessionInfoMsg::toString()
+std::string
+SessionInfoMsg::toString()
 {
-    std::string out;
+  std::string out;
 
-    out.append(NetMsg::toString());
-    out.append("\t  SessionID: ");
-    out.append(*this->sessionID->toString());
+  out.append(NetMsg::toString());
+  out.append("\t  SessionID: ");
+  out.append(*this->sessionID->toString());
 
-    return out;
+  return out;
 }
 
-bool SessionInfoMsg::_equals(const NetMsg& msg)
+bool
+SessionInfoMsg::_equals(const NetMsg& msg)
 {
-    SessionInfoMsg& gmsg = (SessionInfoMsg&) msg;
+  SessionInfoMsg& gmsg = (SessionInfoMsg&) msg;
 
-    if (! this->getSessionID()->equals(gmsg.getSessionID())) {
-	return false;
-    }
-
-    return true;
+  if (!this->getSessionID()->equals(gmsg.getSessionID()))
+    return false;
+  return true;
 }
 
 /*
  *Getters n Setters
  */
-GSUuid* SessionInfoMsg::getSessionID()
+GSUuid*
+SessionInfoMsg::getSessionID()
 {
-    return this->sessionID;
+  return this->sessionID;
 }
 
 /*

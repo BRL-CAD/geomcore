@@ -23,7 +23,6 @@
  *
  */
 
-
 #include "NetMsg.h"
 #include "Portal.h"
 

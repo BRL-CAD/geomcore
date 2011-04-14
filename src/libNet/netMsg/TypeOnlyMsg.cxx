@@ -23,9 +23,7 @@
  *
  */
 
-#include "NetMsgTypes.h"
 #include "TypeOnlyMsg.h"
-#include <sstream>
 
 /* Normal Constructor */
 TypeOnlyMsg::TypeOnlyMsg(uint32_t msgType) :
@@ -46,14 +44,16 @@ TypeOnlyMsg::TypeOnlyMsg(ByteBuffer* bb, Portal* origin) :
 TypeOnlyMsg::~TypeOnlyMsg()
 {}
 
-bool TypeOnlyMsg::_serialize(ByteBuffer* bb)
+bool
+TypeOnlyMsg::_serialize(ByteBuffer* bb)
 {
-    return true;
+  return true;
 }
 
-bool TypeOnlyMsg::_equals(const NetMsg& msg)
+bool
+TypeOnlyMsg::_equals(const NetMsg& msg)
 {
-    return true;
+  return true;
 }
 
 /*

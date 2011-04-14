@@ -23,24 +23,22 @@
  *
  */
 
-#include "NetMsgTypes.h"
 #include "GeometryChunkMsg.h"
-#include <sstream>
 #include <raytrace.h>
 
 /* Normal Constructor */
 GeometryChunkMsg::GeometryChunkMsg(std::string path, ByteBuffer* dataIn) :
-    GenericMultiByteMsg(GEOMETRYCHUNK, dataIn), path(path)
+  GenericMultiByteMsg(GEOMETRYCHUNK, dataIn), path(path)
 {}
 
 /* Reply Constructor */
 GeometryChunkMsg::GeometryChunkMsg(NetMsg* msg, std::string path, ByteBuffer* dataIn) :
-	GenericMultiByteMsg(GEOMETRYCHUNK, msg, dataIn), path(path)
+  GenericMultiByteMsg(GEOMETRYCHUNK, msg, dataIn), path(path)
 {}
 
 /* Deserializing Constructor */
 GeometryChunkMsg::GeometryChunkMsg(ByteBuffer* bb, Portal* origin) :
-    GenericMultiByteMsg(bb, origin)
+  GenericMultiByteMsg(bb, origin)
 {
   this->path = bb->getString();
 }
@@ -77,19 +75,18 @@ GeometryChunkMsg::_equals(const NetMsg& msg)
 {
   GeometryChunkMsg& gmsg = (GeometryChunkMsg&) msg;
 
-    if (this->getDataLen() != gmsg.getDataLen())
-	    return false;
+  if (this->getDataLen() != gmsg.getDataLen())
+    return false;
 
-    for (uint32_t i = 0; i < gmsg.getDataLen(); ++i)
-		if (this->getData()[i] != gmsg.getData()[i])
-			return false;
+  for (uint32_t i = 0; i < gmsg.getDataLen(); ++i)
+    if (this->getData()[i] != gmsg.getData()[i])
+      return false;
 
-    if (this->path != gmsg.path)
-    	return false;
+  if (this->path != gmsg.path)
+    return false;
 
-    return true;
+  return true;
 }
-
 
 GeometryChunkMsg*
 GeometryChunkMsg::objToChunk(BRLCAD::MinimalObject* obj, NetMsg* replyMsg)
@@ -117,44 +114,42 @@ GeometryChunkMsg::objToChunk(BRLCAD::MinimalObject* obj, NetMsg* replyMsg)
 BRLCAD::MinimalObject*
 GeometryChunkMsg::chunkToObj(GeometryChunkMsg* msg)
 {
-	if (msg == NULL) {
-	   	bu_log("NULL msg");
-		return NULL;
-	}
+  if (msg == NULL) {
+    bu_log("NULL msg");
+    return NULL;
+  }
 
-	ByteBuffer* bb = msg->getByteBuffer();
+  ByteBuffer* bb = msg->getByteBuffer();
 
-	if (bb == NULL){
-	   	bu_log("NULL ByteBuffer");
-		return NULL;
-	}
+  if (bb == NULL){
+    bu_log("NULL ByteBuffer");
+    return NULL;
+  }
 
+  bu_external* ext = (bu_external*)bu_calloc(1,sizeof(bu_external),"chunkToExt bu_external calloc");;
 
-	bu_external* ext = (bu_external*)bu_calloc(1,sizeof(bu_external),"chunkToExt bu_external calloc");;
+  size_t len = bb->position();
 
-	size_t len = bb->position();
+  /* Build bu_external */
+  ext->ext_buf = (uint8_t*)bu_calloc(1,len,"chunkToExt bu_external calloc");
+  memcpy(ext->ext_buf, bb->array(), len);
 
-	/* Build bu_external */
-	ext->ext_buf = (uint8_t*)bu_calloc(1,len,"chunkToExt bu_external calloc");
-	memcpy(ext->ext_buf, bb->array(), len);
+  /* Get object name  */
+  struct db5_raw_internal raw;
+  if (db5_get_raw_internal_ptr(&raw, (const unsigned char *)bb->array()) == NULL) {
+    bu_log("Corrupted serialized geometry?  Could not deserialize.\n");
+    return NULL;
+  }
 
-	/* Get object name  */
-	struct db5_raw_internal raw;
-    if (db5_get_raw_internal_ptr(&raw, (const unsigned char *)bb->array()) == NULL) {
-    	bu_log("Corrupted serialized geometry?  Could not deserialize.\n");
-    	return NULL;
-    }
+  if (raw.name.ext_nbytes < 1) {
+    bu_log("Failed to retrieve object name.  Could not deserialize.\n");
+    return NULL;
+  }
 
-    if (raw.name.ext_nbytes < 1) {
-    	bu_log("Failed to retrieve object name.  Could not deserialize.\n");
-    	return NULL;
-    }
+  std::string name((char*)raw.name.ext_buf);
 
-    std::string name((char*)raw.name.ext_buf);
-
-	return new BRLCAD::MinimalObject(msg->getPath(), name, ext);
+  return new BRLCAD::MinimalObject(msg->getPath(), name, ext);
 }
-
 
 /*
  * Local Variables:

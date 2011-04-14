@@ -32,8 +32,9 @@ PongMsg::PongMsg(ByteBuffer* bb, Portal* origin): GenericEightBytesMsg(bb, origi
 PongMsg::~PongMsg(){}
 
 uint64_t
-PongMsg::getStartTime(){
-	return this->data;
+PongMsg::getStartTime()
+{
+  return this->data;
 }
 
 /*

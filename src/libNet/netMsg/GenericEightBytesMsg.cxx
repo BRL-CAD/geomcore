@@ -23,69 +23,62 @@
  *
  */
 
-#include <common.h>
-#include "Logger.h"
-
 #include "GenericEightBytesMsg.h"
-#include <sstream>
-#include <iostream>
-
-
-#include <bu.h>
 
 /* Normal Constructor */
 GenericEightBytesMsg::GenericEightBytesMsg(uint32_t type, uint64_t data) :
-    NetMsg(type), data(data)
+  NetMsg(type), data(data)
 {}
 
 /* Reply Constructor */
-GenericEightBytesMsg::GenericEightBytesMsg(uint32_t type, NetMsg* msg, uint64_t data) :
-	NetMsg(type, msg), data(data)
+GenericEightBytesMsg::GenericEightBytesMsg(uint32_t type, NetMsg* msg,
+    uint64_t data) :
+  NetMsg(type, msg), data(data)
 {}
 
 /* Deserializing Constructor */
 GenericEightBytesMsg::GenericEightBytesMsg(ByteBuffer* bb, Portal* origin) :
-    NetMsg(bb, origin)
+  NetMsg(bb, origin)
 {
-    data = bb->get64bit();
+  data = bb->get64bit();
 }
 
 /* Destructor */
 GenericEightBytesMsg::~GenericEightBytesMsg()
 {}
 
-bool GenericEightBytesMsg::_serialize(ByteBuffer* bb)
+bool
+GenericEightBytesMsg::_serialize(ByteBuffer* bb)
 {
   bb->put64bit(this->data);
   return true;
 }
 
-std::string GenericEightBytesMsg::toString()
+std::string
+GenericEightBytesMsg::toString()
 {
-    char out[BUFSIZ];
-
-    snprintf(out, BUFSIZ, "%s\t data: '%llu'", NetMsg::toString().c_str(), (uint64_t)this->data);
-
-    return std::string(out);
+  char out[BUFSIZ];
+  snprintf(out, BUFSIZ, "%s\t data: '%llu'", NetMsg::toString().c_str(),
+      (uint64_t) this->data);
+  return std::string(out);
 }
 
-bool GenericEightBytesMsg::_equals(const NetMsg& msg)
+bool
+GenericEightBytesMsg::_equals(const NetMsg& msg)
 {
-    GenericEightBytesMsg& gmsg = (GenericEightBytesMsg&) msg;
-
-    if (this->getData() != gmsg.getData()) {
-	return false;
-    }
-
-    return true;
+  GenericEightBytesMsg& gmsg = (GenericEightBytesMsg&) msg;
+  if (this->getData() != gmsg.getData())
+    return false;
+  return true;
 }
 
 /*
  *Getters n Setters
  */
-uint64_t GenericEightBytesMsg::getData()
+uint64_t
+GenericEightBytesMsg::getData()
 {
-    return this->data;
+  return this->data;
 }
 
 /*

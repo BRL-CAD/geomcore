@@ -20,7 +20,6 @@
 /** @file PingMsg.cxx
  * PingMsg.cxx
  *
- *  Created on: Dec 20, 2010
  */
 
 #include "NetMsgTypes.h"

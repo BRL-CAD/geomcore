@@ -23,9 +23,7 @@
  *
  */
 
-#include "NetMsgTypes.h"
 #include "SuccessMsg.h"
-#include <sstream>
 
 /* Normal Constructor */
 SuccessMsg::SuccessMsg(uint8_t successCode) :
@@ -49,9 +47,10 @@ SuccessMsg::~SuccessMsg()
 /*
  *Getters n Setters
  */
-uint8_t SuccessMsg::getSuccessCode()
+uint8_t
+SuccessMsg::getSuccessCode()
 {
-    return this->data;
+  return this->data;
 }
 
 /*

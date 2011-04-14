@@ -23,7 +23,6 @@
  *
  */
 
-#include "NetMsgTypes.h"
 #include "NewSessionReqMsg.h"
 
 /* Normal Constructor */
@@ -48,46 +47,47 @@ NewSessionReqMsg::NewSessionReqMsg(ByteBuffer* bb, Portal* origin) :
 NewSessionReqMsg::~NewSessionReqMsg()
 {}
 
-bool NewSessionReqMsg::_serialize(ByteBuffer* bb)
+bool
+NewSessionReqMsg::_serialize(ByteBuffer* bb)
 {
-    bb->putString(this->uname);
-    bb->putString(this->passwd);
-    return true;
+  bb->putString(this->uname);
+  bb->putString(this->passwd);
+  return true;
 }
 
-std::string NewSessionReqMsg::toString()
+std::string
+NewSessionReqMsg::toString()
 {
-    char out[BUFSIZ];
-
-    snprintf(out, BUFSIZ, "%s\t  uname: %s\t  passwd: %s", NetMsg::toString().c_str(), this->uname.c_str(), this->passwd.c_str());
-
-    return std::string(out);
+  char out[BUFSIZ];
+  snprintf(out, BUFSIZ, "%s\t  uname: %s\t  passwd: %s",
+      NetMsg::toString().c_str(), this->uname.c_str(), this->passwd.c_str());
+  return std::string(out);
 }
 
-bool NewSessionReqMsg::_equals(const NetMsg& msg)
+bool
+NewSessionReqMsg::_equals(const NetMsg& msg)
 {
-    NewSessionReqMsg& gmsg = (NewSessionReqMsg&) msg;
+  NewSessionReqMsg& gmsg = (NewSessionReqMsg&) msg;
 
-    if (this->uname != gmsg.uname) {
-	return false;
-    }
-    if (this->passwd != gmsg.passwd) {
-	return false;
-    }
-
-    return true;
+  if (this->uname != gmsg.uname)
+    return false;
+  if (this->passwd != gmsg.passwd)
+    return false;
+  return true;
 }
 
 /*
  *Getters n Setters
  */
-std::string NewSessionReqMsg::getUName()
+std::string
+NewSessionReqMsg::getUName()
 {
-    return this->uname;
+  return this->uname;
 }
-std::string NewSessionReqMsg::getPasswd()
+std::string
+NewSessionReqMsg::getPasswd()
 {
-    return this->passwd;
+  return this->passwd;
 }
 
 /*

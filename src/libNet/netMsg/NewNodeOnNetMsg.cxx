@@ -23,7 +23,6 @@
  *
  */
 
-#include "NetMsgTypes.h"
 #include "NewNodeOnNetMsg.h"
 
 /* Normal Constructor */
@@ -48,7 +47,8 @@ NewNodeOnNetMsg::~NewNodeOnNetMsg()
 /*
  *Getters n Setters
  */
-std::string NewNodeOnNetMsg::getNewNodename()
+std::string
+NewNodeOnNetMsg::getNewNodename()
 {
     return this->strData;
 }

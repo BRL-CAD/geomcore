@@ -23,71 +23,69 @@
  *
  */
 
-#include "NetMsgTypes.h"
 #include "GeometryReqMsg.h"
 
 /* Normal Constructor */
 GeometryReqMsg::GeometryReqMsg(std::string path, bool recurse) :
-    GenericOneStringMsg(GEOMETRYREQ, path), recurse(recurse)
+  GenericOneStringMsg(GEOMETRYREQ, path), recurse(recurse)
 {}
 
 /* Reply Constructor */
 GeometryReqMsg::GeometryReqMsg(NetMsg* msg, std::string path, bool recurse) :
-	GenericOneStringMsg(GEOMETRYREQ, msg, path), recurse(recurse)
+  GenericOneStringMsg(GEOMETRYREQ, msg, path), recurse(recurse)
 {}
 
 /* Deserializing Constructor */
 GeometryReqMsg::GeometryReqMsg(ByteBuffer* bb, Portal* origin) :
-    GenericOneStringMsg(bb, origin)
+  GenericOneStringMsg(bb, origin)
 {
-    this->recurse = bb->get();
+  this->recurse = bb->get();
 }
 
 /* Destructor */
 GeometryReqMsg::~GeometryReqMsg()
 {}
 
-bool GeometryReqMsg::_serialize(ByteBuffer* bb)
+bool
+GeometryReqMsg::_serialize(ByteBuffer* bb)
 {
-    /* Call the super */
-    GenericOneStringMsg::_serialize(bb);
-    bb->put(this->recurse);
-
-    return true;
+  /* Call the super */
+  GenericOneStringMsg::_serialize(bb);
+  bb->put(this->recurse);
+  return true;
 }
 
-std::string GeometryReqMsg::toString()
+std::string
+GeometryReqMsg::toString()
 {
-    char out[BUFSIZ];
-
-    snprintf(out, BUFSIZ, "%s' recurse: '%d'", GenericOneStringMsg::toString().c_str(), this->recurse);
-
-    return std::string(out);
+  char out[BUFSIZ];
+  snprintf(out, BUFSIZ, "%s' recurse: '%d'",
+      GenericOneStringMsg::toString().c_str(), this->recurse);
+  return std::string(out);
 }
 
-bool GeometryReqMsg::_equals(const NetMsg& msg)
+bool
+GeometryReqMsg::_equals(const NetMsg& msg)
 {
-    GeometryReqMsg& gmsg = (GeometryReqMsg&) msg;
-
-    if (this->getRecurse() != gmsg.getRecurse()) {
-    	return false;
-    }
-
-    return true;
+  GeometryReqMsg& gmsg = (GeometryReqMsg&) msg;
+  if (this->getRecurse() != gmsg.getRecurse())
+    return false;
+  return true;
 }
 
 /*
  *Getters n Setters
  */
-bool GeometryReqMsg::getRecurse()
+bool
+GeometryReqMsg::getRecurse()
 {
-    return this->recurse;
+  return this->recurse;
 }
 
 std::string
 GeometryReqMsg::getPath()
 {
-    return this->strData;
+  return this->strData;
 }
 
 /*

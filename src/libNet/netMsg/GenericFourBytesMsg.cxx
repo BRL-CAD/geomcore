@@ -24,7 +24,6 @@
  */
 
 #include "GenericFourBytesMsg.h"
-#include <sstream>
 
 /* Normal Constructor */
 GenericFourBytesMsg::GenericFourBytesMsg(uint32_t type, uint32_t b) :
@@ -40,45 +39,45 @@ GenericFourBytesMsg::GenericFourBytesMsg(uint32_t type, NetMsg* msg, uint32_t b)
 GenericFourBytesMsg::GenericFourBytesMsg(ByteBuffer* bb, Portal* origin) :
     NetMsg(bb, origin)
 {
-    data = bb->get32bit();
+  data = bb->get32bit();
 }
 
 /* Destructor */
 GenericFourBytesMsg::~GenericFourBytesMsg()
 {}
 
-bool GenericFourBytesMsg::_serialize(ByteBuffer* bb)
+bool
+GenericFourBytesMsg::_serialize(ByteBuffer* bb)
 {
   bb->put32bit(this->data);
   return true;
 }
 
-std::string GenericFourBytesMsg::toString()
+std::string
+GenericFourBytesMsg::toString()
 {
-    char out[BUFSIZ];
-
-    snprintf(out, BUFSIZ, "%s\t data: '%d'", NetMsg::toString().c_str(), this->data);
-
-    return std::string(out);
+  char out[BUFSIZ];
+  snprintf(out, BUFSIZ, "%s\t data: '%d'", NetMsg::toString().c_str(),
+      this->data);
+  return std::string(out);
 }
 
-bool GenericFourBytesMsg::_equals(const NetMsg& msg)
+bool
+GenericFourBytesMsg::_equals(const NetMsg& msg)
 {
-    GenericFourBytesMsg& gmsg = (GenericFourBytesMsg&) msg;
-
-    if (this->getData() != gmsg.getData()) {
-	return false;
-    }
-
-    return true;
+  GenericFourBytesMsg& gmsg = (GenericFourBytesMsg&) msg;
+  if (this->getData() != gmsg.getData())
+    return false;
+  return true;
 }
 
 /*
  *Getters n Setters
  */
-uint32_t GenericFourBytesMsg::getData()
+uint32_t
+GenericFourBytesMsg::getData()
 {
-    return this->data;
+  return this->data;
 }
 
 /*

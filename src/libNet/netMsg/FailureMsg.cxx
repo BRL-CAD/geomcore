@@ -24,8 +24,6 @@
  */
 
 #include "FailureMsg.h"
-#include "NetMsgTypes.h"
-#include <sstream>
 
 /* Normal Constructor */
 FailureMsg::FailureMsg(uint8_t failureCode):
@@ -45,10 +43,15 @@ FailureMsg::FailureMsg(ByteBuffer* bb, Portal* origin):
 /* Destructor */
 FailureMsg::~FailureMsg()
 {}
+
 /*
  *Getters n Setters
  */
-uint8_t FailureMsg::getFailureCode() {return this->data;}
+uint8_t
+FailureMsg::getFailureCode()
+{
+  return this->data;
+}
 
 /*
  * Local Variables:

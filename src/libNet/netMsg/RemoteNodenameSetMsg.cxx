@@ -49,9 +49,10 @@ RemoteNodenameSetMsg::~RemoteNodenameSetMsg()
 /*
  *Getters n Setters
  */
-std::string RemoteNodenameSetMsg::getRemoteNodename()
+std::string
+RemoteNodenameSetMsg::getRemoteNodename()
 {
-    return this->strData;
+  return this->strData;
 }
 
 /*

@@ -24,41 +24,37 @@
  */
 
 #include "GenericMultiByteMsg.h"
-#include <iostream>
-#include <sstream>
-#include <cstdlib>
-#include <string.h>
 
 /* Normal Constructor */
 GenericMultiByteMsg::GenericMultiByteMsg(uint32_t type, ByteBuffer* dataIn) :
     NetMsg(type)
 {
-    /* Deep copy */
-	this->data = dataIn->duplicate();
+  /* Deep copy */
+  this->data = dataIn->duplicate();
 }
 
 /* Reply Constructor */
 GenericMultiByteMsg::GenericMultiByteMsg(uint32_t type, NetMsg* msg, ByteBuffer* dataIn) :
 	NetMsg(type, msg)
 {
-    /* Deep copy */
-	this->data = dataIn->duplicate();
+  /* Deep copy */
+  this->data = dataIn->duplicate();
 }
 
 /* Deserializing Constructor */
 GenericMultiByteMsg::GenericMultiByteMsg(ByteBuffer* bb, Portal* origin) :
     NetMsg(bb, origin)
 {
-    int len = bb->get32bit();
-    this->data = ByteBuffer::allocate(len + 1);
+  int len = bb->get32bit();
+  this->data = ByteBuffer::allocate(len + 1);
 
-    bb->get(this->data->array(), len);
+  bb->get(this->data->array(), len);
 }
 
 /* Destructor */
 GenericMultiByteMsg::~GenericMultiByteMsg()
 {
-    free(this->data);
+  free(this->data);
 }
 
 bool GenericMultiByteMsg::_serialize(ByteBuffer* bb)
@@ -78,27 +74,23 @@ bool GenericMultiByteMsg::_serialize(ByteBuffer* bb)
 
 std::string GenericMultiByteMsg::toString()
 {
-    std::string out = NetMsg::toString();
-    out += "\t" + this->data->toString();
-    return out;
+  std::string out = NetMsg::toString();
+  out += "\t" + this->data->toString();
+  return out;
 }
 
 bool GenericMultiByteMsg::_equals(const NetMsg& msg)
 {
-    GenericMultiByteMsg& gmsg = (GenericMultiByteMsg&) msg;
+  GenericMultiByteMsg& gmsg = (GenericMultiByteMsg&) msg;
 
-    if (this->getDataLen() != gmsg.getDataLen()) {
-	    std::cout << "\n1\n";
-	return false;
-    }
+  if (this->getDataLen() != gmsg.getDataLen())
+    return false;
 
-    for (uint32_t i = 0; i < gmsg.getDataLen(); ++i) {
-	if (this->getData()[i] != gmsg.getData()[i]) {
-	    return false;
-	}
-    }
+  for (uint32_t i = 0; i < gmsg.getDataLen(); ++i)
+    if (this->getData()[i] != gmsg.getData()[i])
+      return false;
 
-    return true;
+  return true;
 }
 
 /*
@@ -106,17 +98,18 @@ bool GenericMultiByteMsg::_equals(const NetMsg& msg)
  */
 char* GenericMultiByteMsg::getData()
 {
-    return this->data->array();
+  return this->data->array();
 }
+
 uint32_t GenericMultiByteMsg::getDataLen()
 {
-    return this->data->position();
+  return this->data->position();
 }
 
 ByteBuffer*
 GenericMultiByteMsg::getByteBuffer()
 {
-	return new ByteBuffer(*this->data);
+  return new ByteBuffer(*this->data);
 }
 
 /*

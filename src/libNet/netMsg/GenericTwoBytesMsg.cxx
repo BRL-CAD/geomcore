@@ -23,10 +23,7 @@
  *
  */
 
-#include <arpa/inet.h>
-
 #include "GenericTwoBytesMsg.h"
-#include <sstream>
 
 /* Normal Constructor */
 GenericTwoBytesMsg::GenericTwoBytesMsg(uint32_t type, uint16_t b) :
@@ -49,38 +46,39 @@ GenericTwoBytesMsg::GenericTwoBytesMsg(ByteBuffer* bb, Portal* origin) :
 GenericTwoBytesMsg::~GenericTwoBytesMsg()
 {}
 
-bool GenericTwoBytesMsg::_serialize(ByteBuffer* bb)
+bool
+GenericTwoBytesMsg::_serialize(ByteBuffer* bb)
 {
   bb->put16bit(this->data);
   return true;
 }
 
-std::string GenericTwoBytesMsg::toString()
+std::string
+GenericTwoBytesMsg::toString()
 {
-    char buf[BUFSIZ];
-
-    snprintf(buf, BUFSIZ, "%s\t data: '%d'", NetMsg::toString().c_str(), this->data);
-
-    return std::string(buf);
+  char buf[BUFSIZ];
+  snprintf(buf, BUFSIZ, "%s\t data: '%d'", NetMsg::toString().c_str(),
+      this->data);
+  return std::string(buf);
 }
 
-bool GenericTwoBytesMsg::_equals(const NetMsg& msg)
+bool
+GenericTwoBytesMsg::_equals(const NetMsg& msg)
 {
-    GenericTwoBytesMsg& gmsg = (GenericTwoBytesMsg&) msg;
+  GenericTwoBytesMsg& gmsg = (GenericTwoBytesMsg&) msg;
 
-    if (this->getData() != gmsg.getData()) {
-	return false;
-    }
-
-    return true;
+  if (this->getData() != gmsg.getData())
+    return false;
+  return true;
 }
 
 /*
  *Getters n Setters
  */
-uint16_t GenericTwoBytesMsg::getData()
+uint16_t
+GenericTwoBytesMsg::getData()
 {
-    return this->data;
+  return this->data;
 }
 
 /*
