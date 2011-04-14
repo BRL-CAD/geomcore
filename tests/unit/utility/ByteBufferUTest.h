@@ -29,6 +29,7 @@
 #include "ByteBuffer.h"
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
+#include <string.h>
 
 class ByteBufferUTest : public CPPUNIT_NS::TestFixture
 {
@@ -60,6 +61,7 @@ class ByteBufferUTest : public CPPUNIT_NS::TestFixture
 
   CPPUNIT_TEST( testReset );
   CPPUNIT_TEST( testRewind );
+  CPPUNIT_TEST( testGetSetString );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -97,6 +99,7 @@ protected:
   void testSetPosition();
   void testReset();
   void testRewind();
+  void testGetSetString();
 
 private:
   ByteBuffer* bb;
@@ -109,6 +112,7 @@ private:
   static const uint32_t testVal_32bit_net;
   static const uint64_t testVal_64bit_host;
   static const uint64_t testVal_64bit_net;
+  static const std::string testVal_StdString;
 
 };
 

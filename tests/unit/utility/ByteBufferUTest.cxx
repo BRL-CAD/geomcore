@@ -35,6 +35,7 @@ const uint32_t ByteBufferUTest::testVal_32bit_host = 0x2A3B4C5D;
 const uint32_t ByteBufferUTest::testVal_32bit_net = 0x5D4C3B2A;
 const uint64_t ByteBufferUTest::testVal_64bit_host = 0x2A3B4C5D6E7F8A9B;
 const uint64_t ByteBufferUTest::testVal_64bit_net = 0x9B8A7F6E5D4C3B2A;
+const std::string ByteBufferUTest::testVal_StdString = "The quick brown fox jumps over the lazy dog";
 
 
 void
@@ -344,6 +345,15 @@ ByteBufferUTest::testSetPosition()
   this->bb->setPosition(24);
 
   CPPUNIT_ASSERT(this->bb->position() == 24);
+}
+
+void
+ByteBufferUTest::testGetSetString()
+{
+  this->bb->putString(testVal_StdString);
+  this->bb->flip();
+  std::string result = this->bb->getString();
+  CPPUNIT_ASSERT(result == testVal_StdString);
 }
 
 void

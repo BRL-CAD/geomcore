@@ -246,6 +246,26 @@ ByteBuffer::put64bit(uint64_t host)
   bu_vlb_write(&this->vlb, (unsigned char *)&net, 8);
 }
 
+
+void
+ByteBuffer::putString(std::string str)
+{
+  this->put32bit(str.length());
+  this->put((char*)str.c_str(), str.length());
+}
+
+std::string
+ByteBuffer::getString()
+{
+  uint32_t len = this->get32bit();
+
+  char* ptr = this->array() + this->position();
+  this->setPosition(this->position() + len);
+  std::string out;
+  out.append(ptr, len);
+  return out;
+}
+
 size_t
 ByteBuffer::remaining()
 {

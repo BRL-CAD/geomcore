@@ -301,6 +301,33 @@ public:
   void
   put64bit(uint64_t v);
 
+
+  /**
+   * Relative <i>get</i> method for reading a standard string value.
+   *
+   * <p> Reads the four bytes containing the given string's length followed
+   * by the string data, and then increments the position by 4 + length of
+   * the string.</p>
+   *
+   * @return  The standard string value at the buffer's current position
+   *
+   */
+  std::string
+  getString();
+
+  /**
+   * Relative <i>put</i> method for writing a standard string value.
+   *
+   * <p> Writes the four bytes containing the given string's length into this
+   * buffer at the current position followed by the string data, and then
+   * increments the position by 4 + length of the string.</p>
+   *
+   * @param  str
+   *         The string to be written
+   */
+  void
+  putString(std::string str);
+
   /**
    * <p>Returns the number of bytes between <i>position</i> and
    * <i>limit</i>.</p>
