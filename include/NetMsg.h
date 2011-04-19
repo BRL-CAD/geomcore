@@ -34,6 +34,7 @@
 #include "GSUuid.h"
 
 #include "ByteBuffer.h"
+#include "NetMsgTypes.h"
 
 class Portal;
 
