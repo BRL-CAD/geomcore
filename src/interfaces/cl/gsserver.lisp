@@ -7,8 +7,8 @@
 
 (in-package :gsserver)
 
-(defparameter +dbdir+ "/usr/brlcad/share/db/")
-(defparameter +nodename+ "Spokelse")
+(defvar *dbdir* "/usr/brlcad/share/db/")
+(defvar *nodename* "Spokelse")
 
 (defun authenticate (s user pass)
   (setf (gsnet::username s) user)
@@ -17,7 +17,7 @@
 
 (defun send-geom (s reuuid filename)
   (gsnet:writemsg s (make-instance 'gsnet:gmmsg :manifest (list filename)))
-  (with-open-file (stream (concatenate 'string +dbdir+ filename) :element-type '(unsigned-byte 8) :if-does-not-exist :error)
+  (with-open-file (stream (concatenate 'string *dbdir* filename) :element-type '(unsigned-byte 8) :if-does-not-exist :error)
     (let ((arr (make-array (+ (file-length stream) 1) :element-type '(unsigned-byte 8))))
       (read-sequence arr stream)
       (gsnet:writemsg s (make-instance 'gsnet:gcmsg :chunk arr :reuuid reuuid)))))
@@ -38,7 +38,7 @@
     
     ;;; initial handshane and authentication
     (setf (gsnet::sessionuuid s) (format '() "~a" (uuid:make-v4-uuid)))
-    (setf (gsnet::localnode s) +nodename+)
+    (setf (gsnet::localnode s) *nodename*)
     (gsnet:writemsg s (make-instance 'gsnet:rnnsetmsg :name +nodename+))
     (unless (gsnet:readmsg s) (return-from handle-connection '()))
     (let ((m (gsnet:readmsg s)))
