@@ -9,7 +9,7 @@
  :description "GeometryService server"
  :long-description "Common Lisp server for the BRL-CAD Geometry Service protocol"
  :serial t
- :depends-on (:cffi :usocket :uuid)
+ :depends-on (:cffi :usocket :uuid :gvm :sb-posix)
  :components ((:file "gsnet")
               (:file "gsserver")))
 

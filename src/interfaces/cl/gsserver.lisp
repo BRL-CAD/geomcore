@@ -2,12 +2,12 @@
 (in-package :cl-user)
 
 (defpackage :gsserver
-  (:use :cl :sb-unix)
+  (:use :cl)
   (:export :run :stop))
 
 (in-package :gsserver)
 
-(defvar *dbdir* "/usr/brlcad/share/db/")
+(defvar *dbdir* "GS_repository")
 (defvar *nodename* "Spokelse")
 
 (defun authenticate (s user pass)
@@ -16,11 +16,16 @@
   (and (string= user "Guest") (string= pass "Guest")))
 
 (defun send-geom (s reuuid filename)
-  (gsnet:writemsg s (make-instance 'gsnet:gmmsg :manifest (list filename)))
-  (with-open-file (stream (concatenate 'string *dbdir* filename) :element-type '(unsigned-byte 8) :if-does-not-exist :error)
-    (let ((arr (make-array (+ (file-length stream) 1) :element-type '(unsigned-byte 8))))
-      (read-sequence arr stream)
-      (gsnet:writemsg s (make-instance 'gsnet:gcmsg :chunk arr :reuuid reuuid)))))
+  (let ((repo (gvm:gvm-open *dbdir*))
+	(tmpnam (sb-posix:mktemp "cltmp.XXXXX")))
+    (gvm:gvm-export-g-file repo filename tmpnam gvm:+latest-version+)
+    (with-open-file (f tmpnam :element-type '(unsigned-byte 8) :if-does-not-exist :error)
+    (let ((arr (make-array (+ (file-length f) 1) :element-type '(unsigned-byte 8))))
+      (gsnet:writemsg s (make-instance 'gsnet:gmmsg :manifest (list filename)))     
+      (read-sequence arr f)
+      (gsnet:writemsg s (make-instance 'gsnet:gcmsg :chunk arr :reuuid reuuid))))
+    (sb-posix:unlink tmpnam)
+    (gvm:gvm-close-repo repo)))
 
 (defun send-bot-geom (s reuuid filename)
   (gsnet:writemsg s (make-instance 'gsnet:failmsg)))
@@ -39,7 +44,7 @@
     ;;; initial handshane and authentication
     (setf (gsnet::sessionuuid s) (format '() "~a" (uuid:make-v4-uuid)))
     (setf (gsnet::localnode s) *nodename*)
-    (gsnet:writemsg s (make-instance 'gsnet:rnnsetmsg :name +nodename+))
+    (gsnet:writemsg s (make-instance 'gsnet:rnnsetmsg :name *nodename*))
     (unless (gsnet:readmsg s) (return-from handle-connection '()))
     (let ((m (gsnet:readmsg s)))
       (if (equalp (type-of m) 'gsnet:nsrmsg)
@@ -54,8 +59,8 @@
 ;;;;;;;;;;;;;;;;;  public interface  ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun run (&key (listenhost #(127 0 0 1)) (port 5309))
-  (usocket:socket-server listenhost port #'handle-connection  '() :element-type 'unsigned-byte :multi-threading t :in-new-thread t))
+(defun run (&key (listenhost #(127 0 0 1)) (port 5309) (multi-threading t) (in-new-thread t))
+  (usocket:socket-server listenhost port #'handle-connection  '() :element-type 'unsigned-byte :multi-threading multi-threading :in-new-thread in-new-thread))
 
 (defun stop ()
   (map 'nil (lambda (th) 
