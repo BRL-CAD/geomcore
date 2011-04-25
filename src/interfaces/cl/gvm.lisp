@@ -4,25 +4,30 @@
 (defpackage :gvm
  (:use :cl :cffi)
  (:export 
-	:gvm_info_init
-	:gvm_info_free
-	:gvm_info_clear_objects
-	:gvm_init_repo
-	:gvm_open_repo
-	:gvm_object_in_model
-	:gvm_get_extern_obj
-	:gvm_get_repo_obj
-	:gvm_diff
-	:gvm_add_to_list
-	:gvm_commit_objs
-	:gvm_new_model
-	:gvm_get_model
-	:gvm_get_objs
-	:gvm_import_g_file
-	:gvm_commit_g_file
-	:gvm_export_g_file
-	:gvm_export_list
-	:gvm_export_object))
+	:gvm-info-init
+	:gvm-info-free
+	:gvm-info-clear-objects
+	:gvm-init-repo
+	:gvm-open-repo
+	:gvm-close-repo
+	:gvm-object-in-model
+	:gvm-get-extern-obj
+	:gvm-get-repo-obj
+	:gvm-diff
+	:gvm-add-to-list
+	:gvm-commit-objs
+	:gvm-new-model
+	:gvm-get-model
+	:gvm-get-objs
+	:gvm-import-g-file
+	:gvm-commit-g-file
+	:gvm-export-g-file
+	:gvm-export-list
+	:gvm-export-object
+
+	:+latest-version+
+
+	:gvm-open))
 
 (in-package :gvm)
 
@@ -64,13 +69,19 @@
 (defcfun "gvm_export_list" :int (repo_info :pointer) (model_name :string) (g_file :string))
 (defcfun "gvm_export_object" :int (repo_info :pointer) (model_name :string) (obj_name :string) (g_file :string) (ver_num size_t) (recursive :int))
 
+; attempt to open a repo, creating if necessary
+(defun gvm-open (path)
+  (let ((info (foreign-alloc :pointer :count 3)))
+    (if (= (gvm-open-repo info path) 0)
+	info
+	(if (= (gvm-init-repo info path) 0)
+	    info
+	    nil))))
+
 (defparameter +repo-file+ "./GS_repository")
 (defun test (file &key (something '()))
   (time
-   (let ((info (foreign-alloc :pointer :count 3)))
-     (gvm-info-init info)
-     (unless (probe-file +repo-file+) (gvm-init-repo info +repo-file+))
-     (gvm-open-repo info +repo-file+)
+   (let ((info (gvm-open +repo-file+)))
      (gvm-new-model info "test.g")
      (time (gvm-import-g-file info file))
      (when something (gvm-commit-g-file info file something))
@@ -78,7 +89,8 @@
       (progn
 	(gvm-export-g-file info file "test.g" +latest-version+)
 	(gvm-export-object info file "hull" "tank_obj.g" +latest-version+ 0)
-	(gvm-export-object info file "tank" "tank.g" +latest-version+ 1)))
-;     (gvm-close-repo info)
+	(gvm-export-object info file "tank" "tank.g" +latest-version+ 1)
+	))
+     (gvm-close-repo info)
      (foreign-free info))))
 
