@@ -1,4 +1,4 @@
-/*                  N E T M S G U T E S T . H
+/*                   N E T M S G U T E S T . H
  * BRL-CAD
  *
  * Copyright (c) 2011 United States Government as represented by
@@ -23,31 +23,41 @@
  *
  */
 
-#ifndef __NETMSGUTEST_H__
-#define __NETMSGUTEST_H__
+#ifndef __TYPEONLYMSGUTEST_H__
+#define __TYPEONLYMSGUTEST_H__
 
-#include "NetMsg.h"
+#include "TypeOnlyMsg.h"
 
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-class NetMsgUTest : public CPPUNIT_NS::TestFixture
+class TypeOnlyMsgUTest : public CPPUNIT_NS::TestFixture
 {
-  CPPUNIT_TEST_SUITE( NetMsgUTest );
-  CPPUNIT_TEST( testOne );
+  CPPUNIT_TEST_SUITE( TypeOnlyMsgUTest );
+  CPPUNIT_TEST( testNormCstrSerialize );
+  CPPUNIT_TEST( testNormCstrSerializeBBProvided );
+  CPPUNIT_TEST( testReplyCstrSerialize );
+  CPPUNIT_TEST( testDeserialCstr );
+  CPPUNIT_TEST( testGetters );
+  CPPUNIT_TEST( testEquals );
   CPPUNIT_TEST_SUITE_END();
 
 public:
   void setUp(void);
-
   void tearDown(void);
 
 protected:
-  void testOne();
+  void testNormCstrSerialize();
+  void testNormCstrSerializeBBProvided();
+  void testReplyCstrSerialize();
+  void testDeserialCstr();
+  void testGetters();
+  void testEquals();
 
+  static char testData[];
 };
 
-#endif /* __NETMSGUTEST_H__ */
+#endif /* __TYPEONLYMSGUTEST_H__ */
 
 /*
  * Local Variables:

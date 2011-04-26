@@ -39,6 +39,7 @@ SET( UnitTests_LIBS
 	${TCL_LIBRARIES}
 	${CPPUNIT_LIBRARY}
 	libgcutil
+	libNet
 )
 
 FILE(GLOB_RECURSE UnitTests_SRCS *UTest.cxx )
