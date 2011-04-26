@@ -25,6 +25,7 @@
 #include "ByteBuffer.h"
 #include <netinet/in.h>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 
 const uint32_t ByteBuffer::defaultBufferSize = 1024 * 4;
@@ -185,7 +186,7 @@ ByteBuffer::toString()
 std::string
 ByteBuffer::toHexString(bool printToPosition)
 {
-  std::stringstream ss;
+  std::ostringstream ss;
 
   uint32_t len = 0;
   if (printToPosition){
@@ -197,9 +198,14 @@ ByteBuffer::toHexString(bool printToPosition)
   }
 
   char* p = this->array();
+  unsigned int b;
   for (int i = 0; i<len;i++)
   {
-      ss << std::hex << *p ;
+      b = (unsigned int)*p;
+      if (b < 10)
+        ss << std::hex << '0' << (unsigned int)*p << ' ';
+      else
+        ss << std::hex << (unsigned int)*p << ' ';
       p++;
   }
 
