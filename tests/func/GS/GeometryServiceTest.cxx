@@ -133,7 +133,7 @@ class GeometryClient
 	GeometryClient()
 	{
 	    this->testClientID = GSUuid::createUuid();
-	    this->gsClient = new GSClient(*this->testClientID->toString());
+	    this->gsClient = new GSClient(this->testClientID->toString());
 	    this->portal == NULL;
 	    std::cerr << "Portal:" << this->portal << std::endl;
 	}

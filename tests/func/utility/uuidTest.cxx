@@ -30,7 +30,7 @@
 int main(int argc, char* argv[])
 {
     GSUuid* uuid = new GSUuid();
-    printf("uuid: %s\n", uuid->toString()->c_str());
+    printf("uuid: %s\n", uuid->toString().c_str());
     return 0;
 }
 
