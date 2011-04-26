@@ -25,6 +25,10 @@
   (let ((m (gsnet:readmsg s)))
     (- (gsnet:usec) (gsnet::tv m))))
 
+(defun ls (s uri)
+  (gsnet:writemsg s (make-instance 'gsnet:lsmsg))
+  (gsnet::manifest (gsnet:readmsg s)))
+
 ; log in to a server, returning the session
 (defun login (&key (username "Guest") (password "Guest") (host #(127 0 0 1)) (port 5309))
   (let ((s (make-instance 'gsnet:session :host host :port port :username username :password password)))

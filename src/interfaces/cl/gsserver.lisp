@@ -30,10 +30,15 @@
 (defun send-bot-geom (s reuuid filename)
   (gsnet:writemsg s (make-instance 'gsnet:failmsg)))
 
+(defun send-ls (s uri)
+  ;;; need some more stuff from gvm
+  (gsnet:writemsg s (make-instance 'gsnet:lsrmsg :manifest '("Some stuff" "some other stuff"))))
+
 (defun handle-packet (s m)
   (cond
     ((equalp (type-of m) 'gsnet:grmsg) (send-geom s (gsnet::uuid m) (gsnet::uri m)))
     ((equalp (type-of m) 'gsnet:gbrmsg) (send-bot-geom s (gsnet::uuid m) (gsnet::uri m)))
+    ((equalp (type-of m) 'gsnet:lsmsg) (send-ls s (gsnet::uri m)))
     ((equalp m t) m)
     ((equalp m '()) m)
     (t (format t "Unhandled thing ~a~%" (type-of m)))))

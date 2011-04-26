@@ -5,7 +5,7 @@
   (:use :cl :sb-unix)
   (:export :connect :writemsg :readmsg
 	   :session :message
-	   :pingmsg :pongmsg :rnnsetmsg :nsrmsg :drmsg :rualivemsg :imalivemsg :okmsg :failmsg :grmsg :gbrmsg :gmmsg :gcmsg
+	   :pingmsg :pongmsg :rnnsetmsg :nsrmsg :drmsg :rualivemsg :imalivemsg :okmsg :failmsg :grmsg :gbrmsg :gmmsg :gcmsg :lsmsg :lsrmsg
 	   :manifest :remotenode :sessionuuid :socket :strm
 	   :usec))
 
@@ -30,6 +30,8 @@
 (defconstant +gsinfo+    #x0305) ; Session Information
 (defconstant +gsgr+      #x0400) ; Geometry Request
 (defconstant +gsgbr+     #x0401) ; Geometry BoT Request
+(defconstant +gsls+      #x0402) ; Geometry list request
+(defconstant +gslsr+     #x0402) ; Geometry list response
 (defconstant +gsgm+      #x0405) ; Geometry Manifest
 (defconstant +gsgc+      #x0410) ; Geometry Chunk
 
@@ -98,6 +100,8 @@
 					  (let ((arr (make-array (+	(readuint32 (strm s)) 1) :element-type '(unsigned-byte 8))))
 						(read-sequence arr (strm s))
 						arr)))
+	  ((= type +gsls+)	(make-instance 'grmsg :uri (readgsstring (strm s))))
+	  ((= type +gslsr+)	(make-instance 'gmmsg :manifest (loop for i from 1 to (readuint32 (strm s)) collect (readgsstring (strm s)))))
 	  ((= type +gsnsr+)	(make-instance 'nsrmsg :username (readgsstring (strm s)) :password (readgsstring (strm s))))
 	  (t (format t "Unknown type! ~a ~x~%" (type-of type) type))))
       '()))
@@ -141,3 +145,5 @@
 (msg gbr ((uri :accessor uri :initarg :uri :initform "")) (+ (length (uri m)) 4) (writegsstring (strm s) (uri m)))
 (msg gm ((manifest :accessor manifest :initarg :manifest)) (apply #'+ 4 (mapcar (lambda (x) (+ (length x) 4)) (manifest m))) (progn (writeuint32 (strm s) (length (manifest m))) (loop for i in (manifest m) do (writegsstring (strm s) i))))
 (msg gc ((chunk :accessor chunk :initarg :chunk)) (+ (length (chunk m)) 4) (progn (writeuint32 (strm s) (- (length (chunk m)) 1)) (write-sequence (chunk m) (strm s))))
+(msg ls ((uri :accessor uri :initarg :uri :initform "")) (+ (length (uri m)) 4) (writegsstring (strm s) (uri m)))
+(msg lsr ((manifest :accessor manifest :initarg :manifest)) (apply #'+ 4 (mapcar (lambda (x) (+ (length x) 4)) (manifest m))) (progn (writeuint32 (strm s) (length (manifest m))) (loop for i in (manifest m) do (writegsstring (strm s) i))))
