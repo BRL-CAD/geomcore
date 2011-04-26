@@ -31,7 +31,7 @@
 (defconstant +gsgr+      #x0400) ; Geometry Request
 (defconstant +gsgbr+     #x0401) ; Geometry BoT Request
 (defconstant +gsls+      #x0402) ; Geometry list request
-(defconstant +gslsr+     #x0402) ; Geometry list response
+(defconstant +gslsr+     #x0403) ; Geometry list response
 (defconstant +gsgm+      #x0405) ; Geometry Manifest
 (defconstant +gsgc+      #x0410) ; Geometry Chunk
 
@@ -100,8 +100,8 @@
 					  (let ((arr (make-array (+	(readuint32 (strm s)) 1) :element-type '(unsigned-byte 8))))
 						(read-sequence arr (strm s))
 						arr)))
-	  ((= type +gsls+)	(make-instance 'grmsg :uri (readgsstring (strm s))))
-	  ((= type +gslsr+)	(make-instance 'gmmsg :manifest (loop for i from 1 to (readuint32 (strm s)) collect (readgsstring (strm s)))))
+	  ((= type +gsls+)	(make-instance 'lsmsg :uri (readgsstring (strm s))))
+	  ((= type +gslsr+)	(make-instance 'lsrmsg :manifest (loop for i from 1 to (readuint32 (strm s)) collect (readgsstring (strm s)))))
 	  ((= type +gsnsr+)	(make-instance 'nsrmsg :username (readgsstring (strm s)) :password (readgsstring (strm s))))
 	  (t (format t "Unknown type! ~a ~x~%" (type-of type) type))))
       '()))
