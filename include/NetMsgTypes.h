@@ -80,6 +80,9 @@
 #define SESSIONINFO		        		0x0305
 
 #define	GEOMETRYREQ		        		0x0400
+#define GEOMETRYBOTREQ			0x0401
+#define GEOMETRYLISTREQ			0x0402
+#define GEOMETRYLISTRES			0x0403
 #define GEOMETRYMANIFEST	        	0x0405
 #define GEOMETRYCHUNK		        	0x0410
 
