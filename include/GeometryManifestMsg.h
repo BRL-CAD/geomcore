@@ -27,8 +27,6 @@
 #define __GEOMETRYMANIFESTMSG_H__
 
 #include "NetMsg.h"
-
-#include <string>
 #include <list>
 
 class GeometryManifestMsg : public NetMsg

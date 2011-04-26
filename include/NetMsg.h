@@ -30,7 +30,7 @@
 #include <string>
 #include <stdint.h>
 #include <stdio.h>
-
+#include "NetMsgTypes.h"
 #include "GSUuid.h"
 
 #include "ByteBuffer.h"

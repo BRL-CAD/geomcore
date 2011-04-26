@@ -27,7 +27,6 @@
 #define __PINGMSG_H__
 
 #include "GenericEightBytesMsg.h"
-#include <string>
 
 class PingMsg: public GenericEightBytesMsg {
 public:

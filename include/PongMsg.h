@@ -29,8 +29,6 @@
 #include "GenericEightBytesMsg.h"
 #include "PingMsg.h"
 
-#include <string>
-
 class PongMsg: public GenericEightBytesMsg {
 public:
 	/* Normal & Reply Constructor */
