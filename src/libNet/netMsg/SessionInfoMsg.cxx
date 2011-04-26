@@ -39,7 +39,7 @@ SessionInfoMsg::SessionInfoMsg(NetMsg* msg, GSUuid* sessionID) :
 SessionInfoMsg::SessionInfoMsg(ByteBuffer* bb, Portal* origin) :
     NetMsg(bb, origin)
 {
-    this->sessionID = new GSUuid(&bb->getString()); //TODO modify GSUuid or ByteBuffer to streamline this
+    this->sessionID = new GSUuid(bb->getString()); //TODO modify GSUuid or ByteBuffer to streamline this
 }
 
 /* Destructor */

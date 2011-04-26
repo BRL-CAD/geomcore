@@ -33,7 +33,7 @@ class GSUuid
 public:
   GSUuid();
   GSUuid(GSUuid*);
-  GSUuid(std::string*);
+  GSUuid(std::string);
   ~GSUuid();
 
   static GSUuid *createUuid();

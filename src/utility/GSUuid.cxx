@@ -38,10 +38,10 @@ GSUuid::GSUuid(GSUuid* src)
 	uuid_clone((uuid_t *)src->uuid, (uuid_t **)&this->uuid);
 }
 
-GSUuid::GSUuid(std::string* str)
+GSUuid::GSUuid(std::string str)
 {
 	uuid_create((uuid_t **)&this->uuid);
-	uuid_import((uuid_t *)this->uuid, UUID_FMT_STR, (void *)str->c_str(), str->length());
+	uuid_import((uuid_t *)this->uuid, UUID_FMT_STR, (void *)str.c_str(), str.length());
 }
 
 GSUuid::~GSUuid()

@@ -50,14 +50,19 @@ NetMsg::NetMsg(uint16_t mType, NetMsg* msg) :
 /* Deserializing Constructor */
 NetMsg::NetMsg(ByteBuffer* bb, Portal* origin)
 {
-    this->origin = origin;
-    this->msgType = bb->get16bit(); //this isn't right...
-    this->msgUUID = new GSUuid(&(bb->getString()));
-    this->hasReUUID = (bool)bb->get();
-    if (this->hasReUUID)
-	this->reUUID = new GSUuid(&(bb->getString()));
-    else
-	this->reUUID = NULL;
+  std::string s;
+
+  this->origin = origin;
+  this->msgType = bb->get16bit(); //this isn't right...
+
+  s = bb->getString();
+  this->msgUUID = new GSUuid(s);
+  this->hasReUUID = (bool) bb->get();
+  if (this->hasReUUID){
+      s = bb->getString();
+      this->reUUID = new GSUuid(s);
+   } else
+     this->reUUID = NULL;
 }
 
 /* Destructor */
