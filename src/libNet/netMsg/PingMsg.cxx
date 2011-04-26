@@ -22,7 +22,6 @@
  *
  */
 
-#include "NetMsgTypes.h"
 #include "PingMsg.h"
 
 PingMsg::PingMsg(uint64_t startT):GenericEightBytesMsg(PING, startT) {}

@@ -23,9 +23,7 @@
  *
  */
 
-#include "NetMsgTypes.h"
 #include "RemoteNodenameSetMsg.h"
-#include <sstream>
 
 /* Normal Constructor */
 RemoteNodenameSetMsg::RemoteNodenameSetMsg(std::string localNodename) :
