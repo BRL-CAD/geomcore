@@ -1,4 +1,4 @@
-/*                N E T M S G S U T E S T . C X X
+/*                N E T M S G U T E S T . C X X
  * BRL-CAD
  *
  * Copyright (c) 2011 United States Government as represented by
@@ -17,28 +17,28 @@
  * License along with this file; see the file named COPYING for more
  * information.
  */
-/** @file NetMsgsUTest.cxx
+/** @file NetMsgUTest.cxx
  *
  * Brief description
  *
  */
 
-#include "NetMsgsUTest.h"
+#include "NetMsgUTest.h"
 
-CPPUNIT_TEST_SUITE_REGISTRATION (NetMsgsUTest);
+CPPUNIT_TEST_SUITE_REGISTRATION (NetMsgUTest);
 
 void
-NetMsgsUTest::testOne()
+NetMsgUTest::testOne()
 {
   CPPUNIT_ASSERT(1==1);
 }
 
 void
-NetMsgsUTest::setUp()
+NetMsgUTest::setUp()
 {}
 
 void
-NetMsgsUTest::tearDown()
+NetMsgUTest::tearDown()
 {}
 
 // Local Variables:

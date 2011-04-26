@@ -1,4 +1,4 @@
-/*                  N E T M S G S U T E S T . H
+/*                  N E T M S G U T E S T . H
  * BRL-CAD
  *
  * Copyright (c) 2011 United States Government as represented by
@@ -17,23 +17,23 @@
  * License along with this file; see the file named COPYING for more
  * information.
  */
-/** @file NetMsgsUTest.h
+/** @file NetMsgUTest.h
  *
  * Brief description
  *
  */
 
-#ifndef __NETMSGSUTEST_H__
-#define __NETMSGSUTEST_H__
+#ifndef __NETMSGUTEST_H__
+#define __NETMSGUTEST_H__
 
 #include "NetMsg.h"
 
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-class NetMsgsUTest : public CPPUNIT_NS::TestFixture
+class NetMsgUTest : public CPPUNIT_NS::TestFixture
 {
-  CPPUNIT_TEST_SUITE( NetMsgsUTest );
+  CPPUNIT_TEST_SUITE( NetMsgUTest );
   CPPUNIT_TEST( testOne );
   CPPUNIT_TEST_SUITE_END();
 
@@ -47,7 +47,7 @@ protected:
 
 };
 
-#endif /* __NETMSGSUTEST_H__ */
+#endif /* __NETMSGUTEST_H__ */
 
 /*
  * Local Variables:
