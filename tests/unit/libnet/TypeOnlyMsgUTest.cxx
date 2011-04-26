@@ -28,8 +28,8 @@
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-class TypeOnlyMsgUTest : public CPPUNIT_NS::TestFixture {
-  CPPUNIT_TEST_SUITE( TypeOnlyMsgUTest );
+class GeometryReqMsgUTest : public CPPUNIT_NS::TestFixture {
+  CPPUNIT_TEST_SUITE( GeometryReqMsgUTest );
   CPPUNIT_TEST( testNormCstrSerialize );
   CPPUNIT_TEST( testNormCstrSerializeBBProvided );
   CPPUNIT_TEST( testReplyCstrSerialize );
@@ -196,7 +196,7 @@ public:
   static char testData[];
 };
 
-char TypeOnlyMsgUTest::testData[] =
+char GeometryReqMsgUTest::testData[] =
     { 0x09, 0xf7, 0x00, 0x00, 0x00, 0x24, 0x30, 0x33, 0x62, 0x64, 0x30, 0x61,
         0x61, 0x61, 0x2d, 0x35, 0x39, 0x63, 0x64, 0x2d, 0x34, 0x61, 0x31, 0x35,
         0x2d, 0x39, 0x63, 0x63, 0x37, 0x2d, 0x62, 0x33, 0x34, 0x30, 0x37, 0x39,
@@ -205,7 +205,7 @@ char TypeOnlyMsgUTest::testData[] =
         0x2d, 0x34, 0x61, 0x31, 0x35, 0x2d, 0x39, 0x63, 0x63, 0x37, 0x2d, 0x62,
         0x33, 0x34, 0x30, 0x37, 0x39, 0x39, 0x35, 0x31, 0x39, 0x30, 0x35, };
 
-CPPUNIT_TEST_SUITE_REGISTRATION (TypeOnlyMsgUTest);
+CPPUNIT_TEST_SUITE_REGISTRATION (GeometryReqMsgUTest);
 
 // Local Variables:
 // tab-width: 8

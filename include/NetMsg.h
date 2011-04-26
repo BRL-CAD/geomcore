@@ -70,10 +70,7 @@ public:
 	 * Utilities
 	 */
 	virtual std::string toString();
-	virtual std::string toStdString(); //TODO remove this extra fn
 	virtual bool equals(const NetMsg& other);
-	void printMe();
-
 	bool operator== (const NetMsg& other);
 
 protected:

@@ -185,18 +185,6 @@ NetMsg::toString()
     return out;
 }
 
-std::string
-NetMsg::toStdString()
-{
-    return this->toString();
-}
-
-void
-NetMsg::printMe()
-{
-    std::cout << this->toStdString();
-}
-
 /*
  * Local Variables:
  * mode: C
