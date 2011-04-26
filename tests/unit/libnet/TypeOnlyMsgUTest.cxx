@@ -23,225 +23,188 @@
  *
  */
 
-#include "TypeOnlyMsgUTest.h"
+#include "TypeOnlyMsg.h"
 
-CPPUNIT_TEST_SUITE_REGISTRATION (TypeOnlyMsgUTest);
+#include <cppunit/TestCase.h>
+#include <cppunit/extensions/HelperMacros.h>
 
-char TypeOnlyMsgUTest::testData[] = {
-    0x09, 0xf7,
-    0x00, 0x00,
-    0x00, 0x24,
-    0x30, 0x33,
-    0x62, 0x64,
-    0x30, 0x61,
-    0x61, 0x61,
-    0x2d,
-    0x35, 0x39,
-    0x63, 0x64,
-    0x2d,
-    0x34, 0x61,
-    0x31, 0x35,
-    0x2d,
-    0x39, 0x63,
-    0x63, 0x37,
-    0x2d,
-    0x62, 0x33,
-    0x34, 0x30,
-    0x37, 0x39,
-    0x39, 0x35,
-    0x31, 0x39,
-    0x30, 0x35,
-    0x01,
-    0x00, 0x00,
-    0x00, 0x24,
-    0x30, 0x33,
-    0x62, 0x64,
-    0x30, 0x61,
-    0x61, 0x61,
-    0x2d,
-    0x35, 0x39,
-    0x63, 0x64,
-    0x2d,
-    0x34, 0x61,
-    0x31, 0x35,
-    0x2d,
-    0x39, 0x63,
-    0x63, 0x37,
-    0x2d,
-    0x62, 0x33,
-    0x34, 0x30,
-    0x37, 0x39,
-    0x39, 0x35,
-    0x31, 0x39,
-    0x30, 0x35,
-};
+class TypeOnlyMsgUTest : public CPPUNIT_NS::TestFixture {
+  CPPUNIT_TEST_SUITE( TypeOnlyMsgUTest );
+  CPPUNIT_TEST( testNormCstrSerialize );
+  CPPUNIT_TEST( testNormCstrSerializeBBProvided );
+  CPPUNIT_TEST( testReplyCstrSerialize );
+  CPPUNIT_TEST( testDeserialCstr );
+  CPPUNIT_TEST( testGetters );
+  CPPUNIT_TEST( testEquals );
+  CPPUNIT_TEST_SUITE_END();
 
-void
-TypeOnlyMsgUTest::testNormCstrSerialize()
-{
-  TypeOnlyMsg msg(2551);
+  CPPUNIT_TEST_SUITE_REGISTRATION (TypeOnlyMsgUTest);
 
-  ByteBuffer* bb = msg.serialize();
-  unsigned char* data = (unsigned char*)bb->array();
+public:
+  void
+  setUp()
+  {}
 
-  /* type */
-  CPPUNIT_ASSERT(data[0] == 0x09);
-  CPPUNIT_ASSERT(data[1] == 0xf7);
+  void
+  tearDown()
+  {}
 
-  /* Msg UUID LEN */
-   CPPUNIT_ASSERT(data[2+0] == 0x00);
-   CPPUNIT_ASSERT(data[2+1] == 0x00);
-   CPPUNIT_ASSERT(data[2+2] == 0x00);
-   CPPUNIT_ASSERT(data[2+3] == 0x24);
+  void
+  testNormCstrSerialize()
+  {
+    TypeOnlyMsg msg(2551);
 
-   /* Msg UUID */
-   CPPUNIT_ASSERT(data[6+8] == '-');
-   CPPUNIT_ASSERT(data[6+13] == '-');
-   CPPUNIT_ASSERT(data[6+18] == '-');
-   CPPUNIT_ASSERT(data[6+23] == '-');
+    ByteBuffer* bb = msg.serialize();
+    unsigned char* data = (unsigned char*) bb->array();
 
-   /* has RE:UUID */
-   CPPUNIT_ASSERT(data[42] == 0x00);
+    /* type */CPPUNIT_ASSERT(data[0] == 0x09);
+    CPPUNIT_ASSERT(data[1] == 0xf7);
 
-  delete bb;
-}
+    /* Msg UUID LEN */CPPUNIT_ASSERT(data[2+0] == 0x00);
+    CPPUNIT_ASSERT(data[2+1] == 0x00);
+    CPPUNIT_ASSERT(data[2+2] == 0x00);
+    CPPUNIT_ASSERT(data[2+3] == 0x24);
 
-void
-TypeOnlyMsgUTest::testNormCstrSerializeBBProvided()
-{
-  TypeOnlyMsg msg(2551);
+    /* Msg UUID */CPPUNIT_ASSERT(data[6+8] == '-');
+    CPPUNIT_ASSERT(data[6+13] == '-');
+    CPPUNIT_ASSERT(data[6+18] == '-');
+    CPPUNIT_ASSERT(data[6+23] == '-');
 
-  ByteBuffer* bb = ByteBuffer::allocate(128);
-  msg.serialize(bb);
-  unsigned char* data = (unsigned char*)bb->array();
+    /* has RE:UUID */CPPUNIT_ASSERT(data[42] == 0x00);
 
-  /* type */
-  CPPUNIT_ASSERT(data[0] == 0x09);
-  CPPUNIT_ASSERT(data[1] == 0xf7);
-
-  /* Msg UUID LEN */
-   CPPUNIT_ASSERT(data[2+0] == 0x00);
-   CPPUNIT_ASSERT(data[2+1] == 0x00);
-   CPPUNIT_ASSERT(data[2+2] == 0x00);
-   CPPUNIT_ASSERT(data[2+3] == 0x24);
-
-   /* Msg UUID */
-   CPPUNIT_ASSERT(data[6+8] == '-');
-   CPPUNIT_ASSERT(data[6+13] == '-');
-   CPPUNIT_ASSERT(data[6+18] == '-');
-   CPPUNIT_ASSERT(data[6+23] == '-');
-
-   /* has RE:UUID */
-   CPPUNIT_ASSERT(data[42] == 0x00);
-
-  delete bb;
-}
-
-void
-TypeOnlyMsgUTest::testReplyCstrSerialize()
-{
-  TypeOnlyMsg msg(1977);
-
-  TypeOnlyMsg reMsg(2551, &msg);
-
-  ByteBuffer* bb = reMsg.serialize();
-  unsigned char* data = (unsigned char*)bb->array();
-
-  /* type */
-  CPPUNIT_ASSERT(data[0] == 0x09);
-  CPPUNIT_ASSERT(data[1] == 0xf7);
-
-  /* Msg UUID LEN */
-  CPPUNIT_ASSERT(data[2+0] == 0x00);
-  CPPUNIT_ASSERT(data[2+1] == 0x00);
-  CPPUNIT_ASSERT(data[2+2] == 0x00);
-  CPPUNIT_ASSERT(data[2+3] == 0x24);
-
-  /* Msg UUID */
-  CPPUNIT_ASSERT(data[6+8] == '-');
-  CPPUNIT_ASSERT(data[6+13] == '-');
-  CPPUNIT_ASSERT(data[6+18] == '-');
-  CPPUNIT_ASSERT(data[6+23] == '-');
-
-  /* has RE:UUID */
-  CPPUNIT_ASSERT(data[42] == 0x01);
-
-  /* Msg RE:UUID LEN */
-  CPPUNIT_ASSERT(data[43+0] == 0x00);
-  CPPUNIT_ASSERT(data[43+1] == 0x00);
-  CPPUNIT_ASSERT(data[43+2] == 0x00);
-  CPPUNIT_ASSERT(data[43+3] == 0x24);
-
-  /* Msg RE:UUID */
-  CPPUNIT_ASSERT(data[47+8] == '-');
-  CPPUNIT_ASSERT(data[47+13] == '-');
-  CPPUNIT_ASSERT(data[47+18] == '-');
-  CPPUNIT_ASSERT(data[47+23] == '-');
-
-  delete bb;
-}
-
-void
-TypeOnlyMsgUTest::testDeserialCstr()
-{
-  ByteBuffer* bb = ByteBuffer::wrap(testData, 83);
-  bb->flip();
-  TypeOnlyMsg msg(bb, NULL);
-
-  ByteBuffer* bb2 = msg.serialize();
-  char* data2 = bb2->array();
-
-  for (int i = 0; i < bb->position(); ++i) {
-      CPPUNIT_ASSERT(testData[i]==data2[i]);
+    delete bb;
   }
 
-  delete bb;
-  delete bb2;
-}
+  void
+  testNormCstrSerializeBBProvided()
+  {
+    TypeOnlyMsg msg(2551);
 
-void
-TypeOnlyMsgUTest::testGetters()
-{
-  ByteBuffer* bb = ByteBuffer::wrap(testData, 83);
-  bb->flip();
-  TypeOnlyMsg msg(bb, NULL);
+    ByteBuffer* bb = ByteBuffer::allocate(128);
+    msg.serialize(bb);
+    unsigned char* data = (unsigned char*) bb->array();
 
-  CPPUNIT_ASSERT(msg.getMsgType() == 2551);
-  CPPUNIT_ASSERT(msg.getMsgUUID()->toString() == "03bd0aaa-59cd-4a15-9cc7-b34079951905");
-  CPPUNIT_ASSERT(msg.msgHasReUUID() == true);
-  CPPUNIT_ASSERT(msg.getReUUID()->toString() == "03bd0aaa-59cd-4a15-9cc7-b34079951905");
-  CPPUNIT_ASSERT(msg.getOrigin() == NULL);
+    /* type */CPPUNIT_ASSERT(data[0] == 0x09);
+    CPPUNIT_ASSERT(data[1] == 0xf7);
 
-  delete bb;
-}
+    /* Msg UUID LEN */CPPUNIT_ASSERT(data[2+0] == 0x00);
+    CPPUNIT_ASSERT(data[2+1] == 0x00);
+    CPPUNIT_ASSERT(data[2+2] == 0x00);
+    CPPUNIT_ASSERT(data[2+3] == 0x24);
 
+    /* Msg UUID */CPPUNIT_ASSERT(data[6+8] == '-');
+    CPPUNIT_ASSERT(data[6+13] == '-');
+    CPPUNIT_ASSERT(data[6+18] == '-');
+    CPPUNIT_ASSERT(data[6+23] == '-');
 
-void
-TypeOnlyMsgUTest::testEquals()
-{
-  ByteBuffer* bb1 = ByteBuffer::wrap(testData, 83);
-  bb1->flip();
-  TypeOnlyMsg msg1(bb1, NULL);
+    /* has RE:UUID */CPPUNIT_ASSERT(data[42] == 0x00);
 
-  ByteBuffer* bb2 = ByteBuffer::wrap(testData, 83);
-  bb2->flip();
-  TypeOnlyMsg msg2(bb2, NULL);
+    delete bb;
+  }
 
-  CPPUNIT_ASSERT(msg1 == msg2);
-  CPPUNIT_ASSERT(msg1.equals(msg2) == true);
-  CPPUNIT_ASSERT(msg2.equals(msg1) == true);
+  void
+  testReplyCstrSerialize()
+  {
+    TypeOnlyMsg msg(1977);
 
-  delete bb1;
-  delete bb2;
-}
+    TypeOnlyMsg reMsg(2551, &msg);
 
-void
-TypeOnlyMsgUTest::setUp()
-{}
+    ByteBuffer* bb = reMsg.serialize();
+    unsigned char* data = (unsigned char*) bb->array();
 
-void
-TypeOnlyMsgUTest::tearDown()
-{}
+    /* type */CPPUNIT_ASSERT(data[0] == 0x09);
+    CPPUNIT_ASSERT(data[1] == 0xf7);
+
+    /* Msg UUID LEN */CPPUNIT_ASSERT(data[2+0] == 0x00);
+    CPPUNIT_ASSERT(data[2+1] == 0x00);
+    CPPUNIT_ASSERT(data[2+2] == 0x00);
+    CPPUNIT_ASSERT(data[2+3] == 0x24);
+
+    /* Msg UUID */CPPUNIT_ASSERT(data[6+8] == '-');
+    CPPUNIT_ASSERT(data[6+13] == '-');
+    CPPUNIT_ASSERT(data[6+18] == '-');
+    CPPUNIT_ASSERT(data[6+23] == '-');
+
+    /* has RE:UUID */CPPUNIT_ASSERT(data[42] == 0x01);
+
+    /* Msg RE:UUID LEN */CPPUNIT_ASSERT(data[43+0] == 0x00);
+    CPPUNIT_ASSERT(data[43+1] == 0x00);
+    CPPUNIT_ASSERT(data[43+2] == 0x00);
+    CPPUNIT_ASSERT(data[43+3] == 0x24);
+
+    /* Msg RE:UUID */CPPUNIT_ASSERT(data[47+8] == '-');
+    CPPUNIT_ASSERT(data[47+13] == '-');
+    CPPUNIT_ASSERT(data[47+18] == '-');
+    CPPUNIT_ASSERT(data[47+23] == '-');
+
+    delete bb;
+  }
+
+  void
+  testDeserialCstr()
+  {
+    ByteBuffer* bb = ByteBuffer::wrap(testData, 83);
+    bb->flip();
+    TypeOnlyMsg msg(bb, NULL);
+
+    ByteBuffer* bb2 = msg.serialize();
+    char* data2 = bb2->array();
+
+    for (int i = 0; i < bb->position(); ++i){
+        CPPUNIT_ASSERT(testData[i]==data2[i]);
+    }
+
+    delete bb;
+    delete bb2;
+  }
+
+  void
+  testGetters()
+  {
+    ByteBuffer* bb = ByteBuffer::wrap(testData, 83);
+    bb->flip();
+    TypeOnlyMsg msg(bb, NULL);
+
+    CPPUNIT_ASSERT(msg.getMsgType() == 2551);
+    CPPUNIT_ASSERT(msg.getMsgUUID()->toString() == "03bd0aaa-59cd-4a15-9cc7-b34079951905");
+    CPPUNIT_ASSERT(msg.msgHasReUUID() == true);
+    CPPUNIT_ASSERT(msg.getReUUID()->toString() == "03bd0aaa-59cd-4a15-9cc7-b34079951905");
+    CPPUNIT_ASSERT(msg.getOrigin() == NULL);
+
+    delete bb;
+  }
+
+  void
+  testEquals()
+  {
+    ByteBuffer* bb1 = ByteBuffer::wrap(testData, 83);
+    bb1->flip();
+    TypeOnlyMsg msg1(bb1, NULL);
+
+    ByteBuffer* bb2 = ByteBuffer::wrap(testData, 83);
+    bb2->flip();
+    TypeOnlyMsg msg2(bb2, NULL);
+
+    CPPUNIT_ASSERT(msg1 == msg2);
+    CPPUNIT_ASSERT(msg1.equals(msg2) == true);
+    CPPUNIT_ASSERT(msg2.equals(msg1) == true);
+
+    delete bb1;
+    delete bb2;
+  }
+
+  static char testData[];
+};
+
+char TypeOnlyMsgUTest::testData[] =
+    { 0x09, 0xf7, 0x00, 0x00, 0x00, 0x24, 0x30, 0x33, 0x62, 0x64, 0x30, 0x61,
+        0x61, 0x61, 0x2d, 0x35, 0x39, 0x63, 0x64, 0x2d, 0x34, 0x61, 0x31, 0x35,
+        0x2d, 0x39, 0x63, 0x63, 0x37, 0x2d, 0x62, 0x33, 0x34, 0x30, 0x37, 0x39,
+        0x39, 0x35, 0x31, 0x39, 0x30, 0x35, 0x01, 0x00, 0x00, 0x00, 0x24, 0x30,
+        0x33, 0x62, 0x64, 0x30, 0x61, 0x61, 0x61, 0x2d, 0x35, 0x39, 0x63, 0x64,
+        0x2d, 0x34, 0x61, 0x31, 0x35, 0x2d, 0x39, 0x63, 0x63, 0x37, 0x2d, 0x62,
+        0x33, 0x34, 0x30, 0x37, 0x39, 0x39, 0x35, 0x31, 0x39, 0x30, 0x35, };
+
 
 // Local Variables:
 // tab-width: 8
