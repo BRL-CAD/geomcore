@@ -19,7 +19,7 @@
  */
 /** @file ByteBufferUTest.h
  *
- * Brief description
+ * Unit test designed to test the ByteBuffer class.
  *
  */
 
@@ -67,7 +67,6 @@ class ByteBufferUTest : public CPPUNIT_NS::TestFixture
 
 public:
   void setUp(void);
-
   void tearDown(void);
 
 protected:
@@ -113,7 +112,6 @@ private:
   static const uint64_t testVal_64bit_host;
   static const uint64_t testVal_64bit_net;
   static const std::string testVal_StdString;
-
 };
 
 #endif // __BYTEBUFFERUTEST_H__

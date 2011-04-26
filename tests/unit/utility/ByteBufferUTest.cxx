@@ -19,7 +19,7 @@
  */
 /** @file ByteBufferUTest.cxx
  *
- * Brief description
+ * Unit test designed to test the ByteBuffer class.
  *
  */
 
@@ -36,7 +36,6 @@ const uint32_t ByteBufferUTest::testVal_32bit_net = 0x5D4C3B2A;
 const uint64_t ByteBufferUTest::testVal_64bit_host = 0x2A3B4C5D6E7F8A9B;
 const uint64_t ByteBufferUTest::testVal_64bit_net = 0x9B8A7F6E5D4C3B2A;
 const std::string ByteBufferUTest::testVal_StdString = "The quick brown fox jumps over the lazy dog";
-
 
 void
 ByteBufferUTest::testAllocate()
@@ -58,7 +57,6 @@ ByteBufferUTest::testWrap()
   CPPUNIT_ASSERT( this->bb->capacity() == 8 + VLB_BLOCK_SIZE);
   CPPUNIT_ASSERT( this->bb->limit() == 8);
   CPPUNIT_ASSERT( this->bb->position() == 8);
-
 }
 
 void
@@ -122,7 +120,6 @@ ByteBufferUTest::testPut16bit()
   CPPUNIT_ASSERT(this->bb->position() == 2);
 }
 
-
 void
 ByteBufferUTest::testPut32bit()
 {
@@ -137,7 +134,6 @@ ByteBufferUTest::testPut32bit()
 
   CPPUNIT_ASSERT(this->bb->position() == 4);
 }
-
 
 void
 ByteBufferUTest::testPut64bit()
@@ -185,7 +181,6 @@ ByteBufferUTest::testGet16bit()
   CPPUNIT_ASSERT(this->bb->position() == 2);
 }
 
-
 void
 ByteBufferUTest::testGet32bit()
 {
@@ -201,7 +196,6 @@ ByteBufferUTest::testGet32bit()
   CPPUNIT_ASSERT(val == testVal_32bit_host);
   CPPUNIT_ASSERT(this->bb->position() == 4);
 }
-
 
 void
 ByteBufferUTest::testGet64bit()
@@ -277,7 +271,6 @@ ByteBufferUTest::testCompact()
   CPPUNIT_ASSERT(this->bb->getMark() == -1);
 }
 
-
 void
 ByteBufferUTest::testDuplicate()
 {
@@ -305,7 +298,6 @@ ByteBufferUTest::testLimit()
   this->bb->setLimit(32);
   CPPUNIT_ASSERT(this->bb->limit() == 32);
 }
-
 
 void
 ByteBufferUTest::testPosition()
@@ -354,22 +346,17 @@ ByteBufferUTest::testGetSetString()
   this->bb->flip();
   std::string result = this->bb->getString();
   CPPUNIT_ASSERT(result == testVal_StdString);
-
-  std::cout << this->bb->toHexString();
 }
-
 
 void
 ByteBufferUTest::setUp()
 {
-//  std::cout << "\nSetUp.\n";
   this->bb = ByteBuffer::allocate(defaultSize);
 }
 
 void
 ByteBufferUTest::tearDown()
 {
-//  std::cout << "\nTearDown.\n";
   delete this->bb;
 }
 
