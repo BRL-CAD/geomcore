@@ -89,7 +89,7 @@ GSUuid* JobWorker::getWorkerId()
 
 std::string JobWorker::getWorkerIdAsString()
 {
-    return *this->getWorkerId()->toString();
+    return this->getWorkerId()->toString();
 }
 
 void JobWorker::shutdown()

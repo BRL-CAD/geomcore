@@ -84,11 +84,11 @@ NetMsg::serialize(ByteBuffer* bb)
 {
     /* Serialize Header */
       bb->put16bit(this->msgType);
-      bb->putString(*this->msgUUID->toString());
+      bb->putString(this->msgUUID->toString());
       bb->put(this->hasReUUID);
 
     if (this->hasReUUID)
-      bb->putString(*this->reUUID->toString());
+      bb->putString(this->reUUID->toString());
 
     /* Call subclass serialize */
     if (!this->_serialize(bb)) {
@@ -168,7 +168,7 @@ NetMsg::toString()
     out.assign(buf);
 
     if (this->msgUUID != NULL) {
-	snprintf(buf, BUFSIZ, "'\t msgUUID: %s'", this->msgUUID->toString()->c_str());
+	snprintf(buf, BUFSIZ, "'\t msgUUID: %s'", this->msgUUID->toString().c_str());
 	out.append(buf);
     }
 
@@ -176,7 +176,7 @@ NetMsg::toString()
     out.append(buf);
 
     if (this->hasReUUID) {
-	snprintf(buf, BUFSIZ, "'\t reUUID: %s'", this->reUUID->toString()->c_str());
+	snprintf(buf, BUFSIZ, "'\t reUUID: %s'", this->reUUID->toString().c_str());
 	out.append(buf);
     }
 

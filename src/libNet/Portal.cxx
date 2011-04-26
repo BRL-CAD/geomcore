@@ -37,12 +37,13 @@
 Portal::Portal(PortalManager* pm, PkgTcpClient* client, struct pkg_switch* table):
 pm(pm), pkgClient(client), callbackTable(table), log(Logger::getInstance()), handshakeComplete(false)
 {
-	std::string *str = GSUuid::createUuid()->toString();
-	this->remoteNodeName.assign("NotSetYet-" + *str);
-	delete str;
+  GSUuid* uuid = GSUuid::createUuid();
+  std::string str = uuid->toString();
+  delete uuid;
+  this->remoteNodeName.assign("NotSetYet-" + str);
 
-	/* set the struct's userdata */
-	this->callbackTable[0].pks_user_data = this;
+  /* set the struct's userdata */
+  this->callbackTable[0].pks_user_data = this;
 }
 
 Portal::~Portal() {
@@ -82,11 +83,10 @@ Portal::sendGSNodeName() {
 	localNodeName.assign(this->pm->getLocalNodeName());
 
 	if (localNodeName.length() == 0) {
-		GSUuid *uuid = GSUuid::createUuid();
-		std::string *str = uuid->toString();
+		GSUuid* uuid = GSUuid::createUuid();
+		std::string str = uuid->toString();
 		delete uuid;
-		localNodeName.assign(*str);
-		delete str;
+		localNodeName.assign(str);
 	}
 
 	RemoteNodenameSetMsg msg(localNodeName);

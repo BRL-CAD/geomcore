@@ -49,7 +49,7 @@ SessionInfoMsg::~SessionInfoMsg()
 bool
 SessionInfoMsg::_serialize(ByteBuffer* bb)
 {
-  bb->putString(*this->sessionID->toString());
+  bb->putString(this->sessionID->toString());
   return true;
 }
 
@@ -60,7 +60,7 @@ SessionInfoMsg::toString()
 
   out.append(NetMsg::toString());
   out.append("\t  SessionID: ");
-  out.append(*this->sessionID->toString());
+  out.append(this->sessionID->toString());
 
   return out;
 }

@@ -49,13 +49,13 @@ GSUuid::~GSUuid()
 	uuid_destroy((uuid_t*)this->uuid);
 }
 
-std::string*
+std::string
 GSUuid::toString()
 {
 	char *buf = NULL;
 	size_t len = 0;
 	uuid_export((uuid_t *)this->uuid, UUID_FMT_STR, &buf, &len);
-	std::string* out = new std::string(buf,len-1);
+	std::string out(buf,len-1);
 	free(buf);
 	return out;
 }

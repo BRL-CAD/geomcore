@@ -40,7 +40,7 @@ public:
 
   bool equals(GSUuid*);
 
-  std::string* toString();
+  std::string toString();
 
 private:
   void *uuid;
