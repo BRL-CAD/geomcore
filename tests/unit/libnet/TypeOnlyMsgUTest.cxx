@@ -28,8 +28,8 @@
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-class GeometryReqMsgUTest : public CPPUNIT_NS::TestFixture {
-  CPPUNIT_TEST_SUITE( GeometryReqMsgUTest );
+class TypeOnlyMsgUTest : public CPPUNIT_NS::TestFixture {
+  CPPUNIT_TEST_SUITE( TypeOnlyMsgUTest );
   CPPUNIT_TEST( testNormCstrSerialize );
   CPPUNIT_TEST( testNormCstrSerializeBBProvided );
   CPPUNIT_TEST( testReplyCstrSerialize );
@@ -37,8 +37,6 @@ class GeometryReqMsgUTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST( testGetters );
   CPPUNIT_TEST( testEquals );
   CPPUNIT_TEST_SUITE_END();
-
-
 
 public:
   void
@@ -57,20 +55,24 @@ public:
     ByteBuffer* bb = msg.serialize();
     unsigned char* data = (unsigned char*) bb->array();
 
-    /* type */CPPUNIT_ASSERT(data[0] == 0x09);
+    /* type */
+    CPPUNIT_ASSERT(data[0] == 0x09);
     CPPUNIT_ASSERT(data[1] == 0xf7);
 
-    /* Msg UUID LEN */CPPUNIT_ASSERT(data[2+0] == 0x00);
+    /* Msg UUID LEN */
+    CPPUNIT_ASSERT(data[2+0] == 0x00);
     CPPUNIT_ASSERT(data[2+1] == 0x00);
     CPPUNIT_ASSERT(data[2+2] == 0x00);
     CPPUNIT_ASSERT(data[2+3] == 0x24);
 
-    /* Msg UUID */CPPUNIT_ASSERT(data[6+8] == '-');
+    /* Msg UUID */
+    CPPUNIT_ASSERT(data[6+8] == '-');
     CPPUNIT_ASSERT(data[6+13] == '-');
     CPPUNIT_ASSERT(data[6+18] == '-');
     CPPUNIT_ASSERT(data[6+23] == '-');
 
-    /* has RE:UUID */CPPUNIT_ASSERT(data[42] == 0x00);
+    /* has RE:UUID */
+    CPPUNIT_ASSERT(data[42] == 0x00);
 
     delete bb;
   }
@@ -84,20 +86,24 @@ public:
     msg.serialize(bb);
     unsigned char* data = (unsigned char*) bb->array();
 
-    /* type */CPPUNIT_ASSERT(data[0] == 0x09);
+    /* type */
+    CPPUNIT_ASSERT(data[0] == 0x09);
     CPPUNIT_ASSERT(data[1] == 0xf7);
 
-    /* Msg UUID LEN */CPPUNIT_ASSERT(data[2+0] == 0x00);
+    /* Msg UUID LEN */
+    CPPUNIT_ASSERT(data[2+0] == 0x00);
     CPPUNIT_ASSERT(data[2+1] == 0x00);
     CPPUNIT_ASSERT(data[2+2] == 0x00);
     CPPUNIT_ASSERT(data[2+3] == 0x24);
 
-    /* Msg UUID */CPPUNIT_ASSERT(data[6+8] == '-');
+    /* Msg UUID */
+    CPPUNIT_ASSERT(data[6+8] == '-');
     CPPUNIT_ASSERT(data[6+13] == '-');
     CPPUNIT_ASSERT(data[6+18] == '-');
     CPPUNIT_ASSERT(data[6+23] == '-');
 
-    /* has RE:UUID */CPPUNIT_ASSERT(data[42] == 0x00);
+    /* has RE:UUID */
+    CPPUNIT_ASSERT(data[42] == 0x00);
 
     delete bb;
   }
@@ -112,27 +118,33 @@ public:
     ByteBuffer* bb = reMsg.serialize();
     unsigned char* data = (unsigned char*) bb->array();
 
-    /* type */CPPUNIT_ASSERT(data[0] == 0x09);
+    /* type */
+    CPPUNIT_ASSERT(data[0] == 0x09);
     CPPUNIT_ASSERT(data[1] == 0xf7);
 
-    /* Msg UUID LEN */CPPUNIT_ASSERT(data[2+0] == 0x00);
+    /* Msg UUID LEN */
+    CPPUNIT_ASSERT(data[2+0] == 0x00);
     CPPUNIT_ASSERT(data[2+1] == 0x00);
     CPPUNIT_ASSERT(data[2+2] == 0x00);
     CPPUNIT_ASSERT(data[2+3] == 0x24);
 
-    /* Msg UUID */CPPUNIT_ASSERT(data[6+8] == '-');
+    /* Msg UUID */
+    CPPUNIT_ASSERT(data[6+8] == '-');
     CPPUNIT_ASSERT(data[6+13] == '-');
     CPPUNIT_ASSERT(data[6+18] == '-');
     CPPUNIT_ASSERT(data[6+23] == '-');
 
-    /* has RE:UUID */CPPUNIT_ASSERT(data[42] == 0x01);
+    /* has RE:UUID */
+    CPPUNIT_ASSERT(data[42] == 0x01);
 
-    /* Msg RE:UUID LEN */CPPUNIT_ASSERT(data[43+0] == 0x00);
+    /* Msg RE:UUID LEN */
+    CPPUNIT_ASSERT(data[43+0] == 0x00);
     CPPUNIT_ASSERT(data[43+1] == 0x00);
     CPPUNIT_ASSERT(data[43+2] == 0x00);
     CPPUNIT_ASSERT(data[43+3] == 0x24);
 
-    /* Msg RE:UUID */CPPUNIT_ASSERT(data[47+8] == '-');
+    /* Msg RE:UUID */
+    CPPUNIT_ASSERT(data[47+8] == '-');
     CPPUNIT_ASSERT(data[47+13] == '-');
     CPPUNIT_ASSERT(data[47+18] == '-');
     CPPUNIT_ASSERT(data[47+23] == '-');
@@ -196,7 +208,7 @@ public:
   static char testData[];
 };
 
-char GeometryReqMsgUTest::testData[] =
+char TypeOnlyMsgUTest::testData[] =
     { 0x09, 0xf7, 0x00, 0x00, 0x00, 0x24, 0x30, 0x33, 0x62, 0x64, 0x30, 0x61,
         0x61, 0x61, 0x2d, 0x35, 0x39, 0x63, 0x64, 0x2d, 0x34, 0x61, 0x31, 0x35,
         0x2d, 0x39, 0x63, 0x63, 0x37, 0x2d, 0x62, 0x33, 0x34, 0x30, 0x37, 0x39,
@@ -205,7 +217,7 @@ char GeometryReqMsgUTest::testData[] =
         0x2d, 0x34, 0x61, 0x31, 0x35, 0x2d, 0x39, 0x63, 0x63, 0x37, 0x2d, 0x62,
         0x33, 0x34, 0x30, 0x37, 0x39, 0x39, 0x35, 0x31, 0x39, 0x30, 0x35, };
 
-CPPUNIT_TEST_SUITE_REGISTRATION (GeometryReqMsgUTest);
+CPPUNIT_TEST_SUITE_REGISTRATION (TypeOnlyMsgUTest);
 
 // Local Variables:
 // tab-width: 8
