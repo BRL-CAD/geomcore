@@ -3,7 +3,7 @@
 
 (defpackage :gsclient
   (:use :cl :sb-unix)
-  (:export :login :logout :ping :getgeom :getgeomfile))
+  (:export :login :logout :ping :ls :getgeom :getgeomfile))
 
 (in-package :gsclient)
 
@@ -14,7 +14,10 @@
 ;; this should probably check to make sure things are ok
 (defun getgeom (s st uri &key (bot '()))
   (gsnet:writemsg s (make-instance (if bot 'gsnet:gbrmsg 'gsnet:grmsg) :uri uri))
-  (loop for i from 1 to (length (gsnet::manifest (gsnet:readmsg s))) do (let ((ch (gsnet::chunk (gsnet:readmsg s)))) (write-sequence ch st :end (- (length ch) 1)))))
+  (let ((m (gsnet:readmsg s)))
+    (if (equalp (type-of m) 'gsnet:gmmsg)
+	(loop for i from 1 to (length (gsnet::manifest m)) do (let ((ch (gsnet::chunk (gsnet:readmsg s)))) (write-sequence ch st :end (- (length ch) 1))))
+	(format t "Boogers, bad juju~%"))))
 
 (defun getgeomfile (s file uri &key (bot '()))
   (with-open-file (out file :element-type '(unsigned-byte 8) :direction :output)
@@ -26,7 +29,7 @@
     (- (gsnet:usec) (gsnet::tv m))))
 
 (defun ls (s uri)
-  (gsnet:writemsg s (make-instance 'gsnet:lsmsg))
+  (gsnet:writemsg s (make-instance 'gsnet:lsmsg :uri uri))
   (gsnet::manifest (gsnet:readmsg s)))
 
 ; log in to a server, returning the session
