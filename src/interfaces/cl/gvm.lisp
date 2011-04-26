@@ -70,13 +70,14 @@
 (defcfun "gvm_export_object" :int (repo_info :pointer) (model_name :string) (obj_name :string) (g_file :string) (ver_num size_t) (recursive :int))
 
 ; attempt to open a repo, creating if necessary
+(define-condition no-such-repo (error) ((path :initarg :path :reader path)))
 (defun gvm-open (path)
   (let ((info (foreign-alloc :pointer :count 3)))
     (if (= (gvm-open-repo info path) 0)
 	info
 	(if (= (gvm-init-repo info path) 0)
 	    info
-	    nil))))
+	    (error 'no-such-repo :path path)))))
 
 (defparameter +repo-file+ "./GS_repository")
 (defun test (file &key (something '()))
