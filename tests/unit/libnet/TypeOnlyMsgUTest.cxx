@@ -23,7 +23,7 @@
  *
  */
 
-#include "TypeOnlyMsg.h"
+#include "TypeOnlyMsgUTest.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION (TypeOnlyMsgUTest);
 
