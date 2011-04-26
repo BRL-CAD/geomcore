@@ -61,7 +61,6 @@ class ByteBufferUTest : public CPPUNIT_NS::TestFixture {
 
   CPPUNIT_TEST_SUITE_END();
 
-  CPPUNIT_TEST_SUITE_REGISTRATION (ByteBufferUTest);
 
 
 public:
@@ -412,6 +411,7 @@ const uint64_t ByteBufferUTest::testVal_64bit_host = 0x2A3B4C5D6E7F8A9B;
 const uint64_t ByteBufferUTest::testVal_64bit_net = 0x9B8A7F6E5D4C3B2A;
 const std::string ByteBufferUTest::testVal_StdString = "The quick brown fox jumps over the lazy dog";
 
+CPPUNIT_TEST_SUITE_REGISTRATION (ByteBufferUTest);
 
 // Local Variables:
 // tab-width: 8

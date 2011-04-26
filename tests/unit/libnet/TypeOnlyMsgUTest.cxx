@@ -38,7 +38,7 @@ class TypeOnlyMsgUTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST( testEquals );
   CPPUNIT_TEST_SUITE_END();
 
-  CPPUNIT_TEST_SUITE_REGISTRATION (TypeOnlyMsgUTest);
+
 
 public:
   void
@@ -205,6 +205,7 @@ char TypeOnlyMsgUTest::testData[] =
         0x2d, 0x34, 0x61, 0x31, 0x35, 0x2d, 0x39, 0x63, 0x63, 0x37, 0x2d, 0x62,
         0x33, 0x34, 0x30, 0x37, 0x39, 0x39, 0x35, 0x31, 0x39, 0x30, 0x35, };
 
+CPPUNIT_TEST_SUITE_REGISTRATION (TypeOnlyMsgUTest);
 
 // Local Variables:
 // tab-width: 8
