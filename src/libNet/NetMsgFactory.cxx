@@ -69,13 +69,14 @@ NetMsgFactory::deserializeNetMsg(ByteBuffer* bb, Portal* origin)
   }
 
   /* Check if at least header data is here. */
-  if(bb->limit() >= 39) {
+  if(bb->limit() < 43) {
       return NULL;
   }
 
   /* Peek at type */
+  int start = bb->position();
   uint16_t msgType = bb->get16bit();
-  bb->setPosition(0);
+  bb->setPosition(start);
 
   /* TODO Replace this with a map for registration scheme */
   switch (msgType)
