@@ -325,6 +325,22 @@ public:
   {
     this->bb->setLimit(32);
     CPPUNIT_ASSERT(this->bb->limit() == 32);
+
+    this->bb->setPosition(0);
+    this->bb->put64bit(0x00); // 08
+    this->bb->put64bit(0x00); // 16
+    this->bb->put64bit(0x00); // 24
+    this->bb->put64bit(0x00); // 32
+    this->bb->put64bit(0x00); // 40
+    this->bb->put64bit(0x00); // 48
+    this->bb->put64bit(0x00); // 56
+    this->bb->put64bit(0x00); // 64
+    this->bb->put64bit(0x00); // 72
+    this->bb->put64bit(0x00); // 80
+    this->bb->put64bit(0x00); // 88
+    this->bb->put64bit(0x00); // 96
+
+    CPPUNIT_ASSERT(this->bb->limit() == 96);
   }
 
   void
