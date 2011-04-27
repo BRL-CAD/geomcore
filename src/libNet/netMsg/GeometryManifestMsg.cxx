@@ -23,11 +23,11 @@
  *
  */
 
-#include <iostream>
 #include "GeometryManifestMsg.h"
 
 /* Normal Constructor */
-GeometryManifestMsg::GeometryManifestMsg(std::list<std::string>& items) :
+GeometryManifestMsg::GeometryManifestMsg(
+    std::list<std::string>& items) :
     NetMsg(GEOMETRYMANIFEST)
 {
     this->itemData = new std::list<std::string> (items);
@@ -37,7 +37,7 @@ GeometryManifestMsg::GeometryManifestMsg(std::list<std::string>& items) :
 GeometryManifestMsg::GeometryManifestMsg(NetMsg* msg, std::list<std::string>& items) :
 	NetMsg(GEOMETRYMANIFEST, msg)
 {
-    this->itemData = new std::list<std::string> (items);
+  this->itemData = new std::list<std::string> (items);
 }
 
 /* Deserializing Constructor */
@@ -45,24 +45,14 @@ GeometryManifestMsg::GeometryManifestMsg(ByteBuffer* bb, Portal* origin) :
   NetMsg(bb, origin)
 {
   this->itemData = new std::list<std::string>();
-
   uint32_t numOfItems = bb->get32bit();
-
-  std::cout << "Attempting to deserialize " << numOfItems << " items.\n";
-
   std::string tstr;
-
-  for (uint32_t i = 0; i < numOfItems; ++i) {
-      std::cout << i << ")";
-
+  for (uint32_t i = 0; i < numOfItems; ++i)
+    {
       tstr = bb->getString();
-      if (tstr.size() == 0) {
-          std::cout << "Skipping zero Len String.";
-          continue;
-        }
-
+      if (tstr.size() == 0)
+        continue;
       this->itemData->push_back(tstr);
-      std::cout << std::endl;
     }
 }
 
@@ -79,21 +69,22 @@ GeometryManifestMsg::_serialize(ByteBuffer* bb)
   int start = bb->position();
   bb->put32bit(0);
 
+  //TODO this list serializer could be generalized....
+  /* Add elements while counting. */
   int cnt = 0;
   std::string tstr;
   for (std::list<std::string>::iterator it = this->itemData->begin(); it
-      != this->itemData->end(); it++) {
+      != this->itemData->end(); it++)
+    {
       tstr = *it;
-      if (tstr.size() == 0) {
-          std::cout << "Skipping zero Len String.";
-          continue;
-        }
+      if (tstr.size() == 0)
+        continue;
       bb->putString(tstr);
       ++cnt;
     }
 
-  int stop = bb->position();
   /* Go back and insert actual count */
+  int stop = bb->position();
   bb->setPosition(start);
   bb->put32bit(cnt);
   bb->setPosition(stop);
@@ -126,13 +117,13 @@ GeometryManifestMsg::toString()
       (int) this->itemData->size());
 
   for (std::list<std::string>::iterator it = this->itemData->begin(); it
-      != this->itemData->end(); it++) {
+      != this->itemData->end(); it++)
+    {
       snprintf(buf, BUFSIZ, "\n\t '%s'", it->c_str());
       out.append(buf);
     }
 
   out.append("\n");
-
   return out;
 }
 
