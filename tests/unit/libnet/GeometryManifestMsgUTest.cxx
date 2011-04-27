@@ -200,17 +200,6 @@ public:
 
     CPPUNIT_ASSERT(bb->position() == testDataSize);
 
-    std::list<std::string>::iterator it;
-
-    for (it = this->itemData->begin(); it
-         != this->itemData->end(); it++)
-       {
-         snprintf(buf, BUFSIZ, "\n\t '%s'", it->c_str());
-         out.append(buf);
-       }
-
-
-
     delete bb;
   }
 
