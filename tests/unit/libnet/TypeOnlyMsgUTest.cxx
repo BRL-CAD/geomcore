@@ -59,20 +59,7 @@ public:
     CPPUNIT_ASSERT(data[0] == 0x09);
     CPPUNIT_ASSERT(data[1] == 0xf7);
 
-    /* Msg UUID LEN */
-    CPPUNIT_ASSERT(data[2+0] == 0x00);
-    CPPUNIT_ASSERT(data[2+1] == 0x00);
-    CPPUNIT_ASSERT(data[2+2] == 0x00);
-    CPPUNIT_ASSERT(data[2+3] == 0x24);
-
-    /* Msg UUID */
-    CPPUNIT_ASSERT(data[6+8] == '-');
-    CPPUNIT_ASSERT(data[6+13] == '-');
-    CPPUNIT_ASSERT(data[6+18] == '-');
-    CPPUNIT_ASSERT(data[6+23] == '-');
-
-    /* has RE:UUID */
-    CPPUNIT_ASSERT(data[42] == 0x00);
+    TypeOnlyMsgUTest::testCommonHeaderBytes(data);
 
     delete bb;
   }
@@ -90,21 +77,7 @@ public:
     CPPUNIT_ASSERT(data[0] == 0x09);
     CPPUNIT_ASSERT(data[1] == 0xf7);
 
-    /* Msg UUID LEN */
-    CPPUNIT_ASSERT(data[2+0] == 0x00);
-    CPPUNIT_ASSERT(data[2+1] == 0x00);
-    CPPUNIT_ASSERT(data[2+2] == 0x00);
-    CPPUNIT_ASSERT(data[2+3] == 0x24);
-
-    /* Msg UUID */
-    CPPUNIT_ASSERT(data[6+8] == '-');
-    CPPUNIT_ASSERT(data[6+13] == '-');
-    CPPUNIT_ASSERT(data[6+18] == '-');
-    CPPUNIT_ASSERT(data[6+23] == '-');
-
-    /* has RE:UUID */
-    CPPUNIT_ASSERT(data[42] == 0x00);
-
+    TypeOnlyMsgUTest::testCommonHeaderBytes(data);
     delete bb;
   }
 
@@ -122,32 +95,7 @@ public:
     CPPUNIT_ASSERT(data[0] == 0x09);
     CPPUNIT_ASSERT(data[1] == 0xf7);
 
-    /* Msg UUID LEN */
-    CPPUNIT_ASSERT(data[2+0] == 0x00);
-    CPPUNIT_ASSERT(data[2+1] == 0x00);
-    CPPUNIT_ASSERT(data[2+2] == 0x00);
-    CPPUNIT_ASSERT(data[2+3] == 0x24);
-
-    /* Msg UUID */
-    CPPUNIT_ASSERT(data[6+8] == '-');
-    CPPUNIT_ASSERT(data[6+13] == '-');
-    CPPUNIT_ASSERT(data[6+18] == '-');
-    CPPUNIT_ASSERT(data[6+23] == '-');
-
-    /* has RE:UUID */
-    CPPUNIT_ASSERT(data[42] == 0x01);
-
-    /* Msg RE:UUID LEN */
-    CPPUNIT_ASSERT(data[43+0] == 0x00);
-    CPPUNIT_ASSERT(data[43+1] == 0x00);
-    CPPUNIT_ASSERT(data[43+2] == 0x00);
-    CPPUNIT_ASSERT(data[43+3] == 0x24);
-
-    /* Msg RE:UUID */
-    CPPUNIT_ASSERT(data[47+8] == '-');
-    CPPUNIT_ASSERT(data[47+13] == '-');
-    CPPUNIT_ASSERT(data[47+18] == '-');
-    CPPUNIT_ASSERT(data[47+23] == '-');
+    TypeOnlyMsgUTest::testCommonHeaderBytes(data);
 
     delete bb;
   }
@@ -203,6 +151,38 @@ public:
 
     delete bb1;
     delete bb2;
+  }
+
+  static void testCommonHeaderBytes(unsigned char* data)
+  {
+    /* Msg UUID LEN */
+    CPPUNIT_ASSERT(data[2+0] == 0x00);
+    CPPUNIT_ASSERT(data[2+1] == 0x00);
+    CPPUNIT_ASSERT(data[2+2] == 0x00);
+    CPPUNIT_ASSERT(data[2+3] == 0x24);
+
+    /* Msg UUID */
+    CPPUNIT_ASSERT(data[6+8] == '-');
+    CPPUNIT_ASSERT(data[6+13] == '-');
+    CPPUNIT_ASSERT(data[6+18] == '-');
+    CPPUNIT_ASSERT(data[6+23] == '-');
+
+    /* has RE:UUID */
+    CPPUNIT_ASSERT((data[42] == 0x00) || (data[42] == 0x01));
+
+    if (data[42] == 0x01) {
+      /* Msg RE:UUID LEN */
+      CPPUNIT_ASSERT(data[43+0] == 0x00);
+      CPPUNIT_ASSERT(data[43+1] == 0x00);
+      CPPUNIT_ASSERT(data[43+2] == 0x00);
+      CPPUNIT_ASSERT(data[43+3] == 0x24);
+
+      /* Msg RE:UUID */
+      CPPUNIT_ASSERT(data[47+8] == '-');
+      CPPUNIT_ASSERT(data[47+13] == '-');
+      CPPUNIT_ASSERT(data[47+18] == '-');
+      CPPUNIT_ASSERT(data[47+23] == '-');
+    }
   }
 
   static char testData[];

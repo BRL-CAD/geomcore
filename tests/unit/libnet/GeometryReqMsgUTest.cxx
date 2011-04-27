@@ -59,60 +59,7 @@ public:
     CPPUNIT_ASSERT(data[0] == 0x04);
     CPPUNIT_ASSERT(data[1] == 0x00);
 
-    /* Msg UUID LEN */
-    CPPUNIT_ASSERT(data[2+0] == 0x00);
-    CPPUNIT_ASSERT(data[2+1] == 0x00);
-    CPPUNIT_ASSERT(data[2+2] == 0x00);
-    CPPUNIT_ASSERT(data[2+3] == 0x24);
-
-    /* Msg UUID */
-    CPPUNIT_ASSERT(data[6+8] == '-');
-    CPPUNIT_ASSERT(data[6+13] == '-');
-    CPPUNIT_ASSERT(data[6+18] == '-');
-    CPPUNIT_ASSERT(data[6+23] == '-');
-
-    /* has RE:UUID */
-    CPPUNIT_ASSERT(data[42] == 0x00);
-
-    /* Path String length */
-    CPPUNIT_ASSERT(data[43+0] == 0x00);
-    CPPUNIT_ASSERT(data[43+1] == 0x00);
-    CPPUNIT_ASSERT(data[43+2] == 0x00);
-    CPPUNIT_ASSERT(data[43+3] == 0x20);
-
-    /* Path String length */
-    CPPUNIT_ASSERT(data[47+0] == 0x61);
-    CPPUNIT_ASSERT(data[47+1] == 0x77);
-    CPPUNIT_ASSERT(data[47+2] == 0x65);
-    CPPUNIT_ASSERT(data[47+3] == 0x73);
-    CPPUNIT_ASSERT(data[47+4] == 0x6f);
-    CPPUNIT_ASSERT(data[47+5] == 0x6d);
-    CPPUNIT_ASSERT(data[47+6] == 0x65);
-    CPPUNIT_ASSERT(data[47+7] == 0x2f);
-    CPPUNIT_ASSERT(data[47+8] == 0x70);
-    CPPUNIT_ASSERT(data[47+9] == 0x61);
-    CPPUNIT_ASSERT(data[47+10] == 0x74);
-    CPPUNIT_ASSERT(data[47+11] == 0x68);
-    CPPUNIT_ASSERT(data[47+12] == 0x2f);
-    CPPUNIT_ASSERT(data[47+13] == 0x74);
-    CPPUNIT_ASSERT(data[47+14] == 0x6f);
-    CPPUNIT_ASSERT(data[47+15] == 0x2f);
-    CPPUNIT_ASSERT(data[47+16] == 0x61);
-    CPPUNIT_ASSERT(data[47+17] == 0x77);
-    CPPUNIT_ASSERT(data[47+18] == 0x65);
-    CPPUNIT_ASSERT(data[47+19] == 0x73);
-    CPPUNIT_ASSERT(data[47+20] == 0x6f);
-    CPPUNIT_ASSERT(data[47+21] == 0x6d);
-    CPPUNIT_ASSERT(data[47+22] == 0x65);
-    CPPUNIT_ASSERT(data[47+23] == 0x2f);
-    CPPUNIT_ASSERT(data[47+24] == 0x67);
-    CPPUNIT_ASSERT(data[47+25] == 0x65);
-    CPPUNIT_ASSERT(data[47+26] == 0x6f);
-    CPPUNIT_ASSERT(data[47+27] == 0x6d);
-    CPPUNIT_ASSERT(data[47+28] == 0x65);
-    CPPUNIT_ASSERT(data[47+29] == 0x74);
-    CPPUNIT_ASSERT(data[47+30] == 0x72);
-    CPPUNIT_ASSERT(data[47+31] == 0x79);
+    GeometryReqMsgUTest::testCommonHeaderBytes(data);
 
     /* has recurse */
     CPPUNIT_ASSERT(data[79] == 0x01);
@@ -133,60 +80,7 @@ public:
     CPPUNIT_ASSERT(data[0] == 0x04);
     CPPUNIT_ASSERT(data[1] == 0x00);
 
-    /* Msg UUID LEN */
-    CPPUNIT_ASSERT(data[2+0] == 0x00);
-    CPPUNIT_ASSERT(data[2+1] == 0x00);
-    CPPUNIT_ASSERT(data[2+2] == 0x00);
-    CPPUNIT_ASSERT(data[2+3] == 0x24);
-
-    /* Msg UUID */
-    CPPUNIT_ASSERT(data[6+8] == '-');
-    CPPUNIT_ASSERT(data[6+13] == '-');
-    CPPUNIT_ASSERT(data[6+18] == '-');
-    CPPUNIT_ASSERT(data[6+23] == '-');
-
-    /* has RE:UUID */
-     CPPUNIT_ASSERT(data[42] == 0x00);
-
-     /* Path String length */
-     CPPUNIT_ASSERT(data[43+0] == 0x00);
-     CPPUNIT_ASSERT(data[43+1] == 0x00);
-     CPPUNIT_ASSERT(data[43+2] == 0x00);
-     CPPUNIT_ASSERT(data[43+3] == 0x20);
-
-     /* Path String length */
-     CPPUNIT_ASSERT(data[47+0] == 0x61);
-     CPPUNIT_ASSERT(data[47+1] == 0x77);
-     CPPUNIT_ASSERT(data[47+2] == 0x65);
-     CPPUNIT_ASSERT(data[47+3] == 0x73);
-     CPPUNIT_ASSERT(data[47+4] == 0x6f);
-     CPPUNIT_ASSERT(data[47+5] == 0x6d);
-     CPPUNIT_ASSERT(data[47+6] == 0x65);
-     CPPUNIT_ASSERT(data[47+7] == 0x2f);
-     CPPUNIT_ASSERT(data[47+8] == 0x70);
-     CPPUNIT_ASSERT(data[47+9] == 0x61);
-     CPPUNIT_ASSERT(data[47+10] == 0x74);
-     CPPUNIT_ASSERT(data[47+11] == 0x68);
-     CPPUNIT_ASSERT(data[47+12] == 0x2f);
-     CPPUNIT_ASSERT(data[47+13] == 0x74);
-     CPPUNIT_ASSERT(data[47+14] == 0x6f);
-     CPPUNIT_ASSERT(data[47+15] == 0x2f);
-     CPPUNIT_ASSERT(data[47+16] == 0x61);
-     CPPUNIT_ASSERT(data[47+17] == 0x77);
-     CPPUNIT_ASSERT(data[47+18] == 0x65);
-     CPPUNIT_ASSERT(data[47+19] == 0x73);
-     CPPUNIT_ASSERT(data[47+20] == 0x6f);
-     CPPUNIT_ASSERT(data[47+21] == 0x6d);
-     CPPUNIT_ASSERT(data[47+22] == 0x65);
-     CPPUNIT_ASSERT(data[47+23] == 0x2f);
-     CPPUNIT_ASSERT(data[47+24] == 0x67);
-     CPPUNIT_ASSERT(data[47+25] == 0x65);
-     CPPUNIT_ASSERT(data[47+26] == 0x6f);
-     CPPUNIT_ASSERT(data[47+27] == 0x6d);
-     CPPUNIT_ASSERT(data[47+28] == 0x65);
-     CPPUNIT_ASSERT(data[47+29] == 0x74);
-     CPPUNIT_ASSERT(data[47+30] == 0x72);
-     CPPUNIT_ASSERT(data[47+31] == 0x79);
+    GeometryReqMsgUTest::testCommonHeaderBytes(data);
 
      /* has recurse */
      CPPUNIT_ASSERT(data[79] == 0x01);
@@ -208,72 +102,7 @@ public:
     CPPUNIT_ASSERT(data[0] == 0x04);
     CPPUNIT_ASSERT(data[1] == 0x00);
 
-    /* Msg UUID LEN */
-    CPPUNIT_ASSERT(data[2+0] == 0x00);
-    CPPUNIT_ASSERT(data[2+1] == 0x00);
-    CPPUNIT_ASSERT(data[2+2] == 0x00);
-    CPPUNIT_ASSERT(data[2+3] == 0x24);
-
-    /* Msg UUID */
-    CPPUNIT_ASSERT(data[6+8] == '-');
-    CPPUNIT_ASSERT(data[6+13] == '-');
-    CPPUNIT_ASSERT(data[6+18] == '-');
-    CPPUNIT_ASSERT(data[6+23] == '-');
-
-    /* has RE:UUID */
-    CPPUNIT_ASSERT(data[42] == 0x01);
-
-    /* Msg RE:UUID LEN */
-    CPPUNIT_ASSERT(data[43+0] == 0x00);
-    CPPUNIT_ASSERT(data[43+1] == 0x00);
-    CPPUNIT_ASSERT(data[43+2] == 0x00);
-    CPPUNIT_ASSERT(data[43+3] == 0x24);
-
-    /* Msg RE:UUID */
-    CPPUNIT_ASSERT(data[47+8] == '-');
-    CPPUNIT_ASSERT(data[47+13] == '-');
-    CPPUNIT_ASSERT(data[47+18] == '-');
-    CPPUNIT_ASSERT(data[47+23] == '-');
-
-     /* Path String length */
-     CPPUNIT_ASSERT(data[83+0] == 0x00);
-     CPPUNIT_ASSERT(data[83+1] == 0x00);
-     CPPUNIT_ASSERT(data[83+2] == 0x00);
-     CPPUNIT_ASSERT(data[83+3] == 0x20);
-
-     /* Path String length */
-     CPPUNIT_ASSERT(data[87+0] == 0x61);
-     CPPUNIT_ASSERT(data[87+1] == 0x77);
-     CPPUNIT_ASSERT(data[87+2] == 0x65);
-     CPPUNIT_ASSERT(data[87+3] == 0x73);
-     CPPUNIT_ASSERT(data[87+4] == 0x6f);
-     CPPUNIT_ASSERT(data[87+5] == 0x6d);
-     CPPUNIT_ASSERT(data[87+6] == 0x65);
-     CPPUNIT_ASSERT(data[87+7] == 0x2f);
-     CPPUNIT_ASSERT(data[87+8] == 0x70);
-     CPPUNIT_ASSERT(data[87+9] == 0x61);
-     CPPUNIT_ASSERT(data[87+10] == 0x74);
-     CPPUNIT_ASSERT(data[87+11] == 0x68);
-     CPPUNIT_ASSERT(data[87+12] == 0x2f);
-     CPPUNIT_ASSERT(data[87+13] == 0x74);
-     CPPUNIT_ASSERT(data[87+14] == 0x6f);
-     CPPUNIT_ASSERT(data[87+15] == 0x2f);
-     CPPUNIT_ASSERT(data[87+16] == 0x61);
-     CPPUNIT_ASSERT(data[87+17] == 0x77);
-     CPPUNIT_ASSERT(data[87+18] == 0x65);
-     CPPUNIT_ASSERT(data[87+19] == 0x73);
-     CPPUNIT_ASSERT(data[87+20] == 0x6f);
-     CPPUNIT_ASSERT(data[87+21] == 0x6d);
-     CPPUNIT_ASSERT(data[87+22] == 0x65);
-     CPPUNIT_ASSERT(data[87+23] == 0x2f);
-     CPPUNIT_ASSERT(data[87+24] == 0x67);
-     CPPUNIT_ASSERT(data[87+25] == 0x65);
-     CPPUNIT_ASSERT(data[87+26] == 0x6f);
-     CPPUNIT_ASSERT(data[87+27] == 0x6d);
-     CPPUNIT_ASSERT(data[87+28] == 0x65);
-     CPPUNIT_ASSERT(data[87+29] == 0x74);
-     CPPUNIT_ASSERT(data[87+30] == 0x72);
-     CPPUNIT_ASSERT(data[87+31] == 0x79);
+    GeometryReqMsgUTest::testCommonHeaderBytes(data);
 
      /* has recurse */
      CPPUNIT_ASSERT(data[119] == 0x01);
@@ -333,6 +162,81 @@ public:
     delete bb1;
     delete bb2;
   }
+
+  static void testCommonHeaderBytes(unsigned char* data)
+   {
+     /* Msg UUID LEN */
+     CPPUNIT_ASSERT(data[2+0] == 0x00);
+     CPPUNIT_ASSERT(data[2+1] == 0x00);
+     CPPUNIT_ASSERT(data[2+2] == 0x00);
+     CPPUNIT_ASSERT(data[2+3] == 0x24);
+
+     /* Msg UUID */
+     CPPUNIT_ASSERT(data[6+8] == '-');
+     CPPUNIT_ASSERT(data[6+13] == '-');
+     CPPUNIT_ASSERT(data[6+18] == '-');
+     CPPUNIT_ASSERT(data[6+23] == '-');
+
+     /* has RE:UUID */
+     CPPUNIT_ASSERT((data[42] == 0x00) || (data[42] == 0x01));
+     int offset = 0;
+
+     if (data[42] == 0x01) {
+       /* Msg RE:UUID LEN */
+       CPPUNIT_ASSERT(data[43+0] == 0x00);
+       CPPUNIT_ASSERT(data[43+1] == 0x00);
+       CPPUNIT_ASSERT(data[43+2] == 0x00);
+       CPPUNIT_ASSERT(data[43+3] == 0x24);
+
+       /* Msg RE:UUID */
+       CPPUNIT_ASSERT(data[47+8] == '-');
+       CPPUNIT_ASSERT(data[47+13] == '-');
+       CPPUNIT_ASSERT(data[47+18] == '-');
+       CPPUNIT_ASSERT(data[47+23] == '-');
+
+       offset = 40;
+     }
+
+     /* Path String length */
+     CPPUNIT_ASSERT(data[offset+43+0] == 0x00);
+     CPPUNIT_ASSERT(data[offset+43+1] == 0x00);
+     CPPUNIT_ASSERT(data[offset+43+2] == 0x00);
+     CPPUNIT_ASSERT(data[offset+43+3] == 0x20);
+
+     /* Path String */
+     CPPUNIT_ASSERT(data[offset+47+0] == 0x61);
+     CPPUNIT_ASSERT(data[offset+47+1] == 0x77);
+     CPPUNIT_ASSERT(data[offset+47+2] == 0x65);
+     CPPUNIT_ASSERT(data[offset+47+3] == 0x73);
+     CPPUNIT_ASSERT(data[offset+47+4] == 0x6f);
+     CPPUNIT_ASSERT(data[offset+47+5] == 0x6d);
+     CPPUNIT_ASSERT(data[offset+47+6] == 0x65);
+     CPPUNIT_ASSERT(data[offset+47+7] == 0x2f);
+     CPPUNIT_ASSERT(data[offset+47+8] == 0x70);
+     CPPUNIT_ASSERT(data[offset+47+9] == 0x61);
+     CPPUNIT_ASSERT(data[offset+47+10] == 0x74);
+     CPPUNIT_ASSERT(data[offset+47+11] == 0x68);
+     CPPUNIT_ASSERT(data[offset+47+12] == 0x2f);
+     CPPUNIT_ASSERT(data[offset+47+13] == 0x74);
+     CPPUNIT_ASSERT(data[offset+47+14] == 0x6f);
+     CPPUNIT_ASSERT(data[offset+47+15] == 0x2f);
+     CPPUNIT_ASSERT(data[offset+47+16] == 0x61);
+     CPPUNIT_ASSERT(data[offset+47+17] == 0x77);
+     CPPUNIT_ASSERT(data[offset+47+18] == 0x65);
+     CPPUNIT_ASSERT(data[offset+47+19] == 0x73);
+     CPPUNIT_ASSERT(data[offset+47+20] == 0x6f);
+     CPPUNIT_ASSERT(data[offset+47+21] == 0x6d);
+     CPPUNIT_ASSERT(data[offset+47+22] == 0x65);
+     CPPUNIT_ASSERT(data[offset+47+23] == 0x2f);
+     CPPUNIT_ASSERT(data[offset+47+24] == 0x67);
+     CPPUNIT_ASSERT(data[offset+47+25] == 0x65);
+     CPPUNIT_ASSERT(data[offset+47+26] == 0x6f);
+     CPPUNIT_ASSERT(data[offset+47+27] == 0x6d);
+     CPPUNIT_ASSERT(data[offset+47+28] == 0x65);
+     CPPUNIT_ASSERT(data[offset+47+29] == 0x74);
+     CPPUNIT_ASSERT(data[offset+47+30] == 0x72);
+     CPPUNIT_ASSERT(data[offset+47+31] == 0x79);
+   }
 
   static char testData[];
   static std::string testPath;
