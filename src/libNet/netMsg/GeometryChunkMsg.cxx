@@ -28,24 +28,38 @@
 
 /* Normal Constructor */
 GeometryChunkMsg::GeometryChunkMsg(std::string path, ByteBuffer* dataIn) :
-  GenericMultiByteMsg(GEOMETRYCHUNK, dataIn), path(path)
-{}
+  NetMsg(GEOMETRYCHUNK), path(path)
+{
+  /* Deep copy */
+  this->data = dataIn->duplicate();
+}
 
 /* Reply Constructor */
 GeometryChunkMsg::GeometryChunkMsg(NetMsg* msg, std::string path, ByteBuffer* dataIn) :
-  GenericMultiByteMsg(GEOMETRYCHUNK, msg, dataIn), path(path)
-{}
+    NetMsg(GEOMETRYCHUNK, msg), path(path)
+{
+  /* Deep copy */
+  this->data = dataIn->duplicate();
+}
 
 /* Deserializing Constructor */
 GeometryChunkMsg::GeometryChunkMsg(ByteBuffer* bb, Portal* origin) :
-  GenericMultiByteMsg(bb, origin)
+    NetMsg(bb, origin)
 {
+  /* Path */
   this->path = bb->getString();
+
+  /* then Data */
+  int len = bb->get32bit();
+  this->data = ByteBuffer::allocate(len + 1);
+  bb->get(this->data->array(), len);
 }
 
 /* Destructor */
 GeometryChunkMsg::~GeometryChunkMsg()
-{}
+{
+  free(this->data);
+}
 
 std::string
 GeometryChunkMsg::getPath()
@@ -56,17 +70,30 @@ GeometryChunkMsg::getPath()
 bool
 GeometryChunkMsg::_serialize(ByteBuffer* bb)
 {
-  GenericMultiByteMsg::_serialize(bb); /* FIXME this is confusing.  Clean up the NetMsg heirarchy */
+  /* Path */
   bb->putString(this->path);
+
+  /* then Data */
+  uint32_t len = 0;
+  if (this->data->position() != 0) {
+    this->data->flip();
+    len = this->data->limit();
+  } else {
+    len = this->data->position();
+  }
+  bb->put32bit(len);
+  bb->put(this->data->array(), len);
+
   return true;
 }
 
 std::string
 GeometryChunkMsg::toString()
 {
-  std::string out = GenericMultiByteMsg::toString();
+  std::string out = NetMsg::toString();
   out.append(" Path: ");
   out.append(this->path);
+  out += "\tData: " + this->data->toString();
   return out;
 }
 
@@ -86,6 +113,25 @@ GeometryChunkMsg::_equals(const NetMsg& msg)
     return false;
 
   return true;
+}
+
+/*
+ *Getters n Setters
+ */
+char* GeometryChunkMsg::getData()
+{
+  return this->data->array();
+}
+
+uint32_t GeometryChunkMsg::getDataLen()
+{
+  return this->data->position();
+}
+
+ByteBuffer*
+GeometryChunkMsg::getByteBuffer()
+{
+  return new ByteBuffer(*this->data);
 }
 
 GeometryChunkMsg*

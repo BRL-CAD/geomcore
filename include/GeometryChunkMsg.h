@@ -26,10 +26,10 @@
 #ifndef __GEOMETRYCHUNKMSG_H__
 #define __GEOMETRYCHUNKMSG_H__
 
-#include "GenericMultiByteMsg.h"
+#include "NetMsg.h"
 #include <MinimalObject.h>
 
-class GeometryChunkMsg : public GenericMultiByteMsg
+class GeometryChunkMsg : public NetMsg
 {
 public:
 	/* Normal Constructor */
@@ -49,15 +49,21 @@ public:
 
 	std::string toString();
 	std::string getPath();
+	ByteBuffer* getByteBuffer();
 
 	static BRLCAD::MinimalObject* chunkToObj(GeometryChunkMsg* msg);
 	static GeometryChunkMsg* objToChunk(BRLCAD::MinimalObject* Obj, NetMsg* replyMsg = 0);
 
+protected:
+        uint32_t getDataLen();
+        char* getData();
+
 private:
 	std::string path;
+        ByteBuffer* data;
 
 	/* Disable copy cstr and =operator */
-	GeometryChunkMsg(GeometryChunkMsg const&):GenericMultiByteMsg(-1,NULL){};
+	GeometryChunkMsg(GeometryChunkMsg const&):NetMsg(-1,NULL){};
 	GeometryChunkMsg& operator=(GeometryChunkMsg const&){};
 };
 
