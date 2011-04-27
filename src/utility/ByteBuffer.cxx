@@ -137,11 +137,12 @@ ByteBuffer::put(ByteBuffer* src)
 bool
 ByteBuffer::put(char* c, size_t length)
 {
-  if (this->position() + length > this->limit())
-    return false;
-
   bu_vlb_write(&vlb, (unsigned char*) c, length);
-  return true;
+
+  if (this->position() > this->limit())
+    this->setLimit(this->position());
+
+  return true; //TODO Do we really need to return a bool?
 }
 
 char*
@@ -233,6 +234,8 @@ ByteBuffer::put16bit(uint16_t host)
 
   /* this call also advances position */
   bu_vlb_write(&this->vlb, (unsigned char *)&net, 2);
+  if (this->position() > this->limit())
+    this->setLimit(this->position());
 }
 
 uint32_t
@@ -256,6 +259,9 @@ ByteBuffer::put32bit(uint32_t host)
 
   /* this call also advances position */
   bu_vlb_write(&this->vlb, (unsigned char *)&net, 4);
+
+  if (this->position() > this->limit())
+    this->setLimit(this->position());
 }
 
 uint64_t
@@ -278,6 +284,9 @@ ByteBuffer::put64bit(uint64_t host)
 
   /* this call also advances position */
   bu_vlb_write(&this->vlb, (unsigned char *)&net, 8);
+
+  if (this->position() > this->limit())
+    this->setLimit(this->position());
 }
 
 
