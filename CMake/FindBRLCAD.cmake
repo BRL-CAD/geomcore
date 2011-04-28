@@ -46,6 +46,7 @@
 #     BRLCAD_RENDER_LIBRARY - librender
 #     BRLCAD_RT_LIBRARY - BRL-CAD Raytracing library
 #     BRLCAD_SYSV_LIBRARY - libsysv
+#     BRLCAD_TCLCAD_LIBRARY - libtclcad
 #     BRLCAD_TERMIO_LIBRARY - libtermio (non WIN32 systems)
 #     BRLCAD_TIE_LIBRARY - libtie
 #     BRLCAD_WDB_LIBRARY - BRL-CAD Write Database library
@@ -191,6 +192,7 @@ SET(BRL-CAD_LIBS_SEARCH_LIST
 	render
 	rt
 	sysv
+	tclcad
 	termio
 	tie
 	wdb
