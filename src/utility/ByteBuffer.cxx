@@ -157,7 +157,6 @@ ByteBuffer::compact()
   // limit - position
   size_t rem = this->remaining();
 
-  char* temp = (char*) malloc(rem);
   char* old = (char*) this->vlb.buf;
 
   /*  use memmove due to potential overlap */
@@ -197,6 +196,9 @@ ByteBuffer::toHexString(bool printToPosition)
       len = this->capacity();
       ss << " (Capacity: " << len << " bytes) ";
   }
+
+  if (len == 0)
+    return "<Empty>";
 
   char* p = this->array();
   unsigned int b;
@@ -304,8 +306,16 @@ ByteBuffer::getString()
 
   char* ptr = this->array() + this->position();
   this->setPosition(this->position() + len);
-  std::string out;
+  std::string out = "";
   out.append(ptr, len);
+
+/*
+  std::cout << "pos: " << this->position();
+  std::cout << "/" << this->capacity();
+  std::cout << "len: " << len << " string: '";
+  std::cout << out << "'\n";
+*/
+
   return out;
 }
 
