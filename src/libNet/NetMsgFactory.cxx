@@ -63,13 +63,8 @@ NetMsgFactory::~NetMsgFactory()
 NetMsg*
 NetMsgFactory::deserializeNetMsg(ByteBuffer* bb, Portal* origin)
 {
-  /* Check if bb ready for read */
-  if(bb->position() != 0) {
-      bb->flip();
-  }
-
   /* Check if at least header data is here. */
-  if(bb->limit() < 43) {
+  if(bb->remaining() < 43) {
       return NULL;
   }
 
