@@ -239,10 +239,10 @@ print_packet(char *buf, int len)
 	    printf("%s\n", sbuf);
 	    break;
 	case GSPING:
-	    printf("\tsend time:\t%llu microseconds\n", ntohll(*(uint64_t*)buf)); buf+=8; len-=8;
+	    printf("\tsend time:\t%lu microseconds\n", ntohll(*(uint64_t*)buf)); buf+=8; len-=8;
 	    break;
 	case GSPONG:
-	    printf("\tdelta time:\t%llu microseconds\n", getbigtime()-ntohll(*(uint64_t*)buf)); buf+=8; len-=8;
+	    printf("\tdelta time:\t%lu microseconds\n", getbigtime()-ntohll(*(uint64_t*)buf)); buf+=8; len-=8;
 	    break;
 	default:
 	    printf("\tpayload:\t");
