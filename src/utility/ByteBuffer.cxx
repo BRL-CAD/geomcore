@@ -27,6 +27,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <string.h>
 
 const uint32_t ByteBuffer::defaultBufferSize = 1024 * 4;
 
