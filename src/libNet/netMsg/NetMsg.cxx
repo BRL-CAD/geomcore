@@ -54,6 +54,7 @@ NetMsg::NetMsg(ByteBuffer* bb, Portal* origin)
 
   this->origin = origin;
   this->msgType = bb->get16bit(); //this isn't right...
+  this->msgLen = bb->get32bit();
 
   s = bb->getString();
   this->msgUUID = new GSUuid(s);
@@ -82,19 +83,36 @@ NetMsg::serialize()
 void
 NetMsg::serialize(ByteBuffer* bb)
 {
-    /* Serialize Header */
-      bb->put16bit(this->msgType);
-      bb->putString(this->msgUUID->toString());
-      bb->put(this->hasReUUID);
+  int start = bb->position();
 
-    if (this->hasReUUID)
-      bb->putString(this->reUUID->toString());
+  /* Serialize Header */
+  bb->put16bit(this->msgType);
+  int lenPosition = bb->position();
+  bb->put32bit(0);
+  bb->putString(this->msgUUID->toString());
+  bb->put(this->hasReUUID);
 
-    /* Call subclass serialize */
-    if (!this->_serialize(bb)) {
-	std::cerr << "A serialization Error in NetMsg::serialize() occurred.\n";
-	return;
-    }
+  if (this->hasReUUID)
+    bb->putString(this->reUUID->toString());
+
+  /* Call subclass serialize */
+  if (!this->_serialize(bb)) {
+      std::cerr << "A serialization Error in NetMsg::serialize() occurred.\n";
+      return;
+  }
+
+  int stop = bb->position();
+  this->msgLen = stop - start;
+
+  if (this->msgLen < 1){
+      std::cerr << "A serialization Error in NetMsg::serialize() occurred (len < 1).\n";
+      return;
+  }
+
+  /* Go back and fill in length */
+  bb->setPosition(lenPosition);
+  bb->put32bit(this->msgLen);
+  bb->setPosition(stop);
 }
 
 /*
@@ -104,6 +122,12 @@ uint16_t
 NetMsg::getMsgType() const
 {
     return this->msgType;
+}
+
+uint32_t
+NetMsg::getMsgLen() const
+{
+    return this->msgLen;
 }
 
 GSUuid*

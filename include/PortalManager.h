@@ -27,7 +27,6 @@
 #define __PORTALMANAGER_H__
 
 #include "ControlledThread.h"
-#include "PkgTcpServer.h"
 #include "INetMsgHandler.h"
 #include "TypeOnlyMsg.h"
 #include "Logger.h"
@@ -44,40 +43,41 @@ class Portal;
 class PortalManager : public ControlledThread, public INetMsgHandler
 {
 public:
-	PortalManager(std::string localNodeName, uint16_t port = 0, std::string address = std::string("127.0.0.1"));
-	~PortalManager();
+  PortalManager(std::string localNodeName, uint16_t port = 0, std::string address = std::string("127.0.0.1"));
+  ~PortalManager();
 
-	Portal* connectToHost(std::string host, uint16_t port);
-	void disconnect(Portal* p);
-    bool handleNetMsg(NetMsg* msg);
-    std::string getLocalNodeName();
+  Portal* connectToHost(std::string host, uint16_t port);
+  void disconnect(Portal* p);
+  bool handleNetMsg(NetMsg* msg);
+  std::string getLocalNodeName();
 
 protected:
-	void _run();
+  void _run();
 
 private:
-	std::string localNodeName;
-	Logger* log;
+  std::string localNodeName;
+  Logger* log;
 
-	uint16_t listenPort;
-	std::string listenAddress;
-	PkgTcpServer* tcpServer;
+  uint16_t listenPort;
+  std::string listenAddress;
 
-	GSMutex masterFDSLock;
-	fd_set masterfds;
-	int fdmax;
+  GSMutex masterFDSLock;
+  fd_set masterfds;
+  int fdmax;
 
-	GSMutex* portalsLock;
-	std::map<int, Portal*>* fdPortalMap;
+  GSMutex* portalsLock;
+  std::map<int, Portal*>* fdPortalMap;
 
-	Portal* makeNewPortal(PkgTcpClient* client, struct pkg_switch* table);
-	struct pkg_switch* makeNewSwitchTable();
-	void closeFD(int fd, std::string logComment);
-    void handleDisconnectReqMsg(TypeOnlyMsg* msg);
+  Portal* makeNewPortal(int socket);
+  int listen();
+  int accept(int listener);
+  void closeFD(int fd, std::string logComment);
 
-	/* Disable copy cstr and =operator */
-	PortalManager(PortalManager const&){};
-	PortalManager& operator=(PortalManager const&){};
+  void handleDisconnectReqMsg(TypeOnlyMsg* msg);
+
+  /* Disable copy cstr and =operator */
+  PortalManager(PortalManager const&){};
+  PortalManager& operator=(PortalManager const&){};
 };
 
 #endif /* __PORTALMANAGER_H__ */

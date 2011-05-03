@@ -139,23 +139,40 @@ void DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg) {
 
 		++cnt;
 	}
-	std::cout << "\ntotal: " << cnt << std::endl;
+//	std::cout << "\ntotal: " << cnt << std::endl;
 
 	/* Send manifest */
 	GeometryManifestMsg man(originalMsg, items);
+
+	ByteBuffer* temp = man.serialize();
+	std::cout << "Manifest byte size: " << temp->position() << "\n";
+
 	origin->send(&man);
+/*
+        std::cout << "Pausing for 60 seconds... \n";
+        usleep(1000*1000*50);
+        for (int i = 10; i<1;--i) {
+            std::cout << i << "\n";
+            usleep(1000*1000);
+        }
+*/
+ //       usleep(1000*10);
 
 	/* Send chunks */
-	int cnt2 = 0;
+        bool success = false;
+        int cnt2 = 0;
 	for (std::list<GeometryChunkMsg*>::iterator chunkIter = msgs.begin(); chunkIter
 			!= msgs.end(); ++chunkIter) {
 		chunk = *chunkIter;
-		std::cout << "Sending: " << cnt2 << std::endl;
-		usleep(1000 * 1000);
-		origin->send(chunk);
+//		std::cout << "Sending: " << cnt2 << std::endl;
+//		usleep(1000*10);
+		if (origin->send(chunk) < 1){
+		    log->logERROR("DataManager","Failed to send CHUNK.  Socket closed?");
+		    break;
+		}
 		cnt2++;
 	}
-	std::cout << "\ntotal2: " << cnt2 << std::endl;
+//	std::cout << "\ntotal2: " << cnt2 << std::endl;
 
 	return;
 }

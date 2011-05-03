@@ -103,13 +103,13 @@ SET(geomserv_inst_HDRS
 INSTALL(FILES ${geomserv_inst_HDRS} DESTINATION include)
 
 add_executable(geomserv geomserv.cxx)
-target_link_libraries(geomserv libgcutil libNet libgeomserv)
+target_link_libraries(geomserv libgcutil libNet libgeomserv ${BRLCAD_PKG_LIBRARY})
 install(TARGETS geomserv DESTINATION bin)
 file(COPY geomserv.config DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 
 add_executable(geomclient geomclient.cxx)
-target_link_libraries(geomclient libgcutil libNet libgeomserv)
+target_link_libraries(geomclient libgcutil libNet libgeomserv ${BRLCAD_PKG_LIBRARY})
 install(TARGETS geomclient DESTINATION bin)
 file(COPY geomclient.config DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 

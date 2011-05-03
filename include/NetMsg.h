@@ -60,7 +60,8 @@ public:
 	/*
 	 *Getters n Setters
 	 */
-	uint16_t getMsgType() const;
+        uint16_t getMsgType() const;
+        uint32_t getMsgLen() const;
 	GSUuid* getMsgUUID() const;
 	bool msgHasReUUID() const;
 	GSUuid* getReUUID() const;
@@ -75,6 +76,7 @@ public:
 
 protected:
 	uint16_t msgType;
+	uint32_t msgLen;
 	GSUuid* msgUUID;
 	bool hasReUUID; //TODO replace this with a bit pack
 	GSUuid* reUUID;

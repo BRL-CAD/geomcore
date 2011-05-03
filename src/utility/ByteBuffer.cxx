@@ -296,8 +296,15 @@ ByteBuffer::put64bit(uint64_t host)
 void
 ByteBuffer::putString(std::string str)
 {
-  this->put32bit(str.length());
-  this->put((char*)str.c_str(), str.length());
+  int len = str.length();
+
+  if (len == 0) {
+      this->put32bit(0);
+      return;
+    }
+
+  this->put32bit(len);
+  this->put((char*)str.c_str(), len);
 }
 
 std::string
@@ -305,18 +312,59 @@ ByteBuffer::getString()
 {
   uint32_t len = this->get32bit();
 
+  if (len > 2048) {
+      std::ostringstream ss;
+      ss << "Warning: Massive string as position: "<< (this->position()-4) << "  Data= \n";
+      int startPos = this->position() - 4 - 64;
+
+      char* p = this->array() + startPos;
+      unsigned int b;
+      for (int i = 1; i<=(64);i++)
+      {
+          b = (unsigned int)*p;
+          if (b < 10)
+            ss << std::hex << '0' << (unsigned int)*p << ' ';
+          else
+            ss << std::hex << (unsigned int)*p << ' ';
+
+          if (i % 4 == 0)
+            ss << "\t";
+          if (i % 32 == 0)
+            ss << "\n";
+          p++;
+      }
+      ss << "\n\n";
+
+      for (int i = 1; i<=(128);i++)
+      {
+          b = (unsigned int)*p;
+          if (b < 10)
+            ss << std::hex << '0' << (unsigned int)*p << ' ';
+          else
+            ss << std::hex << (unsigned int)*p << ' ';
+
+          if (i % 4 == 0)
+            ss << "\t";
+          if (i % 32 == 0)
+            ss << "\n";
+          p++;
+      }
+
+      std::cout << "\n\n" << ss.str() << "\n\n";
+      exit(0);
+  }
+
+
   char* ptr = this->array() + this->position();
   this->setPosition(this->position() + len);
   std::string out = "";
   out.append(ptr, len);
-
 /*
-  std::cout << "pos: " << this->position();
+  std::cout << "bb pos: " << this->position();
   std::cout << "/" << this->capacity();
-  std::cout << "len: " << len << " string: '";
+  std::cout << " len: " << len << " string: '";
   std::cout << out << "'\n";
 */
-
   return out;
 }
 

@@ -28,21 +28,25 @@
 
 #define PKG_MAGIC2      0x5309
 
+
 #include "INetMsgHandler.h"
-#include "PkgTcpClient.h"
 #include "NetMsg.h"
 #include "Logger.h"
-
+#include "GSThread.h"
 #include "pkg.h"
-
 #include <string>
 
+#define MAXCHUNKSIZE 4096
+
 class PortalManager;
+class MakeAndRouteMsgJob;
 
 class Portal : public INetMsgHandler
 {
 public:
   friend class PortalManager;
+  friend class MakeAndRouteMsgJob;
+
   virtual ~Portal();
   int send(NetMsg* msg);
   int sendThenDisconnect(NetMsg* msg);
@@ -50,32 +54,40 @@ public:
   void sendGSNodeName();
   void disconnect();
 
-  int flush();
   std::string getRemoteNodeName();
   bool handleNetMsg(NetMsg* msg);
 
+  void tryBuild();
+
 
 protected:
-  Portal(PortalManager* pm, PkgTcpClient* client, struct pkg_switch* table);
+  Portal(PortalManager* pm, int socket);
 
 
-	/* Not for public use since libPKG will block on this call.
+/* Not for public use since libPKG will block on this call.
      * Returns:
      *          <0 on error
      *          0 on EOF
      *          1 on success
      */
-  int read();
+  int pullFromSock();
 
 private:
   PortalManager* pm;
-  struct pkg_switch* callbackTable;
-  PkgTcpClient* pkgClient;
+
+  int socket;
+
   std::string remoteNodeName;
   Logger* log;
   bool handshakeComplete;
 
-  static void callbackSpringboard(struct pkg_conn* conn, char* buf);
+  GSMutex recvBufLock;
+  ByteBuffer* recvBuffer;
+
+  MakeAndRouteMsgJob* builder;
+
+  void tryToBuildNetMsgs();
+  bool routeNetMsg(NetMsg* msg);
 
   /* Disable copy cstr and =operator */
   Portal(Portal const&){};

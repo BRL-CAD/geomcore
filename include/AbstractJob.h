@@ -61,7 +61,6 @@ enum JobResult
 class AbstractJob
 {
 public:
-
 	/**
 	 * Standard Destructor.  Nothing to see here.
 	 */
@@ -85,7 +84,7 @@ public:
 	/**
 	 * Returns the JobID for this job.  JobID is a 32bit integer value.
 	 */
-	GSUuid getJobId();
+	GSUuid* getJobId();
 
 protected:
 	/**
@@ -102,7 +101,7 @@ protected:
 	/**
 	 * Internal field for storing Job's ID.
 	 */
-	GSUuid jobID;
+	GSUuid* jobID;
 
 	/**
 	 * Internal field for storing Job's current status.

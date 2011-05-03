@@ -39,7 +39,7 @@ GSClient::GSClient(std::string localNodeName)
 
     this->portMan = new PortalManager(localNodeName);
     this->portMan->start();
-    usleep(100000);
+    usleep(100 * 1000);
 
     this->registerMsgRoutes();
 }
@@ -145,20 +145,19 @@ GSClient::handleNetMsg(NetMsg* msg)
 			GeometryManifestMsg* man = (GeometryManifestMsg*)msg;
 			std::list<std::string>* items = man->getItemData();
 			std::string str;
-			std::stringstream ss;
-
 
 			int count = man->getNumOfItems();
-			ss << "Items(" << count << "): ";
+			std::cout << "GSClient\tGot manifest of " << count << " items.\n";
 
-			/* build manifest & Chunks to send*/
+			// build manifest & Chunks to send
 			for (std::list<std::string>::iterator it = items->begin(); it
 					!= items->end(); it++) {
 				str = *it;
-				ss << "'" << str << ", ";
+				std::cout << "  '" << str << ",\n";
 			}
 
-			log->logINFO("GSClient", ss.str());
+			std::cout << std::endl;
+
 
 			return false;
 		}
@@ -180,9 +179,8 @@ GSClient::handleNetMsg(NetMsg* msg)
 		    }
 
 		    std::string name((char*)raw.name.ext_buf);
-
-			log->logINFO("GSClient", "Got a Chunk named: " + name);
-			return false;
+		    log->logINFO("GSClient", "Got a Chunk named: " + name);
+		    return false;
 		}
     }
     return false;

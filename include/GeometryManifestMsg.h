@@ -32,7 +32,6 @@
 class GeometryManifestMsg : public NetMsg
 {
 public:
-
 	/* Normal Constructor */
 	GeometryManifestMsg(std::list<std::string>& items);
 

@@ -33,7 +33,7 @@
 class MakeAndRouteMsgJob : public AbstractJob
 {
 public:
-	MakeAndRouteMsgJob(NetMsg* msg);
+	MakeAndRouteMsgJob(Portal* p);
 	virtual ~MakeAndRouteMsgJob();
 
 protected:

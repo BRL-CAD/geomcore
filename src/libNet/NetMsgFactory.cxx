@@ -68,73 +68,97 @@ NetMsgFactory::deserializeNetMsg(ByteBuffer* bb, Portal* origin)
       return NULL;
   }
 
+   NetMsg* msg = NULL;
+
   /* Peek at type */
   int start = bb->position();
   uint16_t msgType = bb->get16bit();
   bb->setPosition(start);
 
+//  std::cout <<"Attempting to deserialize type: " << msgType << "\n";
+
   /* TODO Replace this with a map for registration scheme */
   switch (msgType)
     {
   case TEST_GENERIC_4BYTE_MSG:
-    return new GenericFourBytesMsg(bb, origin);
+    msg = new GenericFourBytesMsg(bb, origin);
+    break;
 
   case TEST_GENERIC_2BYTE_MSG:
-    return new GenericTwoBytesMsg(bb, origin);
+    msg = new GenericTwoBytesMsg(bb, origin);
+    break;
 
   case TEST_GENERIC_1BYTE_MSG:
-    return new GenericOneByteMsg(bb, origin);
+    msg = new GenericOneByteMsg(bb, origin);
+    break;
 
   case TEST_GENERIC_MULTIBYTE_MSG:
-    return new GenericMultiByteMsg(bb, origin);
+    msg = new GenericMultiByteMsg(bb, origin);
+    break;
 
   case TEST_GENERIC_1STRING_MSG:
-    return new GenericOneStringMsg(bb, origin);
+    msg = new GenericOneStringMsg(bb, origin);
+    break;
 
   case RUALIVE:
-    return new TypeOnlyMsg(bb, origin);
+    msg = new TypeOnlyMsg(bb, origin);
+    break;
   case IMALIVE:
-    return new TypeOnlyMsg(bb, origin);
+    msg = new TypeOnlyMsg(bb, origin);
+    break;
 
   case FAILURE:
-    return new GenericOneByteMsg(bb, origin);
+    msg = new GenericOneByteMsg(bb, origin);
+    break;
   case SUCCESS:
-    return new GenericOneByteMsg(bb, origin);
+    msg = new GenericOneByteMsg(bb, origin);
+    break;
   case GS_REMOTE_NODENAME_SET:
-    return new GenericOneStringMsg(bb, origin);
+    msg = new GenericOneStringMsg(bb, origin);
+    break;
 
   case DISCONNECTREQ:
-    return new TypeOnlyMsg(bb, origin);
+    msg = new TypeOnlyMsg(bb, origin);
+    break;
 
   case NEWNODEONNET:
-    return new GenericOneStringMsg(bb, origin);
+    msg = new GenericOneStringMsg(bb, origin);
+    break;
     /*     case FULL_NODE_LISTREQ: */
-    /* 	return new NetMsg(bb, origin); */
+    /* 	msg = new NetMsg(bb, origin); */
     /*     case FULL_NODE_LIST: */
-    /* 	return new NetMsg(bb, origin); */
+    /* 	msg = new NetMsg(bb, origin); */
+    /*      break;     */
 
   case NEWSESSIONREQ:
-    return new NewSessionReqMsg(bb, origin);
+    msg = new NewSessionReqMsg(bb, origin);
+    break;
   case SESSIONINFO:
-    return new SessionInfoMsg(bb, origin);
+    msg = new SessionInfoMsg(bb, origin);
+    break;
 
   case GEOMETRYREQ:
-    return new GeometryReqMsg(bb, origin);
+    msg = new GeometryReqMsg(bb, origin);
+    break;
   case GEOMETRYMANIFEST:
-    return new GeometryManifestMsg(bb, origin);
+    msg = new GeometryManifestMsg(bb, origin);
+    break;
   case GEOMETRYCHUNK:
-    return new GeometryChunkMsg(bb, origin);
+    msg = new GeometryChunkMsg(bb, origin);
+    break;
 
   case PING:
-    return new PingMsg(bb, origin);
+    msg = new PingMsg(bb, origin);
+    break;
   case PONG:
-    return new PongMsg(bb, origin);
+    msg = new PongMsg(bb, origin);
+    break;
 
 
     /* Admin commands */
   case CMD_SHUTDOWN:
-    return new TypeOnlyMsg(bb, origin);
-
+    msg = new TypeOnlyMsg(bb, origin);
+    break;
 
   default:
     std::stringstream ss;
@@ -144,6 +168,10 @@ NetMsgFactory::deserializeNetMsg(ByteBuffer* bb, Portal* origin)
 
     return NULL;
     }
+
+
+//  std::cout << "Finished deserializing.... \n";
+  return msg;
 }
 
 /*

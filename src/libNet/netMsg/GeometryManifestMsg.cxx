@@ -24,6 +24,7 @@
  */
 
 #include "GeometryManifestMsg.h"
+#include <iostream>
 
 /* Normal Constructor */
 GeometryManifestMsg::GeometryManifestMsg(
@@ -49,11 +50,15 @@ GeometryManifestMsg::GeometryManifestMsg(ByteBuffer* bb, Portal* origin) :
   std::string tstr;
   for (uint32_t i = 0; i < numOfItems; ++i)
     {
+//      if (i % 50 == 0) std::cout << i << std::endl;
       tstr = bb->getString();
       if (tstr.size() == 0)
         continue;
       this->itemData->push_back(tstr);
     }
+
+  std::cout << "\nGeomManifest CSTR exiting\n\n";
+
 }
 
 /* Destructor */

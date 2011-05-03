@@ -34,6 +34,7 @@ SET(libNet_SRCS
 	PortalManager.cxx
 	NetMsgFactory.cxx
 	NetMsgRouter.cxx
+	MakeAndRouteMsgJob.cxx
 	netMsg/NetMsg.cxx
 	netMsg/TypeOnlyMsg.cxx
 	netMsg/GenericOneStringMsg.cxx
@@ -53,18 +54,17 @@ SET(libNet_SRCS
 	netMsg/GeometryChunkMsg.cxx
 	netMsg/PingMsg.cxx
 	netMsg/PongMsg.cxx
-	RouteMsgJob.cxx
 )
 
 IF(BUILD_SHARED_LIBS)
 	add_library(libNet SHARED ${libNet_SRCS})
-	target_link_libraries(libNet libJob libgcutil libEvent libPkgCpp ${BRLCAD_RT_LIBRARY} ${LIBGE_GE_LIBRARY})
+	target_link_libraries(libNet libJob libgcutil libEvent ${BRLCAD_RT_LIBRARY} ${LIBGE_GE_LIBRARY})
 	set_target_properties(libNet PROPERTIES PREFIX "")
 	install(TARGETS libNet DESTINATION lib)
 ENDIF(BUILD_SHARED_LIBS)
 IF(BUILD_STATIC_LIBS)
 	add_library(libNet-static STATIC ${libNet_SRCS})
-	target_link_libraries(libNet-static libJob libgcutil libEvent libPkgCpp ${BRLCAD_RT_LIBRARY} ${LIBGE_GE_LIBRARY})
+	target_link_libraries(libNet-static libJob libgcutil libEvent ${BRLCAD_RT_LIBRARY} ${LIBGE_GE_LIBRARY})
 	IF(NOT WIN32)
 		set_target_properties(libNet-static PROPERTIES PREFIX "")
 		set_target_properties(libNet-static PROPERTIES OUTPUT_NAME "libNet")
@@ -82,6 +82,7 @@ SET(libNet_inst_HDRS
 	INetMsgHandler.h
 	NetMsgFactory.h
 	NetMsgRouter.h
+	MakeAndRouteMsgJob.h
 	NetMsg.h
 	TypeOnlyMsg.h
 	RemoteNodenameSetMsg.h
@@ -102,6 +103,5 @@ SET(libNet_inst_HDRS
 	GeometryChunkMsg.h
 	PingMsg.h
 	PongMsg.h
-	RouteMsgJob.h
 )
 INSTALL(FILES ${libNet_inst_HDRS} DESTINATION include)

@@ -34,7 +34,7 @@ MakeAndRouteMsgJob::~MakeAndRouteMsgJob() {}
 
 JobResult MakeAndRouteMsgJob::_doJob()
 {
-  Portal::tryToBuildNetMsgs(this->p);
+  this->p->tryToBuildNetMsgs();
 }
 
 

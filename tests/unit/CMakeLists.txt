@@ -36,6 +36,7 @@ include_directories(
 
 SET( UnitTests_LIBS
 	${BRLCAD_BU_LIBRARY}
+	${BRLCAD_PKG_LIBRARY}
 	${TCL_LIBRARIES}
 	${CPPUNIT_LIBRARY}
 	libgcutil

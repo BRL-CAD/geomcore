@@ -26,8 +26,9 @@
 #include "Portal.h"
 #include "PortalManager.h"
 #include "NetMsgFactory.h"
-#include "PkgTcpClient.h"
 #include "NetMsgTypes.h"
+#include "JobManager.h"
+#include "MakeAndRouteMsgJob.h"
 
 #include <string>
 #include <stdio.h>
@@ -40,7 +41,6 @@ PortalManager::PortalManager(std::string localNodeName, uint16_t listenPort, std
 	this->localNodeName.assign(localNodeName + "PortMan");
 	this->listenAddress.assign(address);
 	this->listenPort = listenPort;
-	this->tcpServer = new PkgTcpServer();
 	this->fdPortalMap = new std::map<int, Portal*> ();
 	this->portalsLock = new GSMutex();
 	this->log = Logger::getInstance();
@@ -51,231 +51,261 @@ PortalManager::~PortalManager() {}
 
 Portal*
 PortalManager::connectToHost(std::string host, uint16_t port) {
-	struct pkg_switch* table = this->makeNewSwitchTable();
 
-	PkgTcpClient* pkgc = (PkgTcpClient*) this->tcpServer->connectToHost(host, port, table);
+//  struct pkg_switch* table = new pkg_switch[1];
+//
+//  table[0].pks_type = 0;
+//  table[0].pks_handler = 0;
+//  table[0].pks_title = (char*) 0;
+//  table[0].pks_user_data = 0;
 
-	if (pkgc == NULL) {
-		return NULL;
-	} else {
-		Portal* p = this->makeNewPortal(pkgc, table);
-		return p;
-	}
+  std::stringstream ss;
+  ss << port;
+  std::string s_port = ss.str();
+
+  /* Use PKG to do all the cross platform stuff */
+  pkg_conn* conn = pkg_open(host.c_str(), s_port.c_str(),
+      "tcp", NULL, NULL, NULL, NULL);
+
+    if (conn == PKC_ERROR) {
+            bu_log("Connection to %s, port %d, failed.\n", host.c_str(),
+                            port);
+            return NULL;
+    }
+
+    Portal* p = this->makeNewPortal(conn->pkc_fd);
+
+    /* Dunno if i can do this without killing the FD */
+    free(conn);
+
+    return p;
+}
+
+int
+PortalManager::listen()
+{
+  std::stringstream ss;
+  ss << this->listenPort;
+  std::string s_port = ss.str();
+  int fd = pkg_permserver_ip(this->listenAddress.c_str(), s_port.c_str(), "tcp", 0, 0);
+  return fd;
+}
+
+int
+PortalManager::accept(int listener)
+{
+  /* Use PKG to do all the cross platform stuff */
+  pkg_conn* conn = pkg_getclient(listener, NULL, NULL, 42);
+
+  if (conn == NULL) {
+      return -1;
+  } else if (conn == PKC_ERROR) {
+      bu_log("Fatal error accepting client connection.\n");
+      free(conn);
+      return -1;
+  }
+
+  int fd = conn->pkc_fd;
+  free(conn);
+  return fd;
 }
 
 void
 PortalManager::_run() {
-	this->log->logINFO("PortalManager", "Running");
-	struct timeval timeout;
-	fd_set readfds;
-	fd_set exceptionfds;
-	int listener = -1;
+  this->log->logINFO("PortalManager", "Running");
+  struct timeval timeout;
+  fd_set readfds;
+  fd_set exceptionfds;
+  int listener = -1;
 
-	this->masterFDSLock.lock();
-	FD_ZERO(&masterfds);
-	this->masterFDSLock.unlock();
+  this->masterFDSLock.lock();
+  FD_ZERO(&masterfds);
+  this->masterFDSLock.unlock();
 
-	FD_ZERO(&readfds);
-	FD_ZERO(&exceptionfds);
+  FD_ZERO(&readfds);
+  FD_ZERO(&exceptionfds);
 
-	if (this->listenPort != 0) {
-		listener = this->tcpServer->listen(this->listenPort, this->listenAddress);
+  //TODO eventually make this listen on unlimited number of ports.
+  /* Setup listening on single port */
+  if (this->listenPort != 0) {
+    listener = this->listen();
 
-		if (listener < 0) {
-			this->log->logERROR("PortalManager", "Failed to listen");
-			return;
-		} else {
-			char buf[BUFSIZ];
-			std::string s;
-			snprintf(buf, BUFSIZ, "%s:%d FD:%d", this->listenAddress.c_str(), this->listenPort, listener);
-			s.assign(buf);
-			this->log->logINFO("PortalManager", s);
-		}
+    if (listener < 0) {
+        this->log->logERROR("PortalManager", "Failed to listen");
+        return;
+    } else {
+        std::stringstream ss;
+        ss << "Listening on " << this->listenAddress;
+        ss << ":" << (int)this->listenPort;
+        ss << " FD:" << (int)listener;
+        this->log->logINFO("PortalManager", ss.str());
+    }
 
-		this->masterFDSLock.lock();
-		FD_SET(listener, &masterfds);
-		fdmax = listener;
-		this->masterFDSLock.unlock();
-	}
+    this->masterFDSLock.lock();
+    FD_SET(listener, &masterfds);
+    fdmax = listener;
+    this->masterFDSLock.unlock();
+  }
 
-	bool isListener = false;
-	bool readyRead = false;
-	bool readyAccept = false;
-	bool readyException = false;
+  bool isListener = false;
+  bool readyRead = false;
+  bool readyAccept = false;
+  bool readyException = false;
+  int newFD = 0;
 
-	while (this->getRunCmd()) {
-		/* Set values EVERY loop since select() on *nix modifies this. */
-		timeout.tv_sec = 0;
-		timeout.tv_usec = 50 * 1000;
+  while (this->getRunCmd()) {
+      /* Set values EVERY loop since select() on *nix modifies this. */
+      timeout.tv_sec = 0;
+      timeout.tv_usec = 50 * 1000;
 
-		this->masterFDSLock.lock();
-		readfds = masterfds;
-		exceptionfds = masterfds;
-		this->masterFDSLock.unlock();
+      this->masterFDSLock.lock();
+      readfds = masterfds;
+      exceptionfds = masterfds;
+      this->masterFDSLock.unlock();
 
-		/* Shelect!! */
-		int retVal = select(fdmax + 1, &readfds, NULL, &exceptionfds, &timeout);
+      /* Shelect!! */
+      int retVal = select(fdmax + 1, &readfds, NULL, &exceptionfds, &timeout);
 
-		if (retVal < 0) {
-			char buf[BUFSIZ];
-			/* got a selector error */
-			snprintf(buf, BUFSIZ, "Selector Error: %d", errno);
-			this->log->logERROR("PortalManager", buf);
-			break;
-		}
+      if (retVal < 0) {
+          char buf[BUFSIZ];
+          /* got a selector error */
+          snprintf(buf, BUFSIZ, "Selector Error: %d", errno);
+          this->log->logERROR("PortalManager", buf);
+          break;
+      }
 
-		for (int i = 0; i <= fdmax; ++i) {
-			bool isaFD = FD_ISSET(i, &masterfds);
+      for (int i = 0; i <= fdmax; ++i) {
+          bool isaFD = FD_ISSET(i, &masterfds);
 
-			/* Don't muck with an FD that isn't ours! */
-			if (!isaFD) {
-				continue;
-			}
+          /* Don't muck with an FD that isn't ours! */
+          if (!isaFD) {
+              continue;
+          }
 
-			/* Simplify switching later with bools now */
-			isListener = (i == listener);
- 			readyRead =  FD_ISSET(i, &readfds) && !isListener;
-			readyAccept = FD_ISSET(i, &readfds) && isListener;
-			readyException = FD_ISSET(i, &exceptionfds);
+          /* Simplify switching later with bools now */
+          isListener = (i == listener);
+          readyRead =  FD_ISSET(i, &readfds) && !isListener;
+          readyAccept = FD_ISSET(i, &readfds) && isListener;
+          readyException = FD_ISSET(i, &exceptionfds);
 
-			/* If nothing to do, then continue; */
-			if (!readyRead && !readyAccept && !readyException) {
-				continue;
-			}
+          /* If nothing to do, then continue; */
+          if (!readyRead && !readyAccept && !readyException) {
+              continue;
+          }
 
-			/* Handle exceptions */
-			if (readyException) {
-				/* TODO handle exceptions */
-				perror("Exception on FileDescriptor");
-			}
+          /* Handle exceptions */
+          if (readyException) {
+              /* TODO handle exceptions */
+              perror("Exception on FileDescriptor");
+          }
 
-			Portal* p = NULL;
-			/* Accept new connections: */
-			if (readyAccept) {
-				struct pkg_switch* table = this->makeNewSwitchTable();
+          Portal* p = NULL;
+          /* Accept new connections: */
+          if (readyAccept) {
+              newFD = this->accept(listener);
 
-				PkgTcpClient* client =
-						(PkgTcpClient*) this->tcpServer->waitForClient(table,
-								42);
+              if (newFD < 1) {
+                  log->logERROR("PortalManager",
+                      "Error on accepting new client.");
+              } else {
+                  /* Handle new client here. */
+                  p = this->makeNewPortal(newFD);
+              }
+          }
 
-				if (client == 0) {
-					log->logERROR("PortalManager",
-							"Error on accepting new client.");
-				} else {
-					/* Handle new client here. */
-					p = this->makeNewPortal(client, table);
-				}
-			}
+          /* the only thing we want to do on the listener loop is accept */
+          if (isListener) {
+              continue;
+          }
 
-			/* the only thing we want to do on the listener loop is accept */
-			if (isListener) {
-				continue;
-			}
+          /* If we didnt get a portal from accepting, then get one from the map */
+          if (p == 0 && (*this->fdPortalMap)[i]) {
+              this->portalsLock->lock();
+              p = (*this->fdPortalMap)[i];
+              this->portalsLock->unlock();
+          }
 
-			/* If we didnt get a portal from accepting, then get one from the map */
-			if (p == 0 && (*this->fdPortalMap)[i]) {
-				this->portalsLock->lock();
-				p = (*this->fdPortalMap)[i];
-				this->portalsLock->unlock();
-			}
+          /* Check, again, if we have a good portal. */
+          if (p == 0) {
+              /* Deal with unmapped file Descriptor */
+              char buf[BUFSIZ];
+              snprintf(buf, BUFSIZ, "FD %d not associated with a Portal, dropping connection.", i);
+              std::string s(buf);
+              this->closeFD(i, s);
+              continue;
+          }
 
-			/* Check, again, if we have a good portal. */
-			if (p == 0) {
-				/* Deal with unmapped file Descriptor */
-				char buf[BUFSIZ];
-				snprintf(buf, BUFSIZ, "FD %d not associated with a Portal, dropping connection.", i);
-				std::string s(buf);
-				this->closeFD(i, s);
-				continue;
-			}
+          /* read */
+          if (readyRead) {
+//              std::cout << "\nCalling pullFromSock()\n";
+              int readResult = p->pullFromSock();
+//              std::cout << "\nDone Calling pullFromSock(), readResult was: " << readResult << "\n";
 
-			/* read */
-			if (readyRead) {
-				int readResult = p->read();
+//              MakeAndRouteMsgJob* j = new MakeAndRouteMsgJob(p);
+//              JobManager::getInstance()->submitJob(j);
 
-				if (readResult == 0) {
-					this->closeFD(i, "");
-					continue;
-				} else if (readResult < 0) {
-					this->closeFD(i, "Error on read, dropping connection.");
-					continue;
-				}
-			}
-		} /* end FOR */
-	} /* end while */
-	this->log->logINFO("PortalManager", "Shutdown");
+              p->tryBuild();
+
+              if (readResult == 0) {
+                  this->closeFD(i, "Closing FD (read returned zero)");
+                  continue;
+              } else if (readResult < 0) {
+                  this->closeFD(i, "Error on read, dropping connection(254).");
+                  continue;
+              }
+          }
+      } /* end FOR */
+  } /* end while */
+  this->log->logINFO("PortalManager", "Shutdown");
 }/* end fn */
 
 Portal*
-PortalManager::makeNewPortal(PkgTcpClient* client, struct pkg_switch* table) {
-	Portal* p = new Portal(this, client, table);
+PortalManager::makeNewPortal(int socket) {
+  Portal* p = new Portal(this, socket);
 
-	if (p == 0) {
-		return 0;
-	}
+  /* Obtain lock and then map this new portal */
+  this->portalsLock->lock();
+  this->fdPortalMap->insert(std::pair<int,Portal*>(socket, p));
+  this->portalsLock->unlock();
 
-	/* Obtain lock and then map this new portal */
-	this->portalsLock->lock();
-	int newFD = p->pkgClient->getFileDescriptor();
-	this->fdPortalMap->insert(std::pair<int,Portal*>(newFD, p));
-	this->portalsLock->unlock();
+  /* Check maxFD and update if needed. */
+  if (socket > fdmax)
+    fdmax = socket;
 
-	/* Check maxFD and update if needed. */
-	if (newFD > fdmax) {
-		fdmax = newFD;
-	}
+  /* Add to masterFDS. */
+  this->masterFDSLock.lock();
+  FD_SET(socket, &masterfds);
+  this->masterFDSLock.unlock();
 
-	/* Add to masterFDS. */
-	this->masterFDSLock.lock();
-	FD_SET(newFD, &masterfds);
-	this->masterFDSLock.unlock();
+  /* Start handshake */
+  p->sendGSNodeName();
 
-	p->sendGSNodeName();
-
-	return p;
-}
-
-struct pkg_switch*
-PortalManager::makeNewSwitchTable() {
-	struct pkg_switch* table = new pkg_switch[2];
-
-	table[0].pks_type = PKG_MAGIC2;
-	table[0].pks_handler = &(Portal::callbackSpringboard);
-	table[0].pks_title = "SpringBoard";
-	table[0].pks_user_data = 0;
-
-	table[1].pks_type = 0;
-	table[1].pks_handler = 0;
-	table[1].pks_title = (char*) 0;
-	table[1].pks_user_data = 0;
-
-	return table;
+  return p;
 }
 
 void
-PortalManager::closeFD(int fd, std::string logComment) {
-	close(fd);
+PortalManager::closeFD(int fd, std::string logComment)
+{
+  close(fd);
 
-	this->masterFDSLock.lock();
-	if (FD_ISSET(fd, &this->masterfds)) {
-		FD_CLR(fd, &this->masterfds);
-	}
-	this->masterFDSLock.unlock();
+  this->masterFDSLock.lock();
+  if (FD_ISSET(fd, &this->masterfds)) {
+      FD_CLR(fd, &this->masterfds);
+  }
+  this->masterFDSLock.unlock();
 
-	this->portalsLock->lock();
-	this->fdPortalMap->erase(fd);
-	this->portalsLock->unlock();
+  this->portalsLock->lock();
+  this->fdPortalMap->erase(fd);
+  this->portalsLock->unlock();
 
-	if (logComment.length() >0) {
-		this->log->logINFO("PortalManager", logComment);
-	}
+  if (logComment.length() > 0)
+    this->log->logINFO("PortalManager", logComment);
 }
 
 void
 PortalManager::disconnect(Portal* p)
 {
-	int fd = p->pkgClient->getFileDescriptor();
-	this->closeFD(fd, "Disconnect requested.");
+  this->closeFD(p->socket, "Disconnect requested.");
 }
 
 bool
