@@ -34,7 +34,7 @@
 //Statics instantiation
 Logger* Logger::instance;
 Logger::Logger() :
-	verbose(false), printToFile(false), printToConsole(true) {}
+	printToFile(false), printToConsole(true) {}
 
 Logger* Logger::getInstance() {
 	if (Logger::instance == NULL) {
@@ -45,51 +45,56 @@ Logger* Logger::getInstance() {
 }
 
 void Logger::logBANNER(std::string origin, std::string string) {
-	this->log((const char *)"(BANNER)", origin, string);
+	this->log("(BANNER)", origin, string);
 }
 
 void Logger::logDEBUG(std::string origin, std::string string) {
-	this->log((const char *)"(DEBUG)", origin, string);
+	this->log("(DEBUG)", origin, string);
 }
 
 void Logger::logINFO(std::string origin, std::string string) {
-	this->log((const char *)"(INFO)", origin, string);
+	this->log("(INFO)", origin, string);
 }
 
 void Logger::logWARNING(std::string origin, std::string string) {
-	this->log((const char *)"(WARNING)", origin, string);
+	this->log("(WARNING)", origin, string);
 }
 
 void Logger::logERROR(std::string origin, std::string string) {
-	this->log((const char *)"(ERROR)", origin, string);
+	this->log("(ERROR)", origin, string);
 }
 
 void Logger::logFATAL(std::string origin, std::string string) {
-	this->log((const char *)"(FATAL)", origin, string);
+	this->log("(FATAL)", origin, string);
 }
 
-void Logger::log(const char *lvl, std::string origin, std::string string) {
+void Logger::log(std::string lvl, std::string origin, std::string string) {
 
     if (this->printToFile) {
 	//TODO add file logging
     }
 
     if (this->printToConsole) {
-	time_t t = time(NULL);
-	char buf[BUFSIZ];
+	time_t t ;
+	time(&t);
+	std::string out(ctime(&t));
+	out.erase(out.end()-1,out.end());
 
-	if (this->verbose) {
-	    /* DUMP A STACK TRACE (uhm, why do we want to do this??? --CSM) */
-	    bu_log(" \t");
-	    bu_backtrace(stderr);
-	}
+	out += '\t';
+	out += lvl + '\t';
+	out += (lvl[1]=='B'?"======":"");
+	out += string;
+	out += (lvl[1]=='B'?"======":"");
+	out += "\n";
 
+	/* Thu May  5 10:35:16 2011 */
+/*
 	snprintf(buf, BUFSIZ, "%26s %20s %12s %s %s %s\n", ctime(&t),
 		origin.c_str(), lvl, lvl[1]=='B'?"=======":"", 
 		string.c_str(), lvl[1]=='B'?"=======":"");
 	buf[25] = ' ';	// eliminate the newline from ctime()
-
-	bu_log("%s", buf);
+*/
+	bu_log("%s", out.c_str());
     }
 }
 

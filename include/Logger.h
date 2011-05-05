@@ -36,15 +36,6 @@ public:
 	static Logger* getInstance();
 	virtual ~Logger(){};
 
-	void enableVerbose()
-	{
-		this->verbose = true;
-	}
-	void disableVerbose()
-	{
-		this->verbose = false;
-	}
-
 	void enableLogToConsole()
 	{
 		this->printToConsole = true;
@@ -79,7 +70,6 @@ public:
 
 private:
 	static Logger* instance;
-	bool verbose;
 	bool printToConsole;
 	bool printToFile;
 
@@ -87,7 +77,7 @@ private:
 	Logger(const Logger& logger){}; /* Disable Copy cstr */
 	Logger& operator=(const Logger& log){}; /* Disable equals operator */
 
-	void log(const char *lvl, std::string origin, std::string string);
+	void log(std::string lvl, std::string origin, std::string string);
 };
 
 #endif /* __LOGGER_H__ */

@@ -98,8 +98,6 @@ int main(int argc, char* argv[])
 
     EventManager* eMan = EventManager::getInstance();
     Logger* log = Logger::getInstance();
-    log->disableVerbose();
-
     log->logBANNER("BasicEventTest", "Basic Event Test");
 
     TestSubscriber tSub01("Sub01");

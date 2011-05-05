@@ -28,21 +28,11 @@
 int main(int argc, char* argv[])
 {
     Logger* log = Logger::getInstance();
-
-    log->disableVerbose();
-    log->logDEBUG("LoggerTest", "Testing DEBUG with Verbose OFF");
-    log->logINFO("LoggerTest", "Testing INFO with Verbose OFF");
-    log->logWARNING("LoggerTest", "Testing WARNING with Verbose OFF");
-    log->logERROR("LoggerTest", "Testing ERROR with Verbose OFF");
-    log->logFATAL("LoggerTest", "Testing FATAL with Verbose OFF");
-
-    log->enableVerbose();
-    log->logDEBUG("LoggerTest", "Testing DEBUG with Verbose ON");
-    log->logINFO("LoggerTest", "Testing INFO with Verbose ON");
-    log->logWARNING("LoggerTest", "Testing WARNING with Verbose ON");
-    log->logERROR("LoggerTest", "Testing ERROR with Verbose ON");
-    log->logFATAL("LoggerTest", "Testing FATAL with Verbose ON");
-
+    log->logDEBUG("LoggerTest", "Testing DEBUG");
+    log->logINFO("LoggerTest", "Testing INFO");
+    log->logWARNING("LoggerTest", "Testing WARNING");
+    log->logERROR("LoggerTest", "Testing ERROR");
+    log->logFATAL("LoggerTest", "Testing FATAL");
     return 0;
 }
 
