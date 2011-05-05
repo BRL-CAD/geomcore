@@ -35,21 +35,26 @@
 
 DataManager* DataManager::pInstance = NULL;
 
-DataManager::DataManager() {
-	this->log = Logger::getInstance();
+DataManager::DataManager()
+{
+  this->log = Logger::getInstance();
 }
 
-DataManager::~DataManager() {
+DataManager::~DataManager()
+{
 }
 
-std::string DataManager::getObjectByPath(std::string url) {
+std::string DataManager::getObjectByPath(std::string url)
+{
+
 }
 
-bool DataManager::setDataSource(IDataSource* source) {
-	if (this->datasource != NULL)
-		return false;
+bool DataManager::setDataSource(IDataSource* source)
+{
+  if (this->datasource != NULL)
+    return false;
 
-	this->datasource = source;
+  this->datasource = source;
 }
 
 bool DataManager::handleNetMsg(NetMsg* msg) {
@@ -67,166 +72,162 @@ bool DataManager::handleNetMsg(NetMsg* msg) {
 	return false;
 }
 
-void DataManager::handleGeometryChunkMsg(GeometryChunkMsg* msg) {
-	Portal* origin = msg->getOrigin();
+void DataManager::handleGeometryChunkMsg(GeometryChunkMsg* msg)
+{
+  Portal* origin = msg->getOrigin();
 
-	//validate incoming data
-	if (origin == 0) {
-		//TODO Figure out how to how to handle NULL Portal
-		log->logERROR("DataManager", "handleGeometryChunkMsg(): NULL Portal!");
-		return;
-	}
+  //validate incoming data
+  if (origin == 0) {
+      //TODO Figure out how to how to handle NULL Portal
+      log->logERROR("DataManager", "handleGeometryChunkMsg(): NULL Portal!");
+      return;
+  }
 }
 
-void DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg) {
-	bool recurse = originalMsg->getRecurse();
-	std::string path = originalMsg->getPath();
-	Portal* origin = originalMsg->getOrigin();
+void DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg)
+{
+  bool recurse = originalMsg->getRecurse();
+  std::string path = originalMsg->getPath();
+  Portal* origin = originalMsg->getOrigin();
 
-	//validate incoming data
-	if (origin == 0) {
-		//TODO Figure out how to how to handle NULL Portal
-		log->logERROR("DataManager", "handleGeometryReqMsg(): NULL Portal!");
-		return;
-	}
+  //validate incoming data
+  if (origin == 0) {
+      //TODO Figure out how to how to handle NULL Portal
+      log->logERROR("DataManager", "handleGeometryReqMsg(): NULL Portal!");
+      return;
+  }
 
-	if (path.length() == 0) {
-		FailureMsg fm(originalMsg, BAD_REQUEST);
-		origin->send(&fm);
-		log->logERROR("DataManager", "handleGeometryReqMsg(): Zero length Path.");
-		return;
-	}
+  if (path.length() == 0) {
+      FailureMsg fm(originalMsg, BAD_REQUEST);
+      origin->send(&fm);
+      log->logERROR("DataManager", "handleGeometryReqMsg(): Zero length Path.");
+      return;
+  }
 
-	if (this->datasource == NULL) {
-		FailureMsg fm(originalMsg, OPERATION_NOT_AVAILABLE);
-		origin->send(&fm);
-		log->logERROR("DataManager", "handleGeometryReqMsg(): NULL DataSource!");
-		return;
-	}
+  if (this->datasource == NULL) {
+      FailureMsg fm(originalMsg, OPERATION_NOT_AVAILABLE);
+      origin->send(&fm);
+      log->logERROR("DataManager", "handleGeometryReqMsg(): NULL DataSource!");
+      return;
+  }
 
-	/* pull all objects */
-	std::list<BRLCAD::MinimalObject*>* objs = this->datasource->getObjs(path,
-			recurse);
-	if (objs == NULL || objs->size() < 1) {
-		FailureMsg fm(originalMsg, COULD_NOT_FIND_GEOMETRY);
-		origin->send(&fm);
-		log->logERROR("DataManager", "handleGeometryReqMsg(): No objects returned on lookup.");
-		return;
-	}
+  std::stringstream ss;
+  ss << "Request made for: '" << path << "' by user: '" << "'";
+  log->logINFO("DataManager", ss.str());
 
-	std::string s("Request made for: '");
-	s += path;
-	s += "'";
-	log->logINFO("DataManager", s);
+  /* pull all objects */
+  std::list<BRLCAD::MinimalObject*>* objs = this->datasource->getObjs(path, recurse);
+  if (objs == NULL || objs->size() < 1) {
+      FailureMsg fm(originalMsg, COULD_NOT_FIND_GEOMETRY);
+      origin->send(&fm);
+      log->logERROR("DataManager", "handleGeometryReqMsg(): No objects returned on lookup.");
+      if (objs != NULL)
+        delete objs;
+      return;
+  }
 
-	/* Prep for send */
-	std::list<GeometryChunkMsg*> msgs;
-	std::list<std::string> items;
-	GeometryChunkMsg* chunk = NULL;
-	int cnt = 0;
-	BRLCAD::MinimalObject* obj = NULL;
+  log->logDEBUG("DataManager", "Got object list, converting to chunks.");
 
-	/* build manifest & Chunks to send*/
-	for (std::list<BRLCAD::MinimalObject*>::iterator it = objs->begin(); it
-			!= objs->end(); it++) {
-		obj = *it;
-		chunk = GeometryChunkMsg::objToChunk(obj, originalMsg);
+  /* Prep for send */
+  std::list<GeometryChunkMsg*> msgs;
+  std::list<std::string> items;
+  GeometryChunkMsg* chunk = NULL;
+  BRLCAD::MinimalObject* obj = NULL;
 
-//		/std::cout << cnt << ")" << obj->getFilePath() + "/" + obj->getObjectName() << std::endl;
+  /* build manifest & Chunks to send*/
+  for (std::list<BRLCAD::MinimalObject*>::iterator it = objs->begin(); it!= objs->end(); it++) {
+      obj = *it;
+      chunk = GeometryChunkMsg::objToChunk(obj, originalMsg);
+      msgs.push_back(chunk);
+      items.push_back(obj->getFilePath() + "/" + obj->getObjectName());
+      delete obj;
+  }
 
-		msgs.push_back(chunk);
-		items.push_back(obj->getFilePath() + "/" + obj->getObjectName());
+  delete objs;
 
-		++cnt;
-	}
-//	std::cout << "\ntotal: " << cnt << std::endl;
+  /* Send manifest */
+  GeometryManifestMsg* man = new GeometryManifestMsg(originalMsg, items);
 
-	/* Send manifest */
-	GeometryManifestMsg man(originalMsg, items);
+  ByteBuffer* temp = man->serialize();
+  std::stringstream ss2;
+  ss2 << "Manifest byte size: " << temp->position();
+  log->logDEBUG("DataManager", ss2.str());
+  delete temp;
 
-	ByteBuffer* temp = man.serialize();
-	std::cout << "Manifest byte size: " << temp->position() << "\n";
+  origin->send(man);
+  delete man;
 
-	origin->send(&man);
-/*
-        std::cout << "Pausing for 60 seconds... \n";
-        usleep(1000*1000*50);
-        for (int i = 10; i<1;--i) {
-            std::cout << i << "\n";
-            usleep(1000*1000);
-        }
-*/
- //       usleep(1000*10);
+  log->logDEBUG("DataManager", "Manifest send complete, sending chunks.");
 
-	/* Send chunks */
-        bool success = false;
-        int cnt2 = 0;
-	for (std::list<GeometryChunkMsg*>::iterator chunkIter = msgs.begin(); chunkIter
+  /* Send chunks */
+  bool success = false;
+  for (std::list<GeometryChunkMsg*>::iterator chunkIter = msgs.begin(); chunkIter
 			!= msgs.end(); ++chunkIter) {
-		chunk = *chunkIter;
-//		std::cout << "Sending: " << cnt2 << std::endl;
-//		usleep(1000*10);
-		if (origin->send(chunk) < 1){
-		    log->logERROR("DataManager","Failed to send CHUNK.  Socket closed?");
-		    break;
-		}
-		cnt2++;
-	}
-//	std::cout << "\ntotal2: " << cnt2 << std::endl;
+      chunk = *chunkIter;
+      if (origin->send(chunk) < 1){
+          log->logERROR("DataManager","Failed to send CHUNK.  Socket closed?");
+          break;
+      }
+  }
 
-	return;
+  log->logDEBUG("DataManager", "Chunk send complete, Cleaning up.");
+
+  /* cleanup */
+  for (std::list<GeometryChunkMsg*>::iterator chunkIter = msgs.begin(); chunkIter != msgs.end(); ++chunkIter) {
+      chunk = *chunkIter;
+      delete chunk;
+  }
+  log->logDEBUG("DataManager", "Cleanup complete exiting.");
+  return;
 }
 
 DataManager*
 DataManager::getInstance() {
-	if (!DataManager::pInstance)
-		DataManager::pInstance = new DataManager();
-	return DataManager::pInstance;
+  if (!DataManager::pInstance)
+    DataManager::pInstance = new DataManager();
+  return DataManager::pInstance;
 }
 
 bool DataManager::init(Config* c) {
-	std::string repoType = c->getConfigValue("RepoType");
-	if (repoType.length() == 0) {
-		log->logERROR("DataManager",
-				"Config File does not contain a 'RepoType' parameter");
-		return false;
-	}
-	// to lower
-	for (int i = 0; i < repoType.length(); ++i)
-		repoType[i] = std::tolower(repoType[i]);
+  std::string repoType = c->getConfigValue("RepoType");
+  if (repoType.length() == 0) {
+      log->logERROR("DataManager", "Config File does not contain a 'RepoType' parameter");
+      return false;
+  }
+  // to lower
+  for (int i = 0; i < repoType.length(); ++i)
+    repoType[i] = std::tolower(repoType[i]);
 
-	/* Attempt to instantiate a DataSource */
-	if (repoType == "file") {
-		std::string fRepoPath(c->getConfigValue("FileRepoPath"));
-		if (fRepoPath.length() == 0) {
-			log->logERROR("DataManager",
-					"Config File does not contain a 'FileRepoPath' parameter");
-			return false;
-		}
+  /* Attempt to instantiate a DataSource */
+  if (repoType == "file") {
+      std::string fRepoPath(c->getConfigValue("FileRepoPath"));
+      if (fRepoPath.length() == 0) {
+          log->logERROR("DataManager",
+              "Config File does not contain a 'FileRepoPath' parameter");
+          return false;
+      }
 
-		log->logINFO("DataManager", "FileDataSouce being used.");
-		FileDataSource* fds = new FileDataSource(fRepoPath);
+      log->logINFO("DataManager", "FileDataSouce being used.");
+      FileDataSource* fds = new FileDataSource(fRepoPath);
 
-		if (fds->init() == false) {
-			log->logERROR(
-					"DataManager",
-					"FileDataSouce could not read/write to the path supplied by the 'FileRepoPath' config value.  Please check the existance and permissions of this path.");
-			delete fds;
-			return false;
-		}
+      if (fds->init() == false) {
+          log->logERROR("DataManager",
+              "FileDataSouce could not read/write to the path supplied by the 'FileRepoPath' config value.  Please check the existance and permissions of this path.");
+          delete fds;
+          return false;
+      }
 
-		this->setDataSource(fds);
-		return true;
+      this->setDataSource(fds);
+      return true;
 
-	} else if (repoType == "svn") {
-		log->logERROR("DataManager", "SVN repoType not implemented yet.");
-		return false;
+  } else if (repoType == "svn") {
+      log->logERROR("DataManager", "SVN repoType not implemented yet.");
+      return false;
 
-	} else {
-		log->logERROR("DataManager",
-				"Invalid RepoType in config file.  Valid values are 'file' and 'svn'");
-		return false;
-	}
+  } else {
+      log->logERROR("DataManager","Invalid RepoType in config file.  Valid values are 'file' and 'svn'");
+      return false;
+  }
 }
 
 /*

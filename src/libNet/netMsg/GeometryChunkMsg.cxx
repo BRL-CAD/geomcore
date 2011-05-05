@@ -138,13 +138,15 @@ GeometryChunkMsg*
 GeometryChunkMsg::objToChunk(BRLCAD::MinimalObject* obj, NetMsg* replyMsg)
 {
   bu_external* ext = obj->getBuExternal();
-  size_t len = ext->ext_nbytes;
+ // size_t len = ext->ext_nbytes;
 
   /* TODO investigate: We MIGHT be double copying here.  Depends on if ByteBuffer copies the data passed to its cstr */
-  char* buf = (char*)bu_malloc(len, "objToChunk buf malloc");
-  memcpy (buf, ext->ext_buf, len);
+ // char* buf = (char*)bu_malloc(len, "objToChunk buf malloc");
+ // memcpy (buf, ext->ext_buf, len);
 
-  ByteBuffer* bb = ByteBuffer::wrap(buf, len);
+  ByteBuffer* bb = ByteBuffer::wrap( (char*)ext->ext_buf, ext->ext_nbytes);
+  //free(buf);
+
   GeometryChunkMsg* out = NULL;
 
   if (replyMsg == NULL)

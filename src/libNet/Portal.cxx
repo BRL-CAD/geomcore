@@ -92,49 +92,12 @@ Portal::send(NetMsg* msg) {
 
       usleep(10);
 
-
 /*
       std::cout << "(looped: "<< loopCnt <<") Wanted to send: " << loopToSend ;
       std::cout << ", actually sent: " << retval;
       std::cout << ", Total sent: " << totalSend ;
       std::cout << ", Total TO BE sent: " << len << "\n";
 */
-
-
-
-  /*          std::ostringstream ss;
-      ss << "\tStart bytes: ";
-      char* p = bb->array() + pos;
-      unsigned int b;
-      for (int i = 1; i<=(32);i++)
-      {
-         b = (unsigned int)*p;
-         if (b < 10)
-           ss << std::hex << '0' << (unsigned int)*p;
-         else
-           ss << std::hex << (unsigned int)*p;
-         if (i % 4 == 0)
-           ss << "  ";
-         p++;
-      }
-      ss << "\n";
-
-      ss << "\tEnd bytes: ";
-      p = bb->array() + pos + retval - 32;
-      for (int i = 1; i<=(32);i++)
-      {
-          b = (unsigned int)*p;
-          if (b < 10)
-            ss << std::hex << '0' << (unsigned int)*p;
-          else
-            ss << std::hex << (unsigned int)*p;
-          if (i % 4 == 0)
-            ss << "  ";
-          p++;
-      }
-      ss << "\n";
-
-      std::cout << ss.str();*/
 
   }
   if (retval == -1){
@@ -190,15 +153,16 @@ Portal::pullFromSock() {
   GSMutexLocker locker(&this->recvBufLock);
   ByteBuffer* bb = this->recvBuffer;
 
+  int testLoopLimiter = 0;
+
    do {
       if (bb->remaining() < 4){
-          std::cout << "b4: " << bb->capacity() << " " << bb->limit() << "\n";
           /* Force a resize */
           bb->put64bit(0);
           bb->put64bit(0);
           bb->put64bit(0);
           bb->setPosition(bb->position() - 24);
-          std::cout << "after: " << bb->capacity() << " " << bb->limit() << "\n";
+          testLoopLimiter += 20;
       }
 
       /* set limit to capacity for safety */
@@ -245,6 +209,10 @@ Portal::pullFromSock() {
 
       /* Break out if read comes back less than MAXED */
       if (lastRead < MAXCHUNKSIZE)
+        break;
+
+      ++testLoopLimiter;
+      if (testLoopLimiter > 10)
         break;
 
    } while (lastRead > 0);
@@ -379,6 +347,7 @@ Portal::tryToBuildNetMsgs() {
           std::stringstream ss;
           ss << "WARNING!  Failed to find route for NetMsg type: " << msg->getMsgType() << "\n";
           log->logERROR("Portal", ss.str());
+          delete msg;
         }
 
       /* Set back to NULL for proper loop logic */

@@ -35,6 +35,12 @@
 #include <iostream>
 #include <stdlib.h>
 
+struct GeoReq {
+  GSUuid* id;
+  int itemsExpected;
+  int itemsRecieved;
+};
+
 class GSClient: public INetMsgHandler {
 public:
 	GSClient(std::string localNodeName);

@@ -143,45 +143,50 @@ GSClient::handleNetMsg(NetMsg* msg)
 	case GEOMETRYMANIFEST:
 		{
 			GeometryManifestMsg* man = (GeometryManifestMsg*)msg;
-			std::list<std::string>* items = man->getItemData();
-			std::string str;
 
-			int count = man->getNumOfItems();
-			std::cout << "GSClient\tGot manifest of " << count << " items.\n";
-
+	                std::stringstream ss;
+	                ss << "Got manifest of " << man->getNumOfItems() << " items.";
+	                log->logINFO("GSClient", ss.str());
+/*
 			// build manifest & Chunks to send
+			std::list<std::string>* items = man->getItemData();
 			for (std::list<std::string>::iterator it = items->begin(); it
 					!= items->end(); it++) {
 				str = *it;
 				std::cout << "  '" << str << ",\n";
 			}
-
 			std::cout << std::endl;
-
+*/
 
 			return false;
 		}
-	case GEOMETRYCHUNK:
-		{
-			GeometryChunkMsg* chunk = (GeometryChunkMsg*)msg;
-			ByteBuffer* bb = chunk->getByteBuffer();
+  case GEOMETRYCHUNK:
+    {
+      GeometryChunkMsg* chunk = (GeometryChunkMsg*) msg;
+      ByteBuffer* bb = chunk->getByteBuffer();
 
-			/* Get object name  */
-			struct db5_raw_internal raw;
-		    if (db5_get_raw_internal_ptr(&raw, (const unsigned char *)bb->array()) == NULL) {
-		    	bu_log("Corrupted serialized geometry?  Could not deserialize.\n");
-		    	return false;
-		    }
+      /* Get object name  */
+      struct db5_raw_internal raw;
+      if (db5_get_raw_internal_ptr(&raw, (const unsigned char *) bb->array())
+          == NULL) {
+          bu_log("Corrupted serialized geometry?  Could not deserialize.\n");
+          return false;
+        }
 
-		    if (raw.name.ext_nbytes < 1) {
-		    	bu_log("Failed to retrieve object name.  Could not deserialize.\n");
-		    	return false;
-		    }
+      if (raw.name.ext_nbytes < 1) {
+          bu_log("Failed to retrieve object name.  Could not deserialize.\n");
+          return false;
+        }
 
-		    std::string name((char*)raw.name.ext_buf);
-		    log->logINFO("GSClient", "Got a Chunk named: " + name);
-		    return false;
-		}
+      std::string name((char*) raw.name.ext_buf);
+
+      if (name == "_GLOBAL")
+        log->logINFO("GSClient", "Got a Chunk named: " + name);
+
+
+      delete bb;
+      return true;
+      }
     }
     return false;
 }

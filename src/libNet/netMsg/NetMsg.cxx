@@ -88,7 +88,11 @@ NetMsg::serialize(ByteBuffer* bb)
   /* Serialize Header */
   bb->put16bit(this->msgType);
   int lenPosition = bb->position();
+
+  /* Msg Len */
   bb->put32bit(0);
+
+  /*  */
   bb->putString(this->msgUUID->toString());
   bb->put(this->hasReUUID);
 

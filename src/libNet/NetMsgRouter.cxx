@@ -55,33 +55,34 @@ bool NetMsgRouter::registerType(uint16_t type, INetMsgHandler* handler) {
 	return true;
 }
 
-bool NetMsgRouter::routeMsg(NetMsg* msg) {
-	/* First get the appropriate list: */
-	std::list<INetMsgHandler*>* list = this->getListOfHandlers(msg->getMsgType());
+bool NetMsgRouter::routeMsg(NetMsg* msg)
+{
+  /* First get the appropriate list: */
+  std::list<INetMsgHandler*>* list = this->getListOfHandlers(msg->getMsgType());
 
-	char buf[BUFSIZ];
-	std::string s;
+  char buf[BUFSIZ];
+  std::string s;
 
-	if (list->empty()) {
-		/* If no routing table, print an error */
-		snprintf(buf, BUFSIZ, "Msg type: %X has no routing information.", msg->getMsgType());
-		Logger::getInstance()->logWARNING("NetMsgRouter",std::string(buf));
-		return false;
+  if (list->empty()) {
+      /* If no routing table, print an error */
+      snprintf(buf, BUFSIZ, "Msg type: %X has no routing information.", msg->getMsgType());
+      Logger::getInstance()->logWARNING("NetMsgRouter",std::string(buf));
+      return false;
 
-	} else {
-		INetMsgHandler* handler = NULL;
-		for (std::list<INetMsgHandler*>::iterator it=list->begin();
-				it != list->end();
-				it++)
-		{
-			handler = (INetMsgHandler*)(*it);
-//			Logger::getInstance()->logINFO("NetMsgRouter", "Got Msg");
-			handler->handleNetMsg(msg);
-		}
-	}
-	/* Now delete msg */
-	delete msg;
-	return true;
+  } else {
+      INetMsgHandler* handler = NULL;
+      for (std::list<INetMsgHandler*>::iterator it=list->begin();
+          it != list->end();
+          it++)
+        {
+          handler = (INetMsgHandler*)(*it);
+//	  Logger::getInstance()->logINFO("NetMsgRouter", "Got Msg");
+          handler->handleNetMsg(msg);
+        }
+      /* Now delete msg */
+      delete msg;
+      return true;
+  }
 }
 
 std::list<INetMsgHandler*>*

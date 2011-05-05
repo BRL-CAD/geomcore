@@ -31,7 +31,6 @@
 
 const uint32_t ByteBuffer::defaultBufferSize = 1024 * 4;
 
-
 ByteBuffer::ByteBuffer(size_t size)
 {
   bu_vlb_initialize(&vlb, size);
@@ -62,11 +61,9 @@ ByteBuffer::wrap(char* data, size_t size)
     return NULL;
 
   if (data == NULL)
-    data = (char*) bu_malloc(size, "BB.get()");
+    return NULL;
 
   ByteBuffer* bb = ByteBuffer::allocate(size);
-
-//  memcpy(bb->vlb.buf, data, size);
   if (bb->put(data,size) == false)
     std::cout << "put failed.\n";
   return bb;
@@ -88,7 +85,6 @@ ByteBuffer::duplicate()
 char
 ByteBuffer::get()
 {
-
   char c = 0;
   this->get(&c, 1);
   return c;
@@ -359,12 +355,6 @@ ByteBuffer::getString()
   this->setPosition(this->position() + len);
   std::string out = "";
   out.append(ptr, len);
-/*
-  std::cout << "bb pos: " << this->position();
-  std::cout << "/" << this->capacity();
-  std::cout << " len: " << len << " string: '";
-  std::cout << out << "'\n";
-*/
   return out;
 }
 
