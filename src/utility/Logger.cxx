@@ -86,15 +86,7 @@ void Logger::log(std::string lvl, std::string origin, std::string string) {
 	out += string;
 	out += (lvl[1]=='B'?"======":"");
 	out += "\n";
-
-	/* Thu May  5 10:35:16 2011 */
-/*
-	snprintf(buf, BUFSIZ, "%26s %20s %12s %s %s %s\n", ctime(&t),
-		origin.c_str(), lvl, lvl[1]=='B'?"=======":"", 
-		string.c_str(), lvl[1]=='B'?"=======":"");
-	buf[25] = ' ';	// eliminate the newline from ctime()
-*/
-	bu_log("%s", out.c_str());
+	std::cout << out;
     }
 }
 
