@@ -34,7 +34,7 @@
 #include "Logger.h"
 #include "GSThread.h"
 #include "pkg.h"
-#include <string>
+#include <string.h>
 
 #define MAXCHUNKSIZE 4096
 
