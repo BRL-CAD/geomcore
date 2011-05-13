@@ -22,9 +22,105 @@
  *
  */
 
-int main(int ac, char *av[])
+#include <bu.h>
+#include <raytrace.h>
+
+struct node_data {
+  struct char* path;
+  struct bu_external extList;
+};
+
+/* Start Function */
+int
+start_fn_call(struct db_tree_state *, const struct db_full_path * pathp,
+    const struct rt_comb_internal *, genptr_t)
 {
-    return 0;
+
+  char *name = db_path_to_string(pathp);
+  std::cout << "start: '" << name << "'" << std::endl;
+
+  return 1;
+}
+
+/* Leaf Function */
+union tree *
+leaf_fn_call(struct db_tree_state *tsp, const struct db_full_path *pathp,
+    struct rt_db_internal *ip, genptr_t)
+{
+
+  char *name = db_path_to_string(pathp);
+  std::cout << "leaf: '" << name << "'" << std::endl;
+
+
+  return (union tree *)NULL;
+}
+
+int
+main(int argc, char* argv[])
+{
+  if (argc < 2)
+    {
+      std::cout << "Usage " << argv[0] << " BRLCAD-Databse." << std::endl;
+      return 1;
+    }
+
+  const char* gName = argv[1];
+  std::cout << "Using: '" << gName << "' ." << std::endl;
+
+  std::list<node_data> dataList;
+  struct db_i* dbip = DBI_NULL;
+
+  struct db_tree_state tree_state; /* includes tol & model */
+
+  tree_state = rt_initial_tree_state; /* struct copy */
+
+  /* Open DB */
+  if ((dbip = db_open(gName, "r")) == DBI_NULL)
+    {
+      perror(gName);
+      bu_exit(1, "Unable to open geometry file (%s)\n", gName);
+    }
+  if (db_dirbuild(dbip))
+    {
+      db_close(dbip);
+      bu_exit(1, "ERROR: db_dirbuild failed\n");
+    }
+
+  db_update_nref(dbip, &rt_uniresource);
+
+
+  /* Walk down from top Objects */
+  struct directory* dp;
+  struct db_full_path dfp;
+  char* myArgs[1];
+
+  db_full_path_init(&dfp);
+  for (int i = 0; i < RT_DBNHASH; i++)    {
+      for (dp = dbip->dbi_Head[i]; dp != RT_DIR_NULL; dp = dp->d_forw)        {
+          if (dp->d_nref == 0 && !(dp->d_flags & RT_DIR_HIDDEN) && (dp->d_addr
+              != RT_DIR_PHONY_ADDR))            {
+              db_string_to_path(&dfp, dbip, dp->d_namep);
+
+              myArgs[0] = dp->d_namep;
+
+              (void) db_walk_tree(
+                  dbip,         /* db_i */
+                  1,            /* argc */
+                  (const char **)(myArgs), /* argv */
+                  1,            /* ncpu */
+                  &tree_state,  /* state */
+                  start_fn_call,/* start func */
+                  NULL,         /* end func */
+                  leaf_fn_call, /* leaf func */
+                  (genptr_t)&dataList);  /* client_data */
+           }
+        }
+    }
+  db_free_full_path(&dfp);
+
+  db_close(dbip);
+
+  return 0;
 }
 
 // Local Variables:
