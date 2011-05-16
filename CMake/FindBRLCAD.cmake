@@ -48,7 +48,6 @@
 #     BRLCAD_SYSV_LIBRARY - libsysv
 #     BRLCAD_TCLCAD_LIBRARY - libtclcad
 #     BRLCAD_TERMIO_LIBRARY - libtermio (non WIN32 systems)
-#     BRLCAD_TIE_LIBRARY - libtie
 #     BRLCAD_WDB_LIBRARY - BRL-CAD Write Database library
 #
 #  Technically these are external but we need the versions
@@ -194,7 +193,6 @@ SET(BRL-CAD_LIBS_SEARCH_LIST
 	sysv
 	tclcad
 	termio
-	tie
 	wdb
 )
 
