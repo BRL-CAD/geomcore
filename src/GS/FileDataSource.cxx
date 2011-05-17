@@ -40,14 +40,22 @@ FileDataSource::~FileDataSource()
 /* get a directory listing or a child list */
 std::list<std::string>*
 FileDataSource::getListing(std::string path)
-{}
+{
+  std::string absPath = "";
+  FileDataSource::buildFullPath(&absPath, &this->repoPath, &path);
+
+
+
+}
 
 /* Get a set of BRLCAD::MinimalObjects */
 std::list<BRLCAD::MinimalObject*>*
 FileDataSource::getObjs(std::string relPath, bool recurse)
 {
-	//TODO Clean up path parsing, remove double //'s
-	std::string absPath = this->repoPath + "/" + relPath;
+	std::string absPath = "";
+
+	FileDataSource::buildFullPath(&absPath, &this->repoPath, &relPath);
+
 
 	//figure out what kind of path we are dealing with;
 	if (this->existsFileOrDir(absPath.c_str()) == 0)
