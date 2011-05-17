@@ -168,6 +168,7 @@ void DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg)
           log->logERROR("DataManager","Failed to send CHUNK.  Socket closed?");
           break;
       }
+      usleep(1); /* yield thread */
   }
 
   log->logDEBUG("DataManager", "Chunk send complete, Cleaning up.");

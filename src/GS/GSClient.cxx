@@ -144,10 +144,11 @@ GSClient::handleNetMsg(NetMsg* msg)
 		{
 			GeometryManifestMsg* man = (GeometryManifestMsg*)msg;
 
+			std::string str;
 	                std::stringstream ss;
-	                ss << "Got manifest of " << man->getNumOfItems() << " items.";
-	                log->logINFO("GSClient", ss.str());
-/*
+                        ss << "Got manifest of " << man->getNumOfItems() << " items.";
+                        log->logINFO("GSClient", ss.str());
+
 			// build manifest & Chunks to send
 			std::list<std::string>* items = man->getItemData();
 			for (std::list<std::string>::iterator it = items->begin(); it
@@ -156,7 +157,8 @@ GSClient::handleNetMsg(NetMsg* msg)
 				std::cout << "  '" << str << ",\n";
 			}
 			std::cout << std::endl;
-*/
+
+                        log->logINFO("GSClient", ss.str());
 
 			return false;
 		}

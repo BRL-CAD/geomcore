@@ -43,8 +43,8 @@ public:
 	 * 'GET' ers
 	 */
 
-	/* Get a single BRLCAD::MinimalObject */
-	BRLCAD::MinimalObject* getObj(std::string path);
+	/* get a directory listing or a child list */
+	std::list<std::string>* getListing(std::string path);
 
 	/* Get a set of objects */
 	std::list<BRLCAD::MinimalObject*>* getObjs(std::string path, bool recurse);
@@ -65,9 +65,11 @@ public:
 	 * 2 == exists and is a File
 	 */
 	static int existsFileOrDir(const char* path);
+
+        static void buildFullPath(std::string* out, std::string* base, std::string* path);
+        static void cleanString(std::string* out);
 private:
 	std::string repoPath;
-
 	std::list<std::string> locks;
 };
 

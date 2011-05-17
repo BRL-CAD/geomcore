@@ -38,11 +38,10 @@ SvnDataSource::~SvnDataSource()
 {}
 
 
-/* Get a single BRLCAD::MinimalObject */
-BRLCAD::MinimalObject*
-SvnDataSource::getObj(std::string path)
+/* get a directory listing or a child list */
+std::list<std::string>*
+SvnDataSource::getListing(std::string path)
 {
-
 }
 
 

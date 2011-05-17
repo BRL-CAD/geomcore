@@ -39,8 +39,8 @@ public:
 	SvnDataSource(std::string repoPath);
 	virtual ~SvnDataSource();
 
-	/* Get a single BRLCAD::MinimalObject */
-	BRLCAD::MinimalObject* getObj(std::string path);
+        /* get a directory listing or a child list */
+        std::list<std::string>* getListing(std::string path);
 
 	/* Get a set of BRLCAD::MinimalObject */
 	std::list<BRLCAD::MinimalObject*>* getObjs(std::string path, bool recurse);

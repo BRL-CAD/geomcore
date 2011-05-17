@@ -23,23 +23,24 @@
 
 #include "FileDataSource.h"
 #include <sys/stat.h>
-
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <algorithm>
 
 FileDataSource::FileDataSource(std::string repoPath)
-:   repoPath(repoPath)
-{}
-
+{
+  this->repoPath = repoPath;
+  FileDataSource::cleanString(&this->repoPath);
+}
 
 FileDataSource::~FileDataSource()
 {}
 
-
-/* Get a single BRLCAD::MinimalObject */
-BRLCAD::MinimalObject*
-FileDataSource::getObj(std::string path)
-{
-}
-
+/* get a directory listing or a child list */
+std::list<std::string>*
+FileDataSource::getListing(std::string path)
+{}
 
 /* Get a set of BRLCAD::MinimalObjects */
 std::list<BRLCAD::MinimalObject*>*
@@ -55,24 +56,36 @@ FileDataSource::getObjs(std::string relPath, bool recurse)
 	if (this->existsFileOrDir(absPath.c_str()) == 1)
 		return NULL;
 
-	//FIXME something in here is killing the logger....
-	BRLCAD::MinimalDatabase md;
-	md.Load(absPath);
+	std::list<BRLCAD::MinimalObject*>* out = NULL;
 
+	BRLCAD::MinimalDatabase md;
+	bool loaded = md.Load(absPath);
+
+	if (!loaded) {
+            perror(strerror(errno));
+            Logger::getInstance()->logINFO("FileDataSource", "Failed to load.");
+	    return out;
+	}
+        Logger::getInstance()->logINFO("FileDataSource", "File seemingly loaded.");
+
+/*
 	if (recurse)
-		return md.getAllObjects();
+	  out = md->getAllObjects();
 	else
-		return md.getAllTopObjects();
+	  out = md->getAllTopObjects();
+*/
+
+	out = md.getAllObjs();
+
+	return out;
 }
 
 /* Put a single BRLCAD::MinimalObject */
 bool
 FileDataSource::putObj(std::string path, BRLCAD::MinimalObject* obj)
 {
-
     return true;
 }
-
 
 bool
 FileDataSource::init()
@@ -90,7 +103,6 @@ FileDataSource::init()
 
     return true;
 }
-
 
 int
 FileDataSource::existsFileOrDir(const char* path)
@@ -113,6 +125,23 @@ FileDataSource::existsFileOrDir(const char* path)
     return -1;
 }
 
+void
+FileDataSource::buildFullPath(std::string* out, std::string* base, std::string* path)
+{
+  *out = *base + "/" + *path;
+  FileDataSource::cleanString(out);
+}
+
+void
+FileDataSource::cleanString(std::string* out)
+{
+  int pos = out->find("//");
+  while (pos != -1)
+    {
+      out->replace(pos,2,"/");
+      pos = out->find("//");
+    }
+}
 
 /*
  * Local Variables:

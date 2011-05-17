@@ -44,10 +44,10 @@ public:
 	 * 'GET' ers
 	 */
 
-	/* Get a single BRLCAD::MinimalObject */
-	virtual BRLCAD::MinimalObject* getObj(std::string path) = 0;
+	/* get a directory listing or a child list */
+	virtual std::list<std::string>* getListing(std::string path) = 0;
 
-	/* Get a set of BRLCAD::MinimalObjects */
+	/* Get BRLCAD::MinimalObject s */
 	virtual std::list<BRLCAD::MinimalObject*>* getObjs(std::string path, bool recurse) = 0;
 
 	/*
