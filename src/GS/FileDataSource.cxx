@@ -22,6 +22,8 @@
  */
 
 #include "FileDataSource.h"
+#include "db.h"
+#include "raytrace.h"
 #include <sys/stat.h>
 #include <stdio.h>
 #include <string.h>
@@ -150,6 +152,146 @@ FileDataSource::cleanString(std::string* out)
       pos = out->find("//");
     }
 }
+
+
+int
+FileDataSource::walkPath(std::string path)
+{
+  std::list<std::string> pathArr;
+  FileDataSource::pathToStringStack(path, &pathArr);
+
+  return FileDataSource::walkPathFS(&pathArr, 0);
+}
+
+int
+FileDataSource::walkPathFS(const std::list<std::string>* strStack, const unsigned int stackPos)
+{
+  std::string pathSoFar = "";
+  std::string pathStep = "";
+  int step = stackPos;
+  int ford = 0;
+  std::list<std::string>::const_iterator it = strStack->begin();
+
+  /* fast forward */
+  for (int i = 0; i < stackPos; ++i)
+    {
+      pathStep = (std::string) *it;
+      pathSoFar += pathStep;
+      ++it;
+    }
+
+  for (; it != strStack->end(); ++it)
+    {
+      pathStep = (std::string)*it;
+      pathSoFar += pathStep;
+      ford = FileDataSource::existsFileOrDir(pathSoFar.c_str());
+
+      std::cout << "step: "<<pathStep<<" cumulative: "<<pathSoFar << " ford:" << ford << std::endl;
+
+      if (ford == 2) {
+          ++step;
+          /* Goto walkPathG */
+          return walkPathG(strStack, step);
+      } else if (ford == 1) {
+          ++step;
+          pathSoFar += "/";
+          continue;
+      } else if (ford == 0) {
+          return step * -1; /* Failed */
+      } else {
+          return step * -1; /* Failed */
+      }
+    }
+}
+
+int
+FileDataSource::walkPathG(const std::list<std::string>* strStack, const unsigned int stackPos)
+{
+  std::string pathSoFar = "";
+  std::string pathStep = "";
+  std::list<std::string>::const_iterator it = strStack->begin();
+  struct db_i *dbip;
+  struct directory *dp;
+  struct db_full_path dfp;
+  int dbStep = 0;
+  int exists = 0;
+
+  /* fast forward */
+  for (int i = 0; i < stackPos; ++i)
+    {
+      pathStep = (std::string) *it;
+      pathSoFar += pathStep;
+      ++it;
+
+      if (i != (stackPos-1))
+        pathSoFar += "/";
+    }
+
+  /* Open DB file */
+  if ((dbip = db_open(pathSoFar.c_str(), "r")) == DBI_NULL) {
+      perror(pathSoFar.c_str());
+      bu_exit(1, "Unable to open geometry file (%s)\n", pathSoFar.c_str());
+  }
+  if (db_dirbuild(dbip)) {
+      bu_exit(1, "ERROR: db_dirbuild failed\n");
+  }
+
+  /* Assuming we are at TOPs here. */
+  pathSoFar = "";
+
+  for (; it != strStack->end(); ++it)
+    {
+      pathStep = (std::string) *it;
+      pathSoFar += pathStep;
+
+      std::cout << "G step: " << pathStep << " cumulative: " << pathSoFar
+          << " dbStep:" << dbStep << std::endl;
+
+      db_full_path_init(&dfp);
+      exists = db_string_to_path(&dfp, dbip, pathSoFar.c_str());
+      db_free_full_path(&dfp);
+
+      if (exists != 0) {
+          /* failed */
+          break;
+      }
+
+      pathSoFar += "/";
+      ++dbStep;
+    }
+
+  db_close(dbip);
+  return dbStep + stackPos;
+}
+
+int
+FileDataSource::pathToStringStack(std::string path, std::list<std::string>* stringStack)
+{
+  std::string sub = "";
+  size_t endPos = 0;
+  int cnt = 0;
+
+  do {
+      endPos = path.find_first_of(PATH_DELIM);
+      if (endPos == std::string::npos){
+          if (path.length() <=0)
+              break;
+          else
+              endPos = path.length();
+      }
+      sub = path.substr(0, endPos);
+      std::cout << sub << std::endl;
+      if (sub.length() > 0) {
+        stringStack->push_back(sub);
+        ++cnt;
+      }
+      path = path.erase(0, endPos+1);
+
+  } while (endPos != std::string::npos);
+
+  return cnt;
+}
+
 
 /*
  * Local Variables:

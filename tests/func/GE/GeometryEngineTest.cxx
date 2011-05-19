@@ -24,9 +24,11 @@
 
 #include <bu.h>
 #include <raytrace.h>
+#include <list>
+#include "FileDataSource.h"
 
 struct node_data {
-  struct char* path;
+  char* path;
   struct bu_external extList;
 };
 
@@ -47,9 +49,21 @@ union tree *
 leaf_fn_call(struct db_tree_state *tsp, const struct db_full_path *pathp,
     struct rt_db_internal *ip, genptr_t)
 {
-
+  int i = 0;
   char *name = db_path_to_string(pathp);
-  std::cout << "leaf: '" << name << "'" << std::endl;
+  std::cout << "leaf: '"; // << name << "'" << std::endl;
+
+  for (i = 0; i < pathp->fp_len; ++i)
+    if (pathp->fp_names[i])
+      std::cout << "/" << pathp->fp_names[i]->d_namep;
+    else
+      std::cout << "/" << "**NULL**";
+
+  std::cout << "\tMAX i = " << i << std::endl;
+
+  bu_external* ext = (bu_external*)bu_calloc(sizeof(bu_external),1,"bu_external calloc");
+  int rVal = db_get_external(ext, pathp->fp_names[i], tsp->ts_dbip);
+
 
 
   return (union tree *)NULL;
@@ -66,6 +80,15 @@ main(int argc, char* argv[])
 
   const char* gName = argv[1];
   std::cout << "Using: '" << gName << "' ." << std::endl;
+
+  std::string testName(gName);
+  int ret = FileDataSource::walkPath(testName);
+
+  std::cout << "\nDone, got: " << ret << "\n" << std::endl;
+
+
+  return 0;
+
 
   std::list<node_data> dataList;
   struct db_i* dbip = DBI_NULL;

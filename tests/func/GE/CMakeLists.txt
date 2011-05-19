@@ -7,6 +7,7 @@ include_directories(
 
 SET( geTest_LIBS
 	${BRLCAD_LIBRARIES}
+	libgeomserv
 )
 
 add_executable(geTest GeometryEngineTest.cxx)

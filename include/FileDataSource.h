@@ -32,6 +32,8 @@
 #include <string>
 #include <list>
 
+#define PATH_DELIM "/"
+
 class FileDataSource : public IDataSource
 {
 public:
@@ -68,9 +70,15 @@ public:
 
         static void buildFullPath(std::string* out, std::string* base, std::string* path);
         static void cleanString(std::string* out);
+
+        static int walkPath(std::string path);
+	static int pathToStringStack(std::string path, std::list<std::string>* stringStack);
 private:
 	std::string repoPath;
 	std::list<std::string> locks;
+
+        static int walkPathFS(const std::list<std::string>* strStack, const unsigned int stackPos);
+        static int walkPathG(const std::list<std::string>* strStack, const unsigned int stackPos);
 };
 
 #endif /* __FILEDATASOURCE_H__ */
