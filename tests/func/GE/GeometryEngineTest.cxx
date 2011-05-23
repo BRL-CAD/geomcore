@@ -84,7 +84,7 @@ main(int argc, char* argv[])
   std::string testName(gName);
   int ret = FileDataSource::walkPath(testName);
 
-  std::cout << "\nDone, got: " << ret << "\n" << std::endl;
+  std::cout << "\nDone, got: " << ret << " steps\n" << std::endl;
 
 
   return 0;

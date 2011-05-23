@@ -46,8 +46,6 @@ FileDataSource::getListing(std::string path)
   std::string absPath = "";
   FileDataSource::buildFullPath(&absPath, &this->repoPath, &path);
 
-
-
 }
 
 /* Get a set of BRLCAD::MinimalObjects */
@@ -57,7 +55,6 @@ FileDataSource::getObjs(std::string relPath, bool recurse)
 	std::string absPath = "";
 
 	FileDataSource::buildFullPath(&absPath, &this->repoPath, &relPath);
-
 
 	//figure out what kind of path we are dealing with;
 	if (this->existsFileOrDir(absPath.c_str()) == 0)
@@ -153,7 +150,6 @@ FileDataSource::cleanString(std::string* out)
     }
 }
 
-
 int
 FileDataSource::walkPath(std::string path)
 {
@@ -186,7 +182,7 @@ FileDataSource::walkPathFS(const std::list<std::string>* strStack, const unsigne
       pathSoFar += pathStep;
       ford = FileDataSource::existsFileOrDir(pathSoFar.c_str());
 
-      std::cout << "step: "<<pathStep<<" cumulative: "<<pathSoFar << " ford:" << ford << std::endl;
+//      std::cout << "step: "<<pathStep<<" cumulative: "<<pathSoFar << " ford:" << ford << std::endl;
 
       if (ford == 2) {
           ++step;
@@ -207,7 +203,8 @@ FileDataSource::walkPathFS(const std::list<std::string>* strStack, const unsigne
 int
 FileDataSource::walkPathG(const std::list<std::string>* strStack, const unsigned int stackPos)
 {
-  std::string pathSoFar = "";
+  std::string fsPath = "";
+  std::string gPath = "";
   std::string pathStep = "";
   std::list<std::string>::const_iterator it = strStack->begin();
   struct db_i *dbip;
@@ -220,35 +217,33 @@ FileDataSource::walkPathG(const std::list<std::string>* strStack, const unsigned
   for (int i = 0; i < stackPos; ++i)
     {
       pathStep = (std::string) *it;
-      pathSoFar += pathStep;
+      fsPath += pathStep;
       ++it;
 
       if (i != (stackPos-1))
-        pathSoFar += "/";
+        fsPath += "/";
     }
 
   /* Open DB file */
-  if ((dbip = db_open(pathSoFar.c_str(), "r")) == DBI_NULL) {
-      perror(pathSoFar.c_str());
-      bu_exit(1, "Unable to open geometry file (%s)\n", pathSoFar.c_str());
+  if ((dbip = db_open(fsPath.c_str(), "r")) == DBI_NULL) {
+      perror(fsPath.c_str());
+      bu_exit(1, "Unable to open geometry file (%s)\n", fsPath.c_str());
   }
   if (db_dirbuild(dbip)) {
       bu_exit(1, "ERROR: db_dirbuild failed\n");
   }
 
   /* Assuming we are at TOPs here. */
-  pathSoFar = "";
-
   for (; it != strStack->end(); ++it)
     {
       pathStep = (std::string) *it;
-      pathSoFar += pathStep;
+      gPath += pathStep;
 
-      std::cout << "G step: " << pathStep << " cumulative: " << pathSoFar
-          << " dbStep:" << dbStep << std::endl;
+//      std::cout << "G: fsPath: " << fsPath
+//          << " gPath:" << gPath << std::endl;
 
       db_full_path_init(&dfp);
-      exists = db_string_to_path(&dfp, dbip, pathSoFar.c_str());
+      exists = db_string_to_path(&dfp, dbip, gPath.c_str());
       db_free_full_path(&dfp);
 
       if (exists != 0) {
@@ -256,7 +251,7 @@ FileDataSource::walkPathG(const std::list<std::string>* strStack, const unsigned
           break;
       }
 
-      pathSoFar += "/";
+      gPath += "/";
       ++dbStep;
     }
 
@@ -280,7 +275,7 @@ FileDataSource::pathToStringStack(std::string path, std::list<std::string>* stri
               endPos = path.length();
       }
       sub = path.substr(0, endPos);
-      std::cout << sub << std::endl;
+
       if (sub.length() > 0) {
         stringStack->push_back(sub);
         ++cnt;
@@ -291,7 +286,6 @@ FileDataSource::pathToStringStack(std::string path, std::list<std::string>* stri
 
   return cnt;
 }
-
 
 /*
  * Local Variables:
