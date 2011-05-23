@@ -28,9 +28,7 @@
 
 #include <cstdlib>
 
-
 AccountManager* AccountManager::pInstance = NULL;
-
 
 AccountManager::AccountManager()
 {
@@ -38,12 +36,10 @@ AccountManager::AccountManager()
     this->log = Logger::getInstance();
 }
 
-
 AccountManager::~AccountManager()
 {
     delete this->accounts;
 }
-
 
 AccountManager*
 AccountManager::getInstance()
@@ -53,7 +49,6 @@ AccountManager::getInstance()
     }
     return AccountManager::pInstance;
 }
-
 
 /**
  * returns 0 for bad login.  Positive number is the accountID
@@ -87,7 +82,6 @@ AccountManager::validateLoginCreds(std::string uname, std::string passwd)
     return -1;
 }
 
-
 Account*
 AccountManager::login(std::string uname, std::string passwd, Portal* p)
 {
@@ -109,13 +103,11 @@ AccountManager::login(std::string uname, std::string passwd, Portal* p)
     return acc;
 }
 
-
 void
 AccountManager::logout(Account* a)
 {
     this->remAccount(a);
 }
-
 
 Account*
 AccountManager::newAccount(std::string uname, Portal* p, uint32_t id)
@@ -125,7 +117,7 @@ AccountManager::newAccount(std::string uname, Portal* p, uint32_t id)
     //check to see if its already cached.
     //New
     a = new Account(uname, p, id);
-    
+
     //cache
     this->accountListLock.lock();
     this->accounts->push_back(a);
@@ -134,7 +126,6 @@ AccountManager::newAccount(std::string uname, Portal* p, uint32_t id)
     return a;
 }
 
-
 void
 AccountManager::remAccount(Account* a)
 {
@@ -142,7 +133,6 @@ AccountManager::remAccount(Account* a)
     this->accounts->remove(a); /* TODO Removes matches to mem address only, upgrade this logic. */
     this->accountListLock.unlock();
 }
-
 
 /*
  * Local Variables:

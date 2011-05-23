@@ -64,8 +64,6 @@ leaf_fn_call(struct db_tree_state *tsp, const struct db_full_path *pathp,
   bu_external* ext = (bu_external*)bu_calloc(sizeof(bu_external),1,"bu_external calloc");
   int rVal = db_get_external(ext, pathp->fp_names[i], tsp->ts_dbip);
 
-
-
   return (union tree *)NULL;
 }
 
@@ -86,9 +84,7 @@ main(int argc, char* argv[])
 
   std::cout << "\nDone, got: " << ret << " steps\n" << std::endl;
 
-
   return 0;
-
 
   std::list<node_data> dataList;
   struct db_i* dbip = DBI_NULL;
@@ -110,7 +106,6 @@ main(int argc, char* argv[])
     }
 
   db_update_nref(dbip, &rt_uniresource);
-
 
   /* Walk down from top Objects */
   struct directory* dp;

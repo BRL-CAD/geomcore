@@ -43,7 +43,6 @@ gvm_object_in_model(struct gvm_info *repo_info, const char *model_name, const ch
     return ret;
 }
 
-
 struct bu_external *
 gvm_get_extern_obj(struct gvm_info *repo_info, const char *model_name, const char *obj_name, size_t ver_num) {
     apr_pool_t *subpool;

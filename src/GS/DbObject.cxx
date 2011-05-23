@@ -18,7 +18,7 @@
  * information.
  */
 /** @file DbObject.cxx
- *      
+ *
  */
 
 #include "DbObject.h"
@@ -44,20 +44,17 @@ DbObject::getPath()
     return this->path;
 }
 
-
 GSUuid*
 DbObject::getID()
 {
     return this->id;
 }
 
-
 ByteBuffer*
 DbObject::getData()
 {
     return this->data;
 }
-
 
 /*
  * Local Variables:

@@ -43,7 +43,6 @@ JobScheduler* JobScheduler::getInstance()
 	return JobScheduler::pInstance;
 }
 
-
 /*
  * Local Variables:
  * tab-width: 8

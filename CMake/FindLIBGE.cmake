@@ -1,23 +1,23 @@
 #########################################################################
 #
 #	BRL-CAD
-#	
+#
 #	Copyright (c) 1997-2011 United States Government as represented by
 #	the U.S. Army Research Laboratory.
-#	
+#
 #	This library is free software; you can redistribute it and/or
 #	modify it under the terms of the GNU Lesser General Public License
 #	version 2.1 as published by the Free Software Foundation.
-#	
+#
 #	This library is distributed in the hope that it will be useful, but
 #	WITHOUT ANY WARRANTY; without even the implied warranty of
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #	Lesser General Public License for more details.
-#	
+#
 #	You should have received a copy of the GNU Lesser General Public
 #	License along with this file; see the file named COPYING for more
 #	information.
-#	
+#
 #########################################################################
 #	@file geomcore/cmake/FindLIBGE.cmake
 #
@@ -29,18 +29,18 @@
 #  	LIBGE_LIBRARIES - link these to use the LIBGE Libraries
 #
 #     LIBGE_GE_LIBRARY - The Geometry Engine library
-# 
+#
 #########################################################################
 
-SET(LIBGE_INCLUDE_DIR_CANDIDATES 
-	/usr/brlcad/include 
+SET(LIBGE_INCLUDE_DIR_CANDIDATES
+	/usr/brlcad/include
 	/usr/local/brlcad/include
 	${LIBGE_BASE_DIR}/include
 )
 FIND_PATH(LIBGE_INCLUDE_DIR NAMES GeometryEngine.h PATHS ${LIBGE_INCLUDE_DIR_CANDIDATES})
 
-SET(LIBGE_LIB_DIR_CANDIDATES 
-	/usr/brlcad/lib 
+SET(LIBGE_LIB_DIR_CANDIDATES
+	/usr/brlcad/lib
 	/usr/local/brlcad/lib
 	${LIBGE_BASE_DIR}/lib
 )

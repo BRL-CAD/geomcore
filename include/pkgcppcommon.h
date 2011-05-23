@@ -1,4 +1,4 @@
-/*                      
+/*
  * BRL-CAD
  *
  * Copyright (c) 2011 United States Government as represented by

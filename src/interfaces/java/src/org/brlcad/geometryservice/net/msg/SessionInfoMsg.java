@@ -18,7 +18,7 @@
  * information.
  */
 /** @file SessionInfo.java
- * 
+ *
  */
 package org.brlcad.geometryservice.net.msg;
 
@@ -29,7 +29,7 @@ import org.brlcad.geometryservice.net.ByteBufferWriter;
 
 /**
  * @author david.h.loman
- * 
+ *
  */
 public class SessionInfoMsg extends AbstractNetMsg {
 

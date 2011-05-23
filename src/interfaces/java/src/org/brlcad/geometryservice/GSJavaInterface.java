@@ -18,7 +18,7 @@
  * information.
  */
 /** @file GSJavaInterface.java
- * 
+ *
  */
 package org.brlcad.geometryservice;
 
@@ -31,14 +31,14 @@ import org.brlcad.geometryservice.net.GSConnection;
 
 /**
  * @author david.h.loman
- * 
+ *
  */
 public class GSJavaInterface implements GeometryService {
 	private GSConnection conn;
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.brlcad.geometryservice.GeometryService#estimateFootprint(java.lang
 	 * .String, java.lang.String)
@@ -51,7 +51,7 @@ public class GSJavaInterface implements GeometryService {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.brlcad.geometryservice.GeometryService#get(java.lang.String,
 	 * java.lang.String)
 	 */
@@ -63,7 +63,7 @@ public class GSJavaInterface implements GeometryService {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.brlcad.geometryservice.GeometryService#getMetadata(java.lang.String,
 	 * java.lang.String)
@@ -76,7 +76,7 @@ public class GSJavaInterface implements GeometryService {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.brlcad.geometryservice.GeometryService#query(java.lang.Object)
 	 */
 	@Override
@@ -106,11 +106,11 @@ public class GSJavaInterface implements GeometryService {
 		}
 
 		this.conn.start();
-		
+
 		return true;
 	}
-	
-	public void disconnectFromHost() 
+
+	public void disconnectFromHost()
 	{
 		if (this.conn != null)
 			this.conn.stopReceiving();

@@ -30,7 +30,6 @@
 
 #include "GSUuid.h"
 
-
 class DbObjectManifest
 {
 public:
@@ -41,7 +40,6 @@ private:
     std::list<GSUuid*> DbObjectList;
     std::map<GSUuid*, std::string > DbObjectMap;
 };
-
 
 #endif /* __DBOBJECTMANIFEST_H__ */
 

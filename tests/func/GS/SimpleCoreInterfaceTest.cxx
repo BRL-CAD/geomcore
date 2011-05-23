@@ -28,7 +28,6 @@
 #include <brlcad/Halfspace.h>
 #include <brlcad/Combination.h>
 
-
 int main
 (
     int   argc,
@@ -56,7 +55,6 @@ int main
 
     return 0;
 }
-
 
 // Local Variables: ***
 // mode: C++ ***

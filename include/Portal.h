@@ -28,7 +28,6 @@
 
 #define PKG_MAGIC2      0x5309
 
-
 #include "INetMsgHandler.h"
 #include "NetMsg.h"
 #include "Logger.h"
@@ -59,10 +58,8 @@ public:
 
   void tryBuild();
 
-
 protected:
   Portal(PortalManager* pm, int socket);
-
 
 /* Not for public use since libPKG will block on this call.
      * Returns:

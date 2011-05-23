@@ -26,7 +26,7 @@
 #ifndef __NETMSGTYPES_H__
 #define __NETMSGTYPES_H__
 
-/**  
+/**
  * NetMsg Types
  *
  * <table>
@@ -48,7 +48,7 @@
  *   <tr><td>0x0405</td> <td>Geometry Manifest</td> <td>NetMsg</td> <td></td></tr>
  *   <tr><td>0x0410</td> <td>Geometry Chuck</td> <td>GenericMultiByteMsg</td> <td></td></tr>
 * </table>
-*   
+*
 *
 */
 

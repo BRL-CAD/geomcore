@@ -42,7 +42,7 @@ public:
   void stampLastAccess();
   uint32_t getID();
   Portal* getPortal();
-  
+
 private:
   uint32_t id;
   std::string uname;

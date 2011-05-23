@@ -75,7 +75,6 @@ class GeometryServer
 	    sleep(1);
 	    std::cout << "\tisRun "<< isRun << std::endl;
 
-
 	    return isRun;
 	}
 
@@ -95,7 +94,6 @@ class GeometryServer
 	{
 	    this->gs->start();
 	}
-
 
 	void stop() const
 	{
@@ -529,7 +527,6 @@ int main(int ac, char *av[])
     gs->start();
     sleep(1);
     std::cout << "\t5\n";
-
 
     RESULT();
 

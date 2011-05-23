@@ -38,9 +38,7 @@
 #include "Portal.h"
 #include "GetCmd.h"
 
-
 const std::string GSCmdLineClient::defaultPrompt ="geoclient> ";
-
 
 GSCmdLineClient::GSCmdLineClient(std::string localNodeName):GSClient(localNodeName)
 {
@@ -51,11 +49,9 @@ GSCmdLineClient::GSCmdLineClient(std::string localNodeName):GSClient(localNodeNa
     this->currentPortal = NULL;
 }
 
-
 GSCmdLineClient::~GSCmdLineClient()
 {
 }
-
 
 int
 GSCmdLineClient::run()
@@ -79,7 +75,6 @@ GSCmdLineClient::run()
 	std::list<std::string> list;
 	do { std::string tok; iss>>tok; list.push_back(tok);} while (iss);
 	list.pop_back(); /* remove the empty end */
-
 
 	/* check to see if there is at least one element */
 	if (list.size() <= 0) {
@@ -105,13 +100,11 @@ GSCmdLineClient::run()
     return 0;
 }
 
-
 void
 GSCmdLineClient::stopRun()
 {
     this->stayRun = false;
 }
-
 
 bool
 GSCmdLineClient::execCmd(std::string cmd, std::list<std::string> args)
@@ -129,7 +122,6 @@ GSCmdLineClient::execCmd(std::string cmd, std::list<std::string> args)
     return acc->exec(this, args);
 }
 
-
 void
 GSCmdLineClient::registerClientCmds()
 {
@@ -143,7 +135,6 @@ GSCmdLineClient::registerClientCmds()
     this->ccReg->registerCmd(new GetCmd());
 }
 
-
 bool
 GSCmdLineClient::setCurrentPortal(Portal* p)
 {
@@ -154,13 +145,11 @@ GSCmdLineClient::setCurrentPortal(Portal* p)
     return false;
 }
 
-
 Portal*
 GSCmdLineClient::getCurrentPortal()
 {
     return this->currentPortal;
 }
-
 
 /*
  * Local Variables:

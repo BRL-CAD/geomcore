@@ -88,7 +88,6 @@ public:
   delete bb;
   }
 
-
   void
   testNormCstrSerialize()
   {
@@ -225,7 +224,6 @@ public:
     delete bb2;
   }
 
-
 private:
   void
   buildStringList(std::list<std::string>* list, int loopCnt = 20){
@@ -297,7 +295,6 @@ private:
   static char testData[];
   static int testDataSize;
 };
-
 
 int GeometryManifestMsgUTest::testDataSize = 6162;
 char GeometryManifestMsgUTest::testData[] =
@@ -817,7 +814,6 @@ char GeometryManifestMsgUTest::testData[] =
       0x32, 0x35, 0x2f, 0x72, 0x65, 0x67, 0x31, 0x35, 0x30, 0x2e, 0x72, 0x2f,
       0x73, 0x31, 0x35, 0x35, 0x2e, 0x73
     };
-
 
 CPPUNIT_TEST_SUITE_REGISTRATION (GeometryManifestMsgUTest);
 

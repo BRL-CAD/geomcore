@@ -42,7 +42,6 @@ public:
 	/* Destructor */
 	virtual ~PingMsg();
 
-
 	uint64_t getStartTime();
 };
 

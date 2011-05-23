@@ -18,7 +18,7 @@
  * information.
  */
 /** @file LoginCmd.cxx
- *      
+ *
  */
 
 #include "LoginCmd.h"
@@ -26,12 +26,9 @@
 #include "PortalManager.h"
 #include "NewSessionReqMsg.h"
 
-
 LoginCmd::LoginCmd() : AbstractClientCmd("login") {}
 
-
 LoginCmd::~LoginCmd() {}
-
 
 std::string
 LoginCmd::getUsage()
@@ -39,13 +36,11 @@ LoginCmd::getUsage()
     return "Usage: login ip port uname passwd";
 }
 
-
 std::string
 LoginCmd::getHelp()
 {
     return "Attempts to make a connection and login to a GeometryService.";
 }
-
 
 bool
 LoginCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
@@ -75,7 +70,6 @@ LoginCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
     std::string uname(*it);
     it++;
     std::string passwd(*it);
-
 
     if (port <=0 || host.length() == 0 || uname.length() == 0 || passwd.length() == 0) {
 	this->printUsage();
@@ -112,7 +106,6 @@ LoginCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
 
     return true;
 }
-
 
 /*
  * Local Variables:

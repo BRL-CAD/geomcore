@@ -12,7 +12,6 @@
 # include <netinet/in.h>
 # include <netdb.h>
 
-
 #include "bu.h"
 
 #define PKG_MAGIC 0x41FE

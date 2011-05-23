@@ -1,23 +1,23 @@
 #########################################################################
 #
 #	BRL-CAD
-#	
+#
 #	Copyright (c) 1997-2011 United States Government as represented by
 #	the U.S. Army Research Laboratory.
-#	
+#
 #	This library is free software; you can redistribute it and/or
 #	modify it under the terms of the GNU Lesser General Public License
 #	version 2.1 as published by the Free Software Foundation.
-#	
+#
 #	This library is distributed in the hope that it will be useful, but
 #	WITHOUT ANY WARRANTY; without even the implied warranty of
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #	Lesser General Public License for more details.
-#	
+#
 #	You should have received a copy of the GNU Lesser General Public
 #	License along with this file; see the file named COPYING for more
 #	information.
-#	
+#
 #########################################################################
 #	@file geomcore/cmake/FindBRLCAD.cmake
 #
@@ -54,7 +54,7 @@
 #  tweaked for BRL-CAD.  If a developer wishes to use the
 #  BRL-CAD altered versions of these libraries to satisfy a
 #  "generic" request for the library, they'll need to assign
-#  the results of these variables to the non-BRL-CAD specific 
+#  the results of these variables to the non-BRL-CAD specific
 #  variables they are using
 #
 #     BRLCAD_EXPPP_LIBRARY - SCL libexppp library
@@ -67,8 +67,8 @@
 #
 #  In addition to the above variables, which are essentially unique
 #  to BRL-CAD, this routine will look for local copies of libraries
-#  installed with BRL-CAD and return their results as would a 
-#  standard find_package for that library (if one exists).  The 
+#  installed with BRL-CAD and return their results as would a
+#  standard find_package for that library (if one exists).  The
 #  distinction between these libraries and those above is that these
 #  libraries do not have known modifications required by BRL-CAD that
 #  preclude system libraries from substituting for them, although
@@ -83,7 +83,7 @@
 #  tcl/tk
 #  Togl
 #  utahrle
-# 
+#
 #########################################################################
 
 SET(BRLCAD_ROOT "$ENV{BRLCAD_ROOT}")
@@ -116,8 +116,8 @@ IF(NOT BRLCAD_BASE_DIR)
 
 	#Look for headers if we come up empty with brlcad-config
 	IF(NOT BRLCAD_BASE_DIR)
-		SET(BRLCAD_HEADERS_DIR_CANDIDATES 
-			/usr/brlcad/include/brlcad 
+		SET(BRLCAD_HEADERS_DIR_CANDIDATES
+			/usr/brlcad/include/brlcad
 			/usr/local/brlcad/include/brlcad
 			)
 		FIND_PATH(BRLCAD_HEADERS_DIR NAMES bu.h bn.h rt.h PATHS ${BRLCAD_HEADERS_DIR_CANDIDATES})
@@ -232,7 +232,7 @@ ENDFOREACH(ext_lib ${BRL-CAD_LIBS_SEARCH_LIST})
 # Lastly, we need to check for local installs in the BRL-CAD install of
 # libraries that might otherwise be present on the system - if they are
 # found in the BRL-CAD install tree, use those versions instead of any
-# system results by setting the variables a find_package result would 
+# system results by setting the variables a find_package result would
 # produce.
 
 #  zlib

@@ -21,7 +21,7 @@
  * PkgTcpClient.h
  *
  *  Created on: Aug 19, 2010
- *      
+ *
  */
 
 #ifndef __PKGTCPCLIENT_H__
@@ -35,7 +35,6 @@ public:
   PkgTcpClient(std::string ipOrHostname, int port, struct pkg_switch* callBackTableIn);
   PkgTcpClient(pkg_conn* conn);
   virtual ~PkgTcpClient();
-
 
 private:
 	/* Disable copy cstr and =operator */

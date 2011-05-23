@@ -18,7 +18,7 @@
  * information.
  */
 /** @file HelpCmd.java
- * 
+ *
  */
 package org.brlcad.geometryservice.minimalclient.cmd;
 
@@ -30,7 +30,7 @@ import org.brlcad.geometryservice.minimalclient.CmdConsolePanel;
 
 /**
  * @author david.h.loman
- * 
+ *
  */
 public class HelpCmd extends AbstractCmd {
 
@@ -44,7 +44,7 @@ public class HelpCmd extends AbstractCmd {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.brlcad.geometryservice.minimalclient.cmd.AbstractCmd#doCmd(java.lang
 	 * .String[])
@@ -70,14 +70,14 @@ public class HelpCmd extends AbstractCmd {
 			this.cmdConsole.printToConsole(out, CmdConsolePanel.STYLE_BLUE);
 			return true;
 		}
-		
+
 		/* Get help for just ONE command.*/
-		
+
 		out = GSStatics.tab + aCmd.getCmd() + ": ";
 		this.cmdConsole.printLnToConsole(out, CmdConsolePanel.STYLE_BLUE_BOLD);
 
 		aCmd.printUsageAndHelp();
-		
+
 		return true;
 	}
 
@@ -99,7 +99,7 @@ public class HelpCmd extends AbstractCmd {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.brlcad.geometryservice.minimalclient.cmd.AbstractCmd#getHelp()
 	 */
 	@Override
@@ -109,7 +109,7 @@ public class HelpCmd extends AbstractCmd {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.brlcad.geometryservice.minimalclient.cmd.AbstractCmd#getUsage()
 	 */
 	@Override

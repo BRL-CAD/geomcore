@@ -57,7 +57,7 @@ public class GSConnection extends Thread {
 	/**
 	 * Static method that will connect to the provided addy:port and attempt to
 	 * log in.
-	 * 
+	 *
 	 * @param addy
 	 * @param port
 	 * @param uname
@@ -256,8 +256,8 @@ public class GSConnection extends Thread {
 		int bytesReadLast = 0;
 
 		int timeout;
-		
-		/* Try to set the read Timeout to 100ms */ 
+
+		/* Try to set the read Timeout to 100ms */
 		try {
 			timeout = this.sock.getSoTimeout();
 			if (timeout < 1)
@@ -291,7 +291,7 @@ public class GSConnection extends Thread {
 			this.connReadBuf.put(this.socketReadBuf, 0, bytesReadLast);
 
 		} while (bytesReadLast > 0);
-		
+
 		try {
 			/* Return timeout to zero if applicable */
 			if (timeout < 1)
@@ -373,7 +373,7 @@ public class GSConnection extends Thread {
 		} catch (SocketTimeoutException ste){
 			/* No worries here*/
 			return 0;
-			
+
 		} catch (IOException ioe) {
 			this.disconnect();
 			return -1;
@@ -506,7 +506,7 @@ public class GSConnection extends Thread {
 		this.recvRunCmd.set(true);
 
 		while (this.recvRunCmd.get()) {
-			
+
 		}
 
 		this.recvRunStatus.set(false);

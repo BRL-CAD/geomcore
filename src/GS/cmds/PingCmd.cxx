@@ -25,12 +25,9 @@
 #include "PingCmd.h"
 #include "PingMsg.h"
 
-
 PingCmd::PingCmd(): AbstractClientCmd("ping"){}
 
-
 PingCmd::~PingCmd() {}
-
 
 std::string
 PingCmd::getUsage()

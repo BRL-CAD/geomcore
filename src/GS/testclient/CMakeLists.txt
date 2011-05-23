@@ -1,23 +1,23 @@
 #                      C M A K E L I S T S . T X T
 #
 #	BRL-CAD - Geometry Service Test Client
-#	
+#
 #	Copyright (c) 1997-2011 United States Government as represented by
 #	the U.S. Army Research Laboratory.
-#	
+#
 #	This library is free software; you can redistribute it and/or
 #	modify it under the terms of the GNU Lesser General Public License
 #	version 2.1 as published by the Free Software Foundation.
-#	
+#
 #	This library is distributed in the hope that it will be useful, but
 #	WITHOUT ANY WARRANTY; without even the implied warranty of
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #	Lesser General Public License for more details.
-#	
+#
 #	You should have received a copy of the GNU Lesser General Public
 #	License along with this file; see the file named COPYING for more
 #	information.
-#	
+#
 
 #  Note - if this test client develops into anything useful should
 #  probably BSD license it to make client building easier.
@@ -34,12 +34,12 @@ PROJECT(GSTESTCLIENT)
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 
 #---------------------------------------------------------------------
-# We want to check /usr/local by default, so add it 
+# We want to check /usr/local by default, so add it
 SET(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} /usr/local)
 SET(CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} /usr/local/include)
 
 #---------------------------------------------------------------------
-# The location in which to install BRLCAD. Need a good Debug location 
+# The location in which to install BRLCAD. Need a good Debug location
 # for Windows.  Only do this if CMAKE_INSTALL_PREFIX hasn't been set
 # already, to try and allow parent builds (if any) some control.
 IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -56,8 +56,8 @@ ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 SET(GEOMCORE_PREFIX ${CMAKE_INSTALL_PREFIX} CACHE STRING "GEOMCORE install prefix")
 
 #---------------------------------------------------------------------
-# The following logic is what allows binaries to run successfully in 
-# the build directory AND install directory.  Thanks to plplot for 
+# The following logic is what allows binaries to run successfully in
+# the build directory AND install directory.  Thanks to plplot for
 # identifying the necessity of setting CMAKE_INSTALL_NAME_DIR on OSX.
 
 # use, i.e. don't skip the full RPATH for the build tree
@@ -73,7 +73,7 @@ if (NOT APPLE)
 endif(NOT APPLE)
 SET(CMAKE_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 
-# add the automatically determined parts of the RPATH which point to 
+# add the automatically determined parts of the RPATH which point to
 # directories outside the build tree to the install RPATH
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 

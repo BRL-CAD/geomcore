@@ -1,23 +1,23 @@
 #########################################################################
 #
 #	BRL-CAD
-#	
+#
 #	Copyright (c) 1997-2011 United States Government as represented by
 #	the U.S. Army Research Laboratory.
-#	
+#
 #	This library is free software; you can redistribute it and/or
 #	modify it under the terms of the GNU Lesser General Public License
 #	version 2.1 as published by the Free Software Foundation.
-#	
+#
 #	This library is distributed in the hope that it will be useful, but
 #	WITHOUT ANY WARRANTY; without even the implied warranty of
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #	Lesser General Public License for more details.
-#	
+#
 #	You should have received a copy of the GNU Lesser General Public
 #	License along with this file; see the file named COPYING for more
 #	information.
-#	
+#
 #########################################################################
 #	@file geomcore/src/GS/CMakeLists.txt
 #
@@ -58,7 +58,7 @@ SET(geomserv_SRCS
 	cmds/ExitCmd.cxx
 	cmds/PingCmd.cxx
 	)
-	
+
 IF(BUILD_SHARED_LIBS)
 	add_library(libgeomserv SHARED ${geomserv_SRCS})
 	target_link_libraries(libgeomserv libNet libgcutil ${BRLCAD_RT_LIBRARY} ${LIBGE_GE_LIBRARY})
@@ -99,7 +99,7 @@ SET(geomserv_inst_HDRS
 	ShutdownCmd.h
 	ExitCmd.h
 )
-	
+
 INSTALL(FILES ${geomserv_inst_HDRS} DESTINATION include)
 
 add_executable(geomserv geomserv.cxx)
@@ -107,10 +107,8 @@ target_link_libraries(geomserv libgcutil libNet libgeomserv ${BRLCAD_PKG_LIBRARY
 install(TARGETS geomserv DESTINATION bin)
 file(COPY geomserv.config DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-
 add_executable(geomclient geomclient.cxx)
 target_link_libraries(geomclient libgcutil libNet libgeomserv ${BRLCAD_PKG_LIBRARY})
 install(TARGETS geomclient DESTINATION bin)
 file(COPY geomclient.config DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-
 

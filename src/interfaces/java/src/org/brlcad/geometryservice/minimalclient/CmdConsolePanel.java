@@ -18,7 +18,7 @@
  * information.
  */
 /** @file CmdConsolePanel.java
- * 
+ *
  */
 package org.brlcad.geometryservice.minimalclient;
 
@@ -48,7 +48,7 @@ import org.brlcad.geometryservice.minimalclient.cmd.CmdManager;
 
 /**
  * @author david.h.loman
- * 
+ *
  */
 public class CmdConsolePanel extends JPanel implements ActionListener {
 
@@ -58,11 +58,11 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 
 	private static final String DEFAULT_PROMPT = "gsMinClient> ";
 	private String prompt;
-	
+
 	private final MinimalGSClientGUI parentFrame;
 
 	/**
-	 * 
+	 *
 	 */
 	public CmdConsolePanel(MinimalGSClientGUI parentFrame) {
 		this.commonCstr();
@@ -100,14 +100,14 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 	private final void commonCstr() {
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		Border myBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
-		
+
 		/*  */
 		this.console = new JTextPane();
 		this.console.setEditable(false);
 		this.console.setBorder(myBorder);
 		StyledDocument doc = this.console.getStyledDocument();
 		this.addStylesToDocument(doc);
-		
+
 		JScrollPane scroll = new JScrollPane(console);
 		this.add(scroll);
 
@@ -131,7 +131,7 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 
 		if (source == this.cmdLine) {
 			String cmd = this.cmdLine.getText().replace(this.prompt, "");
-			
+
 			GSJavaInterface gsji = this.parentFrame.getClient().getGSJavaInterface();
 			CmdManager.parseCmd(cmd, this, gsji);
 			this.cmdLine.setText(this.prompt);
@@ -175,13 +175,13 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 		this.printToConsole(line + "\n", style);
 	}
 
-	
+
     private void addStylesToDocument(StyledDocument doc) {
         //Initialize some styles.
         Style def = StyleContext.getDefaultStyleContext().
                         getStyle(StyleContext.DEFAULT_STYLE);
         StyleConstants.setFontFamily(def, "SansSerif");
-        
+
 
         Style s = doc.addStyle(STYLE_RED, def);
         StyleConstants.setForeground(s, new Color(0.7f, 0.0f, 0.0f));
@@ -195,7 +195,7 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
         StyleConstants.setForeground(s, new Color(0.0f, 0.0f, 0.7f));
         CmdConsolePanel.addSubStyles(s, doc, "blue");
 }
-    
+
     private static void addSubStyles(Style main, StyledDocument doc, String subname) {
         Style s = doc.addStyle(subname + STYLE_SUB_ITALIC, main);
         StyleConstants.setItalic(s, true);
@@ -210,35 +210,35 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
         StyleConstants.setFontSize(s, 10);
 
         s = doc.addStyle(subname + STYLE_SUB_LARGE, main);
-        StyleConstants.setFontSize(s, 16);        
+        StyleConstants.setFontSize(s, 16);
     }
 
     /*
      * Style statics.
      */
-    
+
     private final static String STYLE_SUB_ITALIC = "-italic";
     private final static String STYLE_SUB_BOLD = "-bold";
     private final static String STYLE_SUB_UNDERLINE = "-underline";
     private final static String STYLE_SUB_SMALL = "-small";
     private final static String STYLE_SUB_LARGE = "-large";
-    
+
     public final static String STYLE_RED = "red";
     public final static String STYLE_GREEN = "green";
     public final static String STYLE_BLUE = "blue";
-    
+
     public final static String STYLE_RED_ITALIC = STYLE_RED + STYLE_SUB_ITALIC;
     public final static String STYLE_RED_BOLD = STYLE_RED + STYLE_SUB_BOLD;
     public final static String STYLE_RED_UNDERLINE = STYLE_RED + STYLE_SUB_UNDERLINE;
     public final static String STYLE_RED_SMALL = STYLE_RED + STYLE_SUB_SMALL;
     public final static String STYLE_RED_LARGE = STYLE_RED + STYLE_SUB_LARGE;
-    
+
     public final static String STYLE_GREEN_ITALIC = STYLE_GREEN + STYLE_SUB_ITALIC;
     public final static String STYLE_GREEN_BOLD = STYLE_GREEN + STYLE_SUB_BOLD;
     public final static String STYLE_GREEN_UNDERLINE = STYLE_GREEN + STYLE_SUB_UNDERLINE;
     public final static String STYLE_GREEN_SMALL = STYLE_GREEN + STYLE_SUB_SMALL;
     public final static String STYLE_GREEN_LARGE = STYLE_GREEN + STYLE_SUB_LARGE;
-    
+
     public final static String STYLE_BLUE_ITALIC = STYLE_BLUE + STYLE_SUB_ITALIC;
     public final static String STYLE_BLUE_BOLD = STYLE_BLUE + STYLE_SUB_BOLD;
     public final static String STYLE_BLUE_UNDERLINE = STYLE_BLUE + STYLE_SUB_UNDERLINE;

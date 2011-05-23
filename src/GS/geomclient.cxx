@@ -25,7 +25,6 @@
 #include "GSCmdLineClient.h"
 #include "Config.h"
 
-
 int
 gsExit(int code)
 {
@@ -38,7 +37,6 @@ gsExit(int code)
     usleep(1000); /* Yeild main thread, let other threads finish unlocking */
     exit(code);
 }
-
 
 int
 main(int argc, char* argv[])
@@ -75,7 +73,6 @@ main(int argc, char* argv[])
 
     return retVal;
 }
-
 
 /*
  * Local Variables:

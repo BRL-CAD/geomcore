@@ -66,7 +66,6 @@ GSThread::wait(int& t)
 {
 }
 
-
 void *
 GSThread::runner(void *obj) {
     GSThread *me = (GSThread *)obj;
@@ -74,7 +73,7 @@ GSThread::runner(void *obj) {
 }
 
 void
-GSThread::start() 
+GSThread::start()
 {
     this->running = true;
     pthread_attr_t attr;

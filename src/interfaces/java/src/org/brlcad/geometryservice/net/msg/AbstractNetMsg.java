@@ -91,7 +91,7 @@ public abstract class AbstractNetMsg {
 
 		/* Subclass items */
 		this._serialize(writer);
-		
+
 		/* Calc and insert msgLen */
 		int dataLen = writer.position() - GSStatics.pkgHeaderSize;
 		writer.putIntAt(dataLen, 4);
@@ -112,7 +112,7 @@ public abstract class AbstractNetMsg {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return boolean - indicates where there is a reUUID or not.
 	 */
 	public final boolean hasReUUID() {
@@ -120,7 +120,7 @@ public abstract class AbstractNetMsg {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return UUID - the Message's reUUID
 	 */
 	public final UUID getReUUID() {

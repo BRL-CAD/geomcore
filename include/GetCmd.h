@@ -21,7 +21,7 @@
  * GetCmd.h
  *
  *  Created on: Dec 16, 2010
- *      
+ *
  */
 
 #ifndef __GETCMD_H__
@@ -41,7 +41,6 @@ public:
 protected:
 	bool _exec(GSCmdLineClient* client, std::list<std::string> args);
 };
-
 
 #endif /* __GETCMD_H__ */
 

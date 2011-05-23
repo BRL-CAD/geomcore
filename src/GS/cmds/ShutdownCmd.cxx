@@ -26,12 +26,9 @@
 #include "ShutdownCmd.h"
 #include "NetMsgTypes.h"
 
-
 ShutdownCmd::ShutdownCmd() : AbstractClientCmd("shutdown") {}
 
-
 ShutdownCmd::~ShutdownCmd() {}
-
 
 std::string
 ShutdownCmd::getUsage()
@@ -39,13 +36,11 @@ ShutdownCmd::getUsage()
     return "Usage: shutdown";
 }
 
-
 std::string
 ShutdownCmd::getHelp()
 {
     return "Sends a remote shutdown command to the GS server currently attached.";
 }
-
 
 bool
 ShutdownCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
@@ -64,7 +59,6 @@ ShutdownCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
 
     return true;
 }
-
 
 /*
  * Local Variables:

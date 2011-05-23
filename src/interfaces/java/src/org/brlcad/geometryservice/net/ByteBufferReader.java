@@ -37,7 +37,7 @@ public class ByteBufferReader {
 	 * <B>bbin</B> must have the position attribute at the <i>end</i> of the
 	 * data to be copied over, since <b>bbin.flip()</b> is called in this
 	 * constructor.
-	 * 
+	 *
 	 * @param bbin
 	 * @param endianFlip
 	 */
@@ -58,7 +58,7 @@ public class ByteBufferReader {
 	public ByteBufferReader(ByteBuffer bbin) {
 		this(bbin, false);
 	}
-	
+
 	/*
 	 * Getters
 	 */
@@ -79,7 +79,7 @@ public class ByteBufferReader {
 	public boolean getBoolean() {
 		return (this.bb.get() > 0);
 	}
-	
+
 	/**
 	 * @return
 	 * @see java.nio.ByteBuffer#getChar()
@@ -164,11 +164,11 @@ public class ByteBufferReader {
 
 	public final UUID getUUID() {
 		String str = this.getString();
-		
+
 		if (str.length() != 36) {
 			str = str.substring(0, 36);
 		}
-		
+
 		UUID id = UUID.fromString(str);
 		return id;
 	}

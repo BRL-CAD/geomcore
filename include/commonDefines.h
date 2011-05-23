@@ -42,7 +42,6 @@
 #  endif
 #endif
 
-
 #define ALL_EVENT_PUBLISHERS	0
 
 #endif /* __COMMONDEFINES_H__ */

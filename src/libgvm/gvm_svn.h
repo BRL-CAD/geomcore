@@ -35,7 +35,6 @@
 #include "svn_diff.h"
 #include "svn_repos.h"
 
-
 /**
  * GVMSVN_ERR(expr)
  *
@@ -51,7 +50,6 @@
 	    svn_error_clear(svn_err);		\
 	}					\
     } while (0)
-
 
 /**
  * SVN Repository info

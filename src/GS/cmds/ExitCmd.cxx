@@ -24,12 +24,9 @@
 #include "ExitCmd.h"
 #include "Portal.h"
 
-
 ExitCmd::ExitCmd() : AbstractClientCmd("exit") {}
 
-
 ExitCmd::~ExitCmd() {}
-
 
 std::string
 ExitCmd::getUsage()
@@ -37,13 +34,11 @@ ExitCmd::getUsage()
     return "Usage: exit";
 }
 
-
 std::string
 ExitCmd::getHelp()
 {
     return "Causes the application to exit.";
 }
-
 
 bool
 ExitCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
@@ -51,7 +46,6 @@ ExitCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
     /* set the run flag to false */
     client->stopRun();
 }
-
 
 /*
  * Local Variables:

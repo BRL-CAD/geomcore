@@ -18,7 +18,7 @@
  * information.
  */
 /** @file SerialTest.java
- * 
+ *
  */
 package org.brlcad.geometryservice;
 
@@ -40,12 +40,12 @@ public class SerialTest {
 		// TODO Auto-generated method stub
 
 		NewSessionReqMsg msg = new NewSessionReqMsg("Guest", "Guest");
-		
+
 		ByteBuffer bb = ByteBuffer.allocate(1024*1024);
 		ByteBufferWriter wr = new ByteBufferWriter(bb);
-		
+
 		msg.serialize(wr);
-		
+
 		String out = "";
 		byte[] ba = bb.array();
 		for (int i = 0 ; i < wr.position(); ++i) {
@@ -53,13 +53,13 @@ public class SerialTest {
 			String c = Integer.toString(b & 0xff, 16).toUpperCase();
 			if (c.length() == 1)
 				c = "0" + c;
-			
+
 			out += c;
 		}
-		
+
 		System.out.println("Data: " + out);
 
-		
+
 	}
 
 }

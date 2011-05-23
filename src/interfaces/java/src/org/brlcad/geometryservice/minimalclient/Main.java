@@ -18,7 +18,7 @@
  * information.
  */
 /** @file Main.java
- * 
+ *
  */
 package org.brlcad.geometryservice.minimalclient;
 
@@ -26,7 +26,7 @@ import javax.swing.SwingUtilities;
 
 /**
  * @author david.h.loman
- * 
+ *
  */
 public class Main {
 

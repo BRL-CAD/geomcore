@@ -173,7 +173,6 @@ Portal::pullFromSock() {
       /* Check for enough space in BB */
       remaining = cap - pos;
 
-
       if (remaining < MAXCHUNKSIZE)
          tryToRead = remaining - 1;
       else
@@ -184,7 +183,6 @@ Portal::pullFromSock() {
 //      std::cout << " remaining: " << remaining ;
 //      std::cout << " tryToRead: " << tryToRead ;
 //      std::cout << " pos + tryToRead: " << (pos + tryToRead) << "\n" ;
-
 
 #ifdef HAVE_WINSOCK_H
       lastRead = recv(this->socket, bb->array() + pos, tryToRead);
@@ -198,7 +196,6 @@ Portal::pullFromSock() {
           std::cout <<
           "Seemed to have trouble pulling the data from the socket: "
               << errno << " ("<< strerror( errno ) << ")\n";
-
 
       } else {
         pos += lastRead;

@@ -23,14 +23,11 @@
 
 #include "DbObjectManifest.h"
 
-
 DbObjectManifest::DbObjectManifest()
 {}
 
-
 DbObjectManifest::~DbObjectManifest()
 {}
-
 
 /*
  * Local Variables:

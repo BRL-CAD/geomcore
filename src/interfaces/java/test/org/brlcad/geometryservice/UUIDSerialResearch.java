@@ -18,7 +18,7 @@
  * information.
  */
 /** @file UUIDSerialResearch.java
- * 
+ *
  */
 package org.brlcad.geometryservice;
 

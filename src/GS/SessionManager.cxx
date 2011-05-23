@@ -31,19 +31,15 @@
 #include <GSThread.h>
 #include <algorithm>
 
-
 SessionManager* SessionManager::pInstance = NULL;
-
 
 SessionManager::SessionManager()
 {
   this->log = Logger::getInstance();
 }
 
-
 SessionManager::~SessionManager()
 {}
-
 
 SessionManager* SessionManager::getInstance()
 {
@@ -51,7 +47,6 @@ SessionManager* SessionManager::getInstance()
     pInstance = new SessionManager();
   return SessionManager::pInstance;
 }
-
 
 Session*
 SessionManager::newSession(Account* a)
@@ -66,7 +61,6 @@ SessionManager::newSession(Account* a)
   return s;
 }
 
-
 Session*
 SessionManager::getSession(Account* a)
 {
@@ -76,7 +70,6 @@ SessionManager::getSession(Account* a)
       return (*it);
   return NULL;
 }
-
 
 //TODO need to verify the GSUuid* == GSUuid* works.
 Session*
@@ -89,7 +82,6 @@ SessionManager::getSession(GSUuid* sessID)
   return NULL;
 }
 
-
 Session*
 SessionManager::getSession(Portal* p)
 {
@@ -99,7 +91,6 @@ SessionManager::getSession(Portal* p)
       return (*it);
   return NULL;
 }
-
 
 void
 SessionManager::putCache(Session* s)
@@ -111,7 +102,6 @@ SessionManager::putCache(Session* s)
     this->sessionList.push_back(s);
 }
 
-
 void
 SessionManager::remCache(Session* s)
 {
@@ -121,7 +111,6 @@ SessionManager::remCache(Session* s)
   else
     log->logWARNING("SessionManager", "Attempted to remove a Session that wasn't cached.");
 }
-
 
 bool
 SessionManager::handleNetMsg(NetMsg* msg)
@@ -140,7 +129,6 @@ SessionManager::handleNetMsg(NetMsg* msg)
   }
   return false;
 }
-
 
 /*
  * Msg Handlers
@@ -194,7 +182,6 @@ void SessionManager::handleNewSessionReqMsg(NewSessionReqMsg* msg)
   origin->send(info);
 }
 
-
 void
 SessionManager::handleDisconnectReqMsg(TypeOnlyMsg* msg)
 {
@@ -217,7 +204,6 @@ SessionManager::handleDisconnectReqMsg(TypeOnlyMsg* msg)
   AccountManager::getInstance()->logout(a);
   delete a;
 }
-
 
 /*
  * Local Variables: ***

@@ -23,14 +23,12 @@
  *
  */
 
-
 #include "FileDataSource.h"
 #include "DataManager.h"
 #include <MinimalObject.h>
 #include <MinimalDatabase.h>
 
 std::string testPathFile("/awesome/test.g");
-
 
 int main(int argc, char* argv[])
 {
@@ -59,8 +57,6 @@ int main(int argc, char* argv[])
 		else
 			moeAfter->printObjState();
 	}
-
-
 
 	return 0;
 }

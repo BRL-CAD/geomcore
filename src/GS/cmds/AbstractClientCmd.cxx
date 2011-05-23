@@ -24,12 +24,10 @@
 #include "AbstractClientCmd.h"
 #include "GSClient.h"
 
-
 AbstractClientCmd::AbstractClientCmd(std::string cmd) : cmd(cmd)
 {
     this->log = Logger::getInstance();
 }
-
 
 AbstractClientCmd::AbstractClientCmd(AbstractClientCmd* acCmd) : cmd(acCmd->getCmd())
 {}
@@ -38,13 +36,11 @@ AbstractClientCmd::~AbstractClientCmd()
 {
 }
 
-
 std::string
 AbstractClientCmd::getCmd()
 {
     return this->cmd;
 }
-
 
 bool
 AbstractClientCmd::exec(GSCmdLineClient* client, std::list<std::string> args)
@@ -52,20 +48,17 @@ AbstractClientCmd::exec(GSCmdLineClient* client, std::list<std::string> args)
     return this->_exec(client, args);
 }
 
-
 void
 AbstractClientCmd::printUsage()
 {
     this->log->logINFO(this->cmd, this->getUsage());
 }
 
-
 void
 AbstractClientCmd::printHelp()
 {
     this->log->logINFO(this->cmd, this->getHelp());
 }
-
 
 /*
  * Local Variables:

@@ -23,7 +23,6 @@
  *
  */
 
-
 #ifndef __CLIENTCMDREGISTRY_H__
 #define __CLIENTCMDREGISTRY_H__
 

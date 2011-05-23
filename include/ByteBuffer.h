@@ -315,7 +315,6 @@ public:
   void
   put64bit(uint64_t v);
 
-
   /**
    * Relative <i>get</i> method for reading a standard string value.
    *
@@ -469,7 +468,6 @@ public:
 protected:
   bool
   setMark(ssize_t m);
-
 
 private:
   ByteBuffer(size_t size);

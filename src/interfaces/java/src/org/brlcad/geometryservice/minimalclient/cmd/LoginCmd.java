@@ -18,7 +18,7 @@
  * information.
  */
 /** @file HelpCmd.java
- * 
+ *
  */
 package org.brlcad.geometryservice.minimalclient.cmd;
 
@@ -31,7 +31,7 @@ import org.brlcad.geometryservice.minimalclient.CmdConsolePanel;
 
 /**
  * @author david.h.loman
- * 
+ *
  */
 public class LoginCmd extends AbstractCmd {
 
@@ -45,7 +45,7 @@ public class LoginCmd extends AbstractCmd {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.brlcad.geometryservice.minimalclient.cmd.AbstractCmd#doCmd(java.lang
 	 * .String[])
@@ -59,7 +59,7 @@ public class LoginCmd extends AbstractCmd {
 		}
 
 		/* validate Args */
-		
+
 		// args[0] == cmd name
 
 		String uname = args[1];
@@ -117,12 +117,12 @@ public class LoginCmd extends AbstractCmd {
 		}
 
 		/* Try connection */
-		return gsji.connectToHost(address, port, uname, passwd);	
+		return gsji.connectToHost(address, port, uname, passwd);
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.brlcad.geometryservice.minimalclient.cmd.AbstractCmd#getHelp()
 	 */
 	@Override
@@ -132,7 +132,7 @@ public class LoginCmd extends AbstractCmd {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.brlcad.geometryservice.minimalclient.cmd.AbstractCmd#getUsage()
 	 */
 	@Override

@@ -24,12 +24,9 @@
 #include "HelpCmd.h"
 #include "ClientCmdRegistry.h"
 
-
 HelpCmd::HelpCmd() : AbstractClientCmd("help") {}
 
-
 HelpCmd::~HelpCmd() {}
-
 
 std::string
 HelpCmd::getUsage()
@@ -37,13 +34,11 @@ HelpCmd::getUsage()
     return "Usage: help [cmdname]";
 }
 
-
 std::string
 HelpCmd::getHelp()
 {
     return "If evoked without any arguments, help diplays a list of available commands.  If a command name is provided as an argument, the help for that command is displayed.";
 }
-
 
 bool
 HelpCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
@@ -87,7 +82,6 @@ HelpCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
 	if (out.length() != 0)
 	    this->log->logINFO("HelpCmd", out);
 
-
 	delete cmds;
 	return true;
     } else {
@@ -116,7 +110,6 @@ HelpCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
 	return true;
     }
 }
-
 
 /*
  * Local Variables:

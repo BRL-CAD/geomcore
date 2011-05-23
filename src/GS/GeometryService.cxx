@@ -27,7 +27,6 @@
 #include "PingMsg.h"
 #include "PongMsg.h"
 
-
 GeometryService::GeometryService(const std::string localNodeName,
                                  const std::string listenAddy,
                                  const uint16_t listenPort)
@@ -41,19 +40,16 @@ GeometryService::GeometryService(const std::string localNodeName,
     this->registerMsgRoutes();
 }
 
-
 GeometryService::~GeometryService()
 {
     delete portalMan;
 }
-
 
 DataManager*
 GeometryService::getDataManager()
 {
     return this->dataMan;
 }
-
 
 void
 GeometryService::registerMsgRoutes()
@@ -76,7 +72,6 @@ GeometryService::registerMsgRoutes()
     router->registerType(GEOMETRYMANIFEST, DataManager::getInstance());
 }
 
-
 bool
 GeometryService::preRunHook()
 {
@@ -85,7 +80,6 @@ GeometryService::preRunHook()
 
     return true;
 }
-
 
 void
 GeometryService::_run()
@@ -99,7 +93,6 @@ GeometryService::_run()
     this->portalMan->shutdown(true);
 }
 
-
 bool
 GeometryService::postRunHook()
 {
@@ -108,7 +101,6 @@ GeometryService::postRunHook()
 
     return true;
 }
-
 
 bool
 GeometryService::handleNetMsg(NetMsg* msg)
@@ -186,13 +178,11 @@ GeometryService::handleNetMsg(NetMsg* msg)
     return false;
 }
 
-
 std::string
 GeometryService::getLocalNodeName()
 {
     return this->getThreadName();
 }
-
 
 /*
  * Local Variables:

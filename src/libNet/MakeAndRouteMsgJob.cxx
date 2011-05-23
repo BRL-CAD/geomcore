@@ -37,7 +37,6 @@ JobResult MakeAndRouteMsgJob::_doJob()
   this->p->tryToBuildNetMsgs();
 }
 
-
 /*
  * Local Variables:
  * mode: C

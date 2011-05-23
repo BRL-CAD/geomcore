@@ -288,7 +288,6 @@ ByteBuffer::put64bit(uint64_t host)
     this->setLimit(this->position());
 }
 
-
 void
 ByteBuffer::putString(std::string str)
 {
@@ -349,7 +348,6 @@ ByteBuffer::getString()
       std::cout << "\n\n" << ss.str() << "\n\n";
       exit(0);
   }
-
 
   char* ptr = this->array() + this->position();
   this->setPosition(this->position() + len);

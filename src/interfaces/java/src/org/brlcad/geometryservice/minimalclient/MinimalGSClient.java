@@ -18,22 +18,21 @@
  * information.
  */
 /** @file MinimalGSClient.java
- * 
+ *
  */
 package org.brlcad.geometryservice.minimalclient;
 
 import org.brlcad.geometryservice.GSJavaInterface;
 
-
 /**
  * @author david.h.loman
- * 
+ *
  */
 public class MinimalGSClient {
 
 	private final MinimalGSClientGUI gui;
 	private final GSJavaInterface jgs;
-	
+
 	public MinimalGSClient() {
 		this.gui = new MinimalGSClientGUI(this);
 		this.jgs = new GSJavaInterface();
@@ -50,6 +49,6 @@ public class MinimalGSClient {
 	public final GSJavaInterface getGSJavaInterface() {
 		return jgs;
 	}
-	
+
 
 }

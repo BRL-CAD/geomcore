@@ -39,7 +39,6 @@
 
 #define GVM_EXTERN(type_and_name, args) extern type_and_name args
 
-
 /* Convenient definitions */
 #define LATEST_VERSION 0
 
@@ -61,7 +60,6 @@ struct repository_objects {
    struct bu_external *contents;
    int action; /* 1 = update, 2 = add, 3 = delete  - used for commit operations*/
 };
-
 
 /**
  * Repository Structure
@@ -93,7 +91,6 @@ GVM_EXPORT GVM_EXTERN(void gvm_info_free,
 GVM_EXPORT GVM_EXTERN(void gvm_info_clear_objects,
 		(struct gvm_info *repo_info));
 
-
 /**
  * GVM Repository Functions
  */
@@ -108,7 +105,6 @@ GVM_EXPORT GVM_EXTERN(int gvm_init_repo,
 GVM_EXPORT GVM_EXTERN(int gvm_open_repo,
 		(struct gvm_info *repo_info,
 		 const char *repo_path));
-
 
 /**
  * GVM object level routines
@@ -132,7 +128,6 @@ GVM_EXPORT GVM_EXTERN(struct bu_external * gvm_get_extern_obj,
 		 const char *model_name,
 		 const char *obj_name,
 		 size_t ver_num));
-
 
 /* Return a repository object structure for a particular
  * object.  This function will set the model_name, object_name
@@ -164,7 +159,6 @@ GVM_EXPORT GVM_EXTERN(int gvm_add_to_list,
 GVM_EXPORT GVM_EXTERN(int gvm_commit_objs,
 	       (struct gvm_info *repo_info));
 
-
 /**
  * GVM model level routines
  */
@@ -193,8 +187,6 @@ GVM_EXPORT GVM_EXTERN(int gvm_get_objs,
 		 size_t ver_num,
 		 int recursive));
 
-
-
 /**
  * GVM .g file helper routines
  */
@@ -218,7 +210,6 @@ GVM_EXPORT GVM_EXTERN(int gvm_export_g_file,
 		 const char *g_file,
 		 size_t ver_num));
 
-
 /* Export a pre-determined subset of a model repository to a .g file.
  * This function can be used when repo_info's objects list has been
  * populated by custom functions. */
@@ -226,7 +217,6 @@ GVM_EXPORT GVM_EXTERN(int gvm_export_list,
 		(struct gvm_info *repo_info,
 		 const char *model_name,
 		 const char *g_file));
-
 
 /* Export a subset of a model repository to a .g file. If ver_num
  * is LATEST_VERSION use latest revision.  If recursive is 1

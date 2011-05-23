@@ -1,9 +1,9 @@
-# Find the libraries associated with Subversion 
+# Find the libraries associated with Subversion
 #
 # Unlike the standard CMake module for finding Subversion, this module looks
 # for the libraries and headers needed to build against the subversion libraries
 # themselves.
-# 
+#
 # This module defines
 #
 #  SVN_INCLUDE_DIR, where to find svn_client.h

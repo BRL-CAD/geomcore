@@ -27,7 +27,7 @@ main(int argc, const char *argv[])
 
   if (stat(repo_path, &file_status) != 0)
 	  gvm_init_repo(repo_info, repo_path);
-  
+
   gvm_open_repo(repo_info, repo_path);
 
   gvm_new_model(repo_info, "test.g");
@@ -45,7 +45,6 @@ main(int argc, const char *argv[])
   tdiff = (int)difftime(t1,t0);
   printf(".g import : %d sec\n", tdiff);
   t0 = time(NULL);
-
 
   if (argc == 3) {
 	  gvm_commit_g_file(repo_info, argv[1], argv[2]);

@@ -18,7 +18,7 @@
  * information.
  */
 /** @file LogoutCmd.cxx
- *      
+ *
  */
 
 #include "LogoutCmd.h"
@@ -27,12 +27,9 @@
 #include "TypeOnlyMsg.h"
 #include "NetMsgTypes.h"
 
-
 LogoutCmd::LogoutCmd() : AbstractClientCmd("logout") {}
 
-
 LogoutCmd::~LogoutCmd() {}
-
 
 std::string
 LogoutCmd::getUsage()
@@ -40,13 +37,11 @@ LogoutCmd::getUsage()
     return "Usage: logout";
 }
 
-
 std::string
 LogoutCmd::getHelp()
 {
     return "Severs the connection to the current GeometryService.";
 }
-
 
 bool
 LogoutCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
@@ -67,7 +62,6 @@ LogoutCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
 
     return true;
 }
-
 
 /*
  * Local Variables:

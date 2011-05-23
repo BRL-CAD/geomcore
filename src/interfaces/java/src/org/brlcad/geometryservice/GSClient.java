@@ -25,7 +25,7 @@ package org.brlcad.geometryservice;
 
 public class GSClient {
 
- 
+
     public enum fmt { BOT, ARB, BOTARB, NURBS, OTHER };
 
     GSClient() {
@@ -54,7 +54,7 @@ public class GSClient {
     public java.util.Date getLastModified() {
 	return new java.util.Date(System.currentTimeMillis());
     }
-    
+
     public String getLastEditor() {
 	return "Beavis";
     }

@@ -18,7 +18,7 @@
  * information.
  */
 /** @file GetCmd.cxx
- *      
+ *
  */
 
 #include "GetCmd.h"
@@ -30,9 +30,7 @@
 
 GetCmd::GetCmd() : AbstractClientCmd("get") {}
 
-
 GetCmd::~GetCmd() {}
-
 
 std::string
 GetCmd::getUsage()
@@ -40,13 +38,11 @@ GetCmd::getUsage()
     return "Usage: get pathToGeometry";
 }
 
-
 std::string
 GetCmd::getHelp()
 {
     return "Attempts to get geometry from the current GeometryService";
 }
-
 
 bool
 GetCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
@@ -75,7 +71,6 @@ GetCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
 
     return true;
 }
-
 
 /*
  * Local Variables:

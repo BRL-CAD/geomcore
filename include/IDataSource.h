@@ -58,7 +58,6 @@ public:
 	virtual bool putObj(std::string path, BRLCAD::MinimalObject* ext) = 0;
 };
 
-
 #endif /* __IDATASOURCE_H__ */
 
 /*

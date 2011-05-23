@@ -31,7 +31,6 @@
 #include <stdlib.h>
 #include <algorithm>
 
-
 int gsExit(int code)
 {
     Logger* log = Logger::getInstance();
@@ -43,7 +42,6 @@ int gsExit(int code)
     usleep(1000); /* Yeild main thread, let other threads finish unlocking */
     exit(code);
 }
-
 
 int main(int argc, char* argv[])
 {
@@ -91,11 +89,9 @@ int main(int argc, char* argv[])
 	listenAddy = DEFAULT_LISTEN_ADDY;
     }
 
-
     if (dm->init(c) == false) {
 	gsExit(1);
     }
-
 
     GeometryService gs (localNodeName, listenAddy, listenPort);
     gs.run(); /* blocks */
@@ -103,7 +99,6 @@ int main(int argc, char* argv[])
     log->logINFO("geomserv", "Exiting...");
     return 0;
 }
-
 
 /*
  * Local Variables:

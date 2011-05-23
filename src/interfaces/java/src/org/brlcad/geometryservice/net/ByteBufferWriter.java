@@ -55,7 +55,7 @@ public class ByteBufferWriter {
 		else
 			this.bb.put((byte) 0);
 	}
-	
+
 	public void putChar(char x) {
 		if (this.endianFlip)
 			x = Character.reverseBytes(x);

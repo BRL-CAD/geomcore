@@ -44,12 +44,10 @@ GSClient::GSClient(std::string localNodeName)
     this->registerMsgRoutes();
 }
 
-
 GSClient::~GSClient()
 {
     delete this->portMan;
 }
-
 
 void
 GSClient::registerMsgRoutes()
@@ -64,7 +62,6 @@ GSClient::registerMsgRoutes()
     router->registerType(GEOMETRYMANIFEST, this);
     router->registerType(GEOMETRYCHUNK, this);
 }
-
 
 bool
 GSClient::handleNetMsg(NetMsg* msg)
@@ -185,7 +182,6 @@ GSClient::handleNetMsg(NetMsg* msg)
       if (name == "_GLOBAL")
         log->logINFO("GSClient", "Got a Chunk named: " + name);
 
-
       delete bb;
       return true;
       }
@@ -193,13 +189,11 @@ GSClient::handleNetMsg(NetMsg* msg)
     return false;
 }
 
-
 PortalManager*
 GSClient::getPortMan()
 {
     return this->portMan;
 }
-
 
 /*
  * Local Variables:

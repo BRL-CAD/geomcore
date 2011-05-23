@@ -60,7 +60,7 @@ struct bu_external *svn_file_to_bu_extern(apr_pool_t *pool, svn_fs_root_t *repo_
  * a struct that has everything we need to get the file
  * contents (probably with svn_ra_get_file).  Take the stream
  * and convert it to a svn_string_t with svn_string_from_stream.
- * That stream should then be convertable to a bu_external 
+ * That stream should then be convertable to a bu_external
  * structure and converted to a form to insert into the db*/
 int concat_obj(void *dbinfo, const void *objname, apr_ssize_t klen, const void *objsvninfo)
 {
@@ -69,15 +69,15 @@ int concat_obj(void *dbinfo, const void *objname, apr_ssize_t klen, const void *
   struct directory *dp;
   struct rt_db_internal ip;
   struct bu_external *data;
-  
+
   RT_INIT_DB_INTERNAL(&ip);
 
   data = svn_file_to_bu_extern(subpool, ainfo->root, ainfo->model_name, objname);
 
-  /* Put things into the new database */ 
+  /* Put things into the new database */
   rt_db_external5_to_internal5(&ip, data, (const char *)objname, ainfo->dbip, NULL, &rt_uniresource);
   wdb_put_internal(ainfo->wdbp, (const char *)objname, &ip, 1);
-  
+
   svn_pool_destroy(subpool);
   bu_free(data->ext_buf, "free ext buf data");
   bu_free(data, "free ext buf");
@@ -167,7 +167,7 @@ main(int argc, const char *argv[])
   svn_revnum_t youngest_rev;
   svn_fs_txn_t *txn;
   svn_fs_root_t *txn_root;
- 
+
   apr_status_t apr_err;
   apr_allocator_t *allocator;
   apr_pool_t *pool;
@@ -175,7 +175,7 @@ main(int argc, const char *argv[])
   struct rt_wdb *wdbp = RT_WDB_NULL;
   int inc;
   struct bu_vls vstr;
- 
+
   time_t tb, t0, t1;
   int tdiff;
   tb = time(NULL);
@@ -216,9 +216,9 @@ main(int argc, const char *argv[])
 
   const char *model_path = svn_path_canonicalize(argv[1], pool);
   const char *model_name = svn_path_basename(model_path, pool);
- 
+
   svn_fs_make_dir(txn_root, model_name, pool);
-  
+
   dbip = db_open(model_path, "r");
   if(dbip == DBI_NULL) {
      printf("could not open %s\n", model_path);
@@ -233,7 +233,6 @@ main(int argc, const char *argv[])
   tdiff = (int)difftime(t1,t0);
   printf("initial setup: %d sec\n", tdiff);
   t0 = time(NULL);
-
 
   struct directory *dp;
   struct bu_vls filedir;
@@ -273,7 +272,6 @@ main(int argc, const char *argv[])
   printf(".g breakout and insertion: %d sec\n", tdiff);
   t0 = time(NULL);
 
-
   /* Commit the changes */
   svn_repos_fs_commit_txn(NULL, repos, &youngest_rev, txn, pool);
 
@@ -285,11 +283,10 @@ main(int argc, const char *argv[])
   printf("committed files: %d sec\n", tdiff);
   t0 = time(NULL);
 
-
   char *user = "testuser";
   char *logmsg = "testlogmsg";
 
-  if (argc == 3) { 
+  if (argc == 3) {
 	  const char *model_path2 = svn_path_canonicalize(argv[2], pool);
 	  dbip = db_open(model_path2, "r");
 	  if(dbip == DBI_NULL) {
@@ -339,8 +336,6 @@ main(int argc, const char *argv[])
   tdiff = (int)difftime(t1,t0);
   printf("apply changes: %d sec\n", tdiff);
   t0 = time(NULL);
-
-
 
 /* Reassemble .g info */
   struct assemble_info ainfo;

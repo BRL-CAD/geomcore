@@ -80,7 +80,7 @@ Config::loadFile(std::string pathAndFileName, bool verbose)
 	if (verbose && key.length() > 0)
 	    log->logINFO("Config", "Read key/value: '" + key + "'->'" + configMap->find(key)->second + "'");
     }
-    
+
     realpathptr = realpath(pathAndFileName.c_str(), realpathstr);
     log->logINFO("Config", std::string("Done loading config from: ") + realpathptr);
     return true;

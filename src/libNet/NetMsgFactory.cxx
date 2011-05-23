@@ -154,7 +154,6 @@ NetMsgFactory::deserializeNetMsg(ByteBuffer* bb, Portal* origin)
     msg = new PongMsg(bb, origin);
     break;
 
-
     /* Admin commands */
   case CMD_SHUTDOWN:
     msg = new TypeOnlyMsg(bb, origin);
@@ -168,7 +167,6 @@ NetMsgFactory::deserializeNetMsg(ByteBuffer* bb, Portal* origin)
 
     return NULL;
     }
-
 
 //  std::cout << "Finished deserializing.... \n";
   return msg;

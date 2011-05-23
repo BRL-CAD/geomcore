@@ -39,7 +39,6 @@
 #include <list>
 #include <GSThread.h>
 
-
 class DataManager :  public INetMsgHandler
 {
 public:

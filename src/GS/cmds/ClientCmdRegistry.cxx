@@ -21,7 +21,6 @@
  *
  */
 
-
 #include "ClientCmdRegistry.h"
 #include "AbstractClientCmd.h"
 
@@ -38,20 +37,17 @@ ClientCmdRegistry::getInstance()
     return ClientCmdRegistry::pInstance;
 }
 
-
 ClientCmdRegistry::ClientCmdRegistry()
 {
     this->cmdMap = new std::map<std::string, AbstractClientCmd*> ();
     this->log = Logger::getInstance();
 }
 
-
 ClientCmdRegistry::~ClientCmdRegistry()
 {
     /* TODO loop thru and del all the CMDs?? */
     delete cmdMap;
 }
-
 
 bool
 ClientCmdRegistry::registerCmd(AbstractClientCmd* cmd)
@@ -65,7 +61,6 @@ ClientCmdRegistry::registerCmd(AbstractClientCmd* cmd)
     return false;
 }
 
-
 AbstractClientCmd*
 ClientCmdRegistry::getCmd(std::string cmd)
 {
@@ -76,7 +71,6 @@ ClientCmdRegistry::getCmd(std::string cmd)
 
     return this->cmdMap->find(cmd)->second;
 }
-
 
 std::list<std::string>*
 ClientCmdRegistry::getListOfCmds()
@@ -89,7 +83,6 @@ ClientCmdRegistry::getListOfCmds()
 
     return keys;
 }
-
 
 /*
  * Local Variables:

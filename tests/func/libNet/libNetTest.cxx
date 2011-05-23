@@ -48,7 +48,6 @@
 #include "PortalManager.h"
 #include "Portal.h"
 
-
 #include <string>
 #include <sstream>
 #include <algorithm>
@@ -92,7 +91,7 @@ int getValidPort(char* data) {
 	return port;
 }
 
-/* 
+/*
  * =====================
  *
  *        Main

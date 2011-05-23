@@ -18,7 +18,7 @@
  * information.
  */
 /** @file CmdManager.java
- * 
+ *
  */
 package org.brlcad.geometryservice.minimalclient.cmd;
 
@@ -31,7 +31,7 @@ import org.brlcad.geometryservice.minimalclient.CmdConsolePanel;
 
 /**
  * @author david.h.loman
- * 
+ *
  */
 public class CmdManager {
 
@@ -44,8 +44,8 @@ public class CmdManager {
 			return;
 
 		console.printLnToConsole(line, CmdConsolePanel.STYLE_RED_BOLD);
-		
-		String out = "";			
+
+		String out = "";
 		String[] cmdStack = line.split(" ");
 
 		/* handle all strings in lowercase */
@@ -65,7 +65,7 @@ public class CmdManager {
 
 		out = "'" + line + "'";
 		console.printLnToConsole(out, CmdConsolePanel.STYLE_BLUE_ITALIC);
-		
+
 		out  = GSStatics.tab + "Try 'help'" + GSStatics.newline;
 		console.printLnToConsole(out, CmdConsolePanel.STYLE_BLUE);
 	}
@@ -87,16 +87,14 @@ public class CmdManager {
 	public static final Set<String> getAllRegisteredCmds() {
 		return cmdMap.keySet();
 	}
-	
+
 	public static final AbstractCmd getCmdByName(String name) {
 		return CmdManager.cmdMap.get(name);
 	}
-
 
 	public static final void registerBuiltInCmds(CmdConsolePanel console) {
 		CmdManager.registerCmd(new HelpCmd(console));
 		CmdManager.registerCmd(new LoginCmd(console));
 	}
-
 
 }

@@ -38,7 +38,7 @@ namespace Utility {
     bool _started;
     clock_t _start;
     double _accumulated;
-    
+
     double elapsedSinceStart();
 
   public:

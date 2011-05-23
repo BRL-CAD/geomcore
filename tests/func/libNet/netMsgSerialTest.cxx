@@ -57,7 +57,6 @@ void logBanner(std::string s) {
 void testMsg(NetMsg* msg01, std::string typeName) {
 	NetMsgFactory* factory = NetMsgFactory::getInstance();
 
-
 	ByteArray* networkSim = new ByteArray();
 	msg01->serialize(networkSim);
 
@@ -81,7 +80,7 @@ void testMsg(NetMsg* msg01, std::string typeName) {
 	delete msg02;
 }
 
-/* 
+/*
  * =====================
  *
  *        Main
@@ -142,7 +141,6 @@ int main(int argc, char* argv[]) {
 	std::string s05 = strUUID01;
 	char* data05 = (char*) s05.c_str();
 	ByteArray ba05(data05, s05.length());
-
 
 	/* Test Normal */
 	GenericMultiByteMsg

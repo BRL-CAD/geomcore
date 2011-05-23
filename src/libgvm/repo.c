@@ -54,7 +54,6 @@ gvm_open_repo(struct gvm_info *repo_info, const char *repo_path) {
     return 0;
 }
 
-
 /*
  * Local Variables:
  * tab-width: 8

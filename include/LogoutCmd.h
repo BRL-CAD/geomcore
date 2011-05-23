@@ -21,7 +21,7 @@
  * LoginCmd.h
  *
  *  Created on: Dec 16, 2010
- *      
+ *
  */
 
 #ifndef __LOGOUTCMD_H__
@@ -41,7 +41,6 @@ public:
 protected:
 	bool _exec(GSCmdLineClient* client, std::list<std::string> args);
 };
-
 
 #endif /* __LOGOUTCMD_H__ */
 

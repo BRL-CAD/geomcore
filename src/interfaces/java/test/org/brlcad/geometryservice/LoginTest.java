@@ -18,7 +18,7 @@
  * information.
  */
 /** @file LoginTest.java
- * 
+ *
  */
 package org.brlcad.geometryservice;
 
@@ -32,18 +32,18 @@ import java.net.UnknownHostException;
 public class LoginTest {
 
 	public static void main(String[] args) throws UnknownHostException, InterruptedException {
-		
+
 		GSJavaInterface inter = new GSJavaInterface();
-		
+
 		boolean success = inter.connectToHost(InetAddress.getByName("127.0.0.1"), (short)5309, "Guest", "Guest");
-		
+
 		System.out.println("Success? " + success);
 		Thread.sleep(1000);
 
 		inter.disconnectFromHost();
 		Thread.sleep(1000);
-		
-		System.out.println("Done.");		
+
+		System.out.println("Done.");
 	}
-	
+
 }

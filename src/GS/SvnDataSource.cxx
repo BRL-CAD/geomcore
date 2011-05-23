@@ -28,22 +28,18 @@
 
 #include <GSThread.h>
 
-
 SvnDataSource::SvnDataSource(std::string repoPath)
 :   repoPath(repoPath)
 {}
 
-
 SvnDataSource::~SvnDataSource()
 {}
-
 
 /* get a directory listing or a child list */
 std::list<std::string>*
 SvnDataSource::getListing(std::string path)
 {
 }
-
 
 /* Get a set of BRLCAD::MinimalObjects */
 std::list<BRLCAD::MinimalObject*>*

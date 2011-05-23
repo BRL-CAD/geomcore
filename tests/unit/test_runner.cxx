@@ -57,7 +57,6 @@ int main (int argc, char* argv[])
     CPPUNIT_NS :: CompilerOutputter compileroutputter (&collectedresults, std::cerr);
     compileroutputter.write ();
 
-
     // return 0 if tests were successful
     std::cout << std::endl;
     return collectedresults.wasSuccessful () ? 0 : 1;

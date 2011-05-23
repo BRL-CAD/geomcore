@@ -18,7 +18,7 @@
  * information.
  */
 /** @file CmdConsolePanel.java
- * 
+ *
  */
 package org.brlcad.geometryservice.minimalclient;
 
@@ -37,7 +37,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  * @author david.h.loman
- * 
+ *
  */
 public class RepositoryViewerPanel extends JPanel {
 
@@ -46,7 +46,7 @@ public class RepositoryViewerPanel extends JPanel {
 	private JScrollPane treeView;
 
 	/**
-	 * 
+	 *
 	 */
 	public RepositoryViewerPanel(ActionListener actListener) {
 		this.commonCstr(actListener);
@@ -80,7 +80,7 @@ public class RepositoryViewerPanel extends JPanel {
 	private final void commonCstr(ActionListener actListener) {
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setPreferredSize(new Dimension(300, 560));
-		
+
 		Border myBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
 
 		DefaultMutableTreeNode top = new DefaultMutableTreeNode("Tops!!");
@@ -88,19 +88,19 @@ public class RepositoryViewerPanel extends JPanel {
 		jtree = new JTree(top);
 		jtree.setRootVisible(true);
 		//jtree.setPreferredSize(new Dimension(300, 560));
-		
+
 		this.treeView = new JScrollPane(jtree);
 		treeView.setBorder(myBorder);
 		this.add(this.treeView);
 
-	
+
 	 /* */
-	
+
 		top.add(new DefaultMutableTreeNode("one"));
 		top.add(new DefaultMutableTreeNode("two"));
 		top.add(new DefaultMutableTreeNode("three"));
 		top.add(new DefaultMutableTreeNode("four"));
-		
+
 	}
 
 }

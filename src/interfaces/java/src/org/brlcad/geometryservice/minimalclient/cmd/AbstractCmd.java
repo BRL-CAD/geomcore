@@ -18,7 +18,7 @@
  * information.
  */
 /** @file AbstractCmd.java
- * 
+ *
  */
 package org.brlcad.geometryservice.minimalclient.cmd;
 
@@ -28,7 +28,7 @@ import org.brlcad.geometryservice.minimalclient.CmdConsolePanel;
 
 /**
  * @author david.h.loman
- * 
+ *
  */
 public abstract class AbstractCmd {
 
@@ -61,7 +61,7 @@ public abstract class AbstractCmd {
 		out = GSStatics.tab + this.getUsage() ;
 		this.cmdConsole.printLnToConsole(out, CmdConsolePanel.STYLE_BLUE);
 	}
-	
+
 	public void printHelp() {
 		String out = GSStatics.tab2x + "Help: " + GSStatics.tab;
 		this.cmdConsole.printToConsole(out, CmdConsolePanel.STYLE_BLUE_BOLD);
@@ -70,12 +70,12 @@ public abstract class AbstractCmd {
 		this.cmdConsole.printToConsole(out, CmdConsolePanel.STYLE_BLUE);
 
 	}
-	
+
 	public void printUsageAndHelp() {
 		this.printUsage();
 		this.printHelp();
 	}
-	
+
 	public abstract String getHelp();
 	public abstract String getUsage();
 

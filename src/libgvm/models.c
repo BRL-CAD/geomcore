@@ -132,7 +132,6 @@ unary:
     return count;
 }
 
-
 int
 gvm_get_objs(struct gvm_info *repo_info, const char *model_name, const char *obj_name, size_t ver_num, int recursive) {
     struct geomsvn_info *internal = NULL;

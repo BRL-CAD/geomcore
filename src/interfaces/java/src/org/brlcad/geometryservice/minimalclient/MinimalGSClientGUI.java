@@ -18,7 +18,7 @@
  * information.
  */
 /** @file MinimalGSClientGUI.java
- * 
+ *
  */
 package org.brlcad.geometryservice.minimalclient;
 
@@ -122,7 +122,7 @@ public class MinimalGSClientGUI extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	/**
@@ -131,6 +131,6 @@ public class MinimalGSClientGUI extends JFrame implements ActionListener {
 	public final MinimalGSClient getClient() {
 		return client;
 	}
-	
-	
+
+
 }

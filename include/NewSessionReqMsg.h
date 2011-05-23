@@ -57,7 +57,6 @@ protected:
 	virtual bool _serialize(ByteBuffer* bb);
 	virtual bool _equals(const NetMsg& msg);
 
-
 private:
 	/* Disable copy cstr and =operator */
 	NewSessionReqMsg(NewSessionReqMsg const&):NetMsg(0){};
