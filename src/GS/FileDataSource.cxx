@@ -66,7 +66,7 @@ FileDataSource::getListing(std::string path, std::list<std::string>* list)
           return -1; /* 0 == NOT EXIST */
 
       if (type == 1)
-          return FileDataSource::getFsDirList(path, list); /* 1 == DIR */
+          return FileDataSource::getFsDirList(fsPath, list); /* 1 == DIR */
 
       /* Allow type == 2 (aka G File) to fall through to G procssing code. */
   }
