@@ -24,8 +24,8 @@
  */
 
 
-#ifndef __DIRLISTREQMSG_H__
-#define __DIRLISTREQMSG_H__
+#ifndef __DIRLISTRESMSG_H__
+#define __DIRLISTRESMSG_H__
 
 #include "NetMsg.h"
 #include <list>
@@ -64,7 +64,7 @@ private:
 	DirListResMsg& operator=(DirListResMsg const&){};
 };
 
-#endif /* __DIRLISTREQMSG_H__ */
+#endif /* __DIRLISTRESMSG_H__ */
 
 /*
  * Local Variables: ***
