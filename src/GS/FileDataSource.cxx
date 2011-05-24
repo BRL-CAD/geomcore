@@ -25,10 +25,14 @@
 #include "db.h"
 #include "raytrace.h"
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <algorithm>
+#include <dirent.h>
+#include <iostream>
+
 
 FileDataSource::FileDataSource(std::string repoPath)
 {
@@ -40,12 +44,104 @@ FileDataSource::~FileDataSource()
 {}
 
 /* get a directory listing or a child list */
-std::list<std::string>*
-FileDataSource::getListing(std::string path)
+int
+FileDataSource::getListing(std::string path, std::list<std::string>* list)
 {
   std::string absPath = "";
   FileDataSource::buildFullPath(&absPath, &this->repoPath, &path);
 
+  int pathStep = 0;
+
+  std::string fsPath;
+  std::string gPath;
+  int totalSteps = 0;
+  int splitPoint = FileDataSource::splitPathAtFile(absPath, &fsPath, &gPath, &totalSteps);
+
+  if (splitPoint == totalSteps) {
+      /* We ended the path on a FS Dir or File */
+
+      int type = FileDataSource::existsFileOrDir(fsPath.c_str());
+
+      if (type <= 0)
+          return -1; /* 0 == NOT EXIST */
+
+      if (type == 1)
+          return FileDataSource::getFsDirList(path, list); /* 1 == DIR */
+
+      /* Allow type == 2 (aka G File) to fall through to G procssing code. */
+  }
+  /* We ended in a .g so get the child list */
+  std::string objName = "";
+
+  /*  we are at tops of g file*/
+  if (splitPoint == totalSteps)
+      return FileDataSource::getGChildList(fsPath, objName, list);
+
+  size_t found = gPath.rfind(PATH_DELIM);
+  if (found == std::string::npos)
+    return -1;
+  objName = gPath.substr(found + 1);
+
+  return FileDataSource::getGChildList(fsPath, objName, list);
+}
+
+int
+FileDataSource::splitPathAtFile(std::string path, std::string* fsPath, std::string* gPath, int* totalSteps)
+{
+  std::string pathStep = "";
+  int step = 0;
+  int ford = 0;
+
+  if (fsPath == NULL || gPath == NULL)
+    return -1;
+
+  (*fsPath) = "";
+  (*gPath) = "";
+
+  std::list<std::string> strStack;
+  FileDataSource::pathToStringStack(path, &strStack);
+  if (totalSteps != NULL)
+    *totalSteps = strStack.size();
+
+  if (strStack.size() == 0)
+    return 0;
+
+  std::list<std::string>::const_iterator it = strStack.begin();
+
+  /* build FS string */
+  for (; it != strStack.end(); ++it)
+    {
+      pathStep = (std::string)*it;
+      *fsPath += pathStep;
+      ford = FileDataSource::existsFileOrDir(fsPath->c_str());
+
+      /* 2 == FILE, 1 == DIR, 0 == NOTEXIST */
+      if (ford == 2) {
+          ++step;
+          break;
+      } else if (ford == 1) {
+          ++step;
+          *fsPath += PATH_DELIM;
+          continue;
+      } else if (ford == 0) {
+          return step * -1; /* Failed */
+      } else {
+          return step * -1; /* Failed */
+      }
+    }
+
+  ++it;
+
+  /* build FS string */
+  for (; it != strStack.end(); ++it)
+    {
+      pathStep = (std::string)*it;
+      if (it != strStack.end())
+        *gPath += PATH_DELIM;
+      *gPath += pathStep;
+
+    }
+  return step;
 }
 
 /* Get a set of BRLCAD::MinimalObjects */
@@ -97,18 +193,20 @@ FileDataSource::putObj(std::string path, BRLCAD::MinimalObject* obj)
 bool
 FileDataSource::init()
 {
-	const char* path = this->repoPath.c_str();
+  const char* path = this->repoPath.c_str();
 
-	/* check to see if there is a repo at the supplied path, and if we can R/W to it. */
-    if (bu_file_readable(path) <= 0)
-    	return false;
-    Logger::getInstance()->logINFO("FileDataSource", this->repoPath + " is readable.");
+  /* check to see if there is a repo at the supplied path, and if we can R/W to it. */
+  if (bu_file_readable(path) <= 0)
+    return false;
+  Logger::getInstance()->logINFO("FileDataSource",
+      this->repoPath + " is readable.");
 
-    if (bu_file_writable(path) <= 0)
-    	return false;
-    Logger::getInstance()->logINFO("FileDataSource", this->repoPath + " is writable.");
+  if (bu_file_writable(path) <= 0)
+    return false;
+  Logger::getInstance()->logINFO("FileDataSource",
+      this->repoPath + " is writable.");
 
-    return true;
+  return true;
 }
 
 int
@@ -135,128 +233,19 @@ FileDataSource::existsFileOrDir(const char* path)
 void
 FileDataSource::buildFullPath(std::string* out, std::string* base, std::string* path)
 {
-  *out = *base + "/" + *path;
+  *out = *base + PATH_DELIM + *path;
   FileDataSource::cleanString(out);
 }
 
 void
 FileDataSource::cleanString(std::string* out)
 {
-  int pos = out->find("//");
+  int pos = out->find(DOUBLE_PATH_DELIM);
   while (pos != -1)
     {
-      out->replace(pos,2,"/");
-      pos = out->find("//");
+      out->replace(pos,2,PATH_DELIM);
+      pos = out->find(DOUBLE_PATH_DELIM);
     }
-}
-
-int
-FileDataSource::walkPath(std::string path)
-{
-  std::list<std::string> pathArr;
-  FileDataSource::pathToStringStack(path, &pathArr);
-
-  return FileDataSource::walkPathFS(&pathArr, 0);
-}
-
-int
-FileDataSource::walkPathFS(const std::list<std::string>* strStack, const unsigned int stackPos)
-{
-  std::string pathSoFar = "";
-  std::string pathStep = "";
-  int step = stackPos;
-  int ford = 0;
-  std::list<std::string>::const_iterator it = strStack->begin();
-
-  /* fast forward */
-  for (int i = 0; i < stackPos; ++i)
-    {
-      pathStep = (std::string) *it;
-      pathSoFar += pathStep;
-      ++it;
-    }
-
-  for (; it != strStack->end(); ++it)
-    {
-      pathStep = (std::string)*it;
-      pathSoFar += pathStep;
-      ford = FileDataSource::existsFileOrDir(pathSoFar.c_str());
-
-//      std::cout << "step: "<<pathStep<<" cumulative: "<<pathSoFar << " ford:" << ford << std::endl;
-
-      if (ford == 2) {
-          ++step;
-          /* Goto walkPathG */
-          return walkPathG(strStack, step);
-      } else if (ford == 1) {
-          ++step;
-          pathSoFar += "/";
-          continue;
-      } else if (ford == 0) {
-          return step * -1; /* Failed */
-      } else {
-          return step * -1; /* Failed */
-      }
-    }
-}
-
-int
-FileDataSource::walkPathG(const std::list<std::string>* strStack, const unsigned int stackPos)
-{
-  std::string fsPath = "";
-  std::string gPath = "";
-  std::string pathStep = "";
-  std::list<std::string>::const_iterator it = strStack->begin();
-  struct db_i *dbip;
-  struct directory *dp;
-  struct db_full_path dfp;
-  int dbStep = 0;
-  int exists = 0;
-
-  /* fast forward */
-  for (int i = 0; i < stackPos; ++i)
-    {
-      pathStep = (std::string) *it;
-      fsPath += pathStep;
-      ++it;
-
-      if (i != (stackPos-1))
-        fsPath += "/";
-    }
-
-  /* Open DB file */
-  if ((dbip = db_open(fsPath.c_str(), "r")) == DBI_NULL) {
-      perror(fsPath.c_str());
-      bu_exit(1, "Unable to open geometry file (%s)\n", fsPath.c_str());
-  }
-  if (db_dirbuild(dbip)) {
-      bu_exit(1, "ERROR: db_dirbuild failed\n");
-  }
-
-  /* Assuming we are at TOPs here. */
-  for (; it != strStack->end(); ++it)
-    {
-      pathStep = (std::string) *it;
-      gPath += pathStep;
-
-//      std::cout << "G: fsPath: " << fsPath
-//          << " gPath:" << gPath << std::endl;
-
-      db_full_path_init(&dfp);
-      exists = db_string_to_path(&dfp, dbip, gPath.c_str());
-      db_free_full_path(&dfp);
-
-      if (exists != 0) {
-          /* failed */
-          break;
-      }
-
-      gPath += "/";
-      ++dbStep;
-    }
-
-  db_close(dbip);
-  return dbStep + stackPos;
 }
 
 int
@@ -285,6 +274,130 @@ FileDataSource::pathToStringStack(std::string path, std::list<std::string>* stri
   } while (endPos != std::string::npos);
 
   return cnt;
+}
+
+int
+FileDataSource::getFsDirList(std::string dir, std::list<std::string>* files)
+{
+  DIR *dp;
+  struct dirent *dirp;
+  if ((dp = opendir(dir.c_str())) == NULL)
+    return errno;
+
+  while ((dirp = readdir(dp)) != NULL)
+    files->push_back(std::string(dirp->d_name));
+
+  closedir(dp);
+  return 0;
+}
+
+int
+FileDataSource::getGChildList(std::string gFilePath, std::string objName, std::list<std::string>* items, bool isTops)
+{
+  struct db_i *dbip;
+  struct directory *dp;
+  struct db_full_path dfp;
+  int dbStep = 0;
+  int exists = 0;
+
+  /* Open DB file */
+  if ((dbip = db_open(gFilePath.c_str(), "r")) == DBI_NULL) {
+      Logger::getInstance()->logERROR("FileDataSource", "Unable to open geometry file " + gFilePath);
+      return -1;
+  }
+  if (db_dirbuild(dbip)) {
+      Logger::getInstance()->logERROR("FileDataSource", "ERROR: db_dirbuild failed");
+      return -1;
+  }
+
+  db_update_nref(dbip, &rt_uniresource);
+
+  /* If we are getting TOPS of the file... */
+  if (isTops) {
+
+    for (int i = 0; i < RT_DBNHASH; i++) {
+      for (dp = dbip->dbi_Head[i]; dp != RT_DIR_NULL; dp = dp->d_forw) {
+          /* Hide globals. */
+        if (dp->d_nref == 0 && !(dp->d_flags & RT_DIR_HIDDEN) && (dp->d_addr != RT_DIR_PHONY_ADDR)) {
+          items->push_back(std::string(dp->d_namep));
+        }
+      }
+    }
+    return 1;
+  }
+
+  dp = db_lookup(dbip, objName.c_str(), 0);
+  if (dp == RT_DIR_NULL)
+    {
+      //Logger::getInstance()->logERROR("FileDataSource", "Directory was null when looking for: " + objName);
+      return -1;
+    }
+
+  struct rt_db_internal in;
+  struct rt_comb_internal *comb;
+
+  if (rt_db_get_internal5(&in, dp, dbip, NULL, &rt_uniresource) < 0) {
+      Logger::getInstance()->logERROR("FileDataSource", "rt_db_get_internal5 FAILED.");
+      return -1;
+  }
+
+  comb = (struct rt_comb_internal *) in.idb_ptr;
+
+  size_t i;
+  size_t node_count;
+  struct rt_tree_array *rt_tree_array;
+  union tree *ntp;
+
+  RT_CK_RESOURCE(&rt_uniresource);
+
+  if (!comb->tree) {
+      //Logger::getInstance()->logERROR("FileDataSource", "No Tree");
+      return 1;
+  }
+  RT_CK_TREE(comb->tree);
+
+  node_count = db_tree_nleaves(comb->tree);
+  if (node_count == 0)
+    {
+      //Logger::getInstance()->logERROR("FileDataSource", "Zero node_count.");
+      return 1;
+    }
+
+  ntp = db_dup_subtree(comb->tree, &rt_uniresource);
+  RT_CK_TREE(ntp);
+
+  /* Convert to "v4 / GIFT style", so that the flatten makes sense. */
+  if (db_ck_v4gift_tree(ntp) < 0)
+          db_non_union_push(ntp, &rt_uniresource);
+  RT_CK_TREE(ntp);
+
+  node_count = db_tree_nleaves(ntp);
+  rt_tree_array = (struct rt_tree_array *) bu_calloc(node_count,
+                  sizeof(struct rt_tree_array), "rt_tree_array");
+
+  /*
+   * free=0 means that the tree won't have any leaf nodes freed.
+   */
+  (void) db_flatten_tree(rt_tree_array, ntp, OP_UNION, 0, &rt_uniresource);
+
+  union tree *itp = NULL;
+  for (i = 0; i < node_count; i++)
+    {
+      itp = rt_tree_array[i].tl_tree;
+
+      RT_CK_TREE(itp);
+      BU_ASSERT_LONG(itp->tr_op, ==, OP_DB_LEAF);
+      BU_ASSERT_PTR(itp->tr_l.tl_name, !=, NULL);
+
+      items->push_back(std::string(itp->tr_l.tl_name));
+    }
+
+  if (rt_tree_array)
+          bu_free((genptr_t) rt_tree_array, "rt_tree_array");
+  db_free_tree(ntp, &rt_uniresource);
+
+  rt_db_free_internal(&in);
+  return 1;
 }
 
 /*

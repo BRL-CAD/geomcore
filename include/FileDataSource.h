@@ -33,6 +33,7 @@
 #include <list>
 
 #define PATH_DELIM "/"
+#define DOUBLE_PATH_DELIM "//"
 
 class FileDataSource : public IDataSource
 {
@@ -46,7 +47,7 @@ public:
 	 */
 
 	/* get a directory listing or a child list */
-	std::list<std::string>* getListing(std::string path);
+	int getListing(std::string path, std::list<std::string>* list);
 
 	/* Get a set of objects */
 	std::list<BRLCAD::MinimalObject*>* getObjs(std::string path, bool recurse);
@@ -68,17 +69,16 @@ public:
 	 */
 	static int existsFileOrDir(const char* path);
 
-        static void buildFullPath(std::string* out, std::string* base, std::string* path);
-        static void cleanString(std::string* out);
+	static int getFsDirList(std::string, std::list<std::string>*);
+	static int getGChildList(std::string, std::string, std::list<std::string>*, bool isTops = false);
 
-        static int walkPath(std::string path);
-	static int pathToStringStack(std::string path, std::list<std::string>* stringStack);
 private:
 	std::string repoPath;
-	std::list<std::string> locks;
 
-        static int walkPathFS(const std::list<std::string>* strStack, const unsigned int stackPos);
-        static int walkPathG(const std::list<std::string>* strStack, const unsigned int stackPos);
+	static int pathToStringStack(std::string, std::list<std::string>*);
+        static void buildFullPath(std::string* out, std::string* base, std::string* path);
+        static void cleanString(std::string* out);
+	static int splitPathAtFile(std::string path, std::string* fsPath, std::string* gPath, int* totalSteps);
 };
 
 #endif /* __FILEDATASOURCE_H__ */

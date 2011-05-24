@@ -45,7 +45,7 @@ public:
 	 */
 
 	/* get a directory listing or a child list */
-	virtual std::list<std::string>* getListing(std::string path) = 0;
+	virtual int getListing(std::string path, std::list<std::string>* list) = 0;
 
 	/* Get BRLCAD::MinimalObject s */
 	virtual std::list<BRLCAD::MinimalObject*>* getObjs(std::string path, bool recurse) = 0;
