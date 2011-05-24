@@ -42,6 +42,8 @@
 #include "TypeOnlyMsg.h"
 #include "PingMsg.h"
 #include "PongMsg.h"
+#include "DirListReqMsg.h"
+#include "DirListResMsg.h"
 
 NetMsgFactory* NetMsgFactory::pInstance = NULL;
 
@@ -152,6 +154,13 @@ NetMsgFactory::deserializeNetMsg(ByteBuffer* bb, Portal* origin)
     break;
   case PONG:
     msg = new PongMsg(bb, origin);
+    break;
+
+  case DIRLISTREQ:
+    msg = new DirListReqMsg(bb, origin);
+    break;
+  case DIRLISTRES:
+    msg = new DirListResMsg(bb, origin);
     break;
 
     /* Admin commands */
