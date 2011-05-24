@@ -75,7 +75,7 @@ FileDataSource::getListing(std::string path, std::list<std::string>* list)
 
   /*  we are at tops of g file*/
   if (splitPoint == totalSteps)
-      return FileDataSource::getGChildList(fsPath, objName, list);
+      return FileDataSource::getGChildList(fsPath, objName, list, true);
 
   size_t found = gPath.rfind(PATH_DELIM);
   if (found == std::string::npos)
@@ -307,6 +307,7 @@ FileDataSource::getGChildList(std::string gFilePath, std::string objName, std::l
   }
   if (db_dirbuild(dbip)) {
       Logger::getInstance()->logERROR("FileDataSource", "ERROR: db_dirbuild failed");
+      db_close(dbip);
       return -1;
   }
 
@@ -315,14 +316,12 @@ FileDataSource::getGChildList(std::string gFilePath, std::string objName, std::l
   /* If we are getting TOPS of the file... */
   if (isTops) {
 
-    for (int i = 0; i < RT_DBNHASH; i++) {
-      for (dp = dbip->dbi_Head[i]; dp != RT_DIR_NULL; dp = dp->d_forw) {
-          /* Hide globals. */
-        if (dp->d_nref == 0 && !(dp->d_flags & RT_DIR_HIDDEN) && (dp->d_addr != RT_DIR_PHONY_ADDR)) {
+    for (int i = 0; i < RT_DBNHASH; i++)
+      for (dp = dbip->dbi_Head[i]; dp != RT_DIR_NULL; dp = dp->d_forw)
+        if (dp->d_nref == 0 && !(dp->d_flags & RT_DIR_HIDDEN) && (dp->d_addr != RT_DIR_PHONY_ADDR))
           items->push_back(std::string(dp->d_namep));
-        }
-      }
-    }
+
+    db_close(dbip);
     return 1;
   }
 
@@ -330,6 +329,7 @@ FileDataSource::getGChildList(std::string gFilePath, std::string objName, std::l
   if (dp == RT_DIR_NULL)
     {
       //Logger::getInstance()->logERROR("FileDataSource", "Directory was null when looking for: " + objName);
+      db_close(dbip);
       return -1;
     }
 
@@ -338,6 +338,7 @@ FileDataSource::getGChildList(std::string gFilePath, std::string objName, std::l
 
   if (rt_db_get_internal5(&in, dp, dbip, NULL, &rt_uniresource) < 0) {
       Logger::getInstance()->logERROR("FileDataSource", "rt_db_get_internal5 FAILED.");
+      db_close(dbip);
       return -1;
   }
 
@@ -352,6 +353,8 @@ FileDataSource::getGChildList(std::string gFilePath, std::string objName, std::l
 
   if (!comb->tree) {
       //Logger::getInstance()->logERROR("FileDataSource", "No Tree");
+      rt_db_free_internal(&in);
+      db_close(dbip);
       return 1;
   }
   RT_CK_TREE(comb->tree);
@@ -360,6 +363,8 @@ FileDataSource::getGChildList(std::string gFilePath, std::string objName, std::l
   if (node_count == 0)
     {
       //Logger::getInstance()->logERROR("FileDataSource", "Zero node_count.");
+      rt_db_free_internal(&in);
+      db_close(dbip);
       return 1;
     }
 
@@ -397,6 +402,7 @@ FileDataSource::getGChildList(std::string gFilePath, std::string objName, std::l
   db_free_tree(ntp, &rt_uniresource);
 
   rt_db_free_internal(&in);
+  db_close(dbip);
   return 1;
 }
 
