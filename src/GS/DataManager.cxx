@@ -111,7 +111,7 @@ DataManager::handleDirListReqMsg(DirListReqMsg* msg)
   std::list<std::string> items;
   this->datasource->getListing(path, &items);
 
-  DirListResMsg response(msg, &items);
+  DirListResMsg response(msg, path, &items);
   origin->send(&response);
 }
 

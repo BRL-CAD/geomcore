@@ -29,15 +29,15 @@
 
 /* Normal Constructor */
 DirListResMsg::DirListResMsg(
-    std::list<std::string>* items) :
-    NetMsg(GEOMETRYMANIFEST)
+    std::string path, std::list<std::string>* items) :
+    NetMsg(GEOMETRYMANIFEST), path(path)
 {
     this->itemData = new std::list<std::string> (*items);
 }
 
 /* Reply Constructor */
-DirListResMsg::DirListResMsg(NetMsg* msg, std::list<std::string>* items) :
-	NetMsg(GEOMETRYMANIFEST, msg)
+DirListResMsg::DirListResMsg(NetMsg* msg, std::string path, std::list<std::string>* items) :
+	NetMsg(GEOMETRYMANIFEST, msg), path(path)
 {
   this->itemData = new std::list<std::string> (*items);
 }
@@ -46,6 +46,8 @@ DirListResMsg::DirListResMsg(NetMsg* msg, std::list<std::string>* items) :
 DirListResMsg::DirListResMsg(ByteBuffer* bb, Portal* origin) :
   NetMsg(bb, origin)
 {
+  this->path = bb->getString();
+
   this->itemData = new std::list<std::string>();
   uint32_t numOfItems = bb->get32bit();
   std::string tstr;
@@ -67,6 +69,8 @@ DirListResMsg::~DirListResMsg()
 bool
 DirListResMsg::_serialize(ByteBuffer* bb)
 {
+  bb->putString(this->path);
+
   /* put in placeholder for count */
   int start = bb->position();
   bb->put32bit(0);
@@ -98,6 +102,9 @@ bool
 DirListResMsg::_equals(const NetMsg& msg)
 {
   DirListResMsg& gmsg = (DirListResMsg&) msg;
+  if (this->path != gmsg.path)
+    return false;
+
   if (this->itemData->size() != gmsg.itemData->size())
     return false;
   std::list<std::string>::iterator it = this->itemData->begin(), git =
@@ -110,17 +117,25 @@ DirListResMsg::_equals(const NetMsg& msg)
 }
 
 std::string
+DirListResMsg::getPath()
+{
+  return this->path;
+}
+
+std::string
 DirListResMsg::toString()
 {
-  std::string out = "Number of items: " + this->itemData->size();
+  std::stringstream ss;
+  ss << "path: " << this->path << ", ";
+  ss << "items count: " << this->itemData->size();
 
   std::list<std::string>::iterator it;
   for (it = this->itemData->begin(); it != this->itemData->end(); ++it)
     {
-      out += "{" + *it + "} ";
+      ss << "{" << *it << "} ";
     }
 
-  return out;
+  return ss.str();
 }
 
 /*

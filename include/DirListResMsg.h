@@ -34,10 +34,10 @@ class DirListResMsg : public NetMsg
 {
 public:
 	/* Normal Constructor */
-	DirListResMsg(std::list<std::string>* items);
+	DirListResMsg(std::string path, std::list<std::string>* items);
 
 	/* Reply Constructor */
-	DirListResMsg(NetMsg* msg, std::list<std::string>* items);
+	DirListResMsg(NetMsg* msg, std::string path, std::list<std::string>* items);
 
 	/* Deserializing Constructor */
 	DirListResMsg(ByteBuffer* bb, Portal* origin);
@@ -50,10 +50,12 @@ public:
 	/*
 	 *Getters n Setters
 	 */
-	uint32_t getNumOfItems();
+	std::string getPath();
+        uint32_t getNumOfItems();
 	uint32_t getItems(std::list<std::string>* items);
 
 private:
+	std::string path;
 	std::list<std::string>* itemData;
 
 	bool _serialize(ByteBuffer* bb);
