@@ -30,14 +30,14 @@
 /* Normal Constructor */
 DirListResMsg::DirListResMsg(
     std::string path, std::list<std::string>* items) :
-    NetMsg(GEOMETRYMANIFEST), path(path)
+    NetMsg(DIRLISTRES), path(path)
 {
     this->itemData = new std::list<std::string> (*items);
 }
 
 /* Reply Constructor */
 DirListResMsg::DirListResMsg(NetMsg* msg, std::string path, std::list<std::string>* items) :
-	NetMsg(GEOMETRYMANIFEST, msg), path(path)
+	NetMsg(DIRLISTRES, msg), path(path)
 {
   this->itemData = new std::list<std::string> (*items);
 }
@@ -46,6 +46,9 @@ DirListResMsg::DirListResMsg(NetMsg* msg, std::string path, std::list<std::strin
 DirListResMsg::DirListResMsg(ByteBuffer* bb, Portal* origin) :
   NetMsg(bb, origin)
 {
+  std::cout << "DEBUG: DESER\t" << bb->toHexString();
+
+
   this->path = bb->getString();
 
   this->itemData = new std::list<std::string>();
@@ -94,6 +97,8 @@ DirListResMsg::_serialize(ByteBuffer* bb)
   bb->setPosition(start);
   bb->put32bit(cnt);
   bb->setPosition(stop);
+
+  std::cout << "DEBUG: SER\t" << bb->toHexString();
 
   return true;
 }
