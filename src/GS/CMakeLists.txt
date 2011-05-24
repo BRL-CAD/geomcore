@@ -52,6 +52,7 @@ SET(geomserv_SRCS
 	cmds/AbstractClientCmd.cxx
 	cmds/HelpCmd.cxx
 	cmds/GetCmd.cxx
+	cmds/ListCmd.cxx
 	cmds/LoginCmd.cxx
 	cmds/LogoutCmd.cxx
 	cmds/ShutdownCmd.cxx
@@ -94,6 +95,7 @@ SET(geomserv_inst_HDRS
 	AbstractClientCmd.h
 	HelpCmd.h
 	GetCmd.h
+	ListCmd.h
 	LoginCmd.h
 	LogoutCmd.h
 	ShutdownCmd.h
