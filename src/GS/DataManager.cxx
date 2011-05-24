@@ -33,23 +33,26 @@
 
 #include <GSThread.h>
 
-DataManager* DataManager::pInstance = NULL;
+DataManager*
+DataManager::pInstance = NULL;
+
 
 DataManager::DataManager()
 {
   this->log = Logger::getInstance();
 }
 
-DataManager::~DataManager()
+
+DataManager::~DataManager(){}
+
+std::string
+DataManager::getObjectByPath(std::string url)
 {
+
 }
 
-std::string DataManager::getObjectByPath(std::string url)
-{
-
-}
-
-bool DataManager::setDataSource(IDataSource* source)
+bool
+DataManager::setDataSource(IDataSource* source)
 {
   if (this->datasource != NULL)
     return false;
@@ -57,22 +60,63 @@ bool DataManager::setDataSource(IDataSource* source)
   this->datasource = source;
 }
 
-bool DataManager::handleNetMsg(NetMsg* msg) {
-	uint16_t type = msg->getMsgType();
-	switch (type) {
-	case GEOMETRYREQ:
-		this->handleGeometryReqMsg((GeometryReqMsg*) msg);
-		return true;
-	case GEOMETRYMANIFEST:
-		return true;
-	case GEOMETRYCHUNK:
-		this->handleGeometryChunkMsg((GeometryChunkMsg*) msg);
-		return true;
-	}
-	return false;
+bool
+
+DataManager::handleNetMsg(NetMsg* msg)
+{
+  uint16_t type = msg->getMsgType();
+  switch (type)
+    {
+  case DIRLISTREQ:
+    {
+      return true;
+    }
+  case DIRLISTRES:
+    {
+      this->log->logINFO("DataManager", "Recv'd a DirectoryList Response? Odd...");
+      return true;
+    }
+  case GEOMETRYREQ:
+    {
+      this->handleGeometryReqMsg((GeometryReqMsg*) msg);
+      return true;
+    }
+  case GEOMETRYMANIFEST:
+    {
+      this->log->logINFO("DataManager", "Recv'd a GeometryManifest? Odd...");
+      return true;
+    }
+  case GEOMETRYCHUNK:
+    {
+      this->handleGeometryChunkMsg((GeometryChunkMsg*) msg);
+      return true;
+    }
+    }
+  return false;
 }
 
-void DataManager::handleGeometryChunkMsg(GeometryChunkMsg* msg)
+void
+DataManager::handleDirListReqMsg(DirListReqMsg* msg)
+{
+  Portal* origin = msg->getOrigin();
+
+  //validate incoming data
+  if (origin == 0) {
+      //TODO Figure out how to how to handle NULL Portal
+      log->logERROR("DataManager", "handleDirListReqMsg(): NULL Portal!");
+      return;
+  }
+
+  std::string path = msg->getPath();
+  std::list<std::string> items;
+  this->datasource->getListing(path, &items);
+
+  DirListResMsg response(msg, &items);
+  origin->send(&response);
+}
+
+void
+DataManager::handleGeometryChunkMsg(GeometryChunkMsg* msg)
 {
   Portal* origin = msg->getOrigin();
 
@@ -84,7 +128,8 @@ void DataManager::handleGeometryChunkMsg(GeometryChunkMsg* msg)
   }
 }
 
-void DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg)
+void
+DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg)
 {
   bool recurse = originalMsg->getRecurse();
   std::string path = originalMsg->getPath();
@@ -183,13 +228,16 @@ void DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg)
 }
 
 DataManager*
-DataManager::getInstance() {
+DataManager::getInstance()
+{
   if (!DataManager::pInstance)
+
     DataManager::pInstance = new DataManager();
   return DataManager::pInstance;
 }
 
-bool DataManager::init(Config* c) {
+bool
+DataManager::init(Config* c) {
   std::string repoType = c->getConfigValue("RepoType");
   if (repoType.length() == 0) {
       log->logERROR("DataManager", "Config File does not contain a 'RepoType' parameter");

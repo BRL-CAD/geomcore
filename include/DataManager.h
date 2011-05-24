@@ -32,6 +32,8 @@
 #include "IDataSource.h"
 #include "GeometryReqMsg.h"
 #include "GeometryChunkMsg.h"
+#include "DirListReqMsg.h"
+#include "DirListResMsg.h"
 #include "Logger.h"
 #include "GSUuid.h"
 
@@ -42,31 +44,30 @@
 class DataManager :  public INetMsgHandler
 {
 public:
-	static DataManager* getInstance();
-	virtual ~DataManager();
+  static DataManager* getInstance();
+  virtual ~DataManager();
 
-	bool init(Config* c);
+  bool init(Config* c);
+  bool handleNetMsg(NetMsg* msg);
 
-    bool handleNetMsg(NetMsg* msg);
-
-	std::string getObjectByPath(std::string url);
-
-	bool setDataSource(IDataSource* source);
+  std::string getObjectByPath(std::string url);
+  bool setDataSource(IDataSource* source);
 
 private:
-	static DataManager* pInstance;
-	DataManager();
+  static DataManager* pInstance;
+  DataManager();
 
-	Logger* log;
+  Logger* log;
 
-	IDataSource* datasource;
+  IDataSource* datasource;
 
-	void handleGeometryReqMsg(GeometryReqMsg* msg);
-	void handleGeometryChunkMsg(GeometryChunkMsg* msg);
+  void handleDirListReqMsg(DirListReqMsg* msg);
+  void handleGeometryReqMsg(GeometryReqMsg* msg);
+  void handleGeometryChunkMsg(GeometryChunkMsg* msg);
 
-	/* Disable copy cstr and =operator */
-	DataManager(DataManager const&){};
-	DataManager& operator=(DataManager const&){};
+  /* Disable copy cstr and =operator */
+  DataManager(DataManager const&){};
+  DataManager& operator=(DataManager const&){};
 };
 
 #endif /* __DATAMANAGER_H__ */

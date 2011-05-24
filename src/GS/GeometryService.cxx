@@ -67,6 +67,9 @@ GeometryService::registerMsgRoutes()
 
     router->registerType(CMD_SHUTDOWN, this);
 
+    router->registerType(DIRLISTREQ, DataManager::getInstance());
+    router->registerType(DIRLISTRES, DataManager::getInstance());
+
     router->registerType(GEOMETRYREQ, DataManager::getInstance());
     router->registerType(GEOMETRYCHUNK, DataManager::getInstance());
     router->registerType(GEOMETRYMANIFEST, DataManager::getInstance());
