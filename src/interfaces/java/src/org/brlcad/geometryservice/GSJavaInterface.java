@@ -36,53 +36,24 @@ import org.brlcad.geometryservice.net.GSConnection;
 public class GSJavaInterface implements GeometryService {
 	private GSConnection conn;
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.brlcad.geometryservice.GeometryService#estimateFootprint(java.lang
-	 * .String, java.lang.String)
-	 */
 	@Override
 	public long estimateFootprint(String geometryName, String version) throws GeometryServiceException {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new GeometryServiceException("Not Implementeded.");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.brlcad.geometryservice.GeometryService#get(java.lang.String,
-	 * java.lang.String)
-	 */
 	@Override
 	public File get(String geometryName, String version) throws GeometryServiceException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new GeometryServiceException("Not Implementeded.");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.brlcad.geometryservice.GeometryService#getMetadata(java.lang.String,
-	 * java.lang.String)
-	 */
 	@Override
 	public Map<String, String> getMetadata(String geometryName, String version) throws GeometryServiceException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new GeometryServiceException("Not Implementeded.");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.brlcad.geometryservice.GeometryService#query(java.lang.Object)
-	 */
 	@Override
 	public List<CatalogEntry> query(Object query) throws GeometryServiceException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new GeometryServiceException("Not Implementeded.");
 	}
 
 	public boolean connectToHost(InetAddress addy, short port, String uname, String passwd) {
