@@ -29,13 +29,14 @@
 #include <algorithm>
 
 #include "AbstractClientCmd.h"
+#include "Portal.h"
+#include "ListCmd.h"
 #include "ExitCmd.h"
 #include "HelpCmd.h"
 #include "LoginCmd.h"
 #include "LogoutCmd.h"
 #include "ShutdownCmd.h"
 #include "PingCmd.h"
-#include "Portal.h"
 #include "GetCmd.h"
 
 const std::string GSCmdLineClient::defaultPrompt ="geoclient> ";
@@ -133,6 +134,7 @@ GSCmdLineClient::registerClientCmds()
     this->ccReg->registerCmd(new ShutdownCmd());
     this->ccReg->registerCmd(new PingCmd());
     this->ccReg->registerCmd(new GetCmd());
+    this->ccReg->registerCmd(new ListCmd());
 }
 
 bool

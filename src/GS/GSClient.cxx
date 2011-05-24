@@ -20,6 +20,7 @@
 /** @file GSClient.cxx
  *
  */
+#include "raytrace.h"
 
 #include "GSClient.h"
 #include "Portal.h"
@@ -29,7 +30,8 @@
 #include "PongMsg.h"
 #include "GeometryManifestMsg.h"
 #include "GeometryChunkMsg.h"
-#include "raytrace.h"
+#include "DirListResMsg.h"
+
 
 GSClient::GSClient(std::string localNodeName)
 {
@@ -61,6 +63,8 @@ GSClient::registerMsgRoutes()
     router->registerType(PONG, this);
     router->registerType(GEOMETRYMANIFEST, this);
     router->registerType(GEOMETRYCHUNK, this);
+    router->registerType(DIRLISTREQ, this);
+    router->registerType(DIRLISTRES, this);
 }
 
 bool
@@ -190,6 +194,42 @@ GSClient::handleNetMsg(NetMsg* msg)
         log->logINFO("GSClient", "Got a Chunk named: " + name);
 
       delete bb;
+      return true;
+    }
+  case DIRLISTREQ:
+    {
+      Portal* p = msg->getOrigin();
+      std::string remNodeName("unknown");
+
+      if (p != NULL)
+        remNodeName = p->getRemoteNodeName();
+
+       log->logINFO("GSClient", "Got a directory list *REQUEST* (?) from " + remNodeName);
+
+      return true;
+    }
+  case DIRLISTRES:
+    {
+      Portal* p = msg->getOrigin();
+      std::string remNodeName("unknown");
+
+      if (p != NULL)
+        remNodeName = p->getRemoteNodeName();
+
+       DirListResMsg* dir = (DirListResMsg*)msg;
+       std::list<std::string> items;
+       std::list<std::string>::iterator it;
+       std::cout << "\nListing for: " << dir->getPath() << "\n";
+       dir->getItems(&items);
+       it = items.begin();
+
+       if (items.size() == 0)
+         std::cout << "\t -- EMPTY -- \n";
+
+       for(;it != items.end();++it)
+           std::cout << "\t" << (*it) << "\n";
+
+       std::cout << std::endl;
       return true;
     }
     }
