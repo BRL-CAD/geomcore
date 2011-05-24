@@ -65,10 +65,27 @@ ListCmd::_exec(GSCmdLineClient* client, std::list<std::string> args)
     std::list<std::string>::iterator it = args.begin();
     std::string path(*it);
 
-    this->log->logINFO("ListCmd", "Attempting to list: '" + path + "'.");
+    /* Path messaging loops. */
+    size_t loc = path.find("../");
+  while (loc != std::string::npos)
+    {
+      path.erase(loc, 3);
+      loc = path.find("../");
+    }
+  loc = path.find("./");
+  while (loc != std::string::npos)
+    {
+      path.erase(loc, 2);
+      loc = path.find("./");
+    }
+  loc = path.find("//");
+  while (loc != std::string::npos)
+    {
+      path.erase(loc, 1);
+      loc = path.find("//");
+    }
 
     DirListReqMsg req(path);
-
     p->send(&req);
 
     return true;
