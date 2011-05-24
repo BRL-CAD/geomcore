@@ -69,6 +69,8 @@ DataManager::handleNetMsg(NetMsg* msg)
     {
   case DIRLISTREQ:
     {
+      this->log->logINFO("DataManager", "Recv'd a DirectoryList Request from: " + msg->getOrigin()->getRemoteNodeName());
+      this->handleDirListReqMsg((DirListReqMsg*) msg);
       return true;
     }
   case DIRLISTRES:
@@ -109,7 +111,17 @@ DataManager::handleDirListReqMsg(DirListReqMsg* msg)
 
   std::string path = msg->getPath();
   std::list<std::string> items;
-  this->datasource->getListing(path, &items);
+  int retVal = this->datasource->getListing(path, &items);
+
+  if (retVal < 0) {
+      FailureMsg fail(msg,42);
+      origin->send(&fail);
+      return;
+  }
+
+  /* filter out .. and . */
+  items.remove("..");
+  items.remove(".");
 
   DirListResMsg response(msg, path, &items);
   origin->send(&response);
