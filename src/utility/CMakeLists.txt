@@ -32,6 +32,7 @@ include_directories(
 )
 
 SET(gcutil_SRCS
+	StringUtils.cxx
 	ByteBuffer.cxx
 	Config.cxx
 	ControlledThread.cxx
