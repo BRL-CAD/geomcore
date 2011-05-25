@@ -161,6 +161,10 @@ BrlcadDb::_list(const std::string path, std::list<std::string>* items)
   if (rt_db_get_internal5(&in, dp, dbip, NULL, &rt_uniresource) < 0)
     return CORRUPT_OBJ_DATA;
 
+  //check     in.idb_major_type and in.idb_minor_type here
+  if (in.idb_major_type != DB5_MAJORTYPE_BRLCAD || in.idb_type != ID_COMBINATION)
+    return 0;
+
   comb = (struct rt_comb_internal *) in.idb_ptr;
 
   size_t i;
