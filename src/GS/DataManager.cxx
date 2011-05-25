@@ -69,7 +69,7 @@ DataManager::handleNetMsg(NetMsg* msg)
     {
   case DIRLISTREQ:
     {
-      this->log->logINFO("DataManager", "Recv'd a DirectoryList Request from: " + msg->getOrigin()->getRemoteNodeName());
+//      this->log->logINFO("DataManager", "Recv'd a DirectoryList Request from: " + msg->getOrigin()->getRemoteNodeName());
       this->handleDirListReqMsg((DirListReqMsg*) msg);
       return true;
     }
