@@ -40,8 +40,6 @@ SET(geomserv_SRCS
 	DataManager.cxx
 	FileDataSource.cxx
 	SvnDataSource.cxx
-	DbObjectManifest.cxx
-	DbObject.cxx
 	Session.cxx
 	SessionManager.cxx
 	Account.cxx
@@ -88,7 +86,6 @@ SET(geomserv_inst_HDRS
 	DataManager.h
 	FileDataSource.h
 	SvnDataSource.h
-	DbObject.h
 	GSClient.h
 	GSCmdLineClient.h
 	ClientCmdRegistry.h
