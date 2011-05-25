@@ -23,6 +23,7 @@
 
 #include "BrlcadDb.h"
 #include "StringUtils.h"
+#include "Logger.h"
 
 #include "db.h"
 #include "raytrace.h"
@@ -263,7 +264,45 @@ BrlcadDb::_getExtObj(const std::string name)
       return NULL;
   }
 
-  return new ExtObject(name, ext);
+  return new ExtObject(name, extp);
+}
+
+int
+BrlcadDb::getExtObjs(const std::list<std::string>* nameList,
+    std::list<ExtObject*>* extList)
+{
+  if (nameList == NULL || extList == NULL) return -2;
+  if (this->open() == false) return -1;
+
+  int retVal = this->_getExtObjs(nameList,extList);
+  this->close();
+  return retVal;
+}
+int
+BrlcadDb::_getExtObjs(const std::list<std::string>* nameList,
+    std::list<ExtObject*>* extList)
+{
+  if (nameList == NULL || extList == NULL) return -2;
+
+  ExtObject* extObj = NULL;
+  std::string strObj = "";
+  std::list<std::string>::const_iterator it = nameList->begin();
+
+  for (; it != nameList->end();++it) {
+      strObj = *it;
+
+      if (strObj.length() <=0)
+        continue;
+
+      extObj = this->_getExtObj(strObj);
+      if (extObj == NULL) {
+        /* ERROR! */
+        Logger::getInstance()->logERROR("BrlcadDb", "No extObject returned for: " + strObj);
+      } else {
+          extList->push_back(extObj);
+      }
+  }
+  return 0;
 }
 
 

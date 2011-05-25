@@ -73,6 +73,17 @@ public:
    */
   ExtObject* getExtObj(const std::string name);
 
+  /**
+   * Bulk build of ExtObjects from 'nameList' and place them into extList
+   *
+   * Return Values:
+   *    0 = Success
+   *    -1 = db_open() failed
+   *    -2 = either nameList or extList was NULL
+   */
+  int getExtObjs(const std::list<std::string>* nameList,
+      std::list<ExtObject*>* extList);
+
 private:
   std::string path;
   struct db_i* dbip;
@@ -110,16 +121,22 @@ private:
 
    /**
      * Performs the actual name lookup. To be used internally only.
-     * NOTE:  Does not call open() or close().  See list().
+     * NOTE:  Does not call open() or close().  See contains().
      */
    bool _contains(const std::string name);
 
    /**
      * Performs the actual name lookup. To be used internally only.
-     * NOTE:  Does not call open() or close().  See list().
+     * NOTE:  Does not call open() or close().  See getExtObj().
      */
    ExtObject* _getExtObj(const std::string name);
 
+   /**
+      * Performs the actual name lookups. To be used internally only.
+      * NOTE:  Does not call open() or close().  See getExtObjs().
+      */
+   int _getExtObjs(const std::list<std::string>* nameList,
+       std::list<ExtObject*>* extList);
 
 };
 
