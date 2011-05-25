@@ -30,6 +30,7 @@
 
 class StringUtilsUTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST_SUITE( StringUtilsUTest );
+  CPPUNIT_TEST( testGetLastStepOfPath );
   CPPUNIT_TEST( testSplitPathAtStep01 );
   CPPUNIT_TEST( testSplitPathAtStep01a );
   CPPUNIT_TEST( testSplitPathAtStep01b );
@@ -48,6 +49,23 @@ class StringUtilsUTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
+
+  void
+  testGetLastStepOfPath()
+  {
+    std::string name;
+    //std::cout << "\n\nname " << name << "\n\n";
+
+    name =  StringUtils::getLastStepOfPath(testPath01);
+    CPPUNIT_ASSERT(name == "duder");
+    name =  StringUtils::getLastStepOfPath(testPath02);
+    CPPUNIT_ASSERT(name == "duder");
+    name =  StringUtils::getLastStepOfPath(testPath03);
+    CPPUNIT_ASSERT(name == "duder");
+    name =  StringUtils::getLastStepOfPath(testPath04);
+    CPPUNIT_ASSERT(name == "duder");
+  }
+
 
   void
   testSplitPathAtStep01()

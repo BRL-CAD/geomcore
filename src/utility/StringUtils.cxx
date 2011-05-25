@@ -129,7 +129,7 @@ StringUtils::splitPathAtFile(const std::string path, std::string* lPath, std::st
   /* build left hand side string */
   for (; it != strStack.end(); ++it)
     {
-      pathSoFar += (std::string)*it;;
+      pathSoFar += (std::string)*it;
       ford = StringUtils::isFileOrDir(pathSoFar.c_str());
 
       /* 2 == FILE, 1 == DIR, 0 == NOTEXIST */
@@ -137,6 +137,7 @@ StringUtils::splitPathAtFile(const std::string path, std::string* lPath, std::st
           ++step;
           break;
       } else if (ford == 1) {
+          pathSoFar += PATH_DELIM;
           ++step;
           continue;
       } else if (ford == 0) return step * -1; /* Failed */
@@ -235,13 +236,20 @@ std::string
 StringUtils::getLastStepOfPath(const std::string path)
 {
   std::string out = "";
-  size_t found = path.rfind(PATH_DELIM);
-  if (found == std::string::npos)
+  std::string copy = path;
+  StringUtils::cleanString(&copy);
+
+  while (copy[copy.length()-1] == '/')
+    copy.erase(copy.length()-1);
+
+  size_t found = copy.rfind(PATH_DELIM);
+
+  if (found != std::string::npos)
       /* Path, so get last step */
-    out = path.substr(found + 1);
+    out = copy.substr(found + 1);
    else
       /* no path, thus 'path' *is* the last step */
-     out = path;
+     out = copy;
   return out;
 }
 
