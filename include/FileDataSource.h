@@ -32,9 +32,6 @@
 #include <string>
 #include <list>
 
-#define PATH_DELIM "/"
-#define DOUBLE_PATH_DELIM "//"
-
 class FileDataSource : public IDataSource
 {
 public:
@@ -59,26 +56,12 @@ public:
 	/* Put a single BRLCAD::Object */
 	bool putObj(std::string path, BRLCAD::MinimalObject* obj);
 
-	//TODO swap out with bu_file_type()
-	/**
-	 * Checks the supplied path for existence and whether its a file or directory.
-	 * return values:
-	 * 0 == does not exist
-	 * 1 == exists and is a Directory
-	 * 2 == exists and is a File
-	 */
-	static int existsFileOrDir(const char* path);
-
 	static int getFsDirList(std::string, std::list<std::string>*);
 	static int getGChildList(std::string, std::string, std::list<std::string>*, bool isTops = false);
 
 private:
 	std::string repoPath;
 
-	static int pathToStringStack(std::string, std::list<std::string>*);
-        static void buildFullPath(std::string* out, std::string* base, std::string* path);
-        static void cleanString(std::string* out);
-	static int splitPathAtFile(std::string path, std::string* fsPath, std::string* gPath, int* totalSteps);
 };
 
 #endif /* __FILEDATASOURCE_H__ */

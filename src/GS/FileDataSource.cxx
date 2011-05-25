@@ -22,8 +22,10 @@
  */
 
 #include "FileDataSource.h"
+#include "StringUtils.h"
 #include "db.h"
 #include "raytrace.h"
+
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <stdio.h>
@@ -37,7 +39,7 @@
 FileDataSource::FileDataSource(std::string repoPath)
 {
   this->repoPath = repoPath;
-  FileDataSource::cleanString(&this->repoPath);
+  StringUtils::cleanString(&this->repoPath);
 }
 
 FileDataSource::~FileDataSource()
@@ -48,19 +50,19 @@ int
 FileDataSource::getListing(std::string path, std::list<std::string>* list)
 {
   std::string absPath = "";
-  FileDataSource::buildFullPath(&absPath, &this->repoPath, &path);
+  StringUtils::combinePaths(&absPath, &this->repoPath, &path);
 
   int pathStep = 0;
 
   std::string fsPath;
   std::string gPath;
   int totalSteps = 0;
-  int splitPoint = FileDataSource::splitPathAtFile(absPath, &fsPath, &gPath, &totalSteps);
+  int splitPoint = StringUtils::splitPathAtFile(absPath, &fsPath, &gPath, &totalSteps);
 
   if (splitPoint == totalSteps) {
       /* We ended the path on a FS Dir or File */
 
-      int type = FileDataSource::existsFileOrDir(fsPath.c_str());
+      int type = StringUtils::isFileOrDir(fsPath.c_str());
 
       if (type <= 0)
           return -1; /* 0 == NOT EXIST */
@@ -85,78 +87,19 @@ FileDataSource::getListing(std::string path, std::list<std::string>* list)
   return FileDataSource::getGChildList(fsPath, objName, list);
 }
 
-int
-FileDataSource::splitPathAtFile(std::string path, std::string* fsPath, std::string* gPath, int* totalSteps)
-{
-  std::string pathStep = "";
-  int step = 0;
-  int ford = 0;
-
-  if (fsPath == NULL || gPath == NULL)
-    return -1;
-
-  (*fsPath) = "";
-  (*gPath) = "";
-
-  std::list<std::string> strStack;
-  FileDataSource::pathToStringStack(path, &strStack);
-  if (totalSteps != NULL)
-    *totalSteps = strStack.size();
-
-  if (strStack.size() == 0)
-    return 0;
-
-  std::list<std::string>::const_iterator it = strStack.begin();
-
-  /* build FS string */
-  for (; it != strStack.end(); ++it)
-    {
-      pathStep = (std::string)*it;
-      *fsPath += pathStep;
-      ford = FileDataSource::existsFileOrDir(fsPath->c_str());
-
-      /* 2 == FILE, 1 == DIR, 0 == NOTEXIST */
-      if (ford == 2) {
-          ++step;
-          break;
-      } else if (ford == 1) {
-          ++step;
-          *fsPath += PATH_DELIM;
-          continue;
-      } else if (ford == 0) {
-          return step * -1; /* Failed */
-      } else {
-          return step * -1; /* Failed */
-      }
-    }
-
-  ++it;
-
-  /* build FS string */
-  for (; it != strStack.end(); ++it)
-    {
-      pathStep = (std::string)*it;
-      if (it != strStack.end())
-        *gPath += PATH_DELIM;
-      *gPath += pathStep;
-
-    }
-  return step;
-}
-
 /* Get a set of BRLCAD::MinimalObjects */
 std::list<BRLCAD::MinimalObject*>*
 FileDataSource::getObjs(std::string relPath, bool recurse)
 {
 	std::string absPath = "";
 
-	FileDataSource::buildFullPath(&absPath, &this->repoPath, &relPath);
+	StringUtils::combinePaths(&absPath, &this->repoPath, &relPath);
 
 	//figure out what kind of path we are dealing with;
-	if (this->existsFileOrDir(absPath.c_str()) == 0)
+	if (StringUtils::isFileOrDir(absPath.c_str()) == 0)
 		return NULL;
 
-	if (this->existsFileOrDir(absPath.c_str()) == 1)
+	if (StringUtils::isFileOrDir(absPath.c_str()) == 1)
 		return NULL;
 
 	std::list<BRLCAD::MinimalObject*>* out = NULL;
@@ -207,73 +150,6 @@ FileDataSource::init()
       this->repoPath + " is writable.");
 
   return true;
-}
-
-int
-FileDataSource::existsFileOrDir(const char* path)
-{
-    struct stat st_buf;
-
-    /* Check existence */
-    if ((stat (path, &st_buf)) != 0)
-        return 0;
-
-    /* Check if dir */
-    if (S_ISDIR (st_buf.st_mode))
-    	return 1;
-
-    /* Check if file */
-    if (S_ISREG (st_buf.st_mode))
-    	return 2;
-
-    /* Shouldn't ever get here. */
-    return -1;
-}
-
-void
-FileDataSource::buildFullPath(std::string* out, std::string* base, std::string* path)
-{
-  *out = *base + PATH_DELIM + *path;
-  FileDataSource::cleanString(out);
-}
-
-void
-FileDataSource::cleanString(std::string* out)
-{
-  int pos = out->find(DOUBLE_PATH_DELIM);
-  while (pos != -1)
-    {
-      out->replace(pos,2,PATH_DELIM);
-      pos = out->find(DOUBLE_PATH_DELIM);
-    }
-}
-
-int
-FileDataSource::pathToStringStack(std::string path, std::list<std::string>* stringStack)
-{
-  std::string sub = "";
-  size_t endPos = 0;
-  int cnt = 0;
-
-  do {
-      endPos = path.find_first_of(PATH_DELIM);
-      if (endPos == std::string::npos){
-          if (path.length() <=0)
-              break;
-          else
-              endPos = path.length();
-      }
-      sub = path.substr(0, endPos);
-
-      if (sub.length() > 0) {
-        stringStack->push_back(sub);
-        ++cnt;
-      }
-      path = path.erase(0, endPos+1);
-
-  } while (endPos != std::string::npos);
-
-  return cnt;
 }
 
 int
