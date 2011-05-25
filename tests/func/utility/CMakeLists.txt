@@ -43,4 +43,7 @@ target_link_libraries(gconfigTest libgcutil)
 add_executable(guuidTest uuidTest.cxx)
 target_link_libraries(guuidTest libgcutil)
 
+add_executable(stringUtilsTest StringUtilsTest.cxx)
+target_link_libraries(stringUtilsTest libgcutil)
+
 file(COPY test.config DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
