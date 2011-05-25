@@ -24,6 +24,8 @@
 #ifndef __BRLCADDB_H__
 #define __BRLCADDB_H__
 
+#include "ExtObject.h"
+
 #include <string>
 #include <list>
 
@@ -58,6 +60,19 @@ public:
    */
   const int list(const std::string path, std::list<std::string>* list);
 
+
+  /**
+   * Verifies whether this DB contains the specified name.
+   * This should be used to check names only.
+   * To check a valid path, use isValidPath();
+   */
+  bool contains (const std::string name);
+
+  /**
+   * Builds an ExtObject if 'name' exists in this database
+   */
+  ExtObject* getExtObj(const std::string name);
+
 private:
   std::string path;
   struct db_i* dbip;
@@ -89,9 +104,22 @@ private:
 
   /**
    * Performs the actual list lookup. To be used internally only.
-   * NOTE:  Does not call open() or close().  See list() that.
+   * NOTE:  Does not call open() or close().  See list().
    */
   const int _list(const std::string path, std::list<std::string>* list);
+
+   /**
+     * Performs the actual name lookup. To be used internally only.
+     * NOTE:  Does not call open() or close().  See list().
+     */
+   bool _contains(const std::string name);
+
+   /**
+     * Performs the actual name lookup. To be used internally only.
+     * NOTE:  Does not call open() or close().  See list().
+     */
+   ExtObject* _getExtObj(const std::string name);
+
 
 };
 

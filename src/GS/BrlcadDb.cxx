@@ -84,7 +84,6 @@ BrlcadDb::isValidPath(const std::string path) {
   this->close();
   return retVal;
 }
-
 const bool
 BrlcadDb::_isValidPath(const std::string path) {
   /* Assume that 'path' is formatted to be a BRLCAD DB path */
@@ -121,13 +120,12 @@ BrlcadDb::_isValidPath(const std::string path) {
 const int
 BrlcadDb::list(const std::string path, std::list<std::string>* list)
 {
-  if (this->open() == false) return G_PATH_NOT_VALID;
+  if (this->open() == false) return FS_PATH_NOT_VALID;
 
   const int retVal = this->_list(path, list);
   this->close();
   return retVal;
 }
-
 const int
 BrlcadDb::_list(const std::string path, std::list<std::string>* items)
 {
@@ -224,6 +222,51 @@ BrlcadDb::_list(const std::string path, std::list<std::string>* items)
 
   return node_count;
 }
+
+bool
+BrlcadDb::contains (const std::string name)
+{
+  if (this->open() == false) return false;
+  bool retVal = this->_contains(name);
+  this->close();
+  return retVal;
+}
+bool
+BrlcadDb::_contains (const std::string name)
+{
+ return (db_lookup(this->dbip, name.c_str(), 0) != RT_DIR_NULL);
+}
+
+
+ExtObject*
+BrlcadDb::getExtObj(const std::string name)
+{
+  if (this->open() == false) return NULL;
+
+  ExtObject* retVal = this->_getExtObj(name);
+  this->close();
+  return retVal;
+}
+ExtObject*
+BrlcadDb::_getExtObj(const std::string name)
+{
+  directory* dirp = db_lookup(this->dbip, name.c_str(),0);
+
+  if (dirp == RT_DIR_NULL)
+    return NULL;
+
+  bu_external* extp = (bu_external*)bu_calloc(sizeof(bu_external),1,"GetExternal bu_external calloc");
+
+  int rVal = db_get_external(extp, dirp, this->dbip);
+  if (rVal < 0) {
+      bu_free(extp, "BrlcadDb::_getExtObj(): Freeing bu_external due to error.");
+      return NULL;
+  }
+
+  return new ExtObject(name, ext);
+}
+
+
 
 // Local Variables:
 // tab-width: 8
