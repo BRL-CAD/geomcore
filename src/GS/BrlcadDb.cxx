@@ -25,7 +25,7 @@
 #include "db.h"
 #include "raytrace.h"
 
-BrlcadDb::BrlcadDb()
+BrlcadDb::BrlcadDb(std::string path)
 {
   // TODO Auto-generated constructor stub
 
