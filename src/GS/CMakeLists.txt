@@ -36,6 +36,7 @@ include_directories(
 )
 
 SET(geomserv_SRCS
+	BrlcadDb.cxx
 	GeometryService.cxx
 	DataManager.cxx
 	FileDataSource.cxx
@@ -77,6 +78,7 @@ IF(BUILD_STATIC_LIBS)
 ENDIF(BUILD_STATIC_LIBS)
 
 SET(geomserv_inst_HDRS
+	BrlcadDb.h
 	Session.h
 	SessionManager.h
 	Account.h
