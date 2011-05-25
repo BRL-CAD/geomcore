@@ -57,7 +57,22 @@ public:
 	bool putObj(std::string path, BRLCAD::MinimalObject* obj);
 
 	static int getFsDirList(std::string, std::list<std::string>*);
-	static int getGChildList(std::string, std::string, std::list<std::string>*, bool isTops = false);
+
+	/**
+	 * Get a list of the names of the children for object 'gPath'
+	 * in the brlcad file 'fsPath'
+	 *
+	 * Return values:
+	 *      >=0 Number of items added to 'list'
+         *      <0 error:
+         *              -1 filesystem Path not valid.
+         *              -2 geometry Path not valid.
+         *              -3 Valid path, but corrupt Object Data.
+	 */
+	static int getGChildList(
+	    std::string fsPath,
+	    std::string gPath,
+	    std::list<std::string>* list);
 
 private:
 	std::string repoPath;
