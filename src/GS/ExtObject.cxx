@@ -28,7 +28,9 @@
 ExtObject::ExtObject( std::string objName, bu_external* ext
 ) : ext(ext), objName(objName) {}
 
-ExtObject::~ExtObject(void){}
+ExtObject::~ExtObject(void){
+  delete ext;
+}
 
 void
 ExtObject::serialize(ByteBuffer* bb)
