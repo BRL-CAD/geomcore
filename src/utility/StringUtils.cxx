@@ -164,6 +164,19 @@ StringUtils::splitPathAtFile(const std::string path, std::string* lPath, std::st
   return step;
 }
 
+std::string
+StringUtils::getLastStepOfPath(const std::string path)
+{
+  std::string out = "";
+  size_t found = path.rfind(PATH_DELIM);
+  if (found == std::string::npos)
+      /* Path, so get last step */
+    out = path.substr(found + 1);
+   else
+      /* no path, thus 'path' *is* the last step */
+     out = path;
+  return out;
+}
 
 // Local Variables:
 // tab-width: 8
