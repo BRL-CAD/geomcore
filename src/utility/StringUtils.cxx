@@ -25,6 +25,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <stdio.h>
+#include <iostream>
 
 const int
 StringUtils::isFileOrDir(const std::string path)
@@ -107,15 +108,12 @@ StringUtils::cleanString(std::string* out)
 const int
 StringUtils::splitPathAtFile(const std::string path, std::string* lPath, std::string* rPath, int* totalSteps)
 {
-  std::string pathStep = "";
+  std::string pathSoFar = "";
   int step = 0;
   int ford = 0;
 
   if (lPath == NULL || rPath == NULL)
     return -1;
-
-  (*lPath) = "";
-  (*rPath) = "";
 
   std::list<std::string> strStack;
   StringUtils::splitPath(path, &strStack);
@@ -128,12 +126,11 @@ StringUtils::splitPathAtFile(const std::string path, std::string* lPath, std::st
 
   std::list<std::string>::const_iterator it = strStack.begin();
 
-  /* build FS string */
+  /* build left hand side string */
   for (; it != strStack.end(); ++it)
     {
-      pathStep = (std::string)*it;
-      *lPath += pathStep;
-      ford = StringUtils::isFileOrDir(lPath->c_str());
+      pathSoFar += (std::string)*it;;
+      ford = StringUtils::isFileOrDir(pathSoFar.c_str());
 
       /* 2 == FILE, 1 == DIR, 0 == NOTEXIST */
       if (ford == 2) {
@@ -141,28 +138,98 @@ StringUtils::splitPathAtFile(const std::string path, std::string* lPath, std::st
           break;
       } else if (ford == 1) {
           ++step;
-          *lPath += PATH_DELIM;
           continue;
-      } else if (ford == 0) {
-          return step * -1; /* Failed */
-      } else {
-          return step * -1; /* Failed */
-      }
-    }
-
-  ++it;
-
-  /* build FS string */
-  for (; it != strStack.end(); ++it)
-    {
-      pathStep = (std::string)*it;
-      if (it != strStack.end())
-        *rPath += PATH_DELIM;
-      *rPath += pathStep;
+      } else if (ford == 0) return step * -1; /* Failed */
+      else return step * -1; /* Failed */
 
     }
+
+  splitPathAtStep(&strStack, step, lPath, rPath);
+
   return step;
 }
+
+void
+StringUtils::splitPathAtStep(
+    const std::string inPath,
+    int splitStep,
+    std::string* lPath,
+    std::string* rPath,
+    int* totalSteps)
+{
+  if (lPath == NULL || rPath == NULL)
+    return;
+
+  //copy
+  std::string path = (std::string) inPath;
+
+  int cnt = 1;
+  std::string stepStr = "";
+  std::list<std::string> strStack;
+  std::list<std::string>::iterator it;
+
+  StringUtils::cleanString(&path);
+  StringUtils::splitPath(path, &strStack);
+
+  if (totalSteps != NULL)
+    *totalSteps = strStack.size();
+
+  if (strStack.size() == 0)
+    return;
+
+  StringUtils::splitPathAtStep(&strStack, splitStep, lPath, rPath);
+
+  std::string s = "";
+  s += path[path.length() -1];
+  if (s == PATH_DELIM)
+    *rPath += PATH_DELIM;
+
+  s = path[0];
+  if (s == PATH_DELIM)
+    *lPath = PATH_DELIM + *lPath;
+
+}
+
+
+void
+StringUtils::splitPathAtStep(
+    const std::list<std::string>* strStack,
+    int splitStep,
+    std::string* lPath,
+    std::string* rPath)
+{
+  if (lPath == NULL || rPath == NULL || strStack == NULL)
+    return;
+
+  (*lPath) = "";
+  (*rPath) = "";
+
+  int cnt = 1;
+  std::string stepStr = "";
+  std::list<std::string>::const_iterator it;
+
+  for (it = strStack->begin(); it != strStack->end(); ++it, ++cnt) {
+      stepStr = "";
+
+      stepStr += (std::string) *it;
+
+      if (it == strStack->end())
+        stepStr += "";
+      else if (cnt ==strStack->size())
+        stepStr += "";
+      else if (cnt == splitStep)
+        stepStr += "";
+      else
+        stepStr += PATH_DELIM;
+
+
+      if (cnt <= splitStep)
+        *lPath += stepStr;
+      else
+        *rPath += stepStr;
+    }
+}
+
 
 std::string
 StringUtils::getLastStepOfPath(const std::string path)

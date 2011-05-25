@@ -93,6 +93,19 @@ public:
       std::string* rPath,
       int* totalSteps);
 
+  static void splitPathAtStep(
+      const std::string path,
+      int splitStep,
+      std::string* lPath,
+      std::string* rPath,
+      int* totalSteps);
+
+  static void splitPathAtStep(
+      const std::list<std::string>* strStack,
+      int splitStep,
+      std::string* lPath,
+      std::string* rPath);
+
   /**
    * Determines and returns the last step of the provided 'path'.
    * Steps are determined by PATH_DELIM.
