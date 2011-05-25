@@ -23,6 +23,8 @@
 
 #include "FileDataSource.h"
 #include "StringUtils.h"
+#include "BrlcadDb.h"
+
 #include "db.h"
 #include "raytrace.h"
 
@@ -61,30 +63,15 @@ FileDataSource::getListing(std::string path, std::list<std::string>* list)
 
   if (splitPoint == totalSteps) {
       /* We ended the path on a FS Dir or File */
-
       int type = StringUtils::isFileOrDir(fsPath.c_str());
-
       if (type <= 0)
           return -1; /* 0 == NOT EXIST */
-
       if (type == 1)
           return FileDataSource::getFsDirList(fsPath, list); /* 1 == DIR */
-
-      /* Allow type == 2 (aka G File) to fall through to G procssing code. */
+      /* Allow type == 2 (aka G File) to fall through to G processing code. */
   }
-  /* We ended in a .g so get the child list */
-  std::string objName = "";
 
-  /*  we are at tops of g file*/
-  if (splitPoint == totalSteps)
-      return FileDataSource::getGChildList(fsPath, objName, list, true);
-
-  size_t found = gPath.rfind(PATH_DELIM);
-  if (found == std::string::npos)
-    return -1;
-  objName = gPath.substr(found + 1);
-
-  return FileDataSource::getGChildList(fsPath, objName, list);
+  return FileDataSource::getGChildList(fsPath, gPath, list);
 }
 
 /* Get a set of BRLCAD::MinimalObjects */
@@ -168,118 +155,20 @@ FileDataSource::getFsDirList(std::string dir, std::list<std::string>* files)
 }
 
 int
-FileDataSource::getGChildList(std::string gFilePath, std::string objName, std::list<std::string>* items, bool isTops)
+FileDataSource::getGChildList(
+    std::string fsPath,
+    std::string gPath,
+    std::list<std::string>* items)
 {
-  struct db_i *dbip;
-  struct directory *dp;
-  struct db_full_path dfp;
-  int dbStep = 0;
-  int exists = 0;
+  //TODO start caching these BrlcadDB objects!!!!
+  BrlcadDb* db = BrlcadDb::makeDb(fsPath);
+  if (db == NULL) return BrlcadDb::FS_PATH_NOT_VALID;
 
-  /* Open DB file */
-  if ((dbip = db_open(gFilePath.c_str(), "r")) == DBI_NULL) {
-      Logger::getInstance()->logERROR("FileDataSource", "Unable to open geometry file " + gFilePath);
-      return -1;
-  }
-  if (db_dirbuild(dbip)) {
-      Logger::getInstance()->logERROR("FileDataSource", "ERROR: db_dirbuild failed");
-      db_close(dbip);
-      return -1;
-  }
+  std::string name = StringUtils::getLastStepOfPath(gPath);
 
-  db_update_nref(dbip, &rt_uniresource);
-
-  /* If we are getting TOPS of the file... */
-  if (isTops) {
-
-    for (int i = 0; i < RT_DBNHASH; i++)
-      for (dp = dbip->dbi_Head[i]; dp != RT_DIR_NULL; dp = dp->d_forw)
-        if (dp->d_nref == 0 && !(dp->d_flags & RT_DIR_HIDDEN) && (dp->d_addr != RT_DIR_PHONY_ADDR))
-          items->push_back(std::string(dp->d_namep));
-
-    db_close(dbip);
-    return 1;
-  }
-
-  dp = db_lookup(dbip, objName.c_str(), 0);
-  if (dp == RT_DIR_NULL)
-    {
-      //Logger::getInstance()->logERROR("FileDataSource", "Directory was null when looking for: " + objName);
-      db_close(dbip);
-      return -1;
-    }
-
-  struct rt_db_internal in;
-  struct rt_comb_internal *comb;
-
-  if (rt_db_get_internal5(&in, dp, dbip, NULL, &rt_uniresource) < 0) {
-      Logger::getInstance()->logERROR("FileDataSource", "rt_db_get_internal5 FAILED.");
-      db_close(dbip);
-      return -1;
-  }
-
-  comb = (struct rt_comb_internal *) in.idb_ptr;
-
-  size_t i;
-  size_t node_count;
-  struct rt_tree_array *rt_tree_array;
-  union tree *ntp;
-
-  RT_CK_RESOURCE(&rt_uniresource);
-
-  if (!comb->tree) {
-      //Logger::getInstance()->logERROR("FileDataSource", "No Tree");
-      rt_db_free_internal(&in);
-      db_close(dbip);
-      return 1;
-  }
-  RT_CK_TREE(comb->tree);
-
-  node_count = db_tree_nleaves(comb->tree);
-  if (node_count == 0)
-    {
-      //Logger::getInstance()->logERROR("FileDataSource", "Zero node_count.");
-      rt_db_free_internal(&in);
-      db_close(dbip);
-      return 1;
-    }
-
-  ntp = db_dup_subtree(comb->tree, &rt_uniresource);
-  RT_CK_TREE(ntp);
-
-  /* Convert to "v4 / GIFT style", so that the flatten makes sense. */
-  if (db_ck_v4gift_tree(ntp) < 0)
-          db_non_union_push(ntp, &rt_uniresource);
-  RT_CK_TREE(ntp);
-
-  node_count = db_tree_nleaves(ntp);
-  rt_tree_array = (struct rt_tree_array *) bu_calloc(node_count,
-                  sizeof(struct rt_tree_array), "rt_tree_array");
-
-  /*
-   * free=0 means that the tree won't have any leaf nodes freed.
-   */
-  (void) db_flatten_tree(rt_tree_array, ntp, OP_UNION, 0, &rt_uniresource);
-
-  union tree *itp = NULL;
-  for (i = 0; i < node_count; i++)
-    {
-      itp = rt_tree_array[i].tl_tree;
-
-      RT_CK_TREE(itp);
-      BU_ASSERT_LONG(itp->tr_op, ==, OP_DB_LEAF);
-      BU_ASSERT_PTR(itp->tr_l.tl_name, !=, NULL);
-
-      items->push_back(std::string(itp->tr_l.tl_name));
-    }
-
-  if (rt_tree_array)
-          bu_free((genptr_t) rt_tree_array, "rt_tree_array");
-  db_free_tree(ntp, &rt_uniresource);
-
-  rt_db_free_internal(&in);
-  db_close(dbip);
-  return 1;
+  int retVal = db->list(name, items);
+  delete db;
+  return retVal;
 }
 
 /*
