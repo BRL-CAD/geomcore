@@ -31,6 +31,7 @@
 
 class BrlcadDb {
 public:
+  //TODO move these to a more common place?
   static int FS_PATH_NOT_VALID;
   static int G_PATH_NOT_VALID;
   static int CORRUPT_OBJ_DATA;
