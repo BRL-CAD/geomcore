@@ -35,6 +35,7 @@ public:
   static int FS_PATH_NOT_VALID;
   static int G_PATH_NOT_VALID;
   static int CORRUPT_OBJ_DATA;
+  static int NULL_POINTER;
 
   /**
    * Factory method.  Returns valid BrlcadDb object on success, NULL on failure.
@@ -83,7 +84,7 @@ public:
    *    -2 = either nameList or extList was NULL
    */
   int getExtObjs(const std::list<std::string>* nameList,
-      std::list<ExtObject*>* extList);
+      std::list<ExtObject*>* extList, bool recursive = false);
 
 private:
   std::string path;
@@ -137,7 +138,7 @@ private:
       * NOTE:  Does not call open() or close().  See getExtObjs().
       */
    int _getExtObjs(const std::list<std::string>* nameList,
-       std::list<ExtObject*>* extList);
+       std::list<ExtObject*>* extList, bool recursive = false);
 
 };
 
