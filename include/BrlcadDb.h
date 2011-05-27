@@ -45,7 +45,7 @@ public:
   /**
    * Opens the DB, checks if the provided 'path' is valid or not, then closes the DB.
    */
-  const bool isValidPath(const std::string path);
+  const bool isValidPath(const std::string gPath);
 
   /**
    * Using provided database 'path' to a db object,

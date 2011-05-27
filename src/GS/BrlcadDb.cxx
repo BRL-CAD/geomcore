@@ -128,7 +128,7 @@ BrlcadDb::list(const std::string path, std::list<std::string>* list)
   return retVal;
 }
 const int
-BrlcadDb::_list(const std::string path, std::list<std::string>* items)
+BrlcadDb::_list(const std::string gPath, std::list<std::string>* items)
 {
   struct directory *dp;
   struct db_full_path dfp;
@@ -137,7 +137,7 @@ BrlcadDb::_list(const std::string path, std::list<std::string>* items)
   int itemsAdded = 0;
 
   /* If we are getting TOPS of the file... */
-  if ((path.length() == 0 || path == "/")) {
+  if ((gPath.length() == 0 || gPath == "/")) {
     for (int i = 0; i < RT_DBNHASH; i++)
       for (dp = dbip->dbi_Head[i]; dp != RT_DIR_NULL; dp = dp->d_forw)
         if (dp->d_nref == 0 && !(dp->d_flags & RT_DIR_HIDDEN) && (dp->d_addr != RT_DIR_PHONY_ADDR)) {
@@ -149,7 +149,7 @@ BrlcadDb::_list(const std::string path, std::list<std::string>* items)
   /* If not TOPS, then look it up! */
 
   /* Check to see if we have a valid path, or just a objectName */
-  std::string objName = StringUtils::getLastStepOfPath(path);
+  std::string objName = StringUtils::getLastStepOfPath(gPath);
 
   dp = db_lookup(this->dbip, objName.c_str(), 0);
   if (dp == RT_DIR_NULL)  return G_PATH_NOT_VALID;
