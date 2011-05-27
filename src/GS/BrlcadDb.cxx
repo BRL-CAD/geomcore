@@ -149,6 +149,10 @@ BrlcadDb::_list(const std::string gPath, std::list<std::string>* items)
   /* If not TOPS, then look it up! */
 
   /* Check to see if we have a valid path, or just a objectName */
+  if (!this->_isValidPath(gPath))
+    return G_PATH_NOT_VALID;
+
+  /* Since we have good path, skip walk and go directly to item */
   std::string objName = StringUtils::getLastStepOfPath(gPath);
 
   dp = db_lookup(this->dbip, objName.c_str(), 0);
