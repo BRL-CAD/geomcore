@@ -38,6 +38,12 @@ ExtObject::serialize(ByteBuffer* bb)
   bb->put((char*)this->ext->ext_buf, this->ext->ext_nbytes);
 }
 
+ByteBuffer*
+ExtObject::serialize()
+{
+  return ByteBuffer::wrap((char*)this->ext->ext_buf, this->ext->ext_nbytes);
+}
+
 std::string
 ExtObject::getObjectName()
 {

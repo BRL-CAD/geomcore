@@ -37,6 +37,8 @@ public:
   virtual  ~ExtObject(void);
 
   void serialize(ByteBuffer* bb);
+  ByteBuffer* serialize();
+
   std::string  getObjectName();
 
   void  printObjState();
