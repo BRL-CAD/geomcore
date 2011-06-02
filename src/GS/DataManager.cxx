@@ -143,6 +143,7 @@ DataManager::handleGeometryChunkMsg(GeometryChunkMsg* msg)
 void
 DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg)
 {
+  int retVal = 0;
   bool recurse = originalMsg->getRecurse();
   std::string path = originalMsg->getPath();
   Portal* origin = originalMsg->getOrigin();
@@ -173,46 +174,62 @@ DataManager::handleGeometryReqMsg(GeometryReqMsg* originalMsg)
   log->logINFO("DataManager", ss.str());
 
   /* pull all objects */
-  std::list<BRLCAD::MinimalObject*>* objs = this->datasource->getObjs(path, recurse);
-  if (objs == NULL || objs->size() < 1) {
+  std::list<ExtObject*> objs;
+  retVal = this->datasource->getObjs(path, &objs, recurse);
+
+  if (retVal < 0) {
       FailureMsg fm(originalMsg, COULD_NOT_FIND_GEOMETRY);
       origin->send(&fm);
-      log->logERROR("DataManager", "handleGeometryReqMsg(): No objects returned on lookup.");
-      if (objs != NULL)
-        delete objs;
+      ss.str("");
+      ss << "handleGeometryReqMsg(): No objects returned on lookup. ret:";
+      ss << retVal;
+      log->logERROR("DataManager", ss.str());
       return;
   }
 
-  log->logDEBUG("DataManager", "Got object list, converting to chunks.");
+  ss.str("");
+  ss << "handleGeometryReqMsg(): Got object list, converting to chunks. children count:";
+  ss << retVal;
+
+  log->logDEBUG("DataManager", ss.str());
+  std::list<std::string> items;
+
+  /* Make a quick exit for "no children but good path" case */
+  if (retVal == 0) {
+      GeometryManifestMsg man(originalMsg, items);
+      origin->send(&man);
+      return;
+  }
 
   /* Prep for send */
   std::list<GeometryChunkMsg*> msgs;
-  std::list<std::string> items;
   GeometryChunkMsg* chunk = NULL;
-  BRLCAD::MinimalObject* obj = NULL;
+  ExtObject* obj = NULL;
+  std::list<ExtObject*>::iterator it;
+
 
   /* build manifest & Chunks to send*/
-  for (std::list<BRLCAD::MinimalObject*>::iterator it = objs->begin(); it!= objs->end(); it++) {
+  for (it = objs.begin(); it!= objs.end(); it++) {
       obj = *it;
-      chunk = GeometryChunkMsg::objToChunk(obj, originalMsg);
+
+      chunk = obj->toGeometryChunkMsg(originalMsg);
       msgs.push_back(chunk);
-      items.push_back(obj->getFilePath() + "/" + obj->getObjectName());
+
+      //TODO change manifest msg, add 'prepath' to it.
+      items.push_back(obj->getFullPath());
       delete obj;
   }
 
-  delete objs;
-
   /* Send manifest */
-  GeometryManifestMsg* man = new GeometryManifestMsg(originalMsg, items);
-
-  ByteBuffer* temp = man->serialize();
+  GeometryManifestMsg man(originalMsg, items);
+/*
+  ByteBuffer* temp = man.serialize();
   std::stringstream ss2;
   ss2 << "Manifest byte size: " << temp->position();
   log->logDEBUG("DataManager", ss2.str());
   delete temp;
-
-  origin->send(man);
-  delete man;
+*/
+  origin->send(&man);
 
   log->logDEBUG("DataManager", "Manifest send complete, sending chunks.");
 
