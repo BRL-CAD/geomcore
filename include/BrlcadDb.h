@@ -79,12 +79,15 @@ public:
    * Bulk build of ExtObjects from 'nameList' and place them into extList
    *
    * Return Values:
-   *    0 = Success
+   *    0 >= Number of items added to extList;
    *    -1 = db_open() failed
    *    -2 = either nameList or extList was NULL
    */
-  int getExtObjs(const std::list<std::string>* nameList,
-      std::list<ExtObject*>* extList, bool recursive = false);
+  int getExtObjs(
+      const std::list<std::string>* nameList,
+      std::list<ExtObject*>* extList,
+      bool recursive = false,
+      std::string startPath = "");
 
 private:
   std::string path;
@@ -138,7 +141,7 @@ private:
       * NOTE:  Does not call open() or close().  See getExtObjs().
       */
    int _getExtObjs(const std::list<std::string>* nameList,
-       std::list<ExtObject*>* extList, bool recursive = false);
+       std::list<ExtObject*>* extList, bool recursive, std::string startPath);
 
 };
 

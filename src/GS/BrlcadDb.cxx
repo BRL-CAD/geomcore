@@ -31,6 +31,7 @@
 int BrlcadDb::FS_PATH_NOT_VALID = -1;
 int BrlcadDb::G_PATH_NOT_VALID = -2;
 int BrlcadDb::CORRUPT_OBJ_DATA = -3;
+int BrlcadDb::NULL_POINTER = -4;
 
 BrlcadDb*
 BrlcadDb::makeDb(const std::string path) {
@@ -273,25 +274,31 @@ BrlcadDb::_getExtObj(const std::string name)
 
 int
 BrlcadDb::getExtObjs(const std::list<std::string>* nameList,
-    std::list<ExtObject*>* extList)
+    std::list<ExtObject*>* extList, bool recursive, std::string startPath)
 {
   if (nameList == NULL || extList == NULL) return -2;
   if (this->open() == false) return -1;
 
-  int retVal = this->_getExtObjs(nameList,extList);
+  int retVal = this->_getExtObjs(nameList, extList, recursive, startPath);
   this->close();
   return retVal;
 }
 int
 BrlcadDb::_getExtObjs(const std::list<std::string>* nameList,
-    std::list<ExtObject*>* extList)
+    std::list<ExtObject*>* extList, bool recursive, std::string startPath)
 {
-  if (nameList == NULL || extList == NULL) return -2;
+  if (nameList == NULL || extList == NULL) return BrlcadDb::NULL_POINTER;
 
   ExtObject* extObj = NULL;
   std::string strObj = "";
-  std::list<std::string>::const_iterator it = nameList->begin();
+  std::string newPath = "";
+  std::list<std::string>::const_iterator it;
+  int retVal = 0;
+  std::string child = "";
+  std::list<std::string> children;
 
+  /* Generate objects for names on nameList and add ExtObjects to extList */
+  it = nameList->begin();
   for (; it != nameList->end();++it) {
       strObj = *it;
 
@@ -302,11 +309,24 @@ BrlcadDb::_getExtObjs(const std::list<std::string>* nameList,
       if (extObj == NULL) {
         /* ERROR! */
         Logger::getInstance()->logERROR("BrlcadDb", "No extObject returned for: " + strObj);
+
       } else {
           extList->push_back(extObj);
-      }
-  }
-  return 0;
+          if (recursive) {
+              /* Get children of strObj */
+              children.clear();
+              retVal = this->_list(strObj, &children);
+
+              /* Recurse only if no error and >0 children */
+              if (retVal > 0)
+                newPath = startPath + "/" + strObj;
+                this->_getExtObjs( &children, extList, true, newPath);
+
+          } /* if (recursive) */
+      } /* if(extObj == NULL) */
+  } /* for loop */
+
+  return extList->size();
 }
 
 
