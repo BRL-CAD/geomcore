@@ -25,38 +25,89 @@
 #include <iostream>
 
 
-ExtObject::ExtObject( std::string objName, bu_external* ext
-) : ext(ext), objName(objName) {}
+ExtObject::ExtObject( std::string fullPath, bu_external* ext
+) : ext(ext), fullPath(fullPath) {}
 
-ExtObject::~ExtObject(void){
-  delete ext;
+ExtObject::~ExtObject(void)
+{
+  bu_free(ext, "ExtObject dstr");
+}
+
+ExtObject*
+ExtObject::makeExtObject(ByteBuffer* bb)
+{
+  bu_external* ext = (bu_external*)bu_malloc(sizeof(bu_external), "ExtObject cstr");
+
+  std::cout << "Before BU_INIT_EXTERNAL\n";
+  BU_INIT_EXTERNAL(ext);
+  std::cout << "After BU_INIT_EXTERNAL\n";
+
+  /* Deserialize */
+
+  /* path */
+  std::string fullPath = bb->getString();
+  if (fullPath.length() <= 0) return NULL;
+
+  /* Magic */
+  ext->ext_magic = bb->get32bit();
+
+  /* Buf len */
+  ext->ext_nbytes = bb->get32bit();
+  if (ext->ext_nbytes <= 0) return NULL;
+
+  /* Buf */
+  ext->ext_buf = (uint8_t*)bu_malloc(ext->ext_nbytes, "ExtObject cstr");
+  bb->get((char*)ext->ext_buf, ext->ext_nbytes);
+
+  return new ExtObject(fullPath, ext);
 }
 
 void
 ExtObject::serialize(ByteBuffer* bb)
 {
+  bb->putString(this->fullPath);
+  bb->put32bit(this->ext->ext_magic);
+  bb->put32bit(this->ext->ext_nbytes);
   bb->put((char*)this->ext->ext_buf, this->ext->ext_nbytes);
 }
 
 ByteBuffer*
 ExtObject::serialize()
 {
-  return ByteBuffer::wrap((char*)this->ext->ext_buf, this->ext->ext_nbytes);
+  int size = this->fullPath.length() + sizeof(int) + this->ext->ext_nbytes;
+  ByteBuffer* bb = ByteBuffer::allocate(size);
+  this->serialize(bb);
+  return bb;
 }
 
 std::string
-ExtObject::getObjectName()
+ExtObject::getFullPath()
 {
-  return this->objName;
+  return this->fullPath;
 }
 
 void
 ExtObject::printObjState()
 {
   std::cout << "ext*: " << ((this->ext == NULL) ? "NULL" : "Set") << "\n";
-  std::cout << "filePath: " << filePath << "\n";
-  std::cout << "objName: " << objName << std::endl;
+  std::cout << "fullPath: " << fullPath << std::endl;
 }
+
+GeometryChunkMsg*
+ExtObject::toGeometryChunkMsg(NetMsg* reply)
+{
+  GeometryChunkMsg* chunk = NULL;
+  ByteBuffer* bb = this->serialize();
+
+  if (reply == NULL)
+    chunk = new GeometryChunkMsg(this->fullPath, bb);
+  else
+    chunk = new GeometryChunkMsg(reply, this->fullPath, bb);
+
+  delete bb;
+  return chunk;
+}
+
 
 // Local Variables:
 // tab-width: 8

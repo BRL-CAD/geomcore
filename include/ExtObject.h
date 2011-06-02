@@ -27,26 +27,33 @@
 #define __EXTOBJECT_H___
 
 #include "ByteBuffer.h"
+#include "GeometryChunkMsg.h"
 
 #include <bu.h>
 #include <string>
 
 class ExtObject {
 public:
+  /* Normal cstr */
   ExtObject(std::string objName, bu_external* ext);
+
+  /* factory method */
+  static ExtObject* makeExtObject(ByteBuffer* data);
+
   virtual  ~ExtObject(void);
 
   void serialize(ByteBuffer* bb);
   ByteBuffer* serialize();
 
-  std::string  getObjectName();
+  std::string  getFullPath();
+
+  GeometryChunkMsg* toGeometryChunkMsg(NetMsg* reply = 0);
 
   void  printObjState();
 
 private:
   bu_external* ext;
-  std::string filePath;
-  std::string objName;
+  std::string fullPath;
 };
 
 #endif /* __EXTOBJECT_H___ */
