@@ -25,8 +25,6 @@
 
 #include "FileDataSource.h"
 #include "DataManager.h"
-#include <MinimalObject.h>
-#include <MinimalDatabase.h>
 
 std::string testPathFile("/awesome/test.g");
 
@@ -35,22 +33,23 @@ int main(int argc, char* argv[])
 	FileDataSource fds("./testRepo");
 
 	std::cout << "Testing getObjs:\n";
-	std::list<BRLCAD::MinimalObject*>* objs = fds.getObjs(testPathFile, true);
-	std::list<BRLCAD::MinimalObject*>::iterator it = objs->begin();
+	std::list<ExtObject*> objs;
+	fds.getObjs(testPathFile, &objs, true);
+	std::list<ExtObject*>::iterator it = objs.begin();
 
-	BRLCAD::MinimalObject* moe = NULL;
-	BRLCAD::MinimalObject* moeAfter = NULL;
+	ExtObject* moe = NULL;
+	ExtObject* moeAfter = NULL;
 	GeometryChunkMsg* chunk = NULL;
 
-	while (it != objs->end()) {
+	while (it != objs.end()) {
 		moe = *it;
-		std::cout << "\t" << moe->getObjectName() << "\n";
+		std::cout << "\t" << moe->getFullPath() << "\n";
 		++it;
 
 		moe->printObjState();
 
-		chunk = GeometryChunkMsg::objToChunk(moe);
-		moeAfter = GeometryChunkMsg::chunkToObj(chunk);
+		//chunk = GeometryChunkMsg::objToChunk(moe);
+		//moeAfter = GeometryChunkMsg::chunkToObj(chunk);
 		std::cout << "\n";
 		if (moeAfter == NULL)
 			std::cout << "moeAfter was null\n";
