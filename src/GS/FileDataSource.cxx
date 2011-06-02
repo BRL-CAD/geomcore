@@ -52,13 +52,11 @@ int
 FileDataSource::getListing(std::string path, std::list<std::string>* list)
 {
   std::string absPath = "";
-  StringUtils::combinePaths(&absPath, &this->repoPath, &path);
-
-  int pathStep = 0;
-
-  std::string fsPath;
-  std::string gPath;
+  std::string fsPath = "";
+  std::string gPath = "";
   int totalSteps = 0;
+
+  StringUtils::combinePaths(&absPath, &this->repoPath, &path);
   int splitPoint = StringUtils::splitPathAtFile(absPath, &fsPath, &gPath, &totalSteps);
 
   if (splitPoint == totalSteps) {
@@ -75,47 +73,53 @@ FileDataSource::getListing(std::string path, std::list<std::string>* list)
 }
 
 /* Get a set of BRLCAD::MinimalObjects */
-std::list<BRLCAD::MinimalObject*>*
-FileDataSource::getObjs(std::string relPath, bool recurse)
+int
+FileDataSource::getObjs(std::string path, std::list<ExtObject*>* extList,
+    bool recurse)
 {
-	std::string absPath = "";
+  std::list<std::string> nameList;
+  std::string absPath = "";
+  std::string fsPath = "";
+  std::string gPath = "";
+  int totalSteps = 0;
+  int retVal = 0;
 
-	StringUtils::combinePaths(&absPath, &this->repoPath, &relPath);
+  StringUtils::combinePaths(&absPath, &this->repoPath, &path);
+  int splitPoint = StringUtils::splitPathAtFile(absPath, &fsPath, &gPath,
+      &totalSteps);
 
-	//figure out what kind of path we are dealing with;
-	if (StringUtils::isFileOrDir(absPath.c_str()) == 0)
-		return NULL;
+  if (splitPoint == totalSteps) {
+      /* We ended the path on a FS Dir or File */
+      int type = StringUtils::isFileOrDir(fsPath.c_str());
+      if (type <= 0)
+        return -1; /* 0 == NOT EXIST */
+      if (type == 1)
+        /* TODO This will need to db_concat several db's together */
+        return -1;  /* 1 == DIR */
 
-	if (StringUtils::isFileOrDir(absPath.c_str()) == 1)
-		return NULL;
+      /* Allow type == 2 (aka G File) to fall through to G processing code. */
+    }
 
-	std::list<BRLCAD::MinimalObject*>* out = NULL;
+  /* Open DB */
+  BrlcadDb* db = BrlcadDb::makeDb(fsPath);
+  if (db == NULL) return BrlcadDb::FS_PATH_NOT_VALID;
 
-	BRLCAD::MinimalDatabase md;
-	bool loaded = md.Load(absPath);
+  /* Get objects at 'gPath' */
+  retVal = db->list(gPath, &nameList);
+  if (retVal <=0) return retVal;
 
-	if (!loaded) {
-            perror(strerror(errno));
-            Logger::getInstance()->logINFO("FileDataSource", "Failed to load.");
-	    return out;
-	}
-        Logger::getInstance()->logINFO("FileDataSource", "File seemingly loaded.");
+  /* list is populated, get objects */
+  retVal = db->getExtObjs(&nameList, extList, recurse);
 
-/*
-	if (recurse)
-	  out = md->getAllObjects();
-	else
-	  out = md->getAllTopObjects();
-*/
-
-	out = md.getAllObjs();
-
-	return out;
+  return retVal;
 }
+
+
+
 
 /* Put a single BRLCAD::MinimalObject */
 bool
-FileDataSource::putObj(std::string path, BRLCAD::MinimalObject* obj)
+FileDataSource::putObj(std::string path, ExtObject* obj)
 {
     return true;
 }

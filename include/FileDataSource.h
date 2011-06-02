@@ -35,48 +35,57 @@
 class FileDataSource : public IDataSource
 {
 public:
-	FileDataSource(std::string repoPath);
-	virtual ~FileDataSource();
-	bool init();
+  FileDataSource(std::string repoPath);
+  virtual ~FileDataSource();
+  bool init();
 
-	/*
-	 * 'GET' ers
-	 */
+  /*
+   * 'GET' ers
+   */
 
-	/* get a directory listing or a child list */
-	int getListing(std::string path, std::list<std::string>* list);
+  /* get a directory listing or a child list */
+  int getListing(std::string path, std::list<std::string>* list);
 
-	/* Get a set of objects */
-	std::list<BRLCAD::MinimalObject*>* getObjs(std::string path, bool recurse);
+  /**
+   * Using provided database 'path' to a db object,
+   * fill 'list' with the children objects
+   *
+   * Return value:
+   *  >=0 number of children objs added to 'list'
+   *  <0 error:
+   *     -1 filesystem Path not valid.
+   *     -2 geometry Path not valid.
+   *     -3 Valid path, but corrupt Object Data.
+   */
+  int getObjs(std::string path, std::list<ExtObject*>* objs, bool recurse);
 
-	/*
-	 * 'PUT' ers
-	 */
+  /*
+   * 'PUT' ers
+   */
 
-	/* Put a single BRLCAD::Object */
-	bool putObj(std::string path, BRLCAD::MinimalObject* obj);
+  /* Put a single BRLCAD::Object */
+  bool putObj(std::string path, ExtObject* obj);
 
-	static int getFsDirList(std::string, std::list<std::string>*);
+  static int getFsDirList(std::string, std::list<std::string>*);
 
-	/**
-	 * Get a list of the names of the children for object 'gPath'
-	 * in the brlcad file 'fsPath'
-	 *
-	 * Return values:
-	 *      >=0 Number of items added to 'list'
-         *      <0 error:
-         *              -1 filesystem Path not valid.
-         *              -2 geometry Path not valid.
-         *              -3 Valid path, but corrupt Object Data.
-	 */
-	static int getGChildList(
-	    std::string fsPath,
-	    std::string gPath,
-	    std::list<std::string>* list);
+  /**
+   * Get a list of the names of the children for object 'gPath'
+   * in the brlcad file 'fsPath'
+   *
+   * Return values:
+   *      >=0 Number of items added to 'list'
+   *      <0 error:
+   *              -1 filesystem Path not valid.
+   *              -2 geometry Path not valid.
+   *              -3 Valid path, but corrupt Object Data.
+   */
+  static int getGChildList(
+      std::string fsPath,
+      std::string gPath,
+      std::list<std::string>* list);
 
 private:
-	std::string repoPath;
-
+  std::string repoPath;
 };
 
 #endif /* __FILEDATASOURCE_H__ */

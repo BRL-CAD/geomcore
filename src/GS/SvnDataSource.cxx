@@ -42,16 +42,16 @@ SvnDataSource::getListing(std::string path)
 }
 
 /* Get a set of BRLCAD::MinimalObjects */
-std::list<BRLCAD::MinimalObject*>*
-SvnDataSource::getObjs(std::string path, bool recurse)
+int
+SvnDataSource::getObjs(std::string path, std::list<ExtObject*>* objs, bool recurse)
 {
-
+  return -1;
 }
 
 bool
-SvnDataSource::putObj(std::string path, BRLCAD::MinimalObject* ext)
+SvnDataSource::putObj(std::string path, ExtObject* ext)
 {
-
+  return false;
 }
 
 /*

@@ -27,7 +27,7 @@
 #ifndef __IDATASOURCE_H__
 #define __IDATASOURCE_H__
 
-#include <MinimalObject.h>
+#include "ExtObject.h"
 #include "Account.h"
 #include <map>
 #include <list>
@@ -48,14 +48,14 @@ public:
 	virtual int getListing(std::string path, std::list<std::string>* list) = 0;
 
 	/* Get BRLCAD::MinimalObject s */
-	virtual std::list<BRLCAD::MinimalObject*>* getObjs(std::string path, bool recurse) = 0;
+	virtual int getObjs(std::string path, std::list<ExtObject*>* objs, bool recurse) = 0;
 
 	/*
 	 * 'PUT' ers
 	 */
 
 	/* Put a single BRLCAD::MinimalObject */
-	virtual bool putObj(std::string path, BRLCAD::MinimalObject* ext) = 0;
+	virtual bool putObj(std::string path, ExtObject* obj) = 0;
 };
 
 #endif /* __IDATASOURCE_H__ */

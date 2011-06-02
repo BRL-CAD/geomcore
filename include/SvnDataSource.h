@@ -43,9 +43,9 @@ public:
         std::list<std::string>* getListing(std::string path);
 
 	/* Get a set of BRLCAD::MinimalObject */
-	std::list<BRLCAD::MinimalObject*>* getObjs(std::string path, bool recurse);
+	int getObjs(std::string path, std::list<ExtObject*>* objs, bool recurse);
 
-	virtual bool putObj(std::string path, BRLCAD::MinimalObject* ext) = 0;
+	virtual bool putObj(std::string path, ExtObject* ext) = 0;
 
 private:
 	std::string repoPath;
