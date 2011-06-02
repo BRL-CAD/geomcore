@@ -31,7 +31,6 @@ PROJECT(GEOMETRY_SERVICE)
 include_directories(
 	${TCL_INCLUDE_DIRS}
 	${BRLCAD_INCLUDE_DIRS}
-	${LIBGE_INCLUDE_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -62,13 +61,13 @@ SET(geomserv_SRCS
 
 IF(BUILD_SHARED_LIBS)
 	add_library(libgeomserv SHARED ${geomserv_SRCS})
-	target_link_libraries(libgeomserv libNet libgcutil ${BRLCAD_RT_LIBRARY} ${LIBGE_GE_LIBRARY})
+	target_link_libraries(libgeomserv libNet libgcutil ${BRLCAD_RT_LIBRARY})
 	set_target_properties(libgeomserv PROPERTIES PREFIX "")
 	install(TARGETS libgeomserv DESTINATION lib)
 ENDIF(BUILD_SHARED_LIBS)
 IF(BUILD_STATIC_LIBS)
 	add_library(libgeomserv-static STATIC ${geomserv_SRCS})
-	target_link_libraries(libgeomserv-static libNet libgcutil ${BRLCAD_RT_LIBRARY} ${LIBGE_GE_LIBRARY})
+	target_link_libraries(libgeomserv-static libNet libgcutil ${BRLCAD_RT_LIBRARY})
 	IF(NOT WIN32)
 		set_target_properties(libgeomserv-static PROPERTIES PREFIX "")
 		set_target_properties(libgeomserv-static PROPERTIES OUTPUT_NAME "libgeomserv")

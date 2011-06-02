@@ -29,7 +29,6 @@
 include_directories(
     ${TCL_INCLUDE_DIRS}
     ${BRLCAD_INCLUDE_DIRS}
-    ${LIBGE_INCLUDE_DIR}
 )
 
 SET (link_libs
@@ -37,7 +36,6 @@ SET (link_libs
 	${BRLCAD_BU_LIBRARY}
 	${BRLCAD_RT_LIBRARY}
 	${BRLCAD_WDB_LIBRARY}
-	${LIBGE_GE_LIBRARY}
 )
 
 add_executable(gsTest GeometryServiceTest.cxx)
