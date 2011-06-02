@@ -27,16 +27,17 @@
 #define __GEOMETRYCHUNKMSG_H__
 
 #include "NetMsg.h"
+
 #include <MinimalObject.h>
 
 class GeometryChunkMsg : public NetMsg
 {
 public:
 	/* Normal Constructor */
-	GeometryChunkMsg(std::string path, ByteBuffer* dataIn);
+	GeometryChunkMsg(std::string path, ByteBuffer* rawDataIn);
 
 	/* Reply Constructor */
-	GeometryChunkMsg(NetMsg* msg, std::string path, ByteBuffer* dataIn);
+	GeometryChunkMsg(NetMsg* msg, std::string path, ByteBuffer* rawDataIn);
 
 	/* Deserializing Constructor */
 	GeometryChunkMsg(ByteBuffer* bb, Portal* origin);
@@ -51,12 +52,11 @@ public:
 	std::string getPath();
 	ByteBuffer* getByteBuffer();
 
-	static BRLCAD::MinimalObject* chunkToObj(GeometryChunkMsg* msg);
 	static GeometryChunkMsg* objToChunk(BRLCAD::MinimalObject* Obj, NetMsg* replyMsg = 0);
 
 protected:
         uint32_t getDataLen();
-        char* getData();
+
 
 private:
 	std::string path;
