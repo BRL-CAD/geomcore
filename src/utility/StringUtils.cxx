@@ -22,10 +22,14 @@
  */
 
 #include "StringUtils.h"
+
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <stdio.h>
 #include <iostream>
+
+#include "bu.h"
+
 
 const int
 StringUtils::isFileOrDir(const std::string path)
@@ -235,22 +239,10 @@ StringUtils::splitPathAtStep(
 std::string
 StringUtils::basename(const std::string path)
 {
-  std::string out = "";
-  std::string copy = path;
-  StringUtils::cleanString(&copy);
-
-  while (copy[copy.length()-1] == '/')
-    copy.erase(copy.length()-1);
-
-  size_t found = copy.rfind(PATH_DELIM);
-
-  if (found != std::string::npos)
-      /* Path, so get last step */
-    out = copy.substr(found + 1);
-   else
-      /* no path, thus 'path' *is* the last step */
-     out = copy;
-  return out;
+    char *path_str = bu_basename(path.c_str());
+    std::string ret = std::string(path_str);
+    bu_free(path_str, "bu_basename");
+    return ret;
 }
 
 // Local Variables:
