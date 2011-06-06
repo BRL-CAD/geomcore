@@ -60,13 +60,13 @@ public:
   {
     std::string name;
 
-    name =  StringUtils::basename(testPath01.c_str());
+    name =  StringUtils::basename(testPath01);
     CPPUNIT_ASSERT(name == "duder");
-    name =  StringUtils::basename(testPath02.c_str());
+    name =  StringUtils::basename(testPath02);
     CPPUNIT_ASSERT(name == "duder");
-    name =  StringUtils::basename(testPath03.c_str());
+    name =  StringUtils::basename(testPath03);
     CPPUNIT_ASSERT(name == "duder");
-    name =  StringUtils::basename(testPath04.c_str());
+    name =  StringUtils::basename(testPath04);
     CPPUNIT_ASSERT(name == "duder");
   }
 
