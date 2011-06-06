@@ -43,10 +43,11 @@ SET( UnitTests_LIBS
 	libNet
 )
 
-FILE(GLOB_RECURSE UnitTests_SRCS *UTest.cxx )
-#SET( UnitTests_SRCS
+#FILE(GLOB_RECURSE UnitTests_SRCS *UTest.cxx )
+SET( UnitTests_SRCS
+	./utility/StringUtilsUTest.cxx
+)
 #	./utility/ByteBufferUTest.cxx
-#)
 
 ADD_EXECUTABLE(runUnitTests test_runner.cxx ${UnitTests_SRCS})
 TARGET_LINK_LIBRARIES(runUnitTests ${UnitTests_LIBS})
