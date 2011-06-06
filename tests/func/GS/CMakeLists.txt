@@ -44,6 +44,6 @@ target_link_libraries(gsTest libgeomserv libNet ${link_libs})
 add_executable(fileDataSourceTest FileDataSourceTest.cxx)
 target_link_libraries(fileDataSourceTest libgeomserv ${link_libs})
 
-add_executable(SimpleCoreInterfaceTest SimpleCoreInterfaceTest.cxx)
-target_link_libraries(SimpleCoreInterfaceTest libgeomserv ${link_libs})
+#add_executable(SimpleCoreInterfaceTest SimpleCoreInterfaceTest.cxx)
+#target_link_libraries(SimpleCoreInterfaceTest libgeomserv ${link_libs})
 
