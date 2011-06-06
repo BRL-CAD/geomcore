@@ -28,7 +28,6 @@
 
 #include "NetMsg.h"
 
-#include <MinimalObject.h>
 
 class GeometryChunkMsg : public NetMsg
 {
@@ -51,8 +50,6 @@ public:
 	std::string toString();
 	std::string getPath();
 	ByteBuffer* getByteBuffer();
-
-	static GeometryChunkMsg* objToChunk(BRLCAD::MinimalObject* Obj, NetMsg* replyMsg = 0);
 
 protected:
         uint32_t getDataLen();

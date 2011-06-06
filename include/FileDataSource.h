@@ -27,10 +27,10 @@
 #define __FILEDATASOURCE_H__
 
 #include "IDataSource.h"
-#include <MinimalObject.h>
-#include <MinimalDatabase.h>
+
 #include <string>
 #include <list>
+
 
 class FileDataSource : public IDataSource
 {

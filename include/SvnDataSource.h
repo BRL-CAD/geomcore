@@ -27,7 +27,7 @@
 #define __SVNDATASOURCE_H__
 
 #include "IDataSource.h"
-#include <MinimalObject.h>
+
 #include <string>
 #include <list>
 
