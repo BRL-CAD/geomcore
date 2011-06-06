@@ -24,11 +24,16 @@
  */
 
 #include "StringUtils.h"
+
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
 #include <string.h>
 
-class StringUtilsUTest : public CPPUNIT_NS::TestFixture {
+#include "bu.h"
+
+
+class StringUtilsUTest : public CPPUNIT_NS::TestFixture
+{
   CPPUNIT_TEST_SUITE( StringUtilsUTest );
   CPPUNIT_TEST( testGetLastStepOfPath );
   CPPUNIT_TEST( testSplitPathAtStep01 );
@@ -54,15 +59,14 @@ public:
   testGetLastStepOfPath()
   {
     std::string name;
-    //std::cout << "\n\nname " << name << "\n\n";
 
-    name =  StringUtils::getLastStepOfPath(testPath01);
+    name =  StringUtils::basename(testPath01.c_str());
     CPPUNIT_ASSERT(name == "duder");
-    name =  StringUtils::getLastStepOfPath(testPath02);
+    name =  StringUtils::basename(testPath02.c_str());
     CPPUNIT_ASSERT(name == "duder");
-    name =  StringUtils::getLastStepOfPath(testPath03);
+    name =  StringUtils::basename(testPath03.c_str());
     CPPUNIT_ASSERT(name == "duder");
-    name =  StringUtils::getLastStepOfPath(testPath04);
+    name =  StringUtils::basename(testPath04.c_str());
     CPPUNIT_ASSERT(name == "duder");
   }
 

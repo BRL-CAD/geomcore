@@ -168,7 +168,7 @@ FileDataSource::getGChildList(
   BrlcadDb* db = BrlcadDb::makeDb(fsPath);
   if (db == NULL) return BrlcadDb::FS_PATH_NOT_VALID;
 
-  std::string name = StringUtils::getLastStepOfPath(gPath);
+  std::string name = StringUtils::basename(gPath);
 
   int retVal = db->list(name, items);
   delete db;

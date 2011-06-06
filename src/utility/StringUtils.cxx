@@ -233,7 +233,7 @@ StringUtils::splitPathAtStep(
 
 
 std::string
-StringUtils::getLastStepOfPath(const std::string path)
+StringUtils::basename(const std::string path)
 {
   std::string out = "";
   std::string copy = path;

@@ -110,7 +110,7 @@ public:
    * Determines and returns the last step of the provided 'path'.
    * Steps are determined by PATH_DELIM.
    */
-  static std::string getLastStepOfPath(const std::string path);
+  static std::string basename(const std::string path);
 
 
 private:

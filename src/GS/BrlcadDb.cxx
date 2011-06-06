@@ -154,7 +154,7 @@ BrlcadDb::_list(const std::string gPath, std::list<std::string>* items)
     return G_PATH_NOT_VALID;
 
   /* Since we have good path, skip walk and go directly to item */
-  std::string objName = StringUtils::getLastStepOfPath(gPath);
+  std::string objName = StringUtils::basename(gPath);
 
   dp = db_lookup(this->dbip, objName.c_str(), 0);
   if (dp == RT_DIR_NULL)  return G_PATH_NOT_VALID;
