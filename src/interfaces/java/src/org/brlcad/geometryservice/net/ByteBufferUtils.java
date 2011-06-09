@@ -144,4 +144,19 @@ public class ByteBufferUtils {
 		}
 	}
 
+	public static final ByteBuffer doubleBufCapacity(ByteBuffer bb) {
+		return ByteBufferUtils.multiplyBufCapacity(bb, 2);
+	}
+
+	public static final ByteBuffer multiplyBufCapacity(ByteBuffer bb, int multi) {
+		int cap = bb.capacity();
+		cap *= multi;
+
+		ByteBuffer newBB = ByteBuffer.allocate(cap);
+		bb.flip();
+		newBB.put(bb);
+
+		return newBB;
+	}
+	
 }
