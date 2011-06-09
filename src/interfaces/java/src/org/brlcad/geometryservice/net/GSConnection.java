@@ -43,19 +43,35 @@ import org.brlcad.geometryservice.net.msg.NewSessionReqMsg;
 import org.brlcad.geometryservice.net.msg.RemoteNodeNameSetMsg;
 import org.brlcad.geometryservice.net.msg.SessionInfoMsg;
 
+/**
+ * A stand-alone Thread implementation of a connection to a Geometry Service.
+ * Provides built in handshaking and authentication with a Geometry Service server
+ * as well as a fully functional NetMsg factory deserialization loop.
+ *
+ */
 public class GSConnection extends Thread {
 
+	/**
+	 * This connection's initial read buffer's size
+	 */
 	public static final int CONN_INITIAL_READBUF_SIZE = 1024 * 1024;
 
+	/**
+	 * temporary buffer used in read loops when reading from the socket
+	 */
 	public static final int SOCKET_READBUF_SIZE = 1024 * 8;
-
+	
+	/**
+	 * Time, in milliseconds, the connection waits to complete the handshake with 
+	 * the Geometry Server
+	 */
 	public static final long MAX_HANDSHAKE_WAIT_TIME_MS = 1000 * 5;
 
 	private AtomicBoolean recvRunStatus = new AtomicBoolean(false);
 	private AtomicBoolean recvRunCmd = new AtomicBoolean(false);
 
 	/**
-	 * Static method that will connect to the provided addy:port and attempt to
+	 * Static factory method that will connect to the provided addy:port and attempt to
 	 * log in.
 	 *
 	 * @param addy
@@ -95,6 +111,13 @@ public class GSConnection extends Thread {
 		return conn;
 	}
 
+	
+	/**
+	 * Calling thread waits (Sleeps) until either a NetMsg arrives from the GS Server or 
+	 * @param conn
+	 * @return
+	 * @throws GeometryServiceException
+	 */
 	private static AbstractNetMsg waitForMsg(GSConnection conn)
 			throws GeometryServiceException {
 		AbstractNetMsg newMsg = null;
@@ -139,13 +162,29 @@ public class GSConnection extends Thread {
 
 	}
 
+	/**
+	 * Private function to handle the specifics 
+	 * (including timeout and blocking) of the handshake process with a GeometryServer.
+	 * 
+	 * @param conn GSConnection to handshake on
+	 * @param uname Username to send to the remote host.
+	 * @return a boolean value that indicates whether the handshake was a success or not.
+	 * @throws GeometryServiceException
+	 */
 	private static final boolean handshake(GSConnection conn, String uname)
 			throws GeometryServiceException {
 		String localNodeName = uname + "-" + conn.getNodename();
 		conn.send(new RemoteNodeNameSetMsg(localNodeName));
 
-		AbstractNetMsg inMsg = GSConnection.waitForMsg(conn);
-
+		AbstractNetMsg inMsg = null;
+		
+		try {
+			inMsg = GSConnection.waitForMsg(conn);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			return false;
+		}
+		
 		if (inMsg == null)
 			/* handshake failed! */
 			return false;
@@ -285,7 +324,7 @@ public class GSConnection extends Thread {
 			 */
 			if ((this.connReadBuf.position() + bytesReadLast) > this.connReadBuf
 					.capacity())
-				this.connReadBuf = GSConnection
+				this.connReadBuf = ByteBufferUtils
 						.doubleBufCapacity(this.connReadBuf);
 
 			this.connReadBuf.put(this.socketReadBuf, 0, bytesReadLast);
@@ -481,21 +520,6 @@ public class GSConnection extends Thread {
 	 */
 	private final void setSessionID(UUID sessionID) {
 		this.sessionID = sessionID;
-	}
-
-	private static final ByteBuffer doubleBufCapacity(ByteBuffer bb) {
-		return GSConnection.multiplyBufCapacity(bb, 2);
-	}
-
-	private static final ByteBuffer multiplyBufCapacity(ByteBuffer bb, int multi) {
-		int cap = bb.capacity();
-		cap *= multi;
-
-		ByteBuffer newBB = ByteBuffer.allocate(cap);
-		bb.flip();
-		newBB.put(bb);
-
-		return newBB;
 	}
 
 	@Override
