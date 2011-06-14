@@ -23,10 +23,21 @@
 package org.brlcad.geometryservice.net;
 
 import org.brlcad.geometryservice.net.msg.AbstractNetMsg;
+import org.brlcad.geometryservice.net.msg.DirListReqMsg;
+import org.brlcad.geometryservice.net.msg.DirListResMsg;
+import org.brlcad.geometryservice.net.msg.FailureMsg;
+import org.brlcad.geometryservice.net.msg.GeometryChunkMsg;
+import org.brlcad.geometryservice.net.msg.GeometryManifestMsg;
+import org.brlcad.geometryservice.net.msg.GeometryReqMsg;
 import org.brlcad.geometryservice.net.msg.NetMsgTypes;
+import org.brlcad.geometryservice.net.msg.NewNodeOnNetMsg;
 import org.brlcad.geometryservice.net.msg.NewSessionReqMsg;
+import org.brlcad.geometryservice.net.msg.PingMsg;
+import org.brlcad.geometryservice.net.msg.PongMsg;
 import org.brlcad.geometryservice.net.msg.RemoteNodeNameSetMsg;
 import org.brlcad.geometryservice.net.msg.SessionInfoMsg;
+import org.brlcad.geometryservice.net.msg.SuccessMsg;
+import org.brlcad.geometryservice.net.msg.TypeOnlyMsg;
 
 public final class NetMsgFactory {
 
@@ -34,37 +45,39 @@ public final class NetMsgFactory {
 		try {
 			switch (type) {
 			case NetMsgTypes.RUAlive:
-				return null;
+				return new TypeOnlyMsg(type, reader);
 			case NetMsgTypes.IMAlive:
-				return null;
+				return new TypeOnlyMsg(type, reader);
 			case NetMsgTypes.Failure:
-				return null;
+				return new FailureMsg(reader);
 			case NetMsgTypes.Success:
-				return null;
+				return new SuccessMsg(reader);
 			case NetMsgTypes.Ping:
-				return null;
+				return new PingMsg(reader);
 			case NetMsgTypes.Pong:
-				return null;
+				return new PongMsg(reader);
 			case NetMsgTypes.RemNodeNameSET:
 				return new RemoteNodeNameSetMsg(reader);
 			case NetMsgTypes.DisconnectREQ:
-				return null;
+				return new TypeOnlyMsg(type, reader);
 			case NetMsgTypes.NewNodeOnNet:
-				return null;
-			case NetMsgTypes.FullNodenameListREQ:
-				return null;
-			case NetMsgTypes.FullNodenameList:
-				return null;
+				return new NewNodeOnNetMsg(reader);
+				
+			case NetMsgTypes.DirListREQ:
+				return new DirListReqMsg(reader);
+			case NetMsgTypes.DirListRES:
+				return new DirListResMsg(reader);
+				
 			case NetMsgTypes.NewSessionREQ:
 				return new NewSessionReqMsg(reader);
 			case NetMsgTypes.SessionInfo:
 				return new SessionInfoMsg(reader);
 			case NetMsgTypes.GeometryREQ:
-				return null;
+				return new GeometryReqMsg(reader);
 			case NetMsgTypes.GeometryMANIFEST:
-				return null;
+				return new GeometryManifestMsg(reader);
 			case NetMsgTypes.GeometryCHUNK:
-				return null;
+				return new GeometryChunkMsg(reader);
 
 			default:
 				return null;
