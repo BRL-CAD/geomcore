@@ -59,6 +59,7 @@ public abstract class AbstractNetMsg {
 	/* Cstr used for deserializing an object */
 	protected AbstractNetMsg(short msgType, ByteBufferReader reader) {
 		this.msgType = msgType;
+		
 		/* Header items */
 		this.msgUUID = reader.getUUID();
 		this.hasReUUID = reader.getBoolean();

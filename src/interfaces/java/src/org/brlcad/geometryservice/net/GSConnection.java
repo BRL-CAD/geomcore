@@ -343,6 +343,10 @@ public class GSConnection extends Thread {
 
 	private final AbstractNetMsg tryMakeNetMsg(ByteBufferReader reader) {
 
+		/* Early bailout if position is less than Type and Length */
+		if (reader.position() < 6) 
+			return;
+		
 		this.connReadBuf.flip();
 
 		AbstractNetMsg msg = null;
@@ -353,22 +357,20 @@ public class GSConnection extends Thread {
 		short gsMsgType = 0;
 
 		do {
-
-			/* Find Magic01 */
-			if (reader.getShort() != GSStatics.magic01)
-				continue;
-
-			/* Find Magic02 */
-			if (reader.getShort() != GSStatics.magic02)
-				continue;
-
+			gsMsgType = reader.getShort();			
 			msgLen = reader.getInt();
+
 			endPos = reader.position() + msgLen;
 
 			// TODO some logic in here about checking endPos against the
 			// buffer's Capacity would be a good thing. Could pre-emtively
 			// expand buffer to accept the large msg coming
 
+			/*
+			 * Check to see if the connections buffer is smaller than the
+			 * message. if so, there is no way the entire message has arrived
+			 * yet.
+			 */
 			if (endPos > this.connReadBuf.limit()) {
 				// rewind the position back to the beginning of the pkg
 				// header
@@ -376,7 +378,6 @@ public class GSConnection extends Thread {
 				break;
 			}
 
-			gsMsgType = reader.getShort();
 
 			try {
 				msg = NetMsgFactory.makeMsg(gsMsgType, reader);
