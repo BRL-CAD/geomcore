@@ -117,7 +117,13 @@ public class LoginCmd extends AbstractCmd {
 		}
 
 		/* Try connection */
-		return gsji.connectToHost(address, port, uname, passwd);
+		boolean retVal = gsji.connectToHost(address, port, uname, passwd);
+		
+		if (retVal) {
+			this.cmdConsole.printToConsole(GSStatics.tab2x + "Successfully connected to: " + gsji.getRemHostName(), CmdConsolePanel.STYLE_BLUE_BOLD);
+		}
+		
+		return retVal;
 	}
 
 	/*
