@@ -128,8 +128,6 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		Object source = event.getSource();
-		String act = event.getActionCommand();		
-
 		if (source == this.cmdLine) {
 			String cmd = this.cmdLine.getText();
 			GSJavaInterface gsji = this.parentFrame.getClient().getGSJavaInterface();
