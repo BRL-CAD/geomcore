@@ -24,15 +24,12 @@ package org.brlcad.geometryservice;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.brlcad.geometryservice.net.GSConnection;
 
-/**
- * @author david.h.loman
- *
- */
 public class GSJavaInterface implements GeometryService {
 	private GSConnection conn;
 
@@ -55,9 +52,23 @@ public class GSJavaInterface implements GeometryService {
 	public List<CatalogEntry> query(Object query) throws GeometryServiceException {
 		throw new GeometryServiceException("Not Implementeded.");
 	}
-
+	
+	//TODO this should be part of the GeometryService java Interface
+	public String getRemHostName()
+	{
+		if (this.conn != null){
+			return this.conn.getRemoteNodename();
+		}
+		return "Not Connected.";	
+	}
+	
+	//TODO this should be part of the GeometryService java Interface
+	public ArrayList<String> getList(String path)
+	{		
+		return new ArrayList<String>();
+	}
+	
 	public boolean connectToHost(InetAddress addy, short port, String uname, String passwd) {
-
 		if (this.conn != null) {
 			GSStatics.stdErr.println("There is already a Connection present.");
 			return false;
@@ -77,7 +88,6 @@ public class GSJavaInterface implements GeometryService {
 		}
 
 		this.conn.start();
-
 		return true;
 	}
 
@@ -86,5 +96,4 @@ public class GSJavaInterface implements GeometryService {
 		if (this.conn != null)
 			this.conn.stopReceiving();
 	}
-
 }
