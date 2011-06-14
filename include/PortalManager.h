@@ -50,6 +50,7 @@ public:
   void disconnect(Portal* p);
   bool handleNetMsg(NetMsg* msg);
   std::string getLocalNodeName();
+  std::string getPortalManagerName();
 
 protected:
   void _run();

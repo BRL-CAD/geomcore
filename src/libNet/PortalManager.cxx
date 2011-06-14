@@ -38,7 +38,7 @@
 
 PortalManager::PortalManager(std::string localNodeName, uint16_t listenPort, std::string address)
 {
-	this->localNodeName.assign(localNodeName + "PortMan");
+	this->localNodeName.assign(localNodeName);
 	this->listenAddress.assign(address);
 	this->listenPort = listenPort;
 	this->fdPortalMap = new std::map<int, Portal*> ();
@@ -338,7 +338,15 @@ PortalManager::handleDisconnectReqMsg(TypeOnlyMsg* msg)
 std::string
 PortalManager::getLocalNodeName()
 {
-	return this->localNodeName;
+  return this->localNodeName;
+}
+
+std::string
+PortalManager::getPortalManagerName()
+{
+  std::string out = this->localNodeName;
+  out += "PortMan";
+  return out;
 }
 /*
  * Local Variables:
