@@ -30,9 +30,9 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
@@ -54,43 +54,33 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = -4138207212648943638L;
 	private JTextPane console;
-	private JTextField cmdLine;
-
+	private JTextFieldWithHistory cmdLine;
+	private JLabel label;
+	
 	private static final String DEFAULT_PROMPT = "gsMinClient> ";
 	private String prompt;
 
 	private final MinimalGSClientGUI parentFrame;
 
-	/**
-	 *
-	 */
 	public CmdConsolePanel(MinimalGSClientGUI parentFrame) {
 		this.commonCstr();
 		this.parentFrame = parentFrame;
 	}
 
-	/**
-	 * @param arg0
-	 */
+
 	public CmdConsolePanel(MinimalGSClientGUI parentFrame, LayoutManager arg0) {
 		super(arg0);
 		this.commonCstr();
 		this.parentFrame = parentFrame;
 	}
 
-	/**
-	 * @param arg0
-	 */
+
 	public CmdConsolePanel(MinimalGSClientGUI parentFrame, boolean arg0) {
 		super(arg0);
 		this.commonCstr();
 		this.parentFrame = parentFrame;
 	}
 
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
 	public CmdConsolePanel(MinimalGSClientGUI parentFrame, LayoutManager arg0, boolean arg1) {
 		super(arg0, arg1);
 		this.commonCstr();
@@ -109,32 +99,45 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 		this.addStylesToDocument(doc);
 
 		JScrollPane scroll = new JScrollPane(console);
+		scroll.setPreferredSize(new Dimension(100,1000));
 		this.add(scroll);
+		
+		/*  */
+		this.setDefaultPrompt();
+		this.label = new JLabel(this.prompt);
+
 
 		/*  */
-		this.cmdLine = new JTextField();
+		this.cmdLine = new JTextFieldWithHistory();
 		this.cmdLine.setEditable(true);
 		this.cmdLine.setBorder(myBorder);
 		this.cmdLine.setMinimumSize(new Dimension(1, 25));
-		this.cmdLine.setPreferredSize(new Dimension(300, 25));
+		this.cmdLine.setPreferredSize(new Dimension(305, 25));
 		this.cmdLine.setMaximumSize(new Dimension(1024 ^ 2, 25));
 		this.cmdLine.addActionListener(this);
-		this.add(cmdLine);
 
-		this.setDefaultPrompt();
-		this.cmdLine.setText(this.prompt);
+			
+		/*  */
+		JPanel cmdLinePanel = new JPanel();
+		cmdLinePanel.add(label);
+		cmdLinePanel.add(cmdLine);
+		
+		this.add(cmdLinePanel);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		Object source = event.getSource();
+		String act = event.getActionCommand();		
 
 		if (source == this.cmdLine) {
-			String cmd = this.cmdLine.getText().replace(this.prompt, "");
-
+			String cmd = this.cmdLine.getText();
 			GSJavaInterface gsji = this.parentFrame.getClient().getGSJavaInterface();
 			CmdManager.parseCmd(cmd, this, gsji);
-			this.cmdLine.setText(this.prompt);
+			this.label.setText(this.prompt);
+
+			this.cmdLine.setText(cmd);
+			this.cmdLine.clear();
 		}
 	}
 
@@ -244,4 +247,7 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
     public final static String STYLE_BLUE_UNDERLINE = STYLE_BLUE + STYLE_SUB_UNDERLINE;
     public final static String STYLE_BLUE_SMALL = STYLE_BLUE + STYLE_SUB_SMALL;
     public final static String STYLE_BLUE_LARGE = STYLE_BLUE + STYLE_SUB_LARGE;
+    
+
+    
 }
