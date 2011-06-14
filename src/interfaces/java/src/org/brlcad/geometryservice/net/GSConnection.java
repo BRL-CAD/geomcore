@@ -87,8 +87,7 @@ public class GSConnection extends Thread {
 
 		/* Validate args */
 		if (addy == null || port < 1)
-			throw new GeometryServiceException(
-					"NULL address or port value is <1");
+			throw new GeometryServiceException("NULL address or port is < 1");
 		if (uname == null || uname.length() < 1)
 			throw new GeometryServiceException("NULL or zero length uname");
 		if (passwd == null || passwd.length() < 1)
@@ -99,19 +98,16 @@ public class GSConnection extends Thread {
 		GSConnection conn = new GSConnection(sock);
 
 		/* Handshake */
-		if (!GSConnection.handshake(conn, uname)) {
+		if (!GSConnection.handshake(conn, uname)) 
 			throw new GeometryServiceException("Handshake Failed.");
-		}
 
 		/* Authenticate */
-		if (!GSConnection.authenticate(conn, uname, passwd)) {
+		if (!GSConnection.authenticate(conn, uname, passwd)) 
 			throw new GeometryServiceException("Authentication Failed.");
-		}
 
 		return conn;
 	}
 
-	
 	/**
 	 * Calling thread waits (Sleeps) until either a NetMsg arrives from the GS Server or 
 	 * @param conn
@@ -152,14 +148,11 @@ public class GSConnection extends Thread {
 			} // End while (totalRead < 1) {
 
 			/* Okay, some data showed up, lets make a NetMsg */
-
 			ByteBufferReader reader = new ByteBufferReader(conn.connReadBuf);
 			newMsg = conn.tryMakeNetMsg(reader);
-
+			totalRead = 0;		
 		}// End while (inMsg == null) {
-
 		return newMsg;
-
 	}
 
 	/**
@@ -184,7 +177,7 @@ public class GSConnection extends Thread {
 			System.out.println(e.getMessage());
 			return false;
 		}
-		
+				
 		if (inMsg == null)
 			/* handshake failed! */
 			return false;
@@ -192,7 +185,7 @@ public class GSConnection extends Thread {
 		if ((inMsg instanceof RemoteNodeNameSetMsg) == false)
 			/* handshake failed! */
 			return false;
-
+		
 		RemoteNodeNameSetMsg remMsg = (RemoteNodeNameSetMsg) inMsg;
 
 		if (remMsg.getNodeName().length() == 0)
@@ -342,11 +335,6 @@ public class GSConnection extends Thread {
 	}
 
 	private final AbstractNetMsg tryMakeNetMsg(ByteBufferReader reader) {
-
-		/* Early bailout if position is less than Type and Length */
-		if (reader.position() < 6) 
-			return;
-		
 		this.connReadBuf.flip();
 
 		AbstractNetMsg msg = null;
@@ -360,7 +348,7 @@ public class GSConnection extends Thread {
 			gsMsgType = reader.getShort();			
 			msgLen = reader.getInt();
 
-			endPos = reader.position() + msgLen;
+			endPos = reader.position() + msgLen - 6;
 
 			// TODO some logic in here about checking endPos against the
 			// buffer's Capacity would be a good thing. Could pre-emtively
@@ -529,9 +517,14 @@ public class GSConnection extends Thread {
 
 		this.recvRunStatus.set(true);
 		this.recvRunCmd.set(true);
-
+		
 		while (this.recvRunCmd.get()) {
-
+			try {
+				Thread.sleep(100);				
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				return;
+			}
 		}
 
 		this.recvRunStatus.set(false);
