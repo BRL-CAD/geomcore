@@ -166,7 +166,7 @@ public class GSConnection extends Thread {
 	 */
 	private static final boolean handshake(GSConnection conn, String uname)
 			throws GeometryServiceException {
-		String localNodeName = uname + "-" + conn.getNodename();
+		String localNodeName = uname + "-" + conn.getLocalNodename();
 		conn.send(new RemoteNodeNameSetMsg(localNodeName));
 
 		AbstractNetMsg inMsg = null;
@@ -473,13 +473,6 @@ public class GSConnection extends Thread {
 		}
 
 		System.out.println("Sending Data (" + amtToWrite + " bytes): " + out);
-	}
-
-	/**
-	 * @return the nodename
-	 */
-	public final String getNodename() {
-		return localNodename;
 	}
 
 	/**
