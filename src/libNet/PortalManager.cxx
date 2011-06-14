@@ -278,7 +278,7 @@ PortalManager::makeNewPortal(int socket) {
   this->masterFDSLock.unlock();
 
   /* Start handshake */
-  p->sendGSNodeName();
+  //p->sendGSNodeName();
 
   return p;
 }

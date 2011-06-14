@@ -244,6 +244,10 @@ Portal::handleNetMsg(NetMsg* msg) {
 			RemoteNodenameSetMsg* t = (RemoteNodenameSetMsg*) msg;
 			this->remoteNodeName.assign(t->getRemoteNodename());
 			this->handshakeComplete = true;
+
+		        RemoteNodenameSetMsg response(msg, this->pm->getLocalNodeName());
+		        this->send(&response);
+
 		}
 
 		/* Normally, the NetMsgRouter does the delete, but this opcode never gets routed. */
