@@ -27,12 +27,12 @@
 
 /* Normal Constructor */
 NewNodeOnNetMsg::NewNodeOnNetMsg(std::string nodename) :
-    GenericOneStringMsg(GS_REMOTE_NODENAME_SET, nodename)
+    GenericOneStringMsg(NEWNODEONNET, nodename)
 {}
 
 /* Reply Constructor */
 NewNodeOnNetMsg::NewNodeOnNetMsg(NetMsg* msg, std::string nodename) :
-    GenericOneStringMsg(GS_REMOTE_NODENAME_SET, msg, nodename)
+    GenericOneStringMsg(NEWNODEONNET, msg, nodename)
 {}
 
 /* Deserializing Constructor */
