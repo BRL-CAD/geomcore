@@ -25,10 +25,6 @@ package org.brlcad.geometryservice.net.msg;
 import org.brlcad.geometryservice.net.ByteBufferReader;
 import org.brlcad.geometryservice.net.ByteBufferWriter;
 
-/**
- * @author david.h.loman
- *
- */
 public class RemoteNodeNameSetMsg extends AbstractNetMsg {
 
 	private String nodeName;
