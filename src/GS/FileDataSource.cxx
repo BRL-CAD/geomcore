@@ -72,7 +72,7 @@ FileDataSource::getListing(std::string path, std::list<std::string>* list)
   return FileDataSource::getGChildList(fsPath, gPath, list);
 }
 
-/* Get a set of BRLCAD::MinimalObjects */
+/* Get a set of ExtObject */
 int
 FileDataSource::getObjs(std::string path, std::list<ExtObject*>* extList,
     bool recurse)
@@ -117,7 +117,7 @@ FileDataSource::getObjs(std::string path, std::list<ExtObject*>* extList,
 
 
 
-/* Put a single BRLCAD::MinimalObject */
+/* Put a single ExtObject*/
 bool
 FileDataSource::putObj(std::string path, ExtObject* obj)
 {
