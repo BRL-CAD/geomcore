@@ -23,11 +23,7 @@
 package org.brlcad.geometryservice;
 
 import java.io.File;
-import java.net.BindException;
-import java.net.ConnectException;
 import java.net.InetAddress;
-import java.net.NoRouteToHostException;
-import java.net.PortUnreachableException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
