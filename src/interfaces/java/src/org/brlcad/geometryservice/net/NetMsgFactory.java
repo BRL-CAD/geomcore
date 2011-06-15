@@ -22,6 +22,7 @@
  */
 package org.brlcad.geometryservice.net;
 
+import org.brlcad.geometryservice.GSStatics;
 import org.brlcad.geometryservice.net.msg.AbstractNetMsg;
 import org.brlcad.geometryservice.net.msg.DirListReqMsg;
 import org.brlcad.geometryservice.net.msg.DirListResMsg;
@@ -84,7 +85,7 @@ public final class NetMsgFactory {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			GSStatics.stdErr.println("NetMsgFactory::makeMsg(): " + e.getClass().getSimpleName() + ":" + e.getMessage());
 			return null;
 		}
 	}

@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import org.brlcad.geometryservice.net.ByteBufferReader;
 import org.brlcad.geometryservice.net.ByteBufferWriter;
+import org.brlcad.geometryservice.net.GSNetMsgFutureResponse;
 
 public abstract class AbstractNetMsg {
 
@@ -35,7 +36,9 @@ public abstract class AbstractNetMsg {
 	protected UUID msgUUID;
 	protected boolean hasReUUID;
 	protected UUID reUUID;
-
+	private GSNetMsgFutureResponse futureRes = null;
+	
+	
 	/* Cstr used for instantiating an object manually */
 	protected AbstractNetMsg(short msgType) {
 		this.msgType = msgType;
@@ -130,6 +133,14 @@ public abstract class AbstractNetMsg {
 	 */
 	public final short getMsgType() {
 		return msgType;
+	}
+	
+	public final GSNetMsgFutureResponse getFutureResponse() {
+		//Lazy init;
+		if (this.futureRes == null)
+			this.futureRes = new GSNetMsgFutureResponse(this.msgUUID);
+
+		return this.futureRes;
 	}
 
 }

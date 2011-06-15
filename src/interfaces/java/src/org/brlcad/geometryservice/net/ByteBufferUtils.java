@@ -61,7 +61,7 @@ public class ByteBufferUtils {
 			try {
 				out = new String(b, "UTF-16BE");
 			} catch (UnsupportedEncodingException e) {
-				GSStatics.stdErr.println(e.getMessage());
+				GSStatics.stdErr.println("ByteBufferUtils::get16BitCharString(): " + e.getClass().getSimpleName() + ":" + e.getMessage());
 			}
 		}
 		return out;
