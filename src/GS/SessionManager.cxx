@@ -178,7 +178,7 @@ void SessionManager::handleNewSessionReqMsg(NewSessionReqMsg* msg)
   Session* s = this->newSession(a);
 
   /* Tell client about it. */
-  SessionInfoMsg* info = s->generateSessionInfoMsg();
+  SessionInfoMsg* info = s->generateSessionInfoMsg(msg);
   origin->send(info);
 }
 
