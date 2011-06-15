@@ -305,9 +305,6 @@ public class GSConnection extends Thread {
 					/* Check for registered Future Response objects */
 					if (msg.hasReUUID()) {
 						reID = msg.getReUUID().toString();
-						GSStatics.stdOut.println("Looking in map for '" + reID
-								+ "'");
-
 						GSNetMsgFutureResponse res = this.responseMap.get(reID);
 
 						if (res != null) {
