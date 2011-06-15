@@ -33,27 +33,52 @@ public class NetMsgChangeTracker {
 	/*
 	 * Class impl
 	 */
-	public static final byte DEFAULT_CHANGE_VALUE = 0;
-	private AbstractNetMsg msg = null;
-	private byte changeValue = DEFAULT_CHANGE_VALUE;
+	public static final int DEFAULT_CHANGE_VALUE = 0;
 
+	private AbstractNetMsg msg;
+	private int changeValue;
+	private String changeString;
+	
 	private NetMsgChangeTracker() {
 		this.msg = null;
 		this.changeValue = NetMsgChangeTracker.DEFAULT_CHANGE_VALUE;
+		this.changeString = "";
 	}
 
-	private NetMsgChangeTracker(AbstractNetMsg msg) {
-		this.set(msg, NetMsgChangeTracker.DEFAULT_CHANGE_VALUE);
+	/**
+	 * @return the changeString
+	 */
+	public final String getChangeString() {
+		return changeString;
 	}
 
-	private NetMsgChangeTracker(AbstractNetMsg msg, byte initialValue) {
-		this.set(msg, initialValue);
+	/**
+	 * @param changeString
+	 *            the changeString to set
+	 */
+	public final void setChangeString(String changeString) {
+		this.changeString = changeString;
+	}
+
+	/**
+	 * @param msg
+	 *            the msg to set
+	 */
+	public final void setMsg(AbstractNetMsg msg) {
+		this.msg = msg;
+	}
+
+	/**
+	 * @return the msg
+	 */
+	public final AbstractNetMsg getMsg() {
+		return msg;
 	}
 
 	/**
 	 * @return the changeValue
 	 */
-	public byte getChangeValue() {
+	public final int getChangeValue() {
 		return changeValue;
 	}
 
@@ -61,25 +86,14 @@ public class NetMsgChangeTracker {
 	 * @param changeValue
 	 *            the changeValue to set
 	 */
-	public void setChangeValue(byte changeValue) {
+	public final void setChangeValue(int changeValue) {
 		this.changeValue = changeValue;
 	}
 
-	/**
-	 * @return the msg
-	 */
-	public AbstractNetMsg getMsg() {
-		return msg;
-	}
 
-	private final void clear() {
+	public final void clear() {
 		this.changeValue = NetMsgChangeTracker.DEFAULT_CHANGE_VALUE;
 		this.msg = null;
-	}
-
-	private final void set(AbstractNetMsg msg, byte initialValue) {
-		this.msg = msg;
-		this.changeValue = initialValue;
 	}
 
 	/*
@@ -90,15 +104,16 @@ public class NetMsgChangeTracker {
 	private static ArrayList<NetMsgChangeTracker> pool = new ArrayList<NetMsgChangeTracker>(
 			DEFAULT_INITIAL_POOL_SIZE);
 
-	public static final NetMsgChangeTracker getChangeTracker(
-			AbstractNetMsg msg, byte initialValue) {
+	public static final NetMsgChangeTracker getChangeTracker() {
+		
+		NetMsgChangeTracker tracker = null;
 		int size = pool.size();
 		if (size <= 0)
-			return new NetMsgChangeTracker(msg, initialValue);
-
-		// pop from end for max performance
-		NetMsgChangeTracker tracker = pool.get(size - 1);
-		tracker.set(msg, initialValue);
+			tracker = new NetMsgChangeTracker();
+		else 
+			// pop from end for max performance
+			tracker = pool.get(size - 1);	
+	
 		return tracker;
 	}
 
@@ -106,7 +121,7 @@ public class NetMsgChangeTracker {
 		tracker.clear();
 		pool.add(tracker);
 	}
-	
+		
 	public static final int fillPool() {
 		int size = pool.size();
 		if (size >= DEFAULT_INITIAL_POOL_SIZE)
