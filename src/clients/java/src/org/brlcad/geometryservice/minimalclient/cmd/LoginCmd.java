@@ -24,6 +24,7 @@ package org.brlcad.geometryservice.minimalclient.cmd;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.UUID;
 
 import org.brlcad.geometryservice.GSJavaInterface;
 import org.brlcad.geometryservice.GSStatics;
@@ -111,19 +112,26 @@ public class LoginCmd extends AbstractCmd {
 				return false;
 			} catch (Exception e) {
 				GSStatics.stdErr.println(e.getMessage());
-				GSStatics.stdErr.println("Connect attempt failed.");
+				GSStatics.stdErr.println("Connect attempt failed: ");
 				return false;
 			}
 		}
 
 		/* Try connection */
-		boolean retVal = gsji.connectToHost(address, port, uname, passwd);
+		int retVal = gsji.connectToHost(address, port, uname, passwd);
 		
-		if (retVal) {
-			this.cmdConsole.printToConsole(GSStatics.tab2x + "Successfully connected to: " + gsji.getRemHostName(), CmdConsolePanel.STYLE_BLUE_BOLD);
+		if (retVal > 0) {
+			String remNodeName = gsji.getRemHostName();
+			UUID sessID = gsji.getSessionID();
+			String out = "";
+			
+			out = GSStatics.tab2x + "Successfully connected to: '" + remNodeName + "'";
+			this.cmdConsole.printLnToConsole(out, CmdConsolePanel.STYLE_BLUE_BOLD);
+			out = GSStatics.tab2x + "SessionID: " + sessID.toString();
+			this.cmdConsole.printLnToConsole(out, CmdConsolePanel.STYLE_BLUE_BOLD);	
 		}
 		
-		return retVal;
+		return (retVal > 0);
 	}
 
 	/*
