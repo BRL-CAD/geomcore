@@ -58,9 +58,11 @@ Session::getInactivityTime()
 }
 
 SessionInfoMsg*
-Session::generateSessionInfoMsg()
+Session::generateSessionInfoMsg(NewSessionReqMsg* res)
 {
-    return new SessionInfoMsg(this->sessionID);
+    if (res == NULL)
+      return new SessionInfoMsg(this->sessionID);
+    return new SessionInfoMsg(res, this->sessionID);
 }
 
 /*
