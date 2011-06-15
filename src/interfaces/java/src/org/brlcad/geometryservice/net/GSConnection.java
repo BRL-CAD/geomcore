@@ -25,7 +25,11 @@ package org.brlcad.geometryservice.net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.BindException;
+import java.net.ConnectException;
 import java.net.InetAddress;
+import java.net.NoRouteToHostException;
+import java.net.PortUnreachableException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -33,21 +37,24 @@ import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.brlcad.geometryservice.GSStatics;
 import org.brlcad.geometryservice.GeometryServiceException;
 import org.brlcad.geometryservice.net.msg.AbstractNetMsg;
+import org.brlcad.geometryservice.net.msg.NetMsgTypes;
 import org.brlcad.geometryservice.net.msg.NewSessionReqMsg;
 import org.brlcad.geometryservice.net.msg.RemoteNodeNameSetMsg;
 import org.brlcad.geometryservice.net.msg.SessionInfoMsg;
+import org.brlcad.geometryservice.net.msg.TypeOnlyMsg;
 
 /**
  * A stand-alone Thread implementation of a connection to a Geometry Service.
- * Provides built in handshaking and authentication with a Geometry Service server
- * as well as a fully functional NetMsg factory deserialization loop.
- *
+ * Provides built in handshaking and authentication with a Geometry Service
+ * server as well as a fully functional NetMsg factory deserialization loop.
+ * 
  */
 public class GSConnection extends Thread {
 
@@ -60,20 +67,25 @@ public class GSConnection extends Thread {
 	 * temporary buffer used in read loops when reading from the socket
 	 */
 	public static final int SOCKET_READBUF_SIZE = 1024 * 8;
-	
+
 	/**
-	 * Time, in milliseconds, the connection waits to complete the handshake with 
-	 * the Geometry Server
+	 * Time, in milliseconds, the connection waits to complete the handshake
+	 * with the Geometry Server
 	 */
 	public static final long MAX_HANDSHAKE_WAIT_TIME_MS = 1000 * 5;
+	/**
+	 * Time, in milliseconds, the connection waits to complete authenticating
+	 * with the Geometry Server
+	 */
+	public static final long MAX_AUTH_WAIT_TIME_MS = 1000 * 5;
 
 	private AtomicBoolean recvRunStatus = new AtomicBoolean(false);
 	private AtomicBoolean recvRunCmd = new AtomicBoolean(false);
 
 	/**
-	 * Static factory method that will connect to the provided addy:port and attempt to
-	 * log in.
-	 *
+	 * Static factory method that will connect to the provided addy:port and
+	 * attempt to log in.
+	 * 
 	 * @param addy
 	 * @param port
 	 * @param uname
@@ -81,103 +93,113 @@ public class GSConnection extends Thread {
 	 * @return
 	 * @throws IOException
 	 */
-	public static GSConnection connectToHost(InetAddress addy, short port,
-			String uname, String passwd) throws IOException,
-			GeometryServiceException {
+	public static GSConnectionManipulator connectToHost(InetAddress addy, short port,
+			String uname, String passwd, GSConnectionManipulator manip) {
 
+		if (manip == null)
+			manip = new GSConnectionManipulator();
+		
 		/* Validate args */
-		if (addy == null || port < 1)
-			throw new GeometryServiceException("NULL address or port is < 1");
-		if (uname == null || uname.length() < 1)
-			throw new GeometryServiceException("NULL or zero length uname");
-		if (passwd == null || passwd.length() < 1)
-			throw new GeometryServiceException("NULL or zero length passwd");
+		if (addy == null) {
+			manip.setRetVal(-1);
+			manip.setRetStr("NULL address");
+			return manip;
+		}
+		if (port < 1) {
+			manip.setRetVal(-2);
+			manip.setRetStr("Port is < 1");
+			return manip;
+		}
+		if (uname == null || uname.length() < 1) {
+			manip.setRetVal(-3);
+			manip.setRetStr("NULL or zero length uname");
+			return manip;
+		}
+		if (passwd == null || passwd.length() < 1) {
+			manip.setRetVal(-4);
+			manip.setRetStr("NULL or zero length passwd");
+			return manip;
+		}
 
-		/* Make connection */
-		Socket sock = new Socket(addy, port);
-		GSConnection conn = new GSConnection(sock);
+		Socket sock = null;
+		GSConnection conn = null;
 
-		/* Handshake */
-		if (!GSConnection.handshake(conn, uname)) 
-			throw new GeometryServiceException("Handshake Failed.");
+		try {
+			/* Make connection */
+			sock = new Socket(addy, port);
+			conn = new GSConnection(sock);
+			conn.start();
 
-		/* Authenticate */
-		if (!GSConnection.authenticate(conn, uname, passwd)) 
-			throw new GeometryServiceException("Authentication Failed.");
+			/* Handshake */
+			if (!GSConnection.handshake(conn, uname)) {
+				manip.setRetVal(-5);
+				manip.setRetStr("Handshake Failed");
+				return manip;
+			}
 
-		return conn;
+			/* Authenticate */
+			if (!GSConnection.authenticate(conn, uname, passwd)) {
+				manip.setRetVal(-6);
+				manip.setRetStr("Authentication Failed");
+				return manip;
+			}
+
+			if (conn != null) {
+				manip.setRetVal(1);
+				manip.setConn(conn);
+			}
+		} catch (BindException e) {
+			manip.setRetVal(-7);
+			manip.setRetStr("BindException: " + e.getMessage());
+
+		} catch (ConnectException e) {
+			manip.setRetVal(-8);
+			manip.setRetStr("ConnectException: " + e.getMessage());
+
+		} catch (NoRouteToHostException e) {
+			manip.setRetVal(-9);
+			manip.setRetStr("NoRouteToHostException: " + e.getMessage());
+
+		} catch (PortUnreachableException e) {
+			manip.setRetVal(-10);
+			manip.setRetStr("PortUnreachableException: " + e.getMessage());
+
+		} catch (GeometryServiceException e) {
+			manip.setRetVal(-11);
+			manip.setRetStr("GeometryServiceException: " + e.getMessage());
+
+		} catch (Exception e) {
+			manip.setRetVal(-12);
+			manip.setRetStr("GSJavaInterface::connectToHost(): "
+					+ e.getClass().getSimpleName() + ":" + e.getMessage());
+
+		}
+		return manip;
 	}
-
+	
 	/**
-	 * Calling thread waits (Sleeps) until either a NetMsg arrives from the GS Server or 
-	 * @param conn
-	 * @return
-	 * @throws GeometryServiceException
-	 */
-	private static AbstractNetMsg waitForMsg(GSConnection conn)
-			throws GeometryServiceException {
-		AbstractNetMsg newMsg = null;
-		int totalRead = 0;
-		long startTime = System.currentTimeMillis();
-
-		while (newMsg == null) {
-			while (totalRead < 1) {
-				totalRead = conn.pullInFromSocket();
-
-				/* if nothing read yet, sleep a bit */
-				if (totalRead == 0) {
-
-					if ((System.currentTimeMillis() - startTime) >= MAX_HANDSHAKE_WAIT_TIME_MS)
-						throw new GeometryServiceException(
-								"Timeout on handshake.  Waited "
-										+ MAX_HANDSHAKE_WAIT_TIME_MS + "ms.");
-
-					try {
-						Thread.sleep(15);
-					} catch (InterruptedException e) {
-						throw new GeometryServiceException(
-								"Thread Interruption");
-					}
-					continue;
-				}
-
-				if (totalRead < 0)
-					throw new GeometryServiceException(
-							"Socket closed before handshake complete.");
-
-			} // End while (totalRead < 1) {
-
-			/* Okay, some data showed up, lets make a NetMsg */
-			ByteBufferReader reader = new ByteBufferReader(conn.connReadBuf);
-			newMsg = conn.tryMakeNetMsg(reader);
-			totalRead = 0;		
-		}// End while (inMsg == null) {
-		return newMsg;
-	}
-
-	/**
-	 * Private function to handle the specifics 
-	 * (including timeout and blocking) of the handshake process with a GeometryServer.
+	 * Private function to handle the specifics (including timeout and blocking)
+	 * of the handshake process with a GeometryServer.
 	 * 
-	 * @param conn GSConnection to handshake on
-	 * @param uname Username to send to the remote host.
-	 * @return a boolean value that indicates whether the handshake was a success or not.
+	 * @param conn
+	 *            GSConnection to handshake on
+	 * @param uname
+	 *            Username to send to the remote host.
+	 * @return a boolean value that indicates whether the handshake was a
+	 *         success or not.
 	 * @throws GeometryServiceException
 	 */
 	private static final boolean handshake(GSConnection conn, String uname)
 			throws GeometryServiceException {
 		String localNodeName = uname + "-" + conn.getLocalNodename();
-		conn.send(new RemoteNodeNameSetMsg(localNodeName));
 
-		AbstractNetMsg inMsg = null;
-		
-		try {
-			inMsg = GSConnection.waitForMsg(conn);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			return false;
-		}
-				
+		RemoteNodeNameSetMsg rnnsm = new RemoteNodeNameSetMsg(localNodeName);
+		GSNetMsgFutureResponse response = rnnsm.getFutureResponse();
+		conn.send(rnnsm, true);
+
+		AbstractNetMsg inMsg = response
+				.blockUntilResponse(MAX_HANDSHAKE_WAIT_TIME_MS);
+
 		if (inMsg == null)
 			/* handshake failed! */
 			return false;
@@ -185,7 +207,7 @@ public class GSConnection extends Thread {
 		if ((inMsg instanceof RemoteNodeNameSetMsg) == false)
 			/* handshake failed! */
 			return false;
-		
+
 		RemoteNodeNameSetMsg remMsg = (RemoteNodeNameSetMsg) inMsg;
 
 		if (remMsg.getNodeName().length() == 0)
@@ -198,10 +220,13 @@ public class GSConnection extends Thread {
 
 	private static final boolean authenticate(GSConnection conn, String uname,
 			String passwd) throws GeometryServiceException {
-		NewSessionReqMsg reqMsg = new NewSessionReqMsg(uname, passwd);
-		conn.send(reqMsg);
 
-		AbstractNetMsg inMsg = GSConnection.waitForMsg(conn);
+		NewSessionReqMsg reqMsg = new NewSessionReqMsg(uname, passwd);
+		GSNetMsgFutureResponse response = reqMsg.getFutureResponse();
+		conn.send(reqMsg, true);
+
+		AbstractNetMsg inMsg = response
+				.blockUntilResponse(MAX_AUTH_WAIT_TIME_MS);
 
 		if (inMsg == null)
 			/* Auth failed! */
@@ -231,16 +256,26 @@ public class GSConnection extends Thread {
 
 	private UUID sessionID;
 
+	private HashMap<String, GSNetMsgFutureResponse> responseMap;
+
 	private GSConnection(Socket sock) {
 		this.sock = sock;
 		this.connReadBuf = ByteBuffer.allocate(CONN_INITIAL_READBUF_SIZE);
 		this.socketReadBuf = new byte[SOCKET_READBUF_SIZE];
 		this.localNodename = UUID.randomUUID().toString();
 		this.remoteNodename = "NOT_SET_YET";
+		this.responseMap = new HashMap<String, GSNetMsgFutureResponse>(50);
 	}
 
 	public void disconnect() {
-
+		this.send(new TypeOnlyMsg(NetMsgTypes.DisconnectREQ));
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			GSStatics.stdErr.println("GSConnection::disconnect(): "
+					+ e.getClass().getSimpleName() + ":" + e.getMessage());
+		}
+		return;
 	}
 
 	public synchronized ArrayList<AbstractNetMsg> recv() {
@@ -260,18 +295,39 @@ public class GSConnection extends Thread {
 		AbstractNetMsg msg = null;
 
 		ByteBufferReader reader = new ByteBufferReader(this.connReadBuf);
+		String reID = null;
 		try {
 			do {
 				msg = this.tryMakeNetMsg(reader);
 
-				if (msg != null)
+				if (msg != null) {
+
+					/* Check for registered Future Response objects */
+					if (msg.hasReUUID()) {
+						reID = msg.getReUUID().toString();
+						GSStatics.stdOut.println("Looking in map for '" + reID
+								+ "'");
+
+						GSNetMsgFutureResponse res = this.responseMap.get(reID);
+
+						if (res != null) {
+							// GSStatics.stdOut.println("FOUND: '" + reID +
+							// "'");
+							this.responseMap.remove(reID);
+							res.setResponseMsg(msg);
+							continue;
+						}
+					}
+
 					list.add(msg);
+				}
 
 			} while (msg != null);
 
-		} catch (BufferUnderflowException bufe) {
+		} catch (BufferUnderflowException e) {
 			// exhausted the buffer!
-			GSStatics.stdErr.println(bufe.getMessage());
+			GSStatics.stdErr.println("GSConnection::recv(): "
+					+ e.getClass().getSimpleName() + ":" + e.getMessage());
 		}
 
 		this.connReadBuf.compact();
@@ -295,6 +351,8 @@ public class GSConnection extends Thread {
 			if (timeout < 1)
 				this.sock.setSoTimeout(100);
 		} catch (SocketException e) {
+			GSStatics.stdErr.println("GSConnection::pullInFromSocket(): "
+					+ e.getClass().getSimpleName() + ":" + e.getMessage());
 			return -1;
 		}
 
@@ -304,7 +362,7 @@ public class GSConnection extends Thread {
 			if (bytesReadLast == 0)
 				break;
 
-			System.out.println("Got " + bytesReadLast + " bytes.");
+			// System.out.println("Got " + bytesReadLast + " bytes.");
 
 			if (bytesReadLast < 0)
 				return -1;
@@ -329,6 +387,8 @@ public class GSConnection extends Thread {
 			if (timeout < 1)
 				this.sock.setSoTimeout(0);
 		} catch (SocketException e) {
+			GSStatics.stdErr.println("GSConnection::pullInFromSocket(): "
+					+ e.getClass().getSimpleName() + ":" + e.getMessage());
 			return -1;
 		}
 		return total;
@@ -345,7 +405,7 @@ public class GSConnection extends Thread {
 		short gsMsgType = 0;
 
 		do {
-			gsMsgType = reader.getShort();			
+			gsMsgType = reader.getShort();
 			msgLen = reader.getInt();
 
 			endPos = reader.position() + msgLen - 6;
@@ -366,12 +426,12 @@ public class GSConnection extends Thread {
 				break;
 			}
 
-
 			try {
 				msg = NetMsgFactory.makeMsg(gsMsgType, reader);
 			} catch (BufferUnderflowException e) {
 				// This shouldn't have happened....
-				GSStatics.stdErr.println(e.getMessage());
+				GSStatics.stdErr.println("GSConnection::tryMakeNetMsg(): "
+						+ e.getClass().getSimpleName() + ":" + e.getMessage());
 				return null;
 			}
 
@@ -398,8 +458,8 @@ public class GSConnection extends Thread {
 			is = this.sock.getInputStream();
 			bytesRead = is.read(ba);
 
-		} catch (SocketTimeoutException ste){
-			/* No worries here*/
+		} catch (SocketTimeoutException ste) {
+			/* No worries here */
 			return 0;
 
 		} catch (IOException ioe) {
@@ -408,7 +468,8 @@ public class GSConnection extends Thread {
 
 		} catch (Exception e) {
 			this.disconnect();
-			GSStatics.stdErr.println(e.getMessage());
+			GSStatics.stdErr.println("GSConnection::read(): "
+					+ e.getClass().getSimpleName() + ":" + e.getMessage());
 			return -1;
 		}
 
@@ -420,6 +481,18 @@ public class GSConnection extends Thread {
 	}
 
 	public boolean send(AbstractNetMsg msg) {
+		return this.send(msg, false);
+	}
+
+	public boolean send(AbstractNetMsg msg, boolean expectReply) {
+
+		if (expectReply) {
+			GSNetMsgFutureResponse res = msg.getFutureResponse();
+			String msgID = msg.getMsgUUID().toString();
+			// GSStatics.stdOut.println("Mapping for '" + msgID + "'");
+			this.responseMap.put(msgID, res);
+		}
+
 		ByteBuffer bb = null;
 
 		for (int i = 0; i < 10; ++i) {
@@ -436,7 +509,10 @@ public class GSConnection extends Thread {
 				continue;
 			} catch (Exception e) {
 				// something bad happened!!!
-				GSStatics.stdErr.println(e.getMessage());
+				GSStatics.stdErr
+						.println("GSConnection::send()->msg.serialize(): "
+								+ e.getClass().getSimpleName() + ":"
+								+ e.getMessage());
 				return false;
 			}
 
@@ -449,7 +525,8 @@ public class GSConnection extends Thread {
 			return true;
 		} catch (Exception e) {
 			// Something BAD happened on the socket write.
-			GSStatics.stdErr.println(e.getMessage());
+			GSStatics.stdErr.println("GSConnection::send()->this.write(): "
+					+ e.getClass().getSimpleName() + ":" + e.getMessage());
 			return false;
 		}
 	}
@@ -465,14 +542,15 @@ public class GSConnection extends Thread {
 		 * OutputStream.write(byte[], int, int) both use loops calling
 		 * OutputStream.write(byte) anyways.
 		 */
-		String out = "";
+		// String out = "";
 		for (int i = 0; i < amtToWrite; ++i) {
 			byte b = bb.get();
 			os.write(b);
-			out += Integer.toString(b & 0xff, 16).toUpperCase();
+			// out += Integer.toString(b & 0xff, 16).toUpperCase();
 		}
 
-		System.out.println("Sending Data (" + amtToWrite + " bytes): " + out);
+		// System.out.println("Sending Data (" + amtToWrite + " bytes): " +
+		// out);
 	}
 
 	/**
@@ -506,25 +584,38 @@ public class GSConnection extends Thread {
 
 	@Override
 	public void run() {
-		System.out.println("GS Connection.run() entered.");
+		// System.out.println("GS Connection.run() entered.");
 
 		this.recvRunStatus.set(true);
 		this.recvRunCmd.set(true);
-		
+		ArrayList<AbstractNetMsg> orphans = null;
+
 		while (this.recvRunCmd.get()) {
+			orphans = this.recv();
+
+			if (orphans == null)
+				/* Got An Error */
+				break;
+
+			if (orphans.size() > 0)
+				GSStatics.stdErr.println("GSConnection::run() Got "
+						+ orphans.size() + " orphaned NetMsgs.");
+
 			try {
-				Thread.sleep(100);				
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				Thread.sleep(100);
+			} catch (Exception e) {
+				GSStatics.stdErr
+						.println("GSConnection::run()" + e.getMessage());
 				return;
 			}
 		}
 
 		this.recvRunStatus.set(false);
-		System.out.println("GS Connection.run() exiting.");
+		// System.out.println("GS Connection.run() exiting.");
 	}
 
 	public void stopReceiving() {
+
 		this.recvRunCmd.set(false);
 	}
 
@@ -532,4 +623,38 @@ public class GSConnection extends Thread {
 		return this.recvRunStatus.get();
 	}
 
+	public static class GSConnectionManipulator {
+		private GSConnection conn;
+		private int retVal = 0;
+		private String retStr = "";
+
+		public GSConnection getConn() {
+			return conn;
+		}
+
+		public void setConn(GSConnection conn) {
+			this.conn = conn;
+		}
+
+		public boolean isConnNull() {
+			return (this.conn == null);
+		}
+
+		public int getRetVal() {
+			return retVal;
+		}
+
+		public void setRetVal(int retVal) {
+			this.retVal = retVal;
+		}
+
+		public String getRetStr() {
+			return retStr;
+		}
+
+		public void setRetStr(String retStr) {
+			this.retStr = retStr;
+		}
+	}	
+	
 }

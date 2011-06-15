@@ -23,12 +23,18 @@
 package org.brlcad.geometryservice;
 
 import java.io.File;
+import java.net.BindException;
+import java.net.ConnectException;
 import java.net.InetAddress;
+import java.net.NoRouteToHostException;
+import java.net.PortUnreachableException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.brlcad.geometryservice.net.GSConnection;
+import org.brlcad.geometryservice.net.GSConnection.GSConnectionManipulator;
 
 public class GSJavaInterface implements GeometryService {
 	private GSConnection conn;
@@ -61,6 +67,15 @@ public class GSJavaInterface implements GeometryService {
 		}
 		return "Not Connected.";	
 	}
+
+	//TODO this should be part of the GeometryService java Interface
+	public UUID getSessionID()
+	{
+		if (this.conn != null){
+			return this.conn.getSessionID();
+		}
+		return null;
+	}
 	
 	//TODO this should be part of the GeometryService java Interface
 	public ArrayList<String> getList(String path)
@@ -68,32 +83,47 @@ public class GSJavaInterface implements GeometryService {
 		return new ArrayList<String>();
 	}
 	
-	public boolean connectToHost(InetAddress addy, short port, String uname, String passwd) {
+	/**
+	 * 
+	 * @param addy
+	 * @param port
+	 * @param uname
+	 * @param passwd
+	 * @return Error codes:
+	 *  		0 = Okay
+	 */
+	public int connectToHost(InetAddress addy, short port, String uname, String passwd) {
 		if (this.conn != null) {
 			GSStatics.stdErr.println("There is already a Connection present.");
-			return false;
+			return -1;
 		}
-
-		try {
-			this.conn = GSConnection.connectToHost(addy, port, uname, passwd);
-
-		} catch (Exception e) {
-			GSStatics.stdErr.println(e.getMessage());
-			return false;
+		
+		GSConnectionManipulator manip = new GSConnectionManipulator();
+		GSConnection.connectToHost(addy, port, uname, passwd, manip);
+		
+		if (manip.getRetVal() < 1) {
+			/* Something happened during the connect/handshake/auth process. */
+			GSStatics.stdErr.println("Failure on connect:" + manip.getRetStr());
+			return -2;
 		}
-
+		
+		this.conn = manip.getConn();
+		
 		if (this.conn == null) {
 			GSStatics.stdErr.println("Null GSConnection without throwing an error... odd.");
-			return false;
+			return -3;
 		}
 
-		this.conn.start();
-		return true;
+		
+		return 1;
 	}
 
 	public void disconnectFromHost()
 	{
-		if (this.conn != null)
+		if (this.conn != null){
+			this.conn.disconnect();
 			this.conn.stopReceiving();
+			this.conn = null;
+		}
 	}
 }
