@@ -41,22 +41,26 @@ public class ByteBufferReader {
 	 * @param bbin
 	 * @param endianFlip
 	 */
-	public ByteBufferReader(ByteBuffer bbin, boolean endianFlip) {
+	public ByteBufferReader(ByteBuffer bbin, boolean makeCopy, boolean endianFlip) {
 		super();
 
-		// Copy supplied BB.
-		this.bb = ByteBuffer.allocate(bbin.position());
-		bbin.flip();
-		this.bb.put(bbin);
-
-		// prepare bb for reading
-		this.bb.flip();
-
+		if (makeCopy) {
+			// Copy supplied BB.
+			this.bb = ByteBuffer.allocate(bbin.position());
+			bbin.flip();
+			this.bb.put(bbin);
+	
+			// prepare bb for reading
+			this.bb.flip();
+		} else {
+			this.bb = bbin;
+		}
+		
 		this.endianFlip = endianFlip;
 	}
 
 	public ByteBufferReader(ByteBuffer bbin) {
-		this(bbin, false);
+		this(bbin, true, false);
 	}
 
 	/*
