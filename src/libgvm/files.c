@@ -132,7 +132,7 @@ gvm_export_g_file(struct gvm_info *repo_info, const char *model_name, const char
     struct bu_external *contents;
     struct directory *dp;
     struct rt_db_internal ip;
-    RT_INIT_DB_INTERNAL(&ip);
+    RT_DB_INTERNAL_INIT(&ip);
 
     fs = svn_repos_fs(internal->repos);
     if(ver_num) {
@@ -206,7 +206,7 @@ gvm_export_object(struct gvm_info *repo_info, const char *model_name, const char
     struct rt_wdb *wdbp = RT_WDB_NULL;
     struct bu_external *contents;
     struct rt_db_internal ip;
-    RT_INIT_DB_INTERNAL(&ip);
+    RT_DB_INTERNAL_INIT(&ip);
 
     fs = svn_repos_fs(internal->repos);
     if(ver_num) {
@@ -266,7 +266,7 @@ gvm_commit_g_file(struct gvm_info *repo_info, const char *model_name, const char
     struct bu_external *repo_contents, *file_contents;
     struct directory *dp;
     struct rt_db_internal ip;
-    RT_INIT_DB_INTERNAL(&ip);
+    RT_DB_INTERNAL_INIT(&ip);
     svn_fs_youngest_rev(&rev, fs, subpool);
     svn_fs_revision_root(&repo_root, fs, rev, subpool);
     svn_fs_check_path(&status, repo_root, model_name, subpool);
@@ -305,7 +305,7 @@ gvm_commit_g_file(struct gvm_info *repo_info, const char *model_name, const char
 			dp = db_lookup(dbip, (const char *)key, LOOKUP_QUIET);
 			rt_db_get_internal5(&ip, dp, dbip, NULL, &rt_uniresource);
 			file_contents = apr_palloc(internal->objects_pool, sizeof(struct bu_external));
-			BU_INIT_EXTERNAL(file_contents);
+			BU_EXTERNAL_INIT(file_contents);
 			rt_db_cvt_to_external5(file_contents, dp->d_namep, &ip, 1, dbip,  &rt_uniresource, ip.idb_major_type);
 			if (gvm_diff(repo_info, file_contents, repo_contents)) {
 			    printf("updated - %s\n", (const char *)key);
@@ -324,7 +324,7 @@ gvm_commit_g_file(struct gvm_info *repo_info, const char *model_name, const char
 		    dp = db_lookup(dbip, (const char *)key, LOOKUP_QUIET);
 		    rt_db_get_internal5(&ip, dp, dbip, NULL, &rt_uniresource);
 		    file_contents = apr_palloc(internal->objects_pool, sizeof(struct bu_external));
-		    BU_INIT_EXTERNAL(file_contents);
+		    BU_EXTERNAL_INIT(file_contents);
 		    rt_db_cvt_to_external5(file_contents, dp->d_namep, &ip, 1, dbip,  &rt_uniresource, ip.idb_major_type);
 		    new_obj = gvm_get_repo_obj(repo_info, model_name, (const char *)key, rev);
 		    new_obj->contents = file_contents;

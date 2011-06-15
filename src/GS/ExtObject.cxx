@@ -38,9 +38,9 @@ ExtObject::makeExtObject(ByteBuffer* bb)
 {
   bu_external* ext = (bu_external*)bu_malloc(sizeof(bu_external), "ExtObject cstr");
 
-  std::cout << "Before BU_INIT_EXTERNAL\n";
-  BU_INIT_EXTERNAL(ext);
-  std::cout << "After BU_INIT_EXTERNAL\n";
+  std::cout << "Before BU_EXTERNAL_INIT\n";
+  BU_EXTERNAL_INIT(ext);
+  std::cout << "After BU_EXTERNAL_INIT\n";
 
   /* Deserialize */
 

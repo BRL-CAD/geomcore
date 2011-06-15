@@ -42,7 +42,7 @@ struct bu_external *svn_file_to_bu_extern(apr_pool_t *pool, svn_fs_root_t *repo_
 	svn_filesize_t buflen;
 	svn_stream_t *obj_contents;
 	struct bu_external *data = bu_malloc(sizeof(struct bu_external), "allocate bu_external");
-	BU_INIT_EXTERNAL(data);
+	BU_EXTERNAL_INIT(data);
 	svn_string_t *svn_file = svn_string_createf(subpool, "%s/%s/%s", model_name, obj_name, obj_name);
 	svn_string_t *target_file = svn_string_createf(subpool, "%s/%s", obj_name, obj_name);
 	svn_fs_file_length(&buflen, repo_root, svn_file->data, subpool);

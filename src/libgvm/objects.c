@@ -59,7 +59,7 @@ gvm_get_extern_obj(struct gvm_info *repo_info, const char *model_name, const cha
     svn_fs_revision_root(&repo_root, fs, (svn_revnum_t)ver_num, subpool);
     svn_string_t *svn_file = svn_string_createf(subpool, "%s/%s/%s", model_name, obj_name, obj_name);
     if (gvm_object_in_model(repo_info, model_name, obj_name, ver_num)) {
-	BU_INIT_EXTERNAL(obj_extern);
+	BU_EXTERNAL_INIT(obj_extern);
 	svn_fs_file_length(&buflen, repo_root, svn_file->data, subpool);
 	obj_extern->ext_nbytes = (size_t)buflen;
 	obj_extern->ext_buf = apr_palloc(internal->objects_pool, obj_extern->ext_nbytes);

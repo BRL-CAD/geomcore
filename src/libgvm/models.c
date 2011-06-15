@@ -153,7 +153,7 @@ gvm_get_objs(struct gvm_info *repo_info, const char *model_name, const char *obj
     struct db_i *dbip = db_create_inmem();
     struct rt_db_internal ip;
     struct rt_comb_internal *comb;
-    RT_INIT_DB_INTERNAL(&ip);
+    RT_DB_INTERNAL_INIT(&ip);
 
     svn_fs_t *fs = svn_repos_fs(internal->repos);
     if(ver_num) {
