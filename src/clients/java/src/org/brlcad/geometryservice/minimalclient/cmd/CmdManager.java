@@ -95,6 +95,8 @@ public class CmdManager {
 	public static final void registerBuiltInCmds(CmdConsolePanel console) {
 		CmdManager.registerCmd(new HelpCmd(console));
 		CmdManager.registerCmd(new LoginCmd(console));
+		CmdManager.registerCmd(new LogoutCmd(console));
+		CmdManager.registerCmd(new ListCmd(console));
 	}
 
 }
