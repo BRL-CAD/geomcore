@@ -168,7 +168,7 @@ public class CmdConsolePanel extends JPanel implements ActionListener {
 		int len = doc.getLength();
 			doc.insertString(len, line, doc.getStyle(style));
 		} catch (BadLocationException e) {
-			GSStatics.stdErr.println(e.getMessage());
+			GSStatics.stdErr.println("printToConsole(): " + e.getMessage());
 		}
 	}
 
