@@ -52,7 +52,7 @@ public class ListCmd extends AbstractCmd {
 	@Override
 	public boolean doCmd(String[] args, GSJavaInterface gsji) {
 
-		if (args.length <= 2) {
+		if (args.length < 1) {
 			this.printUsage();
 			return false;
 		}
@@ -71,8 +71,14 @@ public class ListCmd extends AbstractCmd {
 		}
 		
 		ArrayList<String> items = gsji.getList(path);
-		
-		this.cmdConsole.printLnToConsole(GSStatics.tab2x + "Got: " + items.size() + " items.", CmdConsolePanel.STYLE_BLUE_BOLD);
+		if (items != null) {
+			this.cmdConsole.printLnToConsole(GSStatics.tab2x + "Got: " + items.size() + " items.", CmdConsolePanel.STYLE_BLUE_BOLD);
+			for (String s : items) {
+				this.cmdConsole.printLnToConsole(GSStatics.tab2x + GSStatics.tab  + s, CmdConsolePanel.STYLE_BLUE_BOLD);			
+			}
+		} else {
+			this.cmdConsole.printLnToConsole(GSStatics.tab2x + "Request returned a NULL list.", CmdConsolePanel.STYLE_RED_BOLD);			
+		}
 		
 		return true;
 	}
