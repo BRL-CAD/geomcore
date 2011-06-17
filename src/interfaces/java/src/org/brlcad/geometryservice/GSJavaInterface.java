@@ -31,6 +31,10 @@ import java.util.UUID;
 
 import org.brlcad.geometryservice.net.GSConnection;
 import org.brlcad.geometryservice.net.GSConnection.GSConnectionManipulator;
+import org.brlcad.geometryservice.net.GSNetMsgFutureResponse;
+import org.brlcad.geometryservice.net.msg.AbstractNetMsg;
+import org.brlcad.geometryservice.net.msg.DirListReqMsg;
+import org.brlcad.geometryservice.net.msg.DirListResMsg;
 
 public class GSJavaInterface implements GeometryService {
 	private GSConnection conn;
@@ -76,7 +80,26 @@ public class GSJavaInterface implements GeometryService {
 	//TODO this should be part of the GeometryService java Interface
 	public ArrayList<String> getList(String path)
 	{		
-		return new ArrayList<String>();
+		if (path.length() < 1)
+			return null;
+		DirListReqMsg req = new DirListReqMsg(path);
+		GSNetMsgFutureResponse response = req.getFutureResponse();
+		conn.send(req, true);
+
+		AbstractNetMsg inMsg = response.blockUntilResponse(10*1000);
+
+		if (inMsg == null)
+			return null;
+
+		if ((inMsg instanceof DirListResMsg) == false)
+			return null;
+
+		DirListResMsg msg = (DirListResMsg)inMsg;		
+		
+		ArrayList<String> out = null;
+		out = msg.getItems();
+		
+		return out;
 	}
 	
 	/**
