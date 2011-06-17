@@ -34,7 +34,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.BufferOverflowException;
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -278,9 +277,10 @@ public class GSConnection extends Thread {
 		return;
 	}
 
-	public synchronized ArrayList<AbstractNetMsg> recv() {
-		/* Assume that connReadBuf has position == 0 at this point */
+	public synchronized ArrayList<AbstractNetMsg> recv(
+			ArrayList<AbstractNetMsg> orphans) {
 
+		/* Assume connReadBuf is positioned at the end of existing 'good' data */
 		int totalRead = this.pullInFromSocket();
 
 		if (totalRead < 0) /* Error */
@@ -288,47 +288,57 @@ public class GSConnection extends Thread {
 
 		/* Now try to make netMsgs */
 		ArrayList<AbstractNetMsg> list = new ArrayList<AbstractNetMsg>();
-
-		if (totalRead == 0)
+		/* If nothing read, AND nothing currently buffered, bail out. */
+		if (totalRead == 0 && this.connReadBuf.position() < 1)
 			return list;
 
-		AbstractNetMsg msg = null;
+		/*
+		 * At this point, connReadBuff should be positioned at the end of the
+		 * good data.
+		 */
+		int retVal = NetMsgFactory
+				.parseBufferForNetMsgs(this.connReadBuf, list);
 
-		ByteBufferReader reader = new ByteBufferReader(this.connReadBuf);
-		String reID = null;
-		try {
-			do {
-				msg = this.tryMakeNetMsg(reader);
-
-				if (msg != null) {
-
-					/* Check for registered Future Response objects */
-					if (msg.hasReUUID()) {
-						reID = msg.getReUUID().toString();
-						GSNetMsgFutureResponse res = this.responseMap.get(reID);
-
-						if (res != null) {
-							// GSStatics.stdOut.println("FOUND: '" + reID +
-							// "'");
-							this.responseMap.remove(reID);
-							res.setResponseMsg(msg);
-							continue;
-						}
-					}
-
-					list.add(msg);
-				}
-
-			} while (msg != null);
-
-		} catch (BufferUnderflowException e) {
-			// exhausted the buffer!
-			GSStatics.stdErr.println("GSConnection::recv(): "
-					+ e.getClass().getSimpleName() + ":" + e.getMessage());
+		if (retVal <= 0) {
+			GSStatics.stdErr.println("You fed the parser fn something NULL!!!");
+			return null;
 		}
 
-		this.connReadBuf.compact();
-		return list;
+		/* Now check incoming msgs for response registrations. */
+		String reID_str = "";
+		UUID reID_UUID = null;
+		GSNetMsgFutureResponse res = null;
+
+		for (AbstractNetMsg msg : list) {
+			if (msg.hasReUUID() == false) {
+				orphans.add(msg);
+				continue;
+			}
+
+			reID_UUID = msg.getReUUID();
+			if (reID_UUID == null) {
+				orphans.add(msg);
+				continue;
+			}
+
+			reID_str = reID_UUID.toString();
+			if (reID_str.length() < 1) {
+				orphans.add(msg);
+				continue;
+			}
+
+			res = this.responseMap.get(reID_str);
+
+			if (res == null) {
+				orphans.add(msg);
+				continue;
+			}
+
+			this.responseMap.remove(reID_str);
+			res.setResponseMsg(msg);
+		}
+
+		return orphans;
 	}
 
 	private final int pullInFromSocket() {
@@ -389,62 +399,6 @@ public class GSConnection extends Thread {
 			return -1;
 		}
 		return total;
-	}
-
-	private final AbstractNetMsg tryMakeNetMsg(ByteBufferReader reader) {
-		this.connReadBuf.flip();
-
-		AbstractNetMsg msg = null;
-
-		int startPos = 0;
-		int endPos = 0;
-		int msgLen = 0;
-		short gsMsgType = 0;
-
-		do {
-			gsMsgType = reader.getShort();
-			msgLen = reader.getInt();
-
-			endPos = reader.position() + msgLen - 6;
-
-			// TODO some logic in here about checking endPos against the
-			// buffer's Capacity would be a good thing. Could pre-emtively
-			// expand buffer to accept the large msg coming
-
-			/*
-			 * Check to see if the connections buffer is smaller than the
-			 * message. if so, there is no way the entire message has arrived
-			 * yet.
-			 */
-			if (endPos > this.connReadBuf.limit()) {
-				// rewind the position back to the beginning of the pkg
-				// header
-				this.connReadBuf.position(startPos);
-				break;
-			}
-
-			try {
-				msg = NetMsgFactory.makeMsg(gsMsgType, reader);
-			} catch (BufferUnderflowException e) {
-				// This shouldn't have happened....
-				GSStatics.stdErr.println("GSConnection::tryMakeNetMsg(): "
-						+ e.getClass().getSimpleName() + ":" + e.getMessage());
-				return null;
-			}
-
-			if (msg == null) {
-				// Not implemented yet or bogus type. Move position to end
-				// of msg, try again.
-				this.connReadBuf.position(endPos);
-				break;
-			}
-
-		} while (msg == null);
-
-		if (this.connReadBuf.position() > 0)
-			this.connReadBuf.compact();
-
-		return msg;
 	}
 
 	private final int read(byte[] ba) {
@@ -585,14 +539,11 @@ public class GSConnection extends Thread {
 
 		this.recvRunStatus.set(true);
 		this.recvRunCmd.set(true);
-		ArrayList<AbstractNetMsg> orphans = null;
+		ArrayList<AbstractNetMsg> orphans = new ArrayList<AbstractNetMsg>(10);
 
 		while (this.recvRunCmd.get()) {
-			orphans = this.recv();
-
-			if (orphans == null)
-				/* Got An Error */
-				break;
+			orphans.clear();
+			this.recv(orphans);
 
 			if (orphans.size() > 0)
 				GSStatics.stdErr.println("GSConnection::run() Got "
