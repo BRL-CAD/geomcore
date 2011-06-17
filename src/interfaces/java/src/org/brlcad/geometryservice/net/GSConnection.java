@@ -388,7 +388,7 @@ public class GSConnection extends Thread {
 			this.connReadBuf.put(this.socketReadBuf, 0, bytesReadLast);
 
 		} while (bytesReadLast > 0);
-
+		
 		try {
 			/* Return timeout to zero if applicable */
 			if (timeout < 1)
@@ -499,9 +499,6 @@ public class GSConnection extends Thread {
 			os.write(b);
 			// out += Integer.toString(b & 0xff, 16).toUpperCase();
 		}
-
-		// System.out.println("Sending Data (" + amtToWrite + " bytes): " +
-		// out);
 	}
 
 	/**
@@ -540,11 +537,14 @@ public class GSConnection extends Thread {
 		this.recvRunStatus.set(true);
 		this.recvRunCmd.set(true);
 		ArrayList<AbstractNetMsg> orphans = new ArrayList<AbstractNetMsg>(10);
-
+		ArrayList<AbstractNetMsg> test = null; 
+		
 		while (this.recvRunCmd.get()) {
 			orphans.clear();
-			this.recv(orphans);
-
+			test = this.recv(orphans);
+			if (test == null) 
+				break;
+			
 			if (orphans.size() > 0)
 				GSStatics.stdErr.println("GSConnection::run() Got "
 						+ orphans.size() + " orphaned NetMsgs.");
