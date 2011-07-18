@@ -70,7 +70,7 @@ int concat_obj(void *dbinfo, const void *objname, apr_ssize_t klen, const void *
   struct rt_db_internal ip;
   struct bu_external *data;
 
-  RT_INIT_DB_INTERNAL(&ip);
+  RT_DB_INTERNAL_INIT(&ip);
 
   data = svn_file_to_bu_extern(subpool, ainfo->root, ainfo->model_name, objname);
 
