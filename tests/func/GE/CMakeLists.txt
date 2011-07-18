@@ -1,6 +1,5 @@
 
 include_directories(
-	${CPPUNIT_INCLUDE_DIR}
 	${TCL_INCLUDE_DIRS}
 	${BRLCAD_INCLUDE_DIRS}
 )
