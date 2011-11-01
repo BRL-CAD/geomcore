@@ -1,0 +1,119 @@
+<article xmlns="http://docbook.org/ns/docbook" version="5.0" class="specification">
+	<info>
+		<title>Geometry Transfer Protocol</title>
+		<subtitle>Version 1.0 (DRAFT)</subtitle>
+	</info>
+
+	<section>
+		<title>Abstract</title>
+
+		<para>
+			The Geometry Transfer Protocol (GEOMTP) is an application-level protocol intended
+			to support requests for and transmission of geometry information such as that
+			used by computer aided design systems between client and server applications. 
+		</para>
+	</section>
+
+	<section>
+		<title>A High Level Overview of a Client/Server Session</title>
+		<para>
+			From a user's standpoint, a GEOMTP session resembles both the classic
+			Hypertext Transfer Protocol client/server interaction and Subversion's
+			version control client/server interaction.  A server is first started
+			to listen for requests, and a client application sends appropriately
+			formatted requests to the server for specific information.  The
+			server receives these requests and decides how to handle them, communicating
+			the results of the request back to the client in most valid cases and
+			dealing with incorrect or invalid requests.
+		</para>
+		<para>
+			The steps to establish a session are:
+			<orderedlist>
+				<listitem>
+					<para>(Client) Query to determine if a geometry server is listening</para>
+				</listitem>
+				<listitem>
+					<para>(Server) Confirm to client a geometry server is listening</para>
+				</listitem>
+				<listitem>
+					<para>(Client) Request supported geometry transfer protocol versions</para>
+				</listitem>
+				<listitem>
+					<para>(Server) Send a list of versions (major.minor)</para>
+				</listitem>
+				<listitem>
+					<para>(Client) Search for preferred version among possibilities.  If none work, terminate connection attempt with an error.
+						If appropriate version is found, request a session using the desired protocol version.
+					</para>
+				</listitem>
+				<listitem>
+					<para>(Server) Consider the session request.  Depending on server settings, may have authentication requirements.  If
+						so, and authentication does not validate, reject the connection request with an error.  Otherwise, accept the
+						session request and return success, plus any information needed by the client about its new session.
+					</para>
+				</listitem>
+			</orderedlist>
+		</para>
+		<para>
+			Once a working session is established, the client may do any or all of:
+			<orderedlist>
+				<listitem>
+					<para>Query the server for a list of available models</para>
+				</listitem>
+				<listitem>
+					<para>Request information about a specific model</para>
+				</listitem>
+				<listitem>
+					<para>Request the latest version of some particular model (either in toto or a subset of that model)</para>
+				</listitem>
+				<listitem>
+					<para>Request data other than the raw geometry contents of some particular model (for example, OpenGL trianges)</para>
+				</listitem>
+				<listitem>
+					<para>Submit changes to be applied to a particular model</para>
+				</listitem>
+				<listitem>
+					<para>Request information concerning changes made to a model compared to some older version of that model
+						(say, a version previously requested by the client.)
+					</para>
+				</listitem>
+			</orderedlist>
+		</para>
+	</section>
+	<section>
+
+		<table frame="all">
+			<title>GEOMTP Message Types</title>
+			<tgroup cols="4" align="left">
+				<colspec colname="h1"/><colspec colname="h2"/>
+				<colspec colname="h3"/><colspec colname="h4"/>
+				<thead>
+					<row>
+						<entry>MsgType ID</entry> 	<entry>Name</entry> 	<entry>Parent Class</entry> 	<entry>Additional Info</entry>
+					</row>
+				</thead>
+				<tbody>
+					<row><entry>0x0042</entry>	<entry>RUALIVE</entry>	<entry>TypeOnlyMsg</entry>	<entry>Ping without time info (necessary?)</entry></row>
+					<row><entry>0x0043</entry>	<entry>IMALIVE</entry>	<entry>TypeOnlyMsg</entry>	<entry>Pong without time info (necessary?)</entry></row>
+					<row><entry>0x0050</entry>	<entry>Failure</entry>	<entry>GenericOneByteMsg</entry>	<entry>1 byte 'error code'</entry></row>
+					<row><entry>0x0051</entry>	<entry>Success</entry>	<entry>GenericOneByteMsg</entry>	<entry>1 byte 'success code'</entry></row>
+					<row><entry>0x0060</entry>	<entry>PING </entry>	<entry>GenericEightByteMsg</entry>	<entry>8 byte time stamp for start time</entry></row>
+					<row><entry>0x0062</entry>	<entry>PONG</entry>	<entry>GenericEightByteMsg</entry>	<entry>8 byte time stamp for start time, dup of the ping value</entry></row>
+					<row><entry>0x0100</entry>	<entry>GS Remote Nodename Set</entry>	<entry>GenericOneStringMsg</entry>	<entry>String is the Nodename</entry></row>
+					<row><entry>0x0150</entry>	<entry>Disconnect Request</entry>	<entry>TypeOnlyMsg</entry>	</row>
+					<row><entry>0x0200</entry>	<entry>New Node on Network</entry>	<entry>GenericOneStringMsg</entry>	<entry>String is the Nodename</entry></row>
+					<row><entry>0x0250</entry>	<entry>Full Nodename List Request</entry>	<entry>Not Implemented Yet</entry></row>
+					<row><entry>0x0255</entry>	<entry>Full Nodename List</entry>	<entry>Not Implemented Yet</entry></row>
+					<row><entry>0x0300</entry>	<entry>New Session Request</entry>	<entry>NetMsg</entry>	<entry>Two strings, username and password</entry></row>
+					<row><entry>0x0305</entry>	<entry>Session Information</entry>	<entry>NetMsg</entry>	<entry>One string, the session UUID</entry></row>
+					<row><entry>0x0400</entry>	<entry>Geometry Request</entry>	<entry>GenericOneStringMsg</entry>	<entry>Has additional custom fields.</entry></row>
+					<row><entry>0x0401</entry>	<entry>BoT Geometry Request</entry>	<entry>GenericOneStringMsg</entry>	<entry>Requests geometry in BoT format, with exactly one BoT per region.</entry></row>
+					<row><entry>0x0402</entry>	<entry>Geometry List Request</entry>	<entry>GenericOneStringMsg</entry>	<entry>Requests a list of geometry artifacts at given location.</entry></row>
+					<row><entry>0x0403</entry>	<entry>Geometry List Results</entry>	<entry>GenericMultiStringMsg</entry>	<entry>Display a list of geometry artifact names.</entry></row>
+					<row><entry>0x0405</entry>	<entry>Geometry Manifest</entry>	<entry>GenericMultiStringMsg</entry>	<entry>List of 'object' names about to be received as chunks. ReUUID is the associated GeometryReqMsg UUID.</entry></row>
+					<row><entry>0x0410</entry>	<entry>Geometry Chunk</entry>	<entry>GenericMultiByteMsg</entry>	<entry>Raw .g information. Chunks can be written to a file to produce a viable V5 .g db. ReUUID is the associated GeometryReqMsg UUID.</entry></row>
+				</tbody>
+			</tgroup>
+		</table>
+	</section>
+</article>

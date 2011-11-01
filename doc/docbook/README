@@ -1,0 +1,35 @@
+This directory holds the DocBook (DB) documentation for Geometry Service. 
+
+The current structure is as follows:
+
+resources/        (from BRL-CAD - see toplevel svn:externals property)
+	The DocBook xsl files are contained within the "standard"
+	subdirectory.  Custom files will be organized under this
+	directory in the future. Also included are various directories
+	and files associated with DB validation, fonts, hyphenation,
+	BRL-CAD common files and images, etc.
+
+specifications/
+        Documents specifying protocols or formats
+
+
+LANGUAGE CONSIDERATIONS
+-----------------------
+
+English documents are in 'en' sub-directories.  Other languages are
+found in standard two-character sub-directories.  See, for example,
+the Spanish translations in 'lessons/es'.  Currently, the following
+language codes may be found in various sub-directories:
+
+  * en - English
+  * es - Spanish
+  * it - Italian
+  * ru - Russian
+
+See <http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes> for one
+listing of ISO language codes.
+
+English DocBook source files are expected to be ASCII with xhtml
+unicode markup for non-ASCII symbols.  Other language source files
+should be in UTF-8.
+

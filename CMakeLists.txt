@@ -23,6 +23,9 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.2)
 IF(COMMAND CMAKE_POLICY)
 	CMAKE_POLICY(SET CMP0003 NEW)
 	CMAKE_POLICY(SET CMP0007 OLD)
+   IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION} VERSION_GREATER 2.8.3)
+      CMAKE_POLICY(SET CMP0017 OLD)
+   ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION} VERSION_GREATER 2.8.3)
 ENDIF(COMMAND CMAKE_POLICY)
 
 PROJECT(GEOMCORE)
@@ -160,10 +163,64 @@ include_directories(
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 
+#---------------------------------------------------------------------
+# Configure install locations.  Don't set these if they have already
+# been set by some other means (like a higher level CMakeLists.txt file
+# including this one.)
+
+# The location in which to install GEOMCORE executables.
+IF(NOT BIN_DIR)
+   SET(BIN_DIR bin)
+ENDIF(NOT BIN_DIR)
+
+# The location in which to install GEOMCORE header files.
+IF(NOT INCLUDE_DIR)
+   SET(INCLUDE_DIR include)
+ENDIF(NOT INCLUDE_DIR)
+
+# The location in which to install GEOMCORE libraries.
+IF(NOT LIB_DIR)
+   IF(NOT WIN32)
+      SET(LIB_DIR lib)
+   ELSE(NOT WIN32)
+      SET(LIB_DIR bin)
+   ENDIF(NOT WIN32)
+ENDIF(NOT LIB_DIR)
+
+# The location in which to install GEOMCORE configuration files.
+IF(NOT CONF_DIR)
+   SET(CONF_DIR etc)
+ENDIF(NOT CONF_DIR)
+
+# The location in which to install CMake scripts for packaging GEOMCORE.
+IF(NOT PACKAGE_DIR)
+   SET(PACKAGE_DIR lib)
+ENDIF(NOT PACKAGE_DIR)
+
+# The location in which to install GEOMCORE data files
+IF(NOT DATA_DIR)
+   SET(DATA_DIR "share/geomcore")
+ENDIF(NOT DATA_DIR)
+
+# The location in which to install GEOMCORE Manual pages
+IF(NOT MAN_DIR)
+   SET(MAN_DIR man)
+ENDIF(NOT MAN_DIR)
+
+# The location in which to install GEOMCORE documentation files
+IF(NOT DOC_DIR)
+   SET(DOC_DIR ${DATA_DIR}/doc)
+ENDIF(NOT DOC_DIR)
+
+
 # Global setup done, on to specific projects
 ADD_SUBDIRECTORY(src)
 
 # Set up Docs
+find_program(XSLTPROC_EXEC xsltproc DOC "path to the xsltproc executable")
+MARK_AS_ADVANCED(XSLTPROC_EXEC)
+include(CMakeDependentOption)
+CMAKE_DEPENDENT_OPTION(GEOMCORE_EXTRADOCS "Build Docbook documentation" ON "XSLTPROC_EXEC" OFF)
 ADD_SUBDIRECTORY(doc)
 
 #Decend into the test tree.
