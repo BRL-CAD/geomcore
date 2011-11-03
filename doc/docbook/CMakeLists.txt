@@ -15,7 +15,6 @@ MACRO(DOCBOOK_TO_HTML targetname_suffix xml_files targetdir)
 	FOREACH(filename ${${xml_files}})
 		STRING(REGEX REPLACE "([0-9a-z_-]*).xml" "\\1" filename_root "${filename}")
 		SET(outfile ${CMAKE_BINARY_DIR}/${DATA_DIR}/${targetdir}/${filename_root}.html)
-		MESSAGE("outfile: ${outfile}")
 		SET(targetname ${filename_root}_${targetname_suffix}_html)
 		ADD_CUSTOM_COMMAND(
 			OUTPUT ${outfile}
