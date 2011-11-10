@@ -12,7 +12,50 @@
 # include <netinet/in.h>
 # include <netdb.h>
 
-#include "bu.h"
+typedef enum {
+    BU_LITTLE_ENDIAN = 1234, /* LSB first: i386, VAX order */
+    BU_BIG_ENDIAN    = 4321, /* MSB first: 68000, IBM, network order */
+    BU_PDP_ENDIAN    = 3412  /* LSB first in word, MSW first in long */
+} bu_endian_t;
+
+inline bu_endian_t
+bu_byteorder()
+{
+    const union bob {
+        unsigned long i;
+        unsigned char c[sizeof(unsigned long)];
+    } b = {1};
+
+/* give run-time test preference to compile-time endian, tested much
+ * faster than stashing in a static.
+ */
+#ifdef WORDS_BIGENDIAN
+    if (b.c[sizeof(unsigned long)-1])
+        return BU_BIG_ENDIAN;
+    if (b.c[0])
+        return BU_LITTLE_ENDIAN;
+#else
+    if (b.c[0])
+        return BU_LITTLE_ENDIAN;
+    if (b.c[sizeof(unsigned long)-1])
+        return BU_BIG_ENDIAN;
+#endif
+    if (b.c[1])
+        return BU_PDP_ENDIAN;
+
+    return (bu_endian_t)0;
+}
+
+
+/* provide for 64-bit network/host conversions using ntohl() */
+#ifndef HAVE_NTOHLL
+#  define ntohll(_val) ((bu_byteorder() == BU_LITTLE_ENDIAN) ?                          \
+                        ((((uint64_t)ntohl((_val))) << 32) + ntohl((_val) >> 32)) : \
+                        (_val)) /* sorry pdp-endian */
+#endif
+#ifndef HAVE_HTONLL
+#  define htonll(_val) ntohll(_val)
+#endif
 
 #define PKG_MAGIC 0x41FE
 #define GSMSG_MAGIC 0x5309
