@@ -32,7 +32,7 @@ main(int argc, char* argv[])
 {
   if (argc < 2)
     {
-      std::cout << "Usage " << argv[0] << " BRLCAD-Database." << std::endl;
+      std::cout << "Usage:" << std::endl << "\t" << argv[0] << " <BRL-CAD Database>" << std::endl;
       return 1;
     }
 
