@@ -1,3 +1,0 @@
-Import('env')
-Test(env, 'threadpool')
-Test(env, 'notifier')
