@@ -20,7 +20,7 @@ main(int argc, const char *argv[])
 	  exit(0);
   }
 
-  BU_GETSTRUCT(repo_info, gvm_info);
+  BU_GET(repo_info, struct gvm_info);
   gvm_info_init(repo_info);
 
   char *repo_path = "./GS_repository";
@@ -70,5 +70,7 @@ main(int argc, const char *argv[])
   /* total time */
   tdiff = (int)difftime(t0,tb);
   printf("total delta: %d sec\n", tdiff);
+
+  BU_PUT(repo_info, struct gvm_info);
 }
 
