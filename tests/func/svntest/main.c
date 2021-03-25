@@ -9,6 +9,7 @@
 #include <apr_hash.h>
 #include <apr_tables.h>
 
+#include "svn_delta.h"
 #include "svn_pools.h"
 #include "svn_path.h"
 #include "svn_fs.h"
@@ -18,10 +19,7 @@
 #include "bu.h"
 #include "vmath.h"
 #include "bn.h"
-#include "dg.h"
-#include "mater.h"
-#include "libtermio.h"
-#include "db.h"
+#include "rt/db5.h"
 #include "raytrace.h"
 #include "ged.h"
 
@@ -117,7 +115,7 @@ int check_obj(apr_pool_t *pool, struct commit_items *update_list, svn_repos_t *r
 	if (altered_geom) {
 		/* add to updated_list */
 		printf("adding: %s\n", obj_name);
-		BU_GETSTRUCT(commit_item, commit_items);
+		BU_GET(commit_item, struct commit_items);
 		commit_item->obj_name = apr_pstrdup(pool, obj_name);
 		commit_item->contents = newcontents;
 		BU_LIST_PUSH(&(update_list->l), &(commit_item->l));
@@ -299,7 +297,7 @@ main(int argc, const char *argv[])
 
 	  /* will need to use an iterpool in here: http://www.opensubscriber.com/message/users@subversion.tigris.org/8428443.html */
 	  struct commit_items *update_list;
-	  BU_GETSTRUCT(update_list, commit_items);
+	  BU_GET(update_list, struct commit_items);
 	  BU_LIST_INIT(&(update_list->l));
 	  for (inc=0; inc < RT_DBNHASH; inc++) {
 		  for (dp = dbip->dbi_Head[inc]; dp != RT_DIR_NULL; dp = dp->d_forw) {
@@ -324,7 +322,7 @@ main(int argc, const char *argv[])
   /* make staging area */
   char *staging_area= "./GS_staging";
   const char *full_staging_area= svn_path_canonicalize(staging_area, pool);
-  if (!bu_file_exists(full_staging_area)){
+  if (!bu_file_exists(full_staging_area, NULL)){
 	  if(mkdir(full_staging_area, (S_IRWXU | S_IRWXG | S_IRWXO))) {
 		  printf("mkdir failed: %s\n", full_staging_area);
 		  exit(EXIT_FAILURE);
@@ -353,7 +351,7 @@ main(int argc, const char *argv[])
   svn_fs_youngest_rev(&revnum, fs, pool);
   svn_fs_revision_root(&repo_root, fs, revnum, pool);
   ainfo.root = repo_root;
-  if (!bu_file_exists(ainfo.model_file)){
+  if (!bu_file_exists(ainfo.model_file, NULL)){
 	  ainfo.wdbp = wdb_fopen(ainfo.model_file);
 	  ainfo.dbip = ainfo.wdbp->dbip;
   } else {

@@ -40,19 +40,8 @@ ADD_SUBDIRECTORY(utility)
 ADD_SUBDIRECTORY(libJob)
 ADD_SUBDIRECTORY(libpkgcpp)
 ADD_SUBDIRECTORY(libEvent)
-IF(BUILD_SVN_TARGETS)
-	GET_DIRECTORY_PROPERTY(APR_INCLUDE_DIR DIRECTORY ../../src/other/subversion DEFINITION APR_INCLUDE_DIR)
-	GET_DIRECTORY_PROPERTY(APU_INCLUDE_DIR DIRECTORY ../../src/other/subversion DEFINITION APU_INCLUDE_DIR)
-	include_directories(
-		${APR_INCLUDE_DIR}
-		${APU_INCLUDE_DIR}
-		${CMAKE_SOURCE_DIR}/src/other/subversion/include
-		${CMAKE_SOURCE_DIR}/src/other/subversion/include/private
-		${CMAKE_BINARY_DIR}/src/other/subversion/include
-		)
-	ADD_SUBDIRECTORY(svntest)
-ENDIF(BUILD_SVN_TARGETS)
 if(TARGET libgvm)
+	ADD_SUBDIRECTORY(svntest)
 	ADD_SUBDIRECTORY(gvmtest)
 endif(TARGET libgvm)
 #ADD_SUBDIRECTORY(coreInterface)
