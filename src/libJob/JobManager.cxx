@@ -21,10 +21,17 @@
 #include "JobManager.h"
 #include "JobWorker.h"
 
+
+#include <chrono>
+#include <thread>
+
 #include <iostream>
 #include <list>
 
 #include <GSThread.h>
+
+// https://stackoverflow.com/a/10613664/2037687
+#define sleep(c) std::this_thread::sleep_for(std::chrono::seconds(c));
 
 //Declares for statics.
 JobManager* JobManager::pInstance = NULL;

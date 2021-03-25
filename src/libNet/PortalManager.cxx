@@ -33,6 +33,7 @@
 #include <string>
 #include <stdio.h>
 #include <errno.h>
+#include <unistd.h> // for close
 
 #include <map>
 

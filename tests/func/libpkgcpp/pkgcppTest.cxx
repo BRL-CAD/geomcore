@@ -22,6 +22,11 @@
  * Brief description
  *
  */
+#include <chrono>
+#include <thread>
+
+// https://stackoverflow.com/a/10613664/2037687
+#define sleep(c) std::this_thread::sleep_for(std::chrono::seconds(c));
 
 #include "bu.h"
 #include "pkg.h"

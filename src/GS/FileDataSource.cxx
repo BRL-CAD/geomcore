@@ -25,7 +25,7 @@
 #include "StringUtils.h"
 #include "BrlcadDb.h"
 
-#include "db.h"
+#include "rt/db5.h"
 #include "raytrace.h"
 
 #include <sys/stat.h>

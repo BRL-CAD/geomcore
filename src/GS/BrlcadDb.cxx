@@ -25,7 +25,7 @@
 #include "StringUtils.h"
 #include "Logger.h"
 
-#include "db.h"
+#include "rt/db5.h"
 #include "raytrace.h"
 
 int BrlcadDb::FS_PATH_NOT_VALID = -1;
@@ -214,14 +214,14 @@ BrlcadDb::_list(const std::string gPath, std::list<std::string>* items)
       itp = rt_tree_array[i].tl_tree;
 
       RT_CK_TREE(itp);
-      BU_ASSERT_LONG(itp->tr_op, ==, OP_DB_LEAF);
-      BU_ASSERT_PTR(itp->tr_l.tl_name, !=, NULL);
+      //BU_ASSERT_LONG(itp->tr_op, ==, OP_DB_LEAF);
+      //BU_ASSERT_PTR(itp->tr_l.tl_name, !=, NULL);
 
       items->push_back(std::string(itp->tr_l.tl_name));
     }
 
   if (rt_tree_array)
-          bu_free((genptr_t) rt_tree_array, "rt_tree_array");
+          bu_free(rt_tree_array, "rt_tree_array");
   db_free_tree(ntp, &rt_uniresource);
 
   rt_db_free_internal(&in);

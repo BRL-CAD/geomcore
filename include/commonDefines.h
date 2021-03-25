@@ -44,6 +44,12 @@
 
 #define ALL_EVENT_PUBLISHERS	0
 
+#include <chrono>
+#include <thread>
+
+// https://stackoverflow.com/a/10613664/2037687
+#define usleep(c) std::this_thread::sleep_for(std::chrono::milliseconds(c));
+
 #endif /* __COMMONDEFINES_H__ */
 
 /*
