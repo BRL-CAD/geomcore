@@ -239,9 +239,10 @@ StringUtils::splitPathAtStep(
 std::string
 StringUtils::basename(const std::string path)
 {
-    char *path_str = (char*)bu_path_basename(NULL, (char *)path.c_str());
+    char *ipath = bu_strdup(path.c_str());
+    char *path_str = (char*)bu_path_basename(ipath, NULL);
     std::string ret = std::string(path_str);
-    bu_free((void*)path_str, "bu_path_basename");
+    bu_free((void*)ipath, "bu_path_basename");
     return ret;
 }
 

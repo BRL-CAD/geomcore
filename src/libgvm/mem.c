@@ -35,7 +35,7 @@ gvm_info_init(struct gvm_info *repo_info) {
     svn_cmdline_init("libgvm", stderr);
 
     /* init repository objects list */
-    BU_GETSTRUCT(repo_info->objects, repository_objects);
+    BU_GET(repo_info->objects, struct repository_objects);
     BU_LIST_INIT(&(repo_info->objects->l));
 
     /* initialize internal subversion memory pools and info */
@@ -70,7 +70,7 @@ gvm_info_free(struct gvm_info *repo_info) {
 
     /* free repository objects list */
     gvm_info_clear_objects(repo_info);
-    bu_free(repo_info->objects, "free repo_info->objects");
+    BU_PUT(repo_info->objects, struct repository_objects);
 
     /* free subversion memory pools and info */
     internal = (struct geomsvn_info *)repo_info->internal;

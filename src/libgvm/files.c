@@ -145,7 +145,7 @@ gvm_export_g_file(struct gvm_info *repo_info, const char *model_name, const char
     if (status != svn_node_dir) {
 	ret = 1;
     } else {
-	if (!bu_file_exists(model_path)){
+	if (!bu_file_exists(model_path, NULL)){
 	    wdbp = wdb_fopen(model_path);
 	    dbip = wdbp->dbip;
 	    if (dbip) {
@@ -219,7 +219,7 @@ gvm_export_object(struct gvm_info *repo_info, const char *model_name, const char
     if (status != svn_node_dir) {
 	ret = 1;
     } else {
-	if (!bu_file_exists(model_path)){
+	if (!bu_file_exists(model_path, NULL)){
 	    wdbp = wdb_fopen(model_path);
 	    dbip = wdbp->dbip;
 	    if (dbip) {
@@ -273,7 +273,7 @@ gvm_commit_g_file(struct gvm_info *repo_info, const char *model_name, const char
     if (status != svn_node_dir) {
 	ret = 1;
     } else {
-	if (bu_file_exists(model_path)){
+	if (bu_file_exists(model_path, NULL)){
 	    dbip = db_open(model_path, "r");
 	    if(dbip == DBI_NULL) {
 		ret = 3;
