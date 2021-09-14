@@ -94,7 +94,9 @@ if(NOT BRLCAD_ROOT)
 
     # If there are multiple installed BRL-CAD versions present,
     # we want the newest
-    list(SORT BRLCAD_HEADERS_DIR_CANDIDATES COMPARE NATURAL ORDER DESCENDING)
+    if (${CMAKE_VERSION} VERSION_GREATER "3.17.99")
+      list(SORT BRLCAD_HEADERS_DIR_CANDIDATES COMPARE NATURAL ORDER DESCENDING)
+    endif (${CMAKE_VERSION} VERSION_GREATER "3.17.99")
 
     # Look for brlcad.h
     foreach(CDIR ${BRLCAD_HEADERS_DIR_CANDIDATES})
