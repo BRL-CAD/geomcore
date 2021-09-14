@@ -229,6 +229,7 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(BRLCAD
   FOUND_VAR BRLCAD_FOUND
   REQUIRED_VARS ${BRLCAD_REQ_LIBS} BRLCAD_INCLUDE_DIR
   VERSION_VAR BRLCAD_VERSION
+  FAIL_MESSAGE "\nBRL-CAD not found.  Try setting BRLCAD_ROOT to the directory containing the bin, include, and lib dirs (for example, -DBRLCAD_ROOT=/usr/brlcad/rel-7.32.4)\n"
   )
 
 if(BRLCAD_FOUND)
