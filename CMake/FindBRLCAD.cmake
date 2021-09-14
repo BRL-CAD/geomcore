@@ -59,6 +59,7 @@ endif (NOT DEFINED BRLCAD_ROOT)
 
 # First, find the install directories.
 if(NOT BRLCAD_ROOT)
+
   # Try looking for BRL-CAD's brlcad-config - it should give us
   # a location for bin, and the parent will be the root dir
   if(NOT BRLCAD_ROOT)
@@ -105,12 +106,8 @@ if(NOT BRLCAD_ROOT)
 	endif(BRLCAD_HEADERS_DIR)
       endif (NOT BRLCAD_ROOT)
     endforeach(CDIR ${BRLCAD_HEADERS_DIR_CANDIDATES})
-
   endif(NOT BRLCAD_ROOT)
 
-  if(NOT BRLCAD_ROOT)
-    message(FATAL_ERROR "\nCould not find BRL-CAD root directory - please set BRLCAD_ROOT in CMake")
-  endif(NOT BRLCAD_ROOT)
 endif(NOT BRLCAD_ROOT)
 
 #Find include directories
