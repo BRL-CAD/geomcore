@@ -248,7 +248,7 @@ if(BRLCAD_FOUND)
       IMPORTED_LOCATION_DEBUG ${BRLCAD_${LIBCORE}_LIBRARY})
     set(libtargets ${libtargets} BRLCAD::${LIBCORE})
   endforeach(brl_lib ${BRL-CAD_LIBS_SEARCH_LIST})
-  add_library(BRLCAD::BRLCAD UNKNOWN IMPORTED)
+  add_library(BRLCAD::BRLCAD INTERFACE IMPORTED)
   set_property(TARGET BRLCAD::BRLCAD PROPERTY
     INTERFACE_LINK_LIBRARIES ${libtargets})
 endif()

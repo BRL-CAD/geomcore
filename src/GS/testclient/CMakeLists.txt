@@ -57,7 +57,7 @@ include_directories(
 
 # And now, to business
 add_executable(gstestclient gstestclient.c)
-target_link_libraries(gstestclient ${BRLCAD_PKG_LIBRARY} ${BRLCAD_BU_LIBRARY} uuid)
+target_link_libraries(gstestclient BRLCAD::BRLCAD uuid)
 
 # Local Variables:
 # tab-width: 8
