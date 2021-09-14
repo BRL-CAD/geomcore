@@ -32,6 +32,7 @@
 #   BRLCAD_ANALYZE_LIBRARY - BRL-CAD Analysis library
 #   BRLCAD_BG_LIBRARY - BRL-CAD Geometry Algorithms library
 #   BRLCAD_BN_LIBRARY - BRL-CAD Numerical library
+#   BRLCAD_BV_LIBRARY - BRL-CAD View management library
 #   BRLCAD_BREP_LIBRARY - BRL-CAD NURBS Brep Algorithms library
 #   BRLCAD_BU_LIBRARY - BRL-CAD Utility library
 #   BRLCAD_DM_LIBRARY - BRL-CAD Display Manager/Framebuffer library
@@ -39,6 +40,7 @@
 #   BRLCAD_GCV_LIBRARY - BRL-CAD Geometry Conversion library
 #   BRLCAD_GED_LIBRARY - BRL-CAD Geometry Editing library
 #   BRLCAD_ICV_LIBRARY - BRL-CAD Image Conversion library
+#   BRLCAD_NMG_LIBRARY - BRL-CAD N-Manifold Generation library
 #   BRLCAD_OPTICAL_LIBRARY - BRL-CAD optical library
 #   BRLCAD_PKG_LIBRARY - BRL-CAD libpkg
 #   BRLCAD_RENDER_LIBRARY - librender
@@ -46,14 +48,8 @@
 #   BRLCAD_TCLCAD_LIBRARY - libtclcad
 #   BRLCAD_WDB_LIBRARY - BRL-CAD Write Database library
 #
-#  Technically these are external but we need the versions
-#  tweaked for BRL-CAD.  If a developer wishes to use the
-#  BRL-CAD altered versions of these libraries to satisfy a
-#  "generic" request for the library, they'll need to assign
-#  the results of these variables to the non-BRL-CAD specific
-#  variables they are using
-#
-#  BRLCAD_OPENNURBS_LIBRARY - openNURBS library
+#   NOTE: customized version needed for BRL-CAD NURBS support
+#   BRLCAD_OPENNURBS_LIBRARY - openNURBS library
 #
 #########################################################################
 
@@ -94,16 +90,22 @@ if(NOT BRLCAD_ROOT)
 	list(APPEND BRLCAD_HEADERS_DIR_CANDIDATES "${CDIR}/include/brlcad")
       endif (IS_DIRECTORY ${CDIR})
     endforeach(CDIR ${CAD_DIRS_LOCAL})
+
+    # If there are multiple installed BRL-CAD versions present,
+    # we want the newest
     list(SORT BRLCAD_HEADERS_DIR_CANDIDATES COMPARE NATURAL ORDER DESCENDING)
+
+    # Look for brlcad.h
     foreach(CDIR ${BRLCAD_HEADERS_DIR_CANDIDATES})
       if (NOT BRLCAD_ROOT)
-	find_path(BRLCAD_HEADERS_DIR NAMES bu.h bn.h rt.h PATHS ${CDIR})
+	find_path(BRLCAD_HEADERS_DIR NAMES brlcad.h PATHS ${CDIR})
 	if(BRLCAD_HEADERS_DIR)
 	  get_filename_component(BRLCAD_INC_DIR ${BRLCAD_HEADERS_DIR} PATH)
 	  get_filename_component(BRLCAD_ROOT ${BRLCAD_INC_DIR} PATH)
 	endif(BRLCAD_HEADERS_DIR)
       endif (NOT BRLCAD_ROOT)
     endforeach(CDIR ${BRLCAD_HEADERS_DIR_CANDIDATES})
+
   endif(NOT BRLCAD_ROOT)
 
   if(NOT BRLCAD_ROOT)
@@ -113,12 +115,11 @@ endif(NOT BRLCAD_ROOT)
 
 #Find include directories
 if(NOT BRLCAD_HEADERS_DIR)
-  find_path(BRLCAD_HEADERS_DIR NAMES bu.h HINTS ${BRLCAD_ROOT} PATH_SUFFIXES include/brlcad)
+  find_path(BRLCAD_HEADERS_DIR NAMES brlcad.h HINTS ${BRLCAD_ROOT} PATH_SUFFIXES include/brlcad)
   get_filename_component(BRLCAD_HEADERS_PARENT_DIR ${BRLCAD_HEADERS_DIR} PATH)
 endif(NOT BRLCAD_HEADERS_DIR)
 find_path(BRLCAD_OPENNURBS_HEADERS_DIR NAMES opennurbs.h HINTS ${BRLCAD_ROOT} PATH_SUFFIXES include/openNURBS include/opennurbs)
-set(BRLCAD_INCLUDE_DIRS ${BRLCAD_HEADERS_PARENT_DIR} ${BRLCAD_HEADERS_DIR} ${BRLCAD_OPENNURBS_HEADERS_DIR})
-set(BRLCAD_INCLUDE_DIRS ${BRLCAD_INCLUDE_DIRS} CACHE STRING "BRL-CAD include directories")
+set(BRLCAD_INCLUDE_DIR ${BRLCAD_HEADERS_PARENT_DIR} ${BRLCAD_HEADERS_DIR} ${BRLCAD_OPENNURBS_HEADERS_DIR})
 
 #Find library directory
 find_path(BRLCAD_LIB_DIR "libbu${CMAKE_SHARED_LIBRARY_SUFFIX}" PATHS ${BRLCAD_ROOT} PATH_SUFFIXES lib libs)
@@ -130,31 +131,56 @@ endif(NOT BRLCAD_BIN_DIR)
 
 #Attempt to get brlcad version.
 if(NOT BRLCAD_CONFIGEXE)
-  find_program(BRLCAD_CONFIGEXE brlcad-config)
+  find_program(BRLCAD_CONFIGEXE brlcad-config PATHS ${BRLCAD_ROOT} PATH_SUFFIXES bin)
 endif(NOT BRLCAD_CONFIGEXE)
 if(BRLCAD_CONFIGEXE)
   execute_process(COMMAND ${BRLCAD_CONFIGEXE} --version OUTPUT_VARIABLE BRLCAD_VERSION)
   string(STRIP ${BRLCAD_VERSION} BRLCAD_VERSION)
   if(BRLCAD_VERSION)
-    string(REGEX REPLACE "([0-9]+)\\.[0-9]+\\.[0-9]+" "\\1" BRLCAD_MAJOR_VERSION "${BRLCAD_VERSION}")
-    string(REGEX REPLACE "[0-9]+\\.([0-9]+)\\.[0-9]+" "\\1" BRLCAD_MINOR_VERSION "${BRLCAD_VERSION}")
-    string(REGEX REPLACE "[0-9]+\\.[0-9]+\\.([0-9]+)" "\\1" BRLCAD_PATCH_VERSION "${BRLCAD_VERSION}")
-    set(BRLCAD_VERSION_FOUND TRUE)
-  elseif(BRLCAD_VERSION)
-    message(STATUS "\t\t'brlcad-config --version' was found and executed, but produced no output.")
-    set(BRLCAD_VERSION_FOUND FALSE)
+    string(REGEX REPLACE "([0-9]+)\\.[0-9]+\\.[0-9]+" "\\1" BRLCAD_VERSION_MAJOR "${BRLCAD_VERSION}")
+    string(REGEX REPLACE "[0-9]+\\.([0-9]+)\\.[0-9]+" "\\1" BRLCAD_VERSION_MINOR "${BRLCAD_VERSION}")
+    string(REGEX REPLACE "[0-9]+\\.[0-9]+\\.([0-9]+)" "\\1" BRLCAD_VERSION_PATCH "${BRLCAD_VERSION}")
   endif(BRLCAD_VERSION)
-else(BRLCAD_CONFIGEXE)
-  message(STATUS "Could not locate 'brlcad-config' - no BRL-CAD version available")
-  set(BRLCAD_VERSION_FOUND FALSE)
 endif(BRLCAD_CONFIGEXE)
+if(NOT BRLCAD_VERSION AND BRLCAD_HEADERS_DIR)
+   # If we don't have a working brlcad-config, we can try reading the info
+   # directly from brlcad_version.h
+   if (EXISTS "${BRLCAD_HEADERS_DIR}/brlcad_version.h")
+     file(STRINGS "${BRLCAD_HEADERS_DIR}/brlcad_version.h" VINFO)
+     foreach(vline ${VINFO})
+       if ("${vline}" MATCHES "define BRLCAD_VERSION_MAJOR [0-9]+")
+	 string(REGEX REPLACE ".*define BRLCAD_VERSION_MAJOR " "" BRLCAD_VERSION_MAJOR ${vline})
+	 string(STRIP ${BRLCAD_VERSION_MAJOR} BRLCAD_VERSION_MAJOR)
+       endif ("${vline}" MATCHES "define BRLCAD_VERSION_MAJOR [0-9]+")
+       if ("${vline}" MATCHES "define BRLCAD_VERSION_MINOR [0-9]+")
+	 string(REGEX REPLACE ".*define BRLCAD_VERSION_MINOR " "" BRLCAD_VERSION_MINOR ${vline})
+	 string(STRIP ${BRLCAD_VERSION_MINOR} BRLCAD_VERSION_MINOR)
+       endif ("${vline}" MATCHES "define BRLCAD_VERSION_MINOR [0-9]+")
+       if ("${vline}" MATCHES "define BRLCAD_VERSION_PATCH [0-9]+")
+	 string(REGEX REPLACE ".*define BRLCAD_VERSION_PATCH " "" BRLCAD_VERSION_PATCH ${vline})
+	 string(STRIP ${BRLCAD_VERSION_PATCH} BRLCAD_VERSION_PATCH)
+       endif ("${vline}" MATCHES "define BRLCAD_VERSION_PATCH [0-9]+")
+     endforeach(vline ${VINFO})
+     set(BRLCAD_VERSION "${BRLCAD_VERSION_MAJOR}.${BRLCAD_VERSION_MINOR}.${BRLCAD_VERSION_PATCH}")
+   endif (EXISTS "${BRLCAD_HEADERS_DIR}/brlcad_version.h")
+endif(NOT BRLCAD_VERSION AND BRLCAD_HEADERS_DIR)
+if(NOT BRLCAD_VERSION)
+  set(BRLCAD_VERSION_FOUND FALSE)
+else(NOT BRLCAD_VERSION)
+  set(BRLCAD_VERSION_MAJOR ${BRLCAD_VERSION_MAJOR} CACHE STRING "BRL-CAD major version")
+  set(BRLCAD_VERSION_MINOR ${BRLCAD_VERSION_MINOR} CACHE STRING "BRL-CAD minor version")
+  set(BRLCAD_VERSION_PATCH ${BRLCAD_VERSION_PATCH} CACHE STRING "BRL-CAD patch version")
+  set(BRLCAD_VERSION ${BRLCAD_VERSION} CACHE STRING "BRL-CAD version")
+  set(BRLCAD_VERSION_FOUND TRUE)
+endif(NOT BRLCAD_VERSION)
 
 ##########################################################################
-# First, search for BRL-CAD's own libraries
+# Search for BRL-CAD's own libraries
 set(BRL-CAD_LIBS_SEARCH_LIST
   analyze
   bg
   bn
+  bv
   brep
   bu
   dm
@@ -171,9 +197,11 @@ set(BRL-CAD_LIBS_SEARCH_LIST
   wdb
   )
 
+set(BRLCAD_REQ_LIBS)
 foreach(brl_lib ${BRL-CAD_LIBS_SEARCH_LIST})
   string(TOUPPER ${brl_lib} LIBCORE)
   find_library(BRLCAD_${LIBCORE}_LIBRARY NAMES ${brl_lib} lib${brl_lib} PATHS ${BRLCAD_LIB_DIR} NO_SYSTEM_PATH)
+  set(BRLCAD_REQ_LIBS ${BRLCAD_REQ_LIBS} BRLCAD_${LIBCORE}_LIBRARY)
   if(BRLCAD_${LIBCORE}_LIBRARY)
     set(BRLCAD_LIBRARIES ${BRLCAD_LIBRARIES} ${BRLCAD_${LIBCORE}_LIBRARY})
   else(BRLCAD_${LIBCORE}_LIBRARY)
@@ -191,6 +219,7 @@ set(BRL-CAD_SRC_OTHER_REQUIRED
 foreach(ext_lib ${BRL-CAD_LIBS_SEARCH_LIST})
   string(TOUPPER ${ext_lib} LIBCORE)
   find_library(BRLCAD_${LIBCORE}_LIBRARY NAMES ${ext_lib} lib${ext_lib} PATHS ${BRLCAD_LIB_DIR} NO_SYSTEM_PATH)
+  set(BRLCAD_REQ_LIBS ${BRLCAD_REQ_LIBS} BRLCAD_${LIBCORE}_LIBRARY)
   if(BRLCAD_${LIBCORE}_LIBRARY)
     set(BRLCAD_LIBRARIES ${BRLCAD_LIBRARIES} ${BRLCAD_${LIBCORE}_LIBRARY})
   else(BRLCAD_${LIBCORE}_LIBRARY)
@@ -198,16 +227,32 @@ foreach(ext_lib ${BRL-CAD_LIBS_SEARCH_LIST})
   endif(BRLCAD_${LIBCORE}_LIBRARY)
 endforeach(ext_lib ${BRL-CAD_LIBS_SEARCH_LIST})
 
-##########################################################################
-#Print status
-if(BRLCAD_VERSION)
-  message(STATUS "Found BRL-CAD ${BRLCAD_VERSION} at ${BRLCAD_ROOT}")
-else(BRLCAD_VERSION)
-  message(STATUS "Found BRL-CAD at ${BRLCAD_ROOT}")
-endif(BRLCAD_VERSION)
+include(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(BRLCAD
+  FOUND_VAR BRLCAD_FOUND
+  REQUIRED_VARS ${BRLCAD_REQ_LIBS} BRLCAD_INCLUDE_DIR
+  VERSION_VAR BRLCAD_VERSION
+  )
 
-#Set found flag - TODO: this is wrong, need to set this based on variables
-set(BRLCAD_FOUND TRUE)
+if(BRLCAD_FOUND)
+  set(BRLCAD_INCLUDE_DIRS ${BRLCAD_INCLUDE_DIR} CACHE STRING "BRL-CAD include directories")
+  set(BRLCAD_LIBRARIES ${BRLCAD_LIBRARIES} CACHE STRING "BRL-CAD libraries")
+  # https://stackoverflow.com/a/48397346/2037687
+  set(libtargets)
+  foreach(brl_lib ${BRL-CAD_LIBS_SEARCH_LIST})
+    string(TOUPPER ${brl_lib} LIBCORE)
+    add_library(BRLCAD::${LIBCORE} UNKNOWN IMPORTED)
+    set_target_properties(BRLCAD::${LIBCORE} PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${BRLCAD_INCLUDE_DIR}"
+      IMPORTED_LOCATION ${BRLCAD_${LIBCORE}_LIBRARY}
+      IMPORTED_LOCATION_DEBUG ${BRLCAD_${LIBCORE}_LIBRARY})
+    set(libtargets ${libtargets} BRLCAD::${LIBCORE})
+  endforeach(brl_lib ${BRL-CAD_LIBS_SEARCH_LIST})
+  add_library(BRLCAD::BRLCAD UNKNOWN IMPORTED)
+  set_property(TARGET BRLCAD::BRLCAD PROPERTY
+    INTERFACE_LINK_LIBRARIES ${libtargets})
+endif()
+
 
 # Local Variables:
 # tab-width: 8
