@@ -261,9 +261,11 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(BRLCAD
 if(BRLCAD_FOUND)
   set(BRLCAD_INCLUDE_DIRS ${BRLCAD_INCLUDE_DIR} CACHE STRING "BRL-CAD include directories")
   set(BRLCAD_LIBRARIES ${BRLCAD_LIBRARIES} CACHE STRING "BRL-CAD libraries")
+  # Set up a "modern" CMake target to make it easer for
+  # client codes to reference the BRL-CAD libs.  See
   # https://stackoverflow.com/a/48397346/2037687
   set(libtargets)
-  foreach(brl_lib ${BRL-CAD_LIBS_SEARCH_LIST})
+  foreach(brl_lib ${BRLCAD_REQ_LIB_NAMES})
     string(TOUPPER ${brl_lib} LIBCORE)
     add_library(BRLCAD::${LIBCORE} UNKNOWN IMPORTED)
     set_target_properties(BRLCAD::${LIBCORE} PROPERTIES
@@ -272,6 +274,19 @@ if(BRLCAD_FOUND)
       IMPORTED_LOCATION_DEBUG ${BRLCAD_${LIBCORE}_LIBRARY})
     set(libtargets ${libtargets} BRLCAD::${LIBCORE})
   endforeach(brl_lib ${BRL-CAD_LIBS_SEARCH_LIST})
+  # For the optional libs, add them IFF they are present
+  foreach(brl_lib ${BRLCAD_OPT_LIB_NAMES})
+    string(TOUPPER ${brl_lib} LIBCORE)
+    if (BRLCAD_${LIBCORE}_LIBRARY)
+      add_library(BRLCAD::${LIBCORE} UNKNOWN IMPORTED)
+      set_target_properties(BRLCAD::${LIBCORE} PROPERTIES
+	INTERFACE_INCLUDE_DIRECTORIES "${BRLCAD_INCLUDE_DIR}"
+	IMPORTED_LOCATION ${BRLCAD_${LIBCORE}_LIBRARY}
+	IMPORTED_LOCATION_DEBUG ${BRLCAD_${LIBCORE}_LIBRARY})
+      set(libtargets ${libtargets} BRLCAD::${LIBCORE})
+    endif (BRLCAD_${LIBCORE}_LIBRARY)
+  endforeach(brl_lib ${BRLCAD_OPT_LIB_NAMES})
+  # Overall "kitchen sink" target
   add_library(BRLCAD::BRLCAD INTERFACE IMPORTED)
   set_property(TARGET BRLCAD::BRLCAD PROPERTY
     INTERFACE_LINK_LIBRARIES ${libtargets})
