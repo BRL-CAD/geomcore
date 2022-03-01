@@ -43,6 +43,7 @@
 #   BRLCAD_NMG_LIBRARY - BRL-CAD N-Manifold Generation library
 #   BRLCAD_OPTICAL_LIBRARY - BRL-CAD optical library
 #   BRLCAD_PKG_LIBRARY - BRL-CAD libpkg
+#   BRLCAD_QTCAD_LIBRARY - BRL-CAD libqtcad (currently optional)
 #   BRLCAD_RENDER_LIBRARY - librender
 #   BRLCAD_RT_LIBRARY - BRL-CAD Raytracing library
 #   BRLCAD_TCLCAD_LIBRARY - libtclcad
@@ -121,7 +122,13 @@ find_path(BRLCAD_OPENNURBS_HEADERS_DIR NAMES opennurbs.h HINTS ${BRLCAD_ROOT} PA
 set(BRLCAD_INCLUDE_DIR ${BRLCAD_HEADERS_PARENT_DIR} ${BRLCAD_HEADERS_DIR} ${BRLCAD_OPENNURBS_HEADERS_DIR})
 
 #Find library directory
-find_path(BRLCAD_LIB_DIR "libbu${CMAKE_SHARED_LIBRARY_SUFFIX}" PATHS ${BRLCAD_ROOT} PATH_SUFFIXES lib libs)
+if (WIN32)
+  # Windows is a rather odd special case - it's shared library suffix is "dll",
+  # but what we want for this purpose is the "lib" files
+  find_path(BRLCAD_LIB_DIR "libbu.lib" PATHS ${BRLCAD_ROOT} PATH_SUFFIXES lib libs)
+else (WIN32)
+  find_path(BRLCAD_LIB_DIR "libbu${CMAKE_SHARED_LIBRARY_SUFFIX}" PATHS ${BRLCAD_ROOT} PATH_SUFFIXES lib libs)
+endif (WIN32)
 
 #Find binary directory
 if(NOT BRLCAD_BIN_DIR)
@@ -134,12 +141,16 @@ if(NOT BRLCAD_CONFIGEXE)
 endif(NOT BRLCAD_CONFIGEXE)
 if(BRLCAD_CONFIGEXE)
   execute_process(COMMAND ${BRLCAD_CONFIGEXE} --version OUTPUT_VARIABLE BRLCAD_VERSION)
-  string(STRIP ${BRLCAD_VERSION} BRLCAD_VERSION)
-  if(BRLCAD_VERSION)
-    string(REGEX REPLACE "([0-9]+)\\.[0-9]+\\.[0-9]+" "\\1" BRLCAD_VERSION_MAJOR "${BRLCAD_VERSION}")
-    string(REGEX REPLACE "[0-9]+\\.([0-9]+)\\.[0-9]+" "\\1" BRLCAD_VERSION_MINOR "${BRLCAD_VERSION}")
-    string(REGEX REPLACE "[0-9]+\\.[0-9]+\\.([0-9]+)" "\\1" BRLCAD_VERSION_PATCH "${BRLCAD_VERSION}")
-  endif(BRLCAD_VERSION)
+  # Don't try to strip if BRLCAD_VERSION is empty - CMake doesn't like it and will
+  # return an error.
+  if (NOT "${BRLCAD_VERSION}" STREQUAL "")
+    string(STRIP ${BRLCAD_VERSION} BRLCAD_VERSION)
+    if(BRLCAD_VERSION)
+      string(REGEX REPLACE "([0-9]+)\\.[0-9]+\\.[0-9]+" "\\1" BRLCAD_VERSION_MAJOR "${BRLCAD_VERSION}")
+      string(REGEX REPLACE "[0-9]+\\.([0-9]+)\\.[0-9]+" "\\1" BRLCAD_VERSION_MINOR "${BRLCAD_VERSION}")
+      string(REGEX REPLACE "[0-9]+\\.[0-9]+\\.([0-9]+)" "\\1" BRLCAD_VERSION_PATCH "${BRLCAD_VERSION}")
+    endif(BRLCAD_VERSION)
+  endif (NOT "${BRLCAD_VERSION}" STREQUAL "")
 endif(BRLCAD_CONFIGEXE)
 if(NOT BRLCAD_VERSION AND BRLCAD_HEADERS_DIR)
    # If we don't have a working brlcad-config, we can try reading the info
@@ -175,7 +186,7 @@ endif(NOT BRLCAD_VERSION)
 
 ##########################################################################
 # Search for BRL-CAD's own libraries
-set(BRL-CAD_LIBS_SEARCH_LIST
+set(BRLCAD_REQ_LIB_NAMES
   analyze
   bg
   bn
@@ -192,12 +203,11 @@ set(BRL-CAD_LIBS_SEARCH_LIST
   pkg
   render
   rt
-  tclcad
   wdb
   )
 
-set(BRLCAD_REQ_LIBS)
-foreach(brl_lib ${BRL-CAD_LIBS_SEARCH_LIST})
+SET(BRLCAD_REQ_LIBS)
+foreach(brl_lib ${BRLCAD_REQ_LIB_NAMES})
   string(TOUPPER ${brl_lib} LIBCORE)
   find_library(BRLCAD_${LIBCORE}_LIBRARY NAMES ${brl_lib} lib${brl_lib} PATHS ${BRLCAD_LIB_DIR} NO_SYSTEM_PATH)
   set(BRLCAD_REQ_LIBS ${BRLCAD_REQ_LIBS} BRLCAD_${LIBCORE}_LIBRARY)
@@ -206,7 +216,21 @@ foreach(brl_lib ${BRL-CAD_LIBS_SEARCH_LIST})
   else(BRLCAD_${LIBCORE}_LIBRARY)
     set(BRLCAD_LIBRARIES_NOTFOUND ${BRLCAD_LIBRARIES_NOTFOUND} ${brl_lib})
   endif(BRLCAD_${LIBCORE}_LIBRARY)
-endforeach(brl_lib ${BRL-CAD_LIBS_SEARCH_LIST})
+endforeach(brl_lib ${BRLCAD_REQ_LIB_NAMES})
+
+# Optional libraries - we will still return a successful
+# search if these aren't here
+set(BRLCAD_OPT_LIB_NAMES
+  tclcad
+  qtcad
+  )
+foreach(brl_lib ${BRLCAD_OPT_LIB_NAMES})
+  string(TOUPPER ${brl_lib} LIBCORE)
+  find_library(BRLCAD_${LIBCORE}_LIBRARY NAMES ${brl_lib} lib${brl_lib} PATHS ${BRLCAD_LIB_DIR} NO_SYSTEM_PATH)
+  if(BRLCAD_${LIBCORE}_LIBRARY)
+    set(BRLCAD_LIBRARIES ${BRLCAD_LIBRARIES} ${BRLCAD_${LIBCORE}_LIBRARY})
+  endif(BRLCAD_${LIBCORE}_LIBRARY)
+endforeach(brl_lib ${BRLCAD_OPT_LIB_NAMES})
 
 # Then, look for customized src/other libraries that we need
 # local versions of
